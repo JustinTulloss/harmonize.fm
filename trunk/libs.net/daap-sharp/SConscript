@@ -1,0 +1,14 @@
+import os
+
+Import('*')
+sources = all('cs', 'snk')
+
+refs = [
+    'System', 
+    'System.Web', 
+    'avahi-sharp.dll', 
+    'ICSharpCode.SharpZipLib.dll'
+]
+
+r = net.CLIRefs(refpaths, refs)
+lib = net.CLILibrary('daap-sharp', sources, ASSEMBLYREFS=r)

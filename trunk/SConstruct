@@ -1,0 +1,41 @@
+# The top-level build file for our project
+
+# Additional python modules
+import os, re
+
+# A couple of functions that return all the files in a a directory
+# that match the  list of extensions passed to it. 
+# Can be called from sconscript files.
+def ext_search(fname, *extensions):
+    fnd = None 
+    for ext in extensions:
+	    #Searches for .<ext> at the end of the filname
+        fnd = fnd or re.search('\.'+ext+'$', fname)
+    return fnd
+
+def all(*ext):
+    return filter(lambda fname: ext_search(fname, *ext), os.listdir('.'))
+
+# Set up our base environment (what applies to all builds)
+platform = ARGUMENTS.get('OS', Platform())
+net = Environment(
+    tools=['default', 'CLIBuilder'], 
+    toolpath=[os.getcwd()+'/build'],
+    PLATFORM = platform
+)
+
+#distinguish the builds as necessary
+print type(platform)
+net['CSC'] = 'gmcs'
+net['SHLIBSUFFIX'] = '.dll'
+
+#Put all reference paths where new dlls may be found here.
+refpaths=[os.getcwd()+'/libs.compiled']
+
+#Create two different targets for linux and windows
+
+Export('net', 'all', 'refpaths')
+
+#For hierarchical build
+net.SConscript([
+            'libs.net/ErrorHandling/SConscript'])
