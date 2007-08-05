@@ -6,7 +6,9 @@ sources = all('cs', 'snk')
 refs = [
     'System', 
     'System.Web', 
+    'System.Data',
     'avahi-sharp.dll', 
+    'xmlrpc.dll',
     'ICSharpCode.SharpZipLib.dll'
 ]
 

@@ -25,9 +25,8 @@ net = Environment(
 )
 
 #distinguish the builds as necessary
-print type(platform)
-net['CSC'] = 'gmcs'
-net['SHLIBSUFFIX'] = '.dll'
+#net['CSC'] = 'gmcs'
+#net['SHLIBSUFFIX'] = '.dll'
 
 #Put all reference paths where new dlls may be found here.
 refpaths=[os.getcwd()+'/libs.compiled']
@@ -38,4 +37,6 @@ Export('net', 'all', 'refpaths')
 
 #For hierarchical build
 net.SConscript([
-            'libs.net/ErrorHandling/SConscript'])
+            'libs.net/ErrorHandling/SConscript',
+            'libs.net/xmlrpc/SConscript',
+            'libs.net/daap-sharp/SConscript'])

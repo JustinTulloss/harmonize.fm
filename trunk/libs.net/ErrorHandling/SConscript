@@ -1,7 +1,6 @@
 import os
 
 Import('*')
-BuildDir(buildpath, '.')
 sources = all('cs')
 
 lib = net.CLILibrary('ErrorHandling', sources, ASSEMBLYREFS=[])
