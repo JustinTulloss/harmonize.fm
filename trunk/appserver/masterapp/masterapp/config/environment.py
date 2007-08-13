@@ -1,7 +1,10 @@
 import os
+import sys
 
 import pylons.config
 import webhelpers
+
+import threading
 
 from masterapp.config.routing import make_map
 
@@ -13,8 +16,10 @@ def load_environment(global_conf={}, app_conf={}):
              'controllers': os.path.join(root_path, 'controllers'),
              'templates': [os.path.join(root_path, path) for path in \
                            ('components', 'templates')],
-             'static_files': os.path.join(root_path, 'public')
+             'static_files': os.path.join(root_path, 'public'),
              }
+    sys.path.insert(0,os.path.join(root_path, '..', '..','..', 'libs.py'))
+    from fprocessor.fprocessor import FileUploadThread
     
     # The following template options are passed to your template engines
     tmpl_options = {}
@@ -23,6 +28,10 @@ def load_environment(global_conf={}, app_conf={}):
     
     # Add your own template options config options here, note that all config options will override
     # any Pylons config options
+
+    #Starting extra processing threads here
+    fuploader = FileUploadThread()
+
     
     # Return our loaded config object
     return pylons.config.Config(tmpl_options, map, paths)

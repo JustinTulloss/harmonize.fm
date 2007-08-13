@@ -1,3 +1,4 @@
+from Queue import Queue
 class Globals(object):
 
     def __init__(self, global_conf, app_conf, **extra):
@@ -25,7 +26,8 @@ class Globals(object):
             your global variables.
             
         """
-        pass
+        #Queue for new incoming files
+        self.file_queue = Queue()
         
     def __del__(self):
         """
