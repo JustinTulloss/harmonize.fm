@@ -3,15 +3,15 @@
 
 from paste.deploy import CONFIG
 import sha, os
-from fbaseaction import FBaseAction
+from baseaction import BaseAction
 from shutil import move
 
 READCHUNK = 1024 #1 kb at a time, don't want to stall the system
 
-class FMover(FBaseAction):
+class Mover(BaseAction):
     
     def __init__(self):
-        super(FMover, self).__init__()
+        super(Mover, self).__init__()
         self.to = CONFIG['app_conf']['media_dir']
         self.frm = CONFIG['app_conf']['upload_dir']
     

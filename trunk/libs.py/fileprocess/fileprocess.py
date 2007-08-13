@@ -4,7 +4,7 @@ import threading
 from Queue import Queue, Empty
 
 #The different handlers, eventually to be done elsewhere?
-from factions.fmover import FMover
+from actions.mover import Mover
 
 file_queue = Queue()
 
@@ -26,7 +26,7 @@ class FileUploadThread(object):
         self._endqueue = Queue()
         self.running = 1
         #TODO: Move this class initialization to some config file?
-        self.handlers.insert(0, FMover())
+        self.handlers.insert(0, Mover())
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):

@@ -4,7 +4,7 @@
 from Queue import *
 import threading
 
-class FBaseAction(object):
+class BaseAction(object):
     def __init__(self):
         self.queue = Queue()
         self.nextqueue = None

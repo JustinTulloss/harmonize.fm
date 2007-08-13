@@ -3,7 +3,7 @@ from masterapp.lib.base import *
 import os,sys,shutil
 
 import guid
-from fprocessor.fprocessor import file_queue
+from fileprocess.fileprocess import file_queue
 
 SUCCESS = "Great work kiddos!"
 

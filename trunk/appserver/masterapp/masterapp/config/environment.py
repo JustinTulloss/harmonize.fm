@@ -19,7 +19,7 @@ def load_environment(global_conf={}, app_conf={}):
              'static_files': os.path.join(root_path, 'public'),
              }
     sys.path.insert(0,os.path.join(root_path, '..', '..','..', 'libs.py'))
-    from fprocessor.fprocessor import FileUploadThread
+    from fileprocess.fileprocess import FileUploadThread
     
     # The following template options are passed to your template engines
     tmpl_options = {}
