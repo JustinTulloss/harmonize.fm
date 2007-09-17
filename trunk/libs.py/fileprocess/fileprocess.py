@@ -5,14 +5,15 @@ from Queue import Queue, Empty
 
 #The different handlers, eventually to be done elsewhere?
 from actions.mover import Mover
+from actions.taggetter import TagGetter
+from actions.dbrecorder import DBRecorder
 
 file_queue = Queue()
 
-from Queue import Queue
 class FileUploadThread(object):
     """
     A thread that processes files that have been uploaded.
-    It doesn't reall do anything except wait for things to go into the Queue.
+    It doesn't really do anything except wait for things to go into the Queue.
     Once it discovers something in the queue, it goes down a list of functions
     that are registered to be notifified of new files being uploaded. 
     Once they are done, they callback into this thread and it will push the 
@@ -26,7 +27,9 @@ class FileUploadThread(object):
         self._endqueue = Queue()
         self.running = 1
         #TODO: Move this class initialization to some config file?
-        self.handlers.insert(0, Mover())
+        self.handlers.append(Mover())
+        self.handlers.append(TagGetter())
+        self.handlers.append(DBRecorder())
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):
@@ -41,5 +44,6 @@ class FileUploadThread(object):
     def __call__(self):
         while(self.running):
             newfile = file_queue.get()
-            self.handlers[0].queue.put(newfile)
+            filedict = dict(fname=newfile)
+            self.handlers[0].queue.put(filedict)
 

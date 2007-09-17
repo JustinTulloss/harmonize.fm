@@ -1,37 +1,46 @@
+"""Pylons environment configuration"""
 import os
 import sys
 
-import pylons.config
-import webhelpers
+from pylons import config
 
-import threading
-
+import masterapp.lib.app_globals as app_globals
+import masterapp.lib.helpers
 from masterapp.config.routing import make_map
 
-def load_environment(global_conf={}, app_conf={}):
-    map = make_map(global_conf, app_conf)
-    # Setup our paths
-    root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    paths = {'root_path': root_path,
-             'controllers': os.path.join(root_path, 'controllers'),
-             'templates': [os.path.join(root_path, path) for path in \
-                           ('components', 'templates')],
-             'static_files': os.path.join(root_path, 'public'),
-             }
-    sys.path.insert(0,os.path.join(root_path, '..', '..','..', 'libs.py'))
+from sqlalchemy import engine_from_config
+
+def load_environment(global_conf, app_conf):
+    """Configure the Pylons environment via the ``pylons.config``
+    object
+    """
+    # Pylons paths
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    paths = dict(root=root,
+                 controllers=os.path.join(root, 'controllers'),
+                 static_files=os.path.join(root, 'public'),
+                 templates=[os.path.join(root, 'templates')])
+
+    sys.path.insert(0,os.path.join(root, '..', '..','..', 'libs.py'))
     from fileprocess.fileprocess import FileUploadThread
-    
-    # The following template options are passed to your template engines
-    tmpl_options = {}
-    tmpl_options['myghty.log_errors'] = True
-    tmpl_options['myghty.escapes'] = dict(l=webhelpers.auto_link, s=webhelpers.simple_format)
-    
-    # Add your own template options config options here, note that all config options will override
-    # any Pylons config options
+
+    # Initialize config with the basic options
+    config.init_app(global_conf, app_conf, package='masterapp',
+                    template_engine='mako', paths=paths)
+
+    config['routes.map'] = make_map()
+    config['pylons.g'] = app_globals.Globals()
+    config['pylons.h'] = masterapp.lib.helpers
+
+    # Customize templating options via this variable
+    tmpl_options = config['buffet.template_options']
+    tmpl_options['mako.input_encoding'] = 'UTF-8'
+    tmpl_options['mako.output_encoding'] = 'UTF-8'
+    tmpl_options['mako.default_filters'] = ['decode.utf8']
 
     #Starting extra processing threads here
     fuploader = FileUploadThread()
-
-    
-    # Return our loaded config object
-    return pylons.config.Config(tmpl_options, map, paths)
+ 
+    # CONFIGURATION OPTIONS HERE (note: all config options will override
+    # any Pylons config options)
+    config['pylons.g'].sa_engine = engine_from_config(config, 'sqlalchemy.default.')

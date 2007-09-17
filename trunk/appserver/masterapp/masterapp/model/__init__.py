@@ -1,4 +1,4 @@
-from paste.deploy import CONFIG
+from pylons import config
 from sqlalchemy import Column, MetaData, Table, types
 from sqlalchemy.orm import mapper, relation
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -6,7 +6,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 Session = scoped_session(sessionmaker(
                         autoflush=True,
                         transactional=True, 
-                        bind=CONFIG['pylons.g'].sa_engine))
+                        bind=config['pylons.g'].sa_engine))
 
 metadata = MetaData()
 
@@ -16,7 +16,8 @@ music_table = Table("music", metadata,
     Column("title", types.String),
     Column("artist", types.String),
     Column("album", types.String),
-    Column("track_num", types.Integer),
+    Column("genre", types.String),
+    Column("tracknumber", types.Integer),
     Column("total_tracks", types.Integer),
 )
 

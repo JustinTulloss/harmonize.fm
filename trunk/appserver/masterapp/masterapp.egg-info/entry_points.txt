@@ -1,6 +1,7 @@
 
     [paste.app_factory]
-    main=masterapp:make_app
+    main = masterapp.config.middleware:make_app
+
     [paste.app_install]
-    main=pylons.util:PylonsInstaller
+    main = pylons.util:PylonsInstaller
     
