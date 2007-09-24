@@ -29,14 +29,19 @@ class Mover(BaseAction):
             s.update(readstring)
             readbytes = len(readstring)
 
-        self.to = os.path.join(self.to, s.hexdigest())
+        file["new"]=True
+        file["sha"]= s.hexdigest()
+        self.to = os.path.join(self.to, file["sha"])
         if not os.path.isabs(f.name):
             self.frm = os.path.join(self.frm, file.name)
         else:
             self.frm = f.name
-        try:
-            move(self.frm, self.to)
-        except IOError:
+
+        if (os.path.exists(self.to)):
             os.remove(self.frm) #the file already exists
+            file["new"] = False
+        else:
+            move(self.frm, self.to)
+
         file["fname"] = self.to
         return file

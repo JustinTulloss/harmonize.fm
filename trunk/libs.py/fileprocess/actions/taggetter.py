@@ -9,9 +9,14 @@ class TagGetter(BaseAction):
     """
     def process(self, file):
         """This is rediculously easy with easyid3"""
+        if file["new"] == False:
+            return file
+
         audio = EasyID3(file["fname"])
+        comma = ','
         file.update(audio)
-        comma = ', '
-        for k in file.keys():
+        #EasyID3 pulls every tag out as a list, which is kind of annoying.
+        #I join the lists here for ease of processing later.
+        for k in audio.keys():
             file[k] = comma.join(file[k])
         return file
