@@ -4,7 +4,7 @@
      <title>Rubicon Web Player</title>
 </%def>
 
-Welcome!
+Welcome! This is gonna be a kick ass player.
 
 <div id="queue"></div>
 <div id="browser"></div>
