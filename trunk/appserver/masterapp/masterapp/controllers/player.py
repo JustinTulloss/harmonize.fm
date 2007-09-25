@@ -6,3 +6,4 @@ class PlayerController(BaseController):
         #   return render_response('/some/template.html')
         # or, Return a response object
         return render('/player.mako')
+		
