@@ -14,7 +14,6 @@ class PostfileController(BaseController):
         f = open(fname,'wb')
         shutil.copyfileobj(request.POST['file'].file, f)
         f.close()
-        f = open(fname, 'rb')
         file_queue.put(fname)
         # Return a rendered template
         #   return render_response('/some/template.html')

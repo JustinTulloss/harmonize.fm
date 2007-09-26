@@ -5,5 +5,6 @@ class PlayerController(BaseController):
         # Return a rendered template
         #   return render_response('/some/template.html')
         # or, Return a response object
+        c.noun = "puppies"
         return render('/player.mako')
 		
