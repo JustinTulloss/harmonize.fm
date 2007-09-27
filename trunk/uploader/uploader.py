@@ -3,7 +3,7 @@ from urllib2 import Request, urlopen
 import mimetools, mimetypes
 
 import sys
-sys.path.insert(0,'../libs.py/')
+sys.path.insert(0,'..'+os.sep+'libs.py')
 import guid
 
 DEFAULT_URL = "http://localhost:2985/postfile"
