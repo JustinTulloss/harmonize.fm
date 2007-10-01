@@ -2,10 +2,11 @@
 
 <%def name="head_tags()">
      <title>Rubicon Web Player</title>
+    ${h.stylesheet_link_tag('player')}
 </%def>
 
 <%def name="tag_table(columns,tagdata)">
-    <table>
+    <table width="100%">
         <tr>
         % for head in columns:
             <th>${head.capitalize()}</th>
@@ -23,12 +24,19 @@
     </table>
 </%def>
 
-Welcome! This is gonna be a kick ${c.noun} player.
-
 <div id="queue">
-    Drag here to add songs
-    ${h.drop_receiving_element("queue", url="enqueue")}
+    <p class="instruction">
+        Drag here to add songs
+    </p>
+    ${h.drop_receiving_element("queue", url="enqueue", update="queue")}
 </div>
+<div id="breadcrumb">
+    Songs
+</div>
+<div id="gfilters">
+    Showing All Songs
+</div>
+
 <div id="browser">
     ${tag_table(c.cols, c.data)}
 </div>

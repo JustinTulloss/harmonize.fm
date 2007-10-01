@@ -15,5 +15,4 @@ class PlayerController(BaseController):
         return render('/player.mako')
     
     def enqueue(self):
-        print request.POST["id"]
-        return
+        return request.POST["id"]
