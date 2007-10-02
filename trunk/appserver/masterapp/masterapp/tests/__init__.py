@@ -18,6 +18,8 @@ import paste.script.appinstall
 from paste.deploy import loadapp
 from routes import url_for
 
+from sqlalchemy import engine_from_config
+
 __all__ = ['url_for', 'TestController']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,6 +33,11 @@ pkg_resources.require('PasteScript')
 test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
+
+class TestModel(TestCase):
+    def setUp(self):
+        model.Session.remove()
+        model.metadata.create_all(model.Session.bind)
 
 class TestController(TestCase):
 
