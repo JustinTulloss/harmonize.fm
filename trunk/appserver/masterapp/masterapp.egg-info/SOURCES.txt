@@ -8,6 +8,7 @@ test.ini
 docs/index.txt
 ez_setup/README.txt
 ez_setup/__init__.py
+helpers/mediarestore.py
 masterapp/__init__.py
 masterapp/websetup.py
 masterapp.egg-info/PKG-INFO
