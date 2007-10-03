@@ -1,0 +1,31 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: #446633;
+}
+
+p.instruction {
+    text-align: center;
+    margin: 0;
+}
+
+#queue {
+    float: left;
+    width: 16%;
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#browser {
+    width: 84%;
+}
+
+#controls {
+    float: left;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #ffffff;
+    height: 30px;
+}
