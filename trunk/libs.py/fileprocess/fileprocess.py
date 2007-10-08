@@ -44,6 +44,5 @@ class FileUploadThread(object):
     def __call__(self):
         while(self.running):
             newfile = file_queue.get()
-            filedict = dict(fname=newfile)
-            self.handlers[0].queue.put(filedict)
+            self.handlers[0].queue.put(newfile)
 
