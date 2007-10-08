@@ -1,1 +1,2 @@
 Pylons>=0.9.6
+SQLAlchemy>=0.4beta3

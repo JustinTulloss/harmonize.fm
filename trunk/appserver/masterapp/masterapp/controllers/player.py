@@ -16,3 +16,6 @@ class PlayerController(BaseController):
     
     def enqueue(self):
         return request.POST["id"]
+    
+    def settings(self):
+        return "This is the change settings form!"

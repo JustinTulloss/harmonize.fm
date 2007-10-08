@@ -4,7 +4,7 @@
 <html>
   <head>
     ${self.head_tags()}
-    ${h.javascript_include_tag(builtins=True)}
+    ${h.javascript_include_tag('jquery-1.2.1.js', builtins=True)}
   </head>
   <body>
     ${self.body()}

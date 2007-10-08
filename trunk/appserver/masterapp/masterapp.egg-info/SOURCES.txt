@@ -28,18 +28,18 @@ masterapp/controllers/error.py
 masterapp/controllers/player.py
 masterapp/controllers/postfile.py
 masterapp/controllers/template.py
+masterapp/controllers/uploads.py
 masterapp/controllers/wsgitrac.py
 masterapp/i18n/__init__.py
 masterapp/lib/__init__.py
 masterapp/lib/app_globals.py
 masterapp/lib/base.py
 masterapp/lib/helpers.py
-masterapp/middleware/facebook/__init__.py
-masterapp/middleware/facebook/wsgi.py
 masterapp/model/__init__.py
 masterapp/models/__init__.py
 masterapp/public/index.html
 masterapp/public/scalednewlogo.png
+masterapp/public/stylesheets/player.css
 masterapp/public/wsgitrac/chrome/common/README
 masterapp/public/wsgitrac/chrome/common/asc.png
 masterapp/public/wsgitrac/chrome/common/attachment.png
@@ -110,3 +110,4 @@ masterapp/tests/test_models.py
 masterapp/tests/functional/__init__.py
 masterapp/tests/functional/test_player.py
 masterapp/tests/functional/test_postfile.py
+masterapp/tests/functional/test_uploads.py

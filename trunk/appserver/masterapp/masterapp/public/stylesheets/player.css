@@ -1,31 +1,56 @@
 body, html {
     height: 100%;
     margin: 0;
-    background-color: #446633;
+    padding: 0;
+    background-color: #ffffff;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size: 12px;
+    color: #333;
 }
 
-p.instruction {
+.instruction {
     text-align: center;
     margin: 0;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.middle {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.control {
+    vertical-align: middle;
+    margin: 1em;
+}
+
+#top {
+    height: 10%;
+    min-height: 62px;
+    max-height: 62px;
+    background-image: url('/images/top-bg.png');
+    background-repeat: repeat-x;
+}
+
+#controls {
+    width: 16%;
+    text-align: center;
 }
 
 #queue {
     float: left;
     width: 16%;
-    height: 100%;
-    display: table-cell;
+    min-width: 100px;
+    height: 90%;
+    padding: 0;
+    margin: 0;
+    display: table;
     vertical-align: middle;
+	background-color: #A0B5DF;
+    border-right: 1px solid #6178A0;
 }
 
 #browser {
     width: 84%;
-}
-
-#controls {
-    float: left;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background-color: #ffffff;
-    height: 30px;
 }
