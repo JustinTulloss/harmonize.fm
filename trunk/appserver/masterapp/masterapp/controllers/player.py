@@ -18,6 +18,7 @@ class PlayerController(BaseController):
         return request.POST["id"]
     
     def play(self, id):
-    
+        pass
+ 
     def settings(self):
         return "This is the change settings form!"
