@@ -4,6 +4,7 @@
      <title>Rubicon Web Player</title>
     ${h.stylesheet_link_tag('player')}
     ${h.stylesheet_link_tag('datatable-skin')}
+    ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
     ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
@@ -34,6 +35,7 @@
 <div id="top">
     <div id="controls">
         <!-- Put the flash player stuff in here!! -->
+        <div id="player">Flash Player</div>
         <img class="control" src = "/images/back_up.png" />
         <img class="control" src = "/images/play_up.png" />
         <img class="control" src = "/images/next_up.png" />
@@ -47,6 +49,6 @@
     </div>
     ${h.drop_receiving_element("queue", url="enqueue", update="queue")}
 </div>
-<div id="browser">
+<div id="browser" class="yui-skin-sam">
     Stuff
 </div>

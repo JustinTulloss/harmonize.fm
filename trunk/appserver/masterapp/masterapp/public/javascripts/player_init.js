@@ -1,3 +1,25 @@
+/* Initialize Flash Player **************/
+
+function embed_player()
+{
+    var so = new SWFObject('mediaplayer.swf','rubiconfl','0','0','7');
+    so.addParam('allowfullscreen','true');
+    so.addParam('allowscriptaccess','true');
+    so.addVariable('showdigits','false');
+    so.addVariable('showicons','false');
+    so.addVariable('showvolume','false');
+    so.addVariable('autostart','true');
+    so.addVariable('shuffle','false');
+    so.addVariable('smoothing','false');
+    so.addVariable('enablejs','true');
+    so.addVariable('type','mp3');
+    so.addVariable('useaudio','false');
+    so.addVariable('usecaptions','false');
+    so.addVariable('usefullscreen','false');
+    so.write('player');
+}
+
+/* Yahoo Example Data *******************/
 YAHOO.example.Data = {
     bookorders: [
         {id:"po-0167", date:new Date(1980, 2, 24), quantity:1, amount:4, title:"A Book About Nothing"},
@@ -26,5 +48,6 @@ YAHOO.util.Event.addListener(window, "load", function() {
         this.myDataTable = new YAHOO.widget.DataTable("browser",
                 myColumnDefs, this.myDataSource);
     };
+    embed_player();
 });
 
