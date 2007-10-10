@@ -1,4 +1,5 @@
 from masterapp.lib.base import *
+from masterapp.lib.profile import Profile
 from masterapp.model import Music, Session
 
 class PlayerController(BaseController):
@@ -12,13 +13,11 @@ class PlayerController(BaseController):
             return "Bad"
         c.data = record
         c.cols = ["title", "artist", "album"]
+        c.profile = Profile()
         return render('/player.mako')
     
     def enqueue(self):
         return request.POST["id"]
     
-    def play(self, id):
-        pass
- 
     def settings(self):
         return "This is the change settings form!"

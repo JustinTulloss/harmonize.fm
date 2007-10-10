@@ -1,3 +1,8 @@
+<%doc>
+    This is the css for the yahoo datatable used as the
+    main table of tag data.
+</%doc>
+
 /*foundational css*/
 .yui-dt-table th, .yui-dt-table td {
     overflow:hidden;
@@ -53,19 +58,19 @@ th .yui-dt-resizer {
 }
 .yui-skin-sam .yui-dt-table caption {padding-bottom:1em;text-align:left;}
 .yui-skin-sam .yui-dt-table th {
-    background-color: #A0B5DF;
+    background-color: ${c.profile.queue_bg};
 }
 .yui-skin-sam .yui-dt-table th,
 .yui-skin-sam .yui-dt-table th a {
     font-weight:bold;
     text-decoration:none;
-    color:#333; /* header text */
+    color:${c.profile.primary_txt}; /* header text */
     vertical-align:bottom;
 }
 .yui-skin-sam .yui-dt-table th,
 .yui-skin-sam .yui-dt-table td {
     padding:4px 10px 4px 10px; /* cell padding */
-    border-right:1px solid #6178A0; /* inner column border */
+    border-right:1px solid ${c.profile.border}; /* inner column border */
 }
 .yui-skin-sam .yui-dt-table td {
     white-space:nowrap;
@@ -73,18 +78,18 @@ th .yui-dt-resizer {
 }
 .yui-skin-sam .yui-dt-table th.yui-dt-last,
 .yui-skin-sam .yui-dt-table td.yui-dt-last {
-    #border-right:1px solid #6178A0; /* outer border */
+    border-right:1px solid ${c.profile.border}; /* outer border */
 }
 .yui-skin-sam .yui-dt-list td {
     border-right:none; /* disable inner column border in list mode */
 }
 .yui-skin-sam .yui-dt-table thead {
-    border:1px solid #6178A0; /* outer border */
+    border:1px solid ${c.profile.border}; /* outer border */
 }
 .yui-skin-sam .yui-dt-table tbody {
-    #border-left:1px solid #6178A0;
-    #border-right:1px solid #6178A0;
-    border-bottom:1px solid #6178A0; /* outer border */
+    border-left:1px solid ${c.profile.border};
+    border-right:1px solid ${c.profile.border};
+    border-bottom:1px solid ${c.profile.border}; /* outer border */
 }
 
 /* messaging */
@@ -110,12 +115,10 @@ th .yui-dt-resizer {
 .yui-skin-sam th.yui-dt-desc {
 }
 .yui-skin-sam th.yui-dt-asc .yui-dt-header {
-    background:url('/images/dt-arrow-up.png') no-repeat right; /* sorted header gradient */
-    /*background-image: url('../img/arrow_up.gif'); background-repeat:no-repeat; background-position:right; sorted header icon */
+    background:url('/images/dt-arrow-up.png') no-repeat right; 
 }
 .yui-skin-sam th.yui-dt-desc .yui-dt-header {
-    background:url('/images/dt-arrow-dn.png') no-repeat right; /* sorted header gradient */
-    /*background-image: url('../img/arrow_dn.gif'); background-repeat:no-repeat; background-position:right; /*sorted header icon */
+    background:url('/images/dt-arrow-dn.png') no-repeat right; 
 }
 
 /* editing */
@@ -157,11 +160,11 @@ th .yui-dt-resizer {
 
 /* striping */
 .yui-skin-sam tr.yui-dt-even { background-color:#FFF; } /* white */
-.yui-skin-sam tr.yui-dt-odd { background-color:#FFF6DA; } /* light orange */
+.yui-skin-sam tr.yui-dt-odd { background-color:${c.profile.oddrow_bg}; } /* light orange */
 .yui-skin-sam tr.yui-dt-even td.yui-dt-asc,
-.yui-skin-sam tr.yui-dt-even td.yui-dt-desc { background-color:#FFF6DA; } /* light blue sorted */
+.yui-skin-sam tr.yui-dt-even td.yui-dt-desc { background-color:${c.profile.oddrow_bg}; }
 .yui-skin-sam tr.yui-dt-odd td.yui-dt-asc,
-.yui-skin-sam tr.yui-dt-odd td.yui-dt-desc { background-color:#FFDD9E; } /* dark blue sorted */
+.yui-skin-sam tr.yui-dt-odd td.yui-dt-desc { background-color:${c.profile.sortoddrow_bg}; }
 
 /* disable striping in list mode */
 .yui-skin-sam .yui-dt-list tr.yui-dt-even { background-color:#FFF; } /* white */
@@ -239,4 +242,5 @@ th .yui-dt-resizer {
     padding:2px 6px;
     text-decoration:none;
 }
+
 

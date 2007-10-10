@@ -1,8 +1,11 @@
 <%inherit file="base.mako" />
 
 <%def name="head_tags()">
-     <title>Rubicon Web Player</title>
-    ${h.stylesheet_link_tag('player')}
+    <title>Rubicon Web Player</title>
+    <style type="text/css">
+    <%include file="player_css.mako" /> 
+    <%include file="datatable_css.mako" />
+    </style>
     ${h.stylesheet_link_tag('datatable-skin')}
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
@@ -36,9 +39,9 @@
     <div id="controls">
         <!-- Put the flash player stuff in here!! -->
         <div id="player">Flash Player</div>
-        <img class="control" src = "/images/back_up.png" />
-        <img class="control" src = "/images/play_up.png" />
-        <img class="control" src = "/images/next_up.png" />
+        <img class="control" src = "/images/back_up.png" onclick="sendEvent('prev')"/>
+        <img class="control" src = "/images/play_up.png" onclick="sendEvent('playpause')"/>
+        <img class="control" src = "/images/next_up.png" onclick="sendEvent('next')"/>
     </div>
 </div>
 <div id="queue">

@@ -1,3 +1,4 @@
+
 body, html {
     height: 100%;
     margin: 0;
@@ -5,7 +6,7 @@ body, html {
     background-color: #ffffff;
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
-    color: #333;
+    color: ${c.profile.primary_txt}
 }
 
 .instruction {
@@ -47,8 +48,8 @@ body, html {
     margin: 0;
     display: table;
     vertical-align: middle;
-	background-color: #A0B5DF;
-    border-right: 1px solid #6178A0;
+	background-color: ${c.profile.queue_bg};
+    border-right: 1px solid ${c.profile.border};
 }
 
 #browser {
