@@ -43,6 +43,10 @@
         <img class="control" src = "/images/play_up.png" onclick="sendEvent('playpause')"/>
         <img class="control" src = "/images/next_up.png" onclick="sendEvent('next')"/>
     </div>
+    <div id="status">
+        <div id="time">&nbsp;</div>
+        <div id="time2">&nbsp;</div>
+    </div>
 </div>
 <div id="queue">
     <div class="instruction">

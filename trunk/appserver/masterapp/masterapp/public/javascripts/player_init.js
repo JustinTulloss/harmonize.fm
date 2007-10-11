@@ -1,3 +1,17 @@
+/* Get Window height and width **********/
+var winW = 630, winH = 460;
+
+if (parseInt(navigator.appVersion)>3) {
+    if (navigator.appName.indexOf("Microsoft")!=-1) {
+        winW = document.body.offsetWidth;
+        winH = document.body.offsetHeight;
+    }
+    else {
+        winW = window.innerWidth;
+        winH = window.innerHeight;
+    }
+}
+
 /* Initialize Flash Player **************/
 
 function embed_player()
@@ -11,7 +25,6 @@ function embed_player()
     so.addVariable('enablejs','true');
     so.addVariable('javascriptid','rubiconfl');
     so.addVariable('type','mp3');
-    so.addVariable('useaudio','false');
     so.addVariable('usecaptions','false');
     so.addVariable('usefullscreen','false');
     so.write('player');
@@ -27,27 +40,16 @@ function sendEvent(typ,prm) { thisMovie("rubiconfl").sendEvent(typ,prm); };
 function getUpdate(typ,pr1,pr2,pid) {
     if(typ == "time") { currentPosition = pr1; }
     else if(typ == "volume") { currentVolume = pr1; }
-    else if(typ == "item") { currentItem = pr1; setTimeout("getItemData(currentItem)",100); }
     var id = document.getElementById(typ);
-    id.innerHTML = typ+ ": "+Math.round(pr1);
-    pr2 == undefined ? null: id.innerHTML += ", "+Math.round(pr2);
-    if(pid != "null") {
-        document.getElementById("pid").innerHTML = "(received from the player with id <i>"+pid+"</i>)";
-    }
+    var id2 = document.getElementById(typ + '2');
+    id.innerHTML = Math.round(pr1);
+    pr2 == undefined ? null: id2.innerHTML = Math.round(pr2);
 };
 
 // These functions are caught by the feeder object of the player.
 function loadFile(obj) { thisMovie("rubiconfl").loadFile(obj); };
 function addItem(obj,idx) { thisMovie("rubiconfl").addItem(obj,idx); }
 function removeItem(idx) { thisMovie("rubiconfl").removeItem(idx); }
-function getItemData(idx) {
-    var obj = thisMovie("rubiconfl").itemData(idx);
-    var nodes = "";
-    for(var i in obj) { 
-        nodes += "<li>"+i+": "+obj[i]+"</li>"; 
-    }
-    document.getElementById("data").innerHTML = nodes;
-};
 
 // This is a javascript handler for the player and is always needed.
 function thisMovie(movieName) {

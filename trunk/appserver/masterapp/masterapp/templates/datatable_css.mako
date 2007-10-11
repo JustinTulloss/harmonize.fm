@@ -51,7 +51,7 @@ th .yui-dt-resizer {
 .yui-skin-sam .yui-dt-table {
     margin:0;
     padding:0;
-    width: 84%;
+    width: 100%;
     font-size:inherit;
     border-collapse:collapse;
     border: none;
@@ -78,19 +78,20 @@ th .yui-dt-resizer {
 }
 .yui-skin-sam .yui-dt-table th.yui-dt-last,
 .yui-skin-sam .yui-dt-table td.yui-dt-last {
-    border-right:1px solid ${c.profile.border}; /* outer border */
+    #border-right:1px solid ${c.profile.border}; /* outer border */
 }
 .yui-skin-sam .yui-dt-list td {
     border-right:none; /* disable inner column border in list mode */
 }
 .yui-skin-sam .yui-dt-table thead {
-    border:1px solid ${c.profile.border}; /* outer border */
+    #border:1px solid ${c.profile.border}; /* outer border */
 }
+/*
 .yui-skin-sam .yui-dt-table tbody {
     border-left:1px solid ${c.profile.border};
     border-right:1px solid ${c.profile.border};
     border-bottom:1px solid ${c.profile.border}; /* outer border */
-}
+}*/
 
 /* messaging */
 .yui-skin-sam .yui-dt-loading {

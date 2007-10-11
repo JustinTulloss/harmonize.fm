@@ -1,4 +1,3 @@
-
 body, html {
     height: 100%;
     margin: 0;
@@ -9,9 +8,21 @@ body, html {
     color: ${c.profile.primary_txt}
 }
 
+:focus {
+    outline: 0;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+}
+
+.left {
+    width: 16%;
+}
+
 .instruction {
     text-align: center;
-    margin: 0;
     display: table-cell;
     vertical-align: middle;
 }
@@ -23,28 +34,54 @@ body, html {
 
 .control {
     vertical-align: middle;
-    margin: 1em;
+    margin-top: 1em;
+    margin-left: 1em;
+    margin-right: 1em;
 }
 
 #top {
-    height: 10%;
-    min-height: 62px;
-    max-height: 62px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 58px;
+    z-index: 25;
+    min-height: 58px;
+    max-height: 58px;
     background-image: url('/images/top-bg.png');
     background-repeat: repeat-x;
+    margin:0;
+    border: none;
 }
 
 #controls {
-    width: 16%;
     text-align: center;
+    width: 16%;
+}
+
+#status {
+    text-align: center;
+    width: 16%;
+}
+
+#time {
+    float: left;
+    margin-left: 1em;
+    margin-bottom: 0;
+}
+
+#time2 {
+    float: right;
+    margin-right: 1em;
+    margin-bottom: 0;
 }
 
 #queue {
-    float: left;
+    position: absolute;
+    top: 58px;
+    left: 0;
+    z-index: 20;
     width: 16%;
     min-width: 100px;
-    height: 90%;
-    padding: 0;
     margin: 0;
     display: table;
     vertical-align: middle;
@@ -53,5 +90,10 @@ body, html {
 }
 
 #browser {
-    width: 100%;
+    position: absolute;
+    top: 58px;
+    right: 0px;
+    width: 84%;
+    margin: 0;
+    padding: 0;
 }
