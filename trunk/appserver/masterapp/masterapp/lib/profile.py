@@ -10,7 +10,7 @@ class Profile:
     primary_txt = "#333"
     queue_back_txt = None
     queue_accents = None
-    click = None
+    click = "#C55F0D" 
     oddrow_bg = "#FFF6DA"
     sortoddrow_bg = "#FFDD9E"
  
