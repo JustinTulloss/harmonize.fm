@@ -1,6 +1,7 @@
 from masterapp.lib.base import *
 from masterapp.lib.profile import Profile
 from masterapp.model import Music, Session
+import pylons
 
 class PlayerController(BaseController):
     def index(self):
@@ -21,3 +22,17 @@ class PlayerController(BaseController):
     
     def settings(self):
         return "This is the change settings form!"
+    
+    @jsonify
+    def artist(self, id):
+        query = Session.query(Music).filter_by(artist=id)
+        #shouldn't there be a better way to do this?
+        data = {}
+        i=0
+        for song in query.all():
+            data['song'+str(i)]=song.c
+            i = i + 1
+        
+        return data
+    def home(self):
+        pass

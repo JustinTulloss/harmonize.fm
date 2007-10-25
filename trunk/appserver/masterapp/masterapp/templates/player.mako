@@ -17,13 +17,23 @@
     ${h.javascript_include_tag('player_init.js')}
 </%def>
 
+<div id="menu">
+    <div id="searchbar" tabindex="-1">Search...</div>
+    <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Artists", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Albums", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Songs", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Friends", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Genres", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>
+</div>
 <div id="top">
     <div id="controls">
         <!-- Put the flash player stuff in here!! -->
-        <div id="player"></div>
-        <img class="control" src = "/images/back_up.png" onclick="sendEvent('prev')"/>
-        <img class="control" src = "/images/play_up.png" onclick="sendEvent('playpause')"/>
-        <img class="control" src = "/images/next_up.png" onclick="sendEvent('next')"/>
+        <div id="player">Flash Player</div>
+        <img class="control" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
+        <img class="control" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
+        <img class="control" src = "/images/next.png" onclick="flplayer.sendEvent('next')"/>
     </div>
     <div id="status">
         <div id="time">&nbsp;</div>
@@ -37,7 +47,6 @@
         <br>-OR-<br>
         Hit the <img class="middle" src="/images/enqueue.png" /> button
     </div>
-    ${h.drop_receiving_element("queue", url="enqueue", update="queue")}
 </div>
 <div id="browser" class="yui-skin-sam">
     &nbsp;Loading...

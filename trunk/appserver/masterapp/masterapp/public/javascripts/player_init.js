@@ -16,7 +16,7 @@ var Event = YAHOO.util.Event,
  * and put here
  */
 
-var flplayer;
+var flplayer; //the flash player
 
 /* Yahoo Example Data *******************/
 YAHOO.example.Data = {
@@ -84,6 +84,7 @@ function Player(domObj)
     this.loadFile = loadFile;
     this.addItem = addItem;
     this.removeItem = removeItem;
+    this.seek = seek;
 
     // these functions are caught by the JavascriptView object of the player.
     function sendEvent(typ,prm) 
@@ -117,9 +118,25 @@ function Player(domObj)
     }
 
     // These functions are caught by the feeder object of the player.
-    function loadFile(obj) { thisMovie('rubiconfl').loadFile(obj); };
-    function addItem(obj,idx) { thisMovie('rubiconfl').addItem(obj,idx); }
-    function removeItem(idx) { thisMovie('rubiconfl').removeItem(idx); }
+    function loadFile(obj) 
+    { 
+        thisMovie('rubiconfl').loadFile(obj); 
+    }
+
+    function addItem(obj,idx) 
+    { 
+        thisMovie('rubiconfl').addItem(obj,idx); 
+    }
+
+    function removeItem(idx) 
+    { 
+        thisMovie('rubiconfl').removeItem(idx); 
+    }
+
+    function seek(percent)
+    {
+        sendEvent('scrub', totalTime*percent);
+    }
 
     // This is a javascript handler for the player and is always needed.
     function thisMovie(movieName) 
@@ -130,7 +147,12 @@ function Player(domObj)
             return document[movieName];
         }
     }
+}
 
+/* TODO: Figure out why I can't send updates to an object */
+function getUpdate(typ,pr1,pr2,pid)
+{
+    flplayer.getUpdate(typ, pr1, pr2, pid);
 }
 
 /******* Initialization functions ********/
@@ -178,7 +200,6 @@ var bottomConstraint = 100;
 // Custom scale factor for converting the pixel offset into a real value
 var scaleFactor = 1;
 
-
 function init_seekbar()
 {
     slider = YAHOO.widget.Slider.getHorizSlider(bg, 
@@ -192,7 +213,7 @@ function init_seekbar()
 
             //figure out how much we changed
             //send that change to the player
-            flplayer.sendEvent('scrub', totalTime*offsetFromStart/100)
+            flplayer.seek(offsetFromStart/100);
             // Update the title attribute on the background.  This helps assistive
             // technology to communicate the state change
             Dom.get(bg).title = "slider value = " + actualValue;
@@ -221,7 +242,7 @@ function init_seekbar()
             // convert the real value into a pixel offset
             slider.setValue(Math.round(v/scaleFactor));
             }
-    });
+            });
 }
 
 /**** Mouseover code that doesn't require mouseover being in the HTML 

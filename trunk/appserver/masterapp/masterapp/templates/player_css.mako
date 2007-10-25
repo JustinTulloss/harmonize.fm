@@ -2,6 +2,7 @@ body, html {
     height: 100%;
     margin: 0;
     padding: 0;
+    max-width: 100%;
     background-color: #ffffff;
     font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
     font-size: 12px;
@@ -14,6 +15,24 @@ body, html {
 
 .left {
     width: 16%;
+}
+
+.menuitem {
+    display: inline;
+    margin: .5em;
+    font-size: 10px;
+}
+
+a.menuitem:link {
+    color: ${c.profile.menu_txt};
+}
+
+a.menuitem:visited {
+    color: ${c.profile.menu_txt};
+}
+
+a.menuitem:hover {
+    color: ${c.profile.click};
 }
 
 .instruction {
@@ -36,16 +55,42 @@ body, html {
     margin-right: 1em;
 }
 
+#menu {
+    position: absolute;
+    top: 0px;
+    height: 15px;
+    width:100%;
+    z-index:23;
+    background: #486BAA;
+    text-align: center;
+}
+
+#searchbar {
+    color: ${c.profile.menu_txt};
+    float: right;
+    width: 130px;
+    height: 100%;
+    font-size: 10px;
+    background-image: url('/images/searchbar.png');
+    background-repeat: no-repeat;
+    margin-right: 2em;
+    padding-left: 5px;
+    text-align: left;
+}
+
+#searchbar:focus {
+    background-image: url('/images/searchbar_over.png');
+}
+
 #top {
     position: absolute;
-    top: 0;
+    top: 15px;
     left: 0;
     height: 58px;
 	width: 100%;
     z-index: 25;
     background-image: url('/images/top-bg.png');
     background-repeat: repeat-x;
-    margin:0;
     border: none;
 }
 
@@ -102,7 +147,7 @@ body, html {
 
 #browser {
     position: absolute;
-    top: 58px;
+    top: 73px;
     right: 0px;
     width: 84%;
     margin: 0;

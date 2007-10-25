@@ -8,6 +8,7 @@ class Profile:
     border = "#6178A0"
     queue_bg = "#A0B5DF"
     primary_txt = "#333"
+    menu_txt = "#CCC"
     queue_back_txt = None
     queue_accents = None
     click = "#C55F0D" 
