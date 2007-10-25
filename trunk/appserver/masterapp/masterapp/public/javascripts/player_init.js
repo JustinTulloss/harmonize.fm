@@ -80,17 +80,18 @@ YAHOO.example.Data = {
 * drag and drop test
 *I'll probably mess this up pretty good
 ****/
-var row0 = new YAHOO.util.DDProxy("yui-dt0-bdrow0");
-var row1 = new YAHOO.util.DDProxy("yui-dt0-bdrow1");
-var row2 = new YAHOO.util.DDProxy("yui-dt0-bdrow2");
-var row3 = new YAHOO.util.DDProxy("yui-dt0-bdrow3");
+var row0 = new YAHOO.util.DDProxy("yui-dt0-bdrow0", "songlist");
+var row1 = new YAHOO.util.DDProxy("yui-dt0-bdrow1", "songlist");
+var row2 = new YAHOO.util.DDProxy("yui-dt0-bdrow2", "songlist");
+var row3 = new YAHOO.util.DDProxy("yui-dt0-bdrow3", "songlist");
 var queue = new YAHOO.util.DDTarget("queue");
 var browser = new YAHOO.util.DDTarget("browser");
 
 /****
-*  somehow make it so the queue cand accept dropped items
+*  somehow make it so the queue can accept dropped items
 * and display them in a reasonable manner
 ****/
+
 
 
 YAHOO.util.Event.addListener(window, "load", function() {
