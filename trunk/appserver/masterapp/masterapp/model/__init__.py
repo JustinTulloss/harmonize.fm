@@ -16,10 +16,17 @@ music_table = Table("music", metadata,
     Column("sha", types.String, index=True, unique=True),
     Column("title", types.String, index=True),
     Column("artist", types.String, index=True),
-    Column("album", types.String, index=True),
-    Column("genre", types.String),
+    Column("album_id", types.Integer, ForeignKey("album.id"), index=True),
     Column("tracknumber", types.Integer),
-    Column("totaltracks", types.Integer),
+    Column("recommendations", types.Integer)
+)
+
+album_table = Table("album", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("album_title", types.String, index=True),
+    Column("genre", types.String, index=True),
+    Column("year", types.Integer, index=True),
+    Column("totaltracks", types.Integer)
 )
 
 ownership_table = Table("ownership", metadata,
@@ -32,11 +39,14 @@ ownership_table = Table("ownership", metadata,
 Classes that represent above tables. You can add abstractions here
 (like constructors) that make the tables even easier to work with
 """
+
 class Music(object):
     pass
-
+class Album(object):
+    pass
 class Ownership(object):
     pass
 
 mapper(Music, music_table)
+mapper(Album, album_table)
 mapper(Ownership, ownership_table)
