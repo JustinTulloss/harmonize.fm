@@ -167,6 +167,10 @@ function init()
 function init_browser()
 {
     var myColumnDefs = [
+    {key:"add", label:'',formatter:function(addCell) {
+        addCell.innerHTML = '<img src="/images/enqueue.png" />';
+        addCell.style.cursor = 'pointer';
+    }, resizeable:true},
     {key:"id", sortable:true, resizeable:true},
     {key:"date", formatter:YAHOO.widget.DataTable.formatDate, sortable:true, resizeable:true},
     {key:"quantity", formatter:YAHOO.widget.DataTable.formatNumber, sortable:true, resizeable:true},
@@ -254,7 +258,6 @@ var W3CDOM = (document.createElement && document.getElementsByTagName);
 var mouseOvers = new Array();
 var mouseOuts = new Array();
 var playpause = new Array();
-var pptoggle = 0;
 
 function init_mouseovers()
 {
@@ -278,34 +281,6 @@ Event.onDOMReady(init);
 /****End of Initializations ****/
 
 
-
-/**** Sets up the slider for the flash player
- * I'm not really sure why it's in it's own generic function,
- * but that's how the example player was.
- ********/
-/*
-(function() {
-    
-    Event.onDOMReady(function() {
-
-                });
-        
-        // Use setValue to reset the value to white:
-        Event.on("putval", "click", function(e) {
-            slider.setValue(100, false); //false here means to animate if possible
-        });
-        
-        // Use the "get" method to get the current offset from the slider's start
-        // position in pixels.  By applying the scale factor, we can translate this
-        // into a "real value
-        Event.on("getval", "click", function(e) {
-            YAHOO.log("Current value: "   + slider.getValue() + "\n" + 
-                      "Converted value: " + slider.getRealValue(), "info", "example"); 
-        });
-    });
-})();*/
-
-
 function mouseGoesOver()
 {
 	this.src = mouseOvers[this.number].src;
@@ -316,10 +291,3 @@ function mouseGoesOut()
 	this.src = mouseOuts[this.number].src;
 }
 
-function init_playpause()
-{
-    playpause[0] = new Image();
-    playpause[1] = new Image();
-    playpause[0].src = "/images/play.png";
-    playpause[1].src = "/images/pause.png";
-}
