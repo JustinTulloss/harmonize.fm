@@ -1,4 +1,5 @@
 import logging
+import os 
 
 from masterapp.lib.base import *
 
@@ -16,10 +17,24 @@ class UploadsController(BaseController):
         # url_for('uploads')
         return "List all"
 
+    #don't use this
     def create(self):
         """POST /uploads: Create a new item."""
         # url_for('uploads')
-        pass
+        return "1"
+        #return str(dir(request))
+
+    def upload_new(self, id):
+        """POST /uploads/id: This one uploads new songs for realsies"""
+        dest_dir = config['app_conf']['upload_dir']
+        dest_path = os.path.join(dest_dir, id)
+        #need to actually make this file
+        if not os.path.exists(dest_path):
+            dest_file = file(dest_path, 'w')
+            dest_file.write(
+                request.body.read(int(request.environ["CONTENT_LENGTH"])))
+
+        return "1"
 
     def new(self, format='html'):
         """GET /uploads/new: Form to create a new item."""
