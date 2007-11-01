@@ -130,16 +130,16 @@ a.menuitem:hover {
     margin-bottom: 0;
 }
 
-#queue {
+#queue{
     position: absolute;
     top: 0px;
     left: 0;
+    padding-top: 80px;
     z-index: 20;
+    display:table;
     width: 16%;
 	height: 100%;
     min-width: 130px;
-    margin: 0;
-    display: table;
     vertical-align: middle;
 	background-color: ${c.profile.queue_bg};
     border-right: 1px solid ${c.profile.border};

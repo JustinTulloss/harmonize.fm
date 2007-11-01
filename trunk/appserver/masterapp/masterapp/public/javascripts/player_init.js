@@ -1,9 +1,10 @@
-/* Initialize Flash Player **************/
+/* Initialize Everything**************/
 
 /*** Initially put together by Justin Tulloss 
  *
  * History:
  * 10/24/2007 - Cleaned this up a lot --JMT
+ * 10/31/2007 - Moved classes to their own files --JMT
  */
 
 /*Globals to make the YUI library easier to access */
@@ -17,176 +18,42 @@ var Event = YAHOO.util.Event,
  */
 
 var flplayer; //the flash player
-
-/* Yahoo Example Data *******************/
-YAHOO.example.Data = {
-    bookorders: [
-        {id:"po-0167", date:new Date(1980, 2, 24), quantity:1, amount:4, title:"A Book About Nothing"},
-        {id:"po-0783", date:new Date("January 3, 1983"), quantity:null, amount:12.12345, title:"The Meaning of Life"},
-        {id:"po-0297", date:new Date(1978, 11, 12), quantity:12, amount:1.25, title:"This Book Was Meant to Be Read Aloud"},
-        {id:"po-1482", date:new Date("March 11, 1985"), quantity:6, amount:3.5, title:"Read Me Twice"}
-    ]
-}
+var playqueue = null;
+var browser = null;
 
 /****
 * drag and drop test
 *I'll probably mess this up pretty good
 ****/
 var row0 = new YAHOO.util.DDProxy("yui-dt0-bdrow0", "songlist");
+/*
 var row1 = new YAHOO.util.DDProxy("yui-dt0-bdrow1", "songlist");
 var row2 = new YAHOO.util.DDProxy("yui-dt0-bdrow2", "songlist");
 var row3 = new YAHOO.util.DDProxy("yui-dt0-bdrow3", "songlist");
-var queue = new YAHOO.util.DDTarget("queue");
-var browser = new YAHOO.util.DDTarget("browser");
+*/
 
-/****
-*  somehow make it so the queue can accept dropped items
-* and display them in a reasonable manner
-****/
-
-/********** Class Declarations **************/
-/*  (move to another file at some point, 
- *  but I don't know how to include other JS files in a JS file yet.)
- */
-
-/********
- * Flash Player class.
- * Used to communicate to and from the flash player
- *
- * Params: Takes a div that will be replaced by the flash player swf
- */
-function Player(domObj)
+row0.onDragDrop = function(e, id)
 {
-    var div = domObj;
-    // some player variables to save
-    var currentPosition;
-    var currentVolume;
-    var currentItem;
-    var totalTime;
-    var so = new SWFObject('/flash/mediaplayer.swf','rubiconfl','0','0','7');
-
-    so.useExpressInstall('/flash/expressinstall.swf')
-    so.addParam('allowfullscreen','true');
-    so.addVariable('file','music/a12883770c0e5760744b24110af1b45ef7083f7b');
-    so.addVariable('showdigits','false');
-    so.addVariable('shuffle','false');
-    so.addVariable('smoothing','false');
-    so.addVariable('enablejs','true');
-    so.addVariable('javascriptid','rubiconfl');
-    so.addVariable('type','mp3');
-    so.addVariable('usecaptions','false');
-    so.addVariable('usefullscreen','false');
-    so.write(div);
+    if (id=="queue"){
+        enqueueRow(this.id);
+    }
     
-    //Public functions
-    this.sendEvent = sendEvent;
-    this.getUpdate = getUpdate;
-    this.loadFile = loadFile;
-    this.addItem = addItem;
-    this.removeItem = removeItem;
-    this.seek = seek;
+};
 
-    // these functions are caught by the JavascriptView object of the player.
-    function sendEvent(typ,prm) 
-    { 
-        thisMovie("rubiconfl").sendEvent(typ,prm); 
-    }
-
-    //TODO: Make this function less ugly than sin, use a real event model
-    function getUpdate(typ,pr1,pr2,pid) {
-        if(typ == "time") { currentPosition = pr1; }
-        else if(typ == "volume") { currentVolume = pr1; }
-        var id = document.getElementById(typ);
-        var id2 = document.getElementById(typ + '2');
-        mins = Math.round(pr1/60);
-        secs = Math.round(pr1%60);
-        id.innerHTML = leadingZero(mins) + ":" + leadingZero(secs);
-        mins = Math.round(pr2/60);
-        secs = Math.round(pr2%60);
-        pr2 == undefined ? null: id2.innerHTML = "-"+leadingZero(mins)+":"+leadingZero(secs);
-        if (typ == "time") {
-            totalTime = pr1 + pr2;
-            spos = 100*pr1/totalTime;
-            Dom.setStyle('shuttle', 'left', String(spos)+"px");
-        }
-    }
-
-    function leadingZero(nr) {
-        if (nr < 10)
-            nr = "0" + nr;
-        return nr;
-    }
-
-    // These functions are caught by the feeder object of the player.
-    function loadFile(obj) 
-    { 
-        thisMovie('rubiconfl').loadFile(obj); 
-    }
-
-    function addItem(obj,idx) 
-    { 
-        thisMovie('rubiconfl').addItem(obj,idx); 
-    }
-
-    function removeItem(idx) 
-    { 
-        thisMovie('rubiconfl').removeItem(idx); 
-    }
-
-    function seek(percent)
-    {
-        sendEvent('scrub', totalTime*percent);
-    }
-
-    // This is a javascript handler for the player and is always needed.
-    function thisMovie(movieName) 
-    {
-        if(navigator.appName.indexOf("Microsoft") != -1) {
-            return window[movieName];
-        } else {
-            return document[movieName];
-        }
-    }
-}
-
-/* TODO: Figure out why I can't send updates to an object */
-function getUpdate(typ,pr1,pr2,pid)
+function enqueueRow(rowId)
 {
-    flplayer.getUpdate(typ, pr1, pr2, pid);
+    newRecord = browser.table.getRecord(rowId);
+    playqueue.addRow(newRecord._oData); //This is a horrible abuse of "private" data
 }
 
 /******* Initialization functions ********/
 function init()
 {
     flplayer = new Player('player');
-    init_browser();
+    browser = new Browser();
+    playqueue = new PlayQueue('queue', 'songlist');
     init_seekbar();
     init_mouseovers();
-}
-
-function init_browser()
-{
-    var myColumnDefs = [
-    {key:"add", label:'',formatter:function(addCell) {
-        addCell.innerHTML = '<img src="/images/enqueue.png" />';
-        addCell.style.cursor = 'pointer';
-    }, resizeable:true},
-    {key:"id", sortable:true, resizeable:true},
-    {key:"date", formatter:YAHOO.widget.DataTable.formatDate, sortable:true, resizeable:true},
-    {key:"quantity", formatter:YAHOO.widget.DataTable.formatNumber, sortable:true, resizeable:true},
-    {key:"amount", formatter:YAHOO.widget.DataTable.formatCurrency, sortable:true, resizeable:true},
-    {key:"title", sortable:true, resizeable:true}
-    ];
-
-    this.myDataSource = new YAHOO.util.DataSource(YAHOO.example.Data.bookorders);
-    this.myDataSource.responseType = YAHOO.util.DataSource.TYPE_JSARRAY;
-    this.myDataSource.responseSchema = {
-    fields: ["id","date","quantity","amount","title"]
-    };
-
-    this.myDataTable = new YAHOO.widget.DataTable("browser",
-                    myColumnDefs, this.myDataSource);
-
 }
 
 
@@ -249,10 +116,10 @@ function init_seekbar()
             });
 }
 
-/**** Mouseover code that doesn't require mouseover being in the HTML 
-***** Blatantly stolen with much thanks from 
-***** http://www.quirksmode.org/js/mouseov.html 
-*****/
+/* Mouseover code that doesn't require mouseover being in the HTML 
+ * Blatantly stolen with much thanks from 
+ * http://www.quirksmode.org/js/mouseov.html 
+ */
 var W3CDOM = (document.createElement && document.getElementsByTagName);
 
 var mouseOvers = new Array();

@@ -12,8 +12,11 @@
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
     ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
     ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
-    ${h.javascript_include_tag('yui/build/datatable/datatable-beta-min.js')}
+    ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
     ${h.javascript_include_tag('yui/build/slider/slider-min.js')}
+    ${h.javascript_include_tag('browser.js')}
+    ${h.javascript_include_tag('playqueue.js')}
+    ${h.javascript_include_tag('player.js')}
     ${h.javascript_include_tag('player_init.js')}
 </%def>
 
@@ -41,6 +44,7 @@
 		<div id="timeline" tabindex="-1"><div id="shuttle"><img src= "/images/shuttle.png"></div></div>
     </div>
 </div>
+
 <div id="queue">
     <div class="instruction">
         Drag here to add songs
@@ -51,3 +55,4 @@
 <div id="browser" class="yui-skin-sam">
     &nbsp;Loading...
 </div>
+
