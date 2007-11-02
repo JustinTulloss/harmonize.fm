@@ -55,6 +55,11 @@ a.menuitem:hover {
     margin-right: 1em;
 }
 
+.bc_link{
+    display: inline;
+}
+    
+
 #menu {
     position: absolute;
     top: 0px;
@@ -94,6 +99,7 @@ a.menuitem:hover {
     border: none;
 }
 
+
 #controls {
     text-align: center;
     width: 16%;
@@ -130,6 +136,12 @@ a.menuitem:hover {
     margin-bottom: 0;
 }
 
+#breadcrumb {
+    float:right;
+    width:84%;
+    margin-top: 40px;
+}
+
 #queue{
     position: absolute;
     top: 0px;
@@ -153,3 +165,4 @@ a.menuitem:hover {
     margin: 0;
     padding: 0;
 }
+

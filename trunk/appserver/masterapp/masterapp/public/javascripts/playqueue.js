@@ -10,7 +10,7 @@ function PlayQueue(domObj, dragGroup)
 
     var colDefs= [
     {key:"song_expand", formatter:function(addCell) {
-        addCell.innerHTML = '<img src="/images/expand.png" />';
+        addCell.innerHTML = '<img src="/images/song_expand.png" />';
         addCell.style.cursor = 'pointer';
         }, resizeable:false , width:"15px"},
     {key:"title"},

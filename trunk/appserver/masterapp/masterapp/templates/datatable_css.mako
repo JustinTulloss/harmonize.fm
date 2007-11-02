@@ -71,6 +71,7 @@ th .yui-dt-resizer {
 .yui-skin-sam .yui-dt-table td {
     padding:4px 10px 4px 10px; /* cell padding */
     border-right:1px solid ${c.profile.border}; /* inner column border */
+    border-bottom: 1px solid ${c.profile.border};
 }
 .yui-skin-sam .yui-dt-table td {
     white-space:nowrap;
@@ -199,8 +200,7 @@ th .yui-dt-resizer {
 .yui-skin-sam tr.yui-dt-selected td,
 .yui-skin-sam tr.yui-dt-selected td.yui-dt-asc,
 .yui-skin-sam tr.yui-dt-selected td.yui-dt-desc {
-    background-color:#426FD9; /* bright blue selected row */
-    color:#FFF;
+    background-color:${c.profile.select}; /* bright blue selected row */
 }
 .yui-skin-sam tr.yui-dt-even td.yui-dt-selected,
 .yui-skin-sam tr.yui-dt-odd td.yui-dt-selected {
@@ -242,6 +242,10 @@ th .yui-dt-resizer {
     border:1px solid #CBCBCB;
     padding:2px 6px;
     text-decoration:none;
+}
+
+.yui-skin-sam .list-controls {
+    text-align: center;
 }
 
 

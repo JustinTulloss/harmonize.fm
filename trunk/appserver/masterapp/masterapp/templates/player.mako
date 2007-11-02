@@ -15,6 +15,7 @@
     ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
     ${h.javascript_include_tag('yui/build/slider/slider-min.js')}
     ${h.javascript_include_tag('browser.js')}
+    ${h.javascript_include_tag('bcmgr.js')}
     ${h.javascript_include_tag('playqueue.js')}
     ${h.javascript_include_tag('player.js')}
     ${h.javascript_include_tag('player_init.js')}
@@ -31,6 +32,7 @@
     <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>
 </div>
 <div id="top">
+    <div id="breadcrumb">Bread Crumb</div>
     <div id="controls">
         <!-- Put the flash player stuff in here!! -->
         <div id="player">Flash Player</div>
@@ -41,7 +43,11 @@
     <div id="status">
         <div id="time">&nbsp;</div>
         <div id="time2">&nbsp;</div>
-		<div id="timeline" tabindex="-1"><div id="shuttle"><img src= "/images/shuttle.png"></div></div>
+        <div id="timeline" tabindex="-1">
+            <div id="shuttle">
+                <img src= "/images/shuttle.png">
+            </div>
+        </div>
     </div>
 </div>
 

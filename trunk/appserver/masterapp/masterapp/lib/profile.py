@@ -14,4 +14,5 @@ class Profile:
     click = "#C55F0D" 
     oddrow_bg = "#FFF6DA"
     sortoddrow_bg = "#FFDD9E"
+    select = "#A0B5DF"
  

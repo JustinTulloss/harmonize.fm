@@ -20,6 +20,7 @@ var Event = YAHOO.util.Event,
 var flplayer; //the flash player
 var playqueue = null;
 var browser = null;
+var bread_crumb = null;
 
 /****
 * drag and drop test
@@ -46,16 +47,23 @@ function enqueueRow(rowId)
     playqueue.addRow(newRecord._oData); //This is a horrible abuse of "private" data
 }
 
+
 /******* Initialization functions ********/
 function init()
 {
+    bread_crumb = new BreadCrumb('breadcrumb');
     flplayer = new Player('player');
     browser = new Browser();
+    browser.table.subscribe("rowDblclickEvent", descend);
     playqueue = new PlayQueue('queue', 'songlist');
     init_seekbar();
     init_mouseovers();
 }
 
+function descend(oArgs)
+{
+    alert(bread_crumb.descend(new BcEntry("album", "In Rainbows")));
+}
 
 /***TODO: Get rid of this slop******/
 var slider, 
