@@ -55,6 +55,10 @@ a.menuitem:hover {
     margin-right: 1em;
 }
 
+.bc {
+    display:inline;
+}
+
 .bc_link{
     display: inline;
 }
@@ -165,4 +169,5 @@ a.menuitem:hover {
     margin: 0;
     padding: 0;
 }
+
 
