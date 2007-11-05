@@ -6,10 +6,12 @@
     <%include file="player_css.mako" /> 
     <%include file="datatable_css.mako" />
     </style>
+
     ${h.stylesheet_link_tag('datatable-skin')}
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
+    ${h.javascript_include_tag('yui/build/connection/connection-min.js')}
     ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
     ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
     ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
@@ -50,7 +52,6 @@
         </div>
     </div>
 </div>
-
 <div id="queue">
     <div class="instruction">
         Drag here to add songs
@@ -61,4 +62,3 @@
 <div id="browser" class="yui-skin-sam">
     &nbsp;Loading...
 </div>
-

@@ -11,17 +11,17 @@ Session = scoped_session(sessionmaker(
 metadata = MetaData()
 
 #music table defn
-music_table = Table("music", metadata,
+songs_table = Table("songs", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("sha", types.String, index=True, unique=True),
     Column("title", types.String, index=True),
     Column("artist", types.String, index=True),
-    Column("album_id", types.Integer, ForeignKey("album.id"), index=True),
+    Column("album_id", types.Integer, ForeignKey("albums.id"), index=True),
     Column("tracknumber", types.Integer),
     Column("recommendations", types.Integer)
 )
 
-album_table = Table("album", metadata,
+albums_table = Table("albums", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("album_title", types.String, index=True),
     Column("genre", types.String, index=True),
@@ -32,7 +32,7 @@ album_table = Table("album", metadata,
 ownership_table = Table("ownership", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("uid", types.Integer, index=True),
-    Column("mid", types.Integer, ForeignKey("music.id"), index=True)
+    Column("mid", types.Integer, ForeignKey("songs.id"), index=True)
 )
 
 """
@@ -40,13 +40,17 @@ Classes that represent above tables. You can add abstractions here
 (like constructors) that make the tables even easier to work with
 """
 
-class Music(object):
+class Songs(object):
     pass
-class Album(object):
+class Albums(object):
     pass
 class Ownership(object):
     pass
 
-mapper(Music, music_table)
-mapper(Album, album_table)
-mapper(Ownership, ownership_table)
+mapper(Songs, songs_table)
+mapper(Albums, albums_table, properties={  
+        'songs':relation(Songs, backref='album')}
+    )
+mapper(Ownership, ownership_table, properties={  
+        'ownedsongs':relation(Songs, backref='owner')}
+    )

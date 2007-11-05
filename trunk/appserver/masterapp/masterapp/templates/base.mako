@@ -14,4 +14,3 @@
 <%def name="head_tags()">
     <title>Override this title!</title>
 </%def>
-
