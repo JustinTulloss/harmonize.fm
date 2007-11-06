@@ -52,9 +52,9 @@ function enqueueRow(rowId)
 function init()
 {
     bread_crumb = new BreadCrumb('breadcrumb');
+    bread_crumb.update();
     flplayer = new Player('player');
-    browser = new Browser();
-    browser.table.subscribe("rowDblclickEvent", descend);
+    browser = new Browser('browser');
     playqueue = new PlayQueue('queue', 'songlist');
     init_seekbar();
     init_mouseovers();
@@ -62,6 +62,7 @@ function init()
 
 function descend(oArgs)
 {
+
     alert(bread_crumb.descend(new BcEntry("album", "In Rainbows")));
 }
 
@@ -152,7 +153,7 @@ function init_mouseovers()
 	}
 }
 
-Event.onDOMReady(init);
+Ext.onReady(init);
 /****End of Initializations ****/
 
 

@@ -30,6 +30,8 @@ th .yui-dt-resizer {
 /* foundational scrolling css */
 .yui-dt-scrollable  {
     *overflow-y:auto; /* for ie */
+    width:100%;
+    height:100%;
 }
 .yui-dt-scrollable  thead {
     display:block; /* for safari and opera */
@@ -37,9 +39,12 @@ th .yui-dt-resizer {
 .yui-dt-scrollable thead tr {
     position:relative;  /* for ie */
 }
+
 .yui-dt-scrollbody {
     display:block; /* for safari and opera */
     overflow:auto; /* for gecko */
+    height:100%;
+    *height:auto;
 }
 
 .yui-dt-editor {
@@ -52,6 +57,7 @@ th .yui-dt-resizer {
     margin:0;
     padding:0;
     width: 100%;
+    max-width: 100%;
     font-size:inherit;
     border-collapse:collapse;
     border: none;

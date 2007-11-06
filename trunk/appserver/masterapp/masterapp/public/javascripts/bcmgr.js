@@ -16,8 +16,8 @@ function BcEntry(type, value)
 function BreadCrumb(domObj, link_action)
 {
     var Dom = YAHOO.util.Dom;
-    var bclist = new Array(new BcEntry("artist", "Radiohead"), new BcEntry("album"));
-    var current = 0;
+    var bclist = new Array(new BcEntry("home"), new BcEntry("artist", "Radiohead"), new BcEntry("album"));
+    var current = 2;
     var div = Dom.get(domObj);
     //this.link_action = link_action;
     this.link_action = jump_to;
@@ -65,15 +65,21 @@ function BreadCrumb(domObj, link_action)
         div.innerHTML = "";
         for (var i=0; i<bclist.length; i++) {
             newId = "bc_"+bclist[i].type;
+
+            if (bclist[i].value==null)
+                value = bclist[i].type.capitalize();
+            else
+                value = bclist[i].value;
+
            if (current == i) {
                 div.innerHTML += "<div class='bc bc_current' id="+newId+">" + 
-                    bclist[i].value + 
+                    value +
                 "</div>";
             }
             else {
-                div.innerHTML += "<div class='bc bc_link' id="+newId+">" + 
-                    "<a href= 'javascript:jump_to(\'artist\')'>"+
-                        bclist[i].value + 
+                div.innerHTML += "<div class='bc' id="+newId+">" + 
+                    "<a class='bc_link' href= 'javascript:jump_to'>"+
+                        value + 
                     "</a>"
                 "</div>";
             }

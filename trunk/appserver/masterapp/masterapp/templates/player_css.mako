@@ -39,7 +39,7 @@ a.menuitem:hover {
     text-align: center;
     display: table-cell;
     vertical-align: middle;
-    #position: relative;
+    #position: relative; /*IE fixes*/
     #top: 50%;
 }
 
@@ -55,14 +55,17 @@ a.menuitem:hover {
     margin-right: 1em;
 }
 
+a.bc_link {
+    color:${c.profile.primary_txt};
+}
+
+a.bc_link:hover {
+    color: ${c.profile.click};
+}
+
 .bc {
     display:inline;
 }
-
-.bc_link{
-    display: inline;
-}
-    
 
 #menu {
     position: absolute;
@@ -161,13 +164,18 @@ a.menuitem:hover {
     border-right: 1px solid ${c.profile.border};
 }
 
-#browser {
+.browser {
     position: absolute;
     top: 73px;
     right: 0px;
     width: 84%;
     margin: 0;
     padding: 0;
+}
+
+#browser {
+    width: 1000px;
+    height: 1000px;
 }
 
 

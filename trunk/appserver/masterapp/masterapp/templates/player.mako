@@ -5,18 +5,20 @@
     <style type="text/css">
     <%include file="player_css.mako" /> 
     <%include file="datatable_css.mako" />
+    <%include file="ext-all-css.mako" />
     </style>
 
-    ${h.stylesheet_link_tag('datatable-skin')}
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
     ${h.javascript_include_tag('yui/build/connection/connection-min.js')}
+    ${h.javascript_include_tag('ext/adapter/yui/ext-yui-adapter.js')}
+    ${h.javascript_include_tag('ext/ext-all-debug.js')}
     ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
     ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
     ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
     ${h.javascript_include_tag('yui/build/slider/slider-min.js')}
-    ${h.javascript_include_tag('browser.js')}
+    ${h.javascript_include_tag('extbrowser.js')}
     ${h.javascript_include_tag('bcmgr.js')}
     ${h.javascript_include_tag('playqueue.js')}
     ${h.javascript_include_tag('player.js')}
@@ -59,6 +61,15 @@
         Hit the <img class="middle" src="/images/enqueue.png" /> button
     </div>
 </div>
-<div id="browser" class="yui-skin-sam">
+<div id="home" class="browser">
+    <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Artists", "go('artists')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Albums", "go('albums')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Songs", "go('songs')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Friends", "go('friends')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Genres", "go('genres')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Settings", "go('settings')", Class='menuitem')}</div>
+</div>
+<div id="browser" class="browser yui-skin-sam">
     &nbsp;Loading...
 </div>

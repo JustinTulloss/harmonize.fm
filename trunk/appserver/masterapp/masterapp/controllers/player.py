@@ -21,23 +21,23 @@ class PlayerController(BaseController):
         for row in artists:
             print row
         return artists
-   
+
     @jsonify
     def get_albums(self):
         myartist = request.params.get('artist')
         myalbum = request.params.get('album')
         myfriend = request.params.get('fid')
-        tuples = Session.query(Albums).add_entity(Songs).join('songs').filter_by(artist="Metallica").all()
+        tuples = Session.query(Albums).add_entity(Songs).join('songs').filter_by(artist="Radiohead").all()
         # row[0] is for album data, row[1] is for song data 
         json = { "type":"albums", 
                  "data" : [
                         {
                          "artist": "%s" % (tuples[row][1].artist), 
-                         "year": "%d" % (tuples[row][0].year), 
+                         "year": tuples[row][0].year, 
                          "genre": "%s" % (tuples[row][0].genre),
                          "album": "%s" % (tuples[row][0].album_title), 
-                         "tracknumber": "%d" % (tuples[row][1].tracknumber),
-                         "totaltracks": "%d" % (tuples[row][0].totaltracks)
+                         "tracknumber": tuples[row][1].tracknumber,
+                         "totaltracks": tuples[row][0].totaltracks
                         } for row in range(len(tuples))
                     ]
                }   
@@ -49,17 +49,18 @@ class PlayerController(BaseController):
         myalbum = request.params.get('album')
         myfriend = request.params.get('fid')
         tuples = Session.query(Albums).add_entity(Songs).join('songs').all()
+        print len(tuples)
         # row[0] is for album data, row[1] is for song data 
         json = { "type":"songs", 
                  "data" : [
                         {
                          "title": "%s" % (tuples[row][1].title), 
                          "artist": "%s" % (tuples[row][1].artist), 
-                         "year": "%d" % (tuples[row][0].year), 
+                         "year": tuples[row][0].year, 
                          "genre": "%s" % (tuples[row][0].genre),
                          "album": "%s" % (tuples[row][0].album_title), 
-                         "tracknumber": "%d" % (tuples[row][1].tracknumber),
-                         "recs": "%d" % (tuples[row][1].recommendations)
+                         "tracknumber": tuples[row][1].tracknumber,
+                         "recs": tuples[row][1].recommendations
                         } for row in range(len(tuples))
                     ]
                }   
