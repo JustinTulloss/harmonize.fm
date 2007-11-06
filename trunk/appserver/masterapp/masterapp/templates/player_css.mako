@@ -68,9 +68,8 @@ a.bc_link:hover {
 }
 
 #menu {
-    position: absolute;
-    top: 0px;
-    height: 15px;
+    display:block;
+    height: 18px;
     width:100%;
     z-index:23;
     background: #486BAA;
@@ -95,11 +94,9 @@ a.bc_link:hover {
 }
 
 #top {
-    position: absolute;
-    top: 15px;
-    left: 0;
-    height: 58px;
+    display:block;
 	width: 100%;
+    height: 58px;
     z-index: 25;
     background-image: url('/images/top-bg.png');
     background-repeat: repeat-x;
@@ -153,7 +150,6 @@ a.bc_link:hover {
     position: absolute;
     top: 0px;
     left: 0;
-    padding-top: 80px;
     z-index: 20;
     display:table;
     width: 16%;
@@ -161,21 +157,5 @@ a.bc_link:hover {
     min-width: 130px;
     vertical-align: middle;
 	background-color: ${c.profile.queue_bg};
-    border-right: 1px solid ${c.profile.border};
 }
-
-.browser {
-    position: absolute;
-    top: 73px;
-    right: 0px;
-    width: 84%;
-    margin: 0;
-    padding: 0;
-}
-
-#browser {
-    width: 1000px;
-    height: 1000px;
-}
-
 

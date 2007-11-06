@@ -43,6 +43,7 @@ row0.onDragDrop = function(e, id)
 
 function enqueueRow(rowId)
 {
+    alert("we made it");
     newRecord = browser.table.getRecord(rowId);
     playqueue.addRow(newRecord._oData); //This is a horrible abuse of "private" data
 }
@@ -54,10 +55,32 @@ function init()
     bread_crumb = new BreadCrumb('breadcrumb');
     bread_crumb.update();
     flplayer = new Player('player');
-    browser = new Browser('browser');
     playqueue = new PlayQueue('queue', 'songlist');
+    browser = new Browser('browser', enqueueRow);
     init_seekbar();
     init_mouseovers();
+    bigshow = new Ext.BorderLayout(document.body, {
+        north: {
+            initializeSize: 73,
+            titlebar: false
+        },
+        west: {
+            split: true,
+            initialSize: '16%',
+            titlebar:false,
+            collapsible: true
+        },
+        center : {
+        }
+    });
+    var CP = Ext.ContentPanel
+
+    bigshow.beginUpdate();
+    bigshow.add('north', new CP('header'));
+    bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
+    bigshow.add('center', new CP('browser', {fitToFrame:true}) );
+    bigshow.endUpdate();
+
 }
 
 function descend(oArgs)
