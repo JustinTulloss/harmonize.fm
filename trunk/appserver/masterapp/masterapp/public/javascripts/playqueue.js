@@ -8,29 +8,29 @@
 
 function PlayQueue(domObj, dragGroup)
 {
-    this.div = domObj;
-    var queue = new Ext.dd.DropTarget(this.div);
+    var div = Ext.get(domObj);
+    var queue = new Ext.dd.DropTarget(div);
     queue.addToGroup("GridDD"); //This is undocumented, but necessary!
 
-    var colDefs= [
-    {key:"song_expand", formatter:function(addCell) {
-        addCell.innerHTML = '<img src="/images/song_expand.png" />';
-        addCell.style.cursor = 'pointer';
-        }, resizeable:false , width:"15px"},
-    {key:"title"},
-    {key:"song_remove", formatter:function(addCell) {
-        addCell.innerHTML = '<img src="/images/song_remove.png" />';
-        addCell.style.cursor = 'pointer';
-        }, resizeable:false , width:"15px"},
-    ];
+    var instructions = new Ext.Template(
+            '<div id="instruction" class="instruction">',
+                    'Drag here to add songs',
+                    '<br>-OR-<br>',
+                    'Hit the <img class="middle" src="/images/enqueue.png" /> button',
+            '</div>');
 
-    this.dataSource= new YAHOO.util.DataSource();
-    this.dataSource.responseType = YAHOO.util.DataSource.TYPE_JSON;
-    this.dataSource.responseSchema = {
-        fields: ["track_num", "title","artist","album","length","year"]
-    };
-    
-    this.table = null;
+    instructions.overwrite(div);
+    clear = true;
+
+    //Let's try a tree instead of a datasource, just for kicks and giggles
+    Tree = Ext.tree;
+    tree = new Tree.TreePanel(div, {
+                animate:true,
+                enableDD:true,
+		rootVisible:false
+            });
+    root = new Tree.AsyncTreeNode({text:'queue', draggable:false, id:'source'});
+    tree.setRootNode(root);
 
     queue.notifyDrop = dropAction;
 
@@ -48,10 +48,18 @@ function PlayQueue(domObj, dragGroup)
 
     function addRow(newRow)
     {
-        if (this.table == null) 
-            this.table = new YAHOO.widget.DataTable(this.div,
-                    colDefs, this.dataSource);
-        this.table.addRow(newRow);
+	    if (clear==true) {
+            div.dom.innerHTML="";
+            tree.render();
+            root.expand();
+            clear = false;
+        }
+        newNode = new Tree.AsyncTreeNode({
+            text:newRow.title, 
+            id:newRow.title,
+	    allowDrop: false
+        });
+        root.appendChild(newNode);
     }
 
 }

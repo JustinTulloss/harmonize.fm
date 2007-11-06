@@ -10,6 +10,7 @@
 
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
+    ${h.javascript_include_tag('yui/build/animation/animation-min.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
     ${h.javascript_include_tag('yui/build/connection/connection-min.js')}
     ${h.javascript_include_tag('ext/adapter/yui/ext-yui-adapter.js')}
@@ -57,11 +58,6 @@
     </div>
 </div>
 <div id="queue">
-    <div class="instruction">
-        Drag here to add songs
-        <br>-OR-<br>
-        Hit the <img class="middle" src="/images/enqueue.png" /> button
-    </div>
 </div>
 <div id="home" class="browser">
     <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
