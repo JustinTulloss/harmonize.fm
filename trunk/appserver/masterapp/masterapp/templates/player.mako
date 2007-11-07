@@ -68,6 +68,6 @@
     <div class="menuitem">${h.link_to_function("Genres", "go('genres')", Class='menuitem')}</div>
     <div class="menuitem">${h.link_to_function("Settings", "go('settings')", Class='menuitem')}</div>
 </div>
-<div id="browser" class="yui-skin-sam">
+<div id="browser">
     &nbsp;Loading...
 </div>

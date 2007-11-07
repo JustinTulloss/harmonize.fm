@@ -27,7 +27,8 @@ function PlayQueue(domObj, dragGroup)
     tree = new Tree.TreePanel(div, {
                 animate:true,
                 enableDD:true,
-		rootVisible:false
+                fitToFrame:true,
+                rootVisible:false
             });
     root = new Tree.AsyncTreeNode({text:'queue', draggable:false, id:'source'});
     tree.setRootNode(root);
@@ -57,7 +58,8 @@ function PlayQueue(domObj, dragGroup)
         newNode = new Tree.AsyncTreeNode({
             text:newRow.title, 
             id:newRow.title,
-	    allowDrop: false
+            cls: "x-tree-noicon",
+            allowDrop: false
         });
         root.appendChild(newNode);
     }

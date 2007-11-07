@@ -11,14 +11,12 @@
  * http://www.extjs.com/license
  */
 
-/*
 html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,p,blockquote,th,td{margin:0;padding:0;}
 img,body,html{border:0;}
 address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
-ol,ul{list-style:none;}
 caption,th{text-align:left;}
 h1,h2,h3,h4,h5,h6{font-size:100%;}
-*/
+ol,ul{list-style:none;}
 q:before,q:after{content:'';}
 
 .ext-el-mask{z-index:20000;position:absolute;top:0;left:0;-moz-opacity:0.5;opacity:.50;filter:alpha(opacity=50);background-color:#CCC;width:100%;height:100%;zoom:1;}
@@ -440,26 +438,26 @@ body.x-body-masked .x-dlg select{visibility:visible;}
 .x-dd-drop-ok .x-dd-drop-icon{background-image:url(../images/default/dd/drop-yes.gif);}
 .x-dd-drop-ok-add .x-dd-drop-icon{background-image:url(../images/default/dd/drop-add.gif);}
 
-.x-tree-icon,.x-tree-ec-icon,.x-tree-elbow-line,.x-tree-elbow,.x-tree-elbow-end,.x-tree-elbow-plus,.x-tree-elbow-minus,.x-tree-elbow-end-plus,.x-tree-elbow-end-minus{border:0 none;height:18px;margin:0;padding:0;vertical-align:middle;width:16px;background-repeat:no-repeat;}
-.x-tree-node-collapsed .x-tree-node-icon,.x-tree-node-expanded .x-tree-node-icon,.x-tree-node-leaf .x-tree-node-icon{border:0 none;height:18px;margin:0;padding:0;vertical-align:middle;width:16px;background-position:center;background-repeat:no-repeat;}
-.x-tree-node-collapsed .x-tree-node-icon{background-image:url(../images/default/tree/folder.gif);}
-.x-tree-node-expanded .x-tree-node-icon{background-image:url(../images/default/tree/folder-open.gif);}
-.x-tree-node-leaf .x-tree-node-icon{background-image:url(../images/default/tree/leaf.gif);}
+.x-tree-icon,.x-tree-ec-icon,.x-tree-elbow-line,.x-tree-elbow,.x-tree-elbow-end,.x-tree-elbow-plus,.x-tree-elbow-minus,.x-tree-elbow-end-plus,.x-tree-elbow-end-minus{border:0 none;height:21px;margin:0;padding:0;vertical-align:middle;width:19px;background-repeat:no-repeat;}
+.x-tree-node-collapsed .x-tree-node-icon,.x-tree-node-expanded .x-tree-node-icon,.x-tree-node-leaf .x-tree-node-icon{border:0 none;height:20px;margin:0;padding:0;vertical-align:middle;width:20px;background-position:center;background-repeat:no-repeat;}
+.x-tree-node-collapsed .x-tree-node-icon{};
+.x-tree-node-expanded .x-tree-node-icon{background-image:url(/images/song_collapse.png);}
+.x-tree-node-leaf .x-tree-node-icon{}
 .ext-ie input.x-tree-node-cb{width:15px;height:15px;}
 input.x-tree-node-cb{margin-left:1px;}
 .ext-ie input.x-tree-node-cb{margin-left:0;}
 .x-tree-noicon .x-tree-node-icon{width:0;height:0;}
-.x-tree-node-loading .x-tree-node-icon{background-image:url(../images/default/tree/loading.gif)!important;}
-.x-tree-node-loading a span{font-style:italic;color:#444;}
+.x-tree-node-loading .x-tree-node-icon{background-image:url(/images/loading.gif)!important;}
+.x-tree-node-loading a span{color:#444;}
 .x-tree-lines .x-tree-elbow{background-image:url(../images/default/tree/elbow.gif);}
-.x-tree-lines .x-tree-elbow-plus{background-image:url(../images/default/tree/elbow-plus.gif);}
+.x-tree-lines .x-tree-elbow-plus{background-image:url(/images/song_expand.png);}
 .x-tree-lines .x-tree-elbow-minus{background-image:url(../images/default/tree/elbow-minus.gif);}
 .x-tree-lines .x-tree-elbow-end{background-image:url(../images/default/tree/elbow-end.gif);}
-.x-tree-lines .x-tree-elbow-end-plus{background-image:url(../images/default/tree/elbow-end-plus.gif);}
+.x-tree-lines .x-tree-elbow-end-plus{background-image:url(/images/song_expand.png);}
 .x-tree-lines .x-tree-elbow-end-minus{background-image:url(../images/default/tree/elbow-end-minus.gif);}
 .x-tree-lines .x-tree-elbow-line{background-image:url(../images/default/tree/elbow-line.gif);}
 .x-tree-no-lines .x-tree-elbow{background:transparent;}
-.x-tree-no-lines .x-tree-elbow-plus{background-image:url(../images/default/tree/elbow-plus-nl.gif);}
+.x-tree-no-lines .x-tree-elbow-plus{background-image:url(/images/song_expand.png);}
 .x-tree-no-lines .x-tree-elbow-minus{background-image:url(../images/default/tree/elbow-minus-nl.gif);}
 .x-tree-no-lines .x-tree-elbow-end{background:transparent;}
 .x-tree-no-lines .x-tree-elbow-end-plus{background-image:url(../images/default/tree/elbow-end-plus-nl.gif);}
