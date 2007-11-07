@@ -11,10 +11,10 @@ function Browser(domObj, dropAction){
     this.dropAction = dropAction;
 
     // create the Data Store
-    var ds = new Ext.data.JsonStore({
-        url:'player/get_songs',
+    this.ds = new Ext.data.JsonStore({
+        url:'player/get_data',
         root: 'data',
-        fields: ['title', 'artist', 'album']
+        fields: ['title', 'artist', 'album', 'year', 'genre', 'tracknumber', 'totaltracks', 'recs']
     });
 
     // the column model has information about grid columns
@@ -40,7 +40,7 @@ function Browser(domObj, dropAction){
 
     // create the editor grid
     var grid = new Ext.grid.Grid(div, {
-        ds: ds,
+        ds: this.ds,
         cm: cm,
         selModel: new Ext.grid.RowSelectionModel(),
         enableColLock:false,
@@ -66,6 +66,6 @@ function Browser(domObj, dropAction){
     grid.render();
 
     // trigger the data store load
-    ds.load();
+    this.ds.load();
 }
 

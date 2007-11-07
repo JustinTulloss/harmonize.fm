@@ -40,12 +40,30 @@ Classes that represent above tables. You can add abstractions here
 (like constructors) that make the tables even easier to work with
 """
 
-class Songs(object):
-    pass
+class Songs(object): 
+    def __init__(self, id, sha, title, artist, album_id, tracknumber, recommendations):
+        self.id = id
+        self.sha = sha
+        self.title = title
+        self.artist = artist
+        self.album_id = album_id
+        self.tracknumber = tracknumber
+        self.recommendations = recommendations
+        
 class Albums(object):
-    pass
+    def __init__(self, id, album_title, genre, year, totaltracks):
+        self.id = id
+        self.album_title = album_title
+        self.genre = genre
+        self.year = year
+        self.totaltracks = totaltracks
+    
 class Ownership(object):
-    pass
+    def __init__(self, id, uid, mid):
+        self.id = id
+        self.uid = uid
+        self.mid = mid
+    
 
 mapper(Songs, songs_table)
 mapper(Albums, albums_table, properties={  
