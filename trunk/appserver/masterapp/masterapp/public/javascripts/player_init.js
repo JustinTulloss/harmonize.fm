@@ -22,33 +22,6 @@ var playqueue = null;
 var browser = null;
 var bread_crumb = null;
 
-/****
-* drag and drop test
-*I'll probably mess this up pretty good
-****/
-var row0 = new YAHOO.util.DDProxy("yui-dt0-bdrow0", "songlist");
-/*
-var row1 = new YAHOO.util.DDProxy("yui-dt0-bdrow1", "songlist");
-var row2 = new YAHOO.util.DDProxy("yui-dt0-bdrow2", "songlist");
-var row3 = new YAHOO.util.DDProxy("yui-dt0-bdrow3", "songlist");
-*/
-
-row0.onDragDrop = function(e, id)
-{
-    if (id=="queue"){
-        enqueueRow(this.id);
-    }
-    
-};
-
-function enqueueRow(rowId)
-{
-    alert("we made it");
-    newRecord = browser.table.getRecord(rowId);
-    playqueue.addRow(newRecord._oData); //This is a horrible abuse of "private" data
-}
-
-
 /******* Initialization functions ********/
 function init()
 {
@@ -56,7 +29,8 @@ function init()
     bread_crumb.update();
     flplayer = new Player('player');
     playqueue = new PlayQueue('queue', 'songlist');
-    browser = new Browser('browser', enqueueRow);
+    browser = new Browser('browser');
+    browser.grid.on("rowdblclick", descend);
     init_seekbar();
     init_mouseovers();
     bigshow = new Ext.BorderLayout(document.body, {
@@ -80,13 +54,38 @@ function init()
     bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
     bigshow.add('center', new CP('browser', {fitToFrame:true}) );
     bigshow.endUpdate();
-
 }
 
-function descend(oArgs)
+nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
+function descend(grid, rowIndex, e)
 {
+    ds = grid.getDataSource();
+    record = ds.getAt(rowIndex);
+    type = record.get("type");
+    value = record.get(type);
+    if (type == "song") {
+        //tell player to play this song
+        flplayer.sendEvent('playpause');
+        return;
+    }
 
-    alert(bread_crumb.descend(new BcEntry("album", "In Rainbows")));
+    params = bread_crumb.descend(value, new BcEntry(nextType[type]));
+    params["type"] = nextType[type];
+    ds.load({params:params});
+}
+
+function go(type)
+{
+    bread_crumb.jump_to('home');
+    bread_crumb.descend(null, new BcEntry(type));
+    browser.ds.load({params:{type:type}});
+}
+
+function jump_to(type)
+{
+    params = bread_crumb.jump_to(type);
+    params.type = type;
+    browser.ds.load({params:params});
 }
 
 /***TODO: Get rid of this slop******/

@@ -16,8 +16,9 @@ function BcEntry(type, value)
 function BreadCrumb(domObj, link_action)
 {
     var Dom = YAHOO.util.Dom;
-    var bclist = new Array(new BcEntry("home"), new BcEntry("artist", "Radiohead"), new BcEntry("album"));
-    var current = 2;
+    //var bclist = new Array(new BcEntry("home"), new BcEntry("artist", "Radiohead"), new BcEntry("album"));
+    var bclist = new Array(new BcEntry("home"));
+    var current = 0;
     var div = Dom.get(domObj);
     //this.link_action = link_action;
     this.link_action = jump_to;
@@ -29,8 +30,9 @@ function BreadCrumb(domObj, link_action)
     this.jump_to = jump_to;
     this.create_query = create_query;
 
-    function descend(newFilter)
+    function descend(curvalue, newFilter)
     {
+        bclist[current].value = curvalue;
         current++;
         bclist.splice(current, bclist.length-current, newFilter);
         return update();
@@ -45,8 +47,10 @@ function BreadCrumb(domObj, link_action)
     function jump_to(type)
     {
 	    for (var i=0;i<bclist.length;i++) {
-            if (bclist[i].type == type)
+            if (bclist[i].type == type) {
                 current = i;
+                bclist[i].vale = null;
+            }
         }
         return update();
     }
@@ -54,7 +58,7 @@ function BreadCrumb(domObj, link_action)
     function update()
     {
         update_div();
-        return create_query();
+        return create_params();
     }
 
     function update_div()
@@ -78,7 +82,7 @@ function BreadCrumb(domObj, link_action)
             }
             else {
                 div.innerHTML += "<div class='bc' id="+newId+">" + 
-                    "<a class='bc_link' href= 'javascript:jump_to'>"+
+                    "<a class='bc_link' href='#' onclick=jump_to('"+bclist[i].type+"')>"+
                         value + 
                     "</a>"
                 "</div>";
@@ -105,5 +109,16 @@ function BreadCrumb(domObj, link_action)
         }
         return qrystr;
     }
+
+    function create_params()
+    {
+        params = {type:null};
+        for(var i=0; i<current; i++) {
+            if(bclist[i].value != null)
+                params[bclist[i].type] = bclist[i].value;
+        }
+        return params;
+    }
+
 }
 
