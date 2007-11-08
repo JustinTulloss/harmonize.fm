@@ -31,8 +31,13 @@ albums_table = Table("albums", metadata,
 
 ownership_table = Table("ownership", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("uid", types.Integer, index=True),
+    Column("fid", types.Integer, ForeignKey("friend.id"), index=True),
     Column("mid", types.Integer, ForeignKey("songs.id"), index=True)
+)
+
+friend_table = Table("friend", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("name", types.String, index=True)
 )
 
 """
@@ -63,7 +68,11 @@ class Ownership(object):
         self.id = id
         self.uid = uid
         self.mid = mid
-    
+        
+class Friends(object):
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name    
 
 mapper(Songs, songs_table)
 mapper(Albums, albums_table, properties={  
@@ -72,3 +81,5 @@ mapper(Albums, albums_table, properties={
 mapper(Ownership, ownership_table, properties={  
         'ownedsongs':relation(Songs, backref='owner')}
     )
+mapper(Friends, friend_table)
+    

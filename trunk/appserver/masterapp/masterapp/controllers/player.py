@@ -122,11 +122,29 @@ class PlayerController(BaseController):
                  "data" : [
                         {
                          "type":"genre",
-                         "genre": "%s" % tuples[row][0]
-                        } for row in range(len(tuples))
+                         "genre": "%s" % row.genre
+                        } for row in tuples
                     ]
                }   
         return json  
+        
+    def get_friends(self, filters):
+        tuples = Session.query(Friends).all()
+        json = {
+                 "data" : [
+                        {
+                         "type":"friends",
+                         "name": "%s" % tuples[row].name
+                        } for row in range(len(tuples))
+                    ]
+               }   
+        return json          
+        
+    def add_rec(self):
+        songid = request.params.get('songid')
+        mysong = Session.query(Songs).filter_by(id=songid).one()
+        mysong.recommendations = mysong.recommendations + 1
+        Session.save()
 
     def home(self):
         pass
