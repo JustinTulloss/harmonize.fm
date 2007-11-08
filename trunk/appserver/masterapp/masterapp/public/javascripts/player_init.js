@@ -25,14 +25,15 @@ var bread_crumb = null;
 /******* Initialization functions ********/
 function init()
 {
+    mousemgr = new MouseMgr();
     bread_crumb = new BreadCrumb('breadcrumb');
     bread_crumb.update();
     flplayer = new Player('player');
     playqueue = new PlayQueue('queue', 'songlist');
     browser = new Browser('browser');
     browser.grid.on("rowdblclick", descend);
+    browser.ds.on("load", mousemgr.processImages, mousemgr);
     init_seekbar();
-    init_mouseovers();
     bigshow = new Ext.BorderLayout(document.body, {
         north: {
             initializeSize: 73,
@@ -77,7 +78,7 @@ function descend(grid, rowIndex, e)
         params.artist = record.get('artist');
 
     ds.load({params:params});
-    browser.changeColModel(type);
+    browser.changeColModel(nextType[type]);
 }
 
 function go(type)
@@ -154,35 +155,6 @@ function init_seekbar()
             }
             });
 }
-
-/* Mouseover code that doesn't require mouseover being in the HTML 
- * Blatantly stolen with much thanks from 
- * http://www.quirksmode.org/js/mouseov.html 
- */
-var W3CDOM = (document.createElement && document.getElementsByTagName);
-
-var mouseOvers = new Array();
-var mouseOuts = new Array();
-var playpause = new Array();
-
-function init_mouseovers()
-{
-	if (!W3CDOM) return;
-	var nav = document.getElementById('controls');
-	var imgs = nav.getElementsByTagName('img');
-	for (var i=0;i<imgs.length;i++)
-	{
-		imgs[i].onmouseover = mouseGoesOver;
-		imgs[i].onmouseout = mouseGoesOut;
-		var suffix = imgs[i].src.substring(imgs[i].src.lastIndexOf('.'));
-		mouseOuts[i] = new Image();
-		mouseOuts[i].src = imgs[i].src;
-		mouseOvers[i] = new Image();
-		mouseOvers[i].src = imgs[i].src.substring(0,imgs[i].src.lastIndexOf('.')) + "_over" + suffix;
-		imgs[i].number = i;
-	}
-}
-
 Ext.onReady(init);
 /****End of Initializations ****/
 

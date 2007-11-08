@@ -19,6 +19,7 @@
     ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
     ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
     ${h.javascript_include_tag('yui/build/slider/slider-min.js')}
+    ${h.javascript_include_tag('mousemgr.js')}
     ${h.javascript_include_tag('extbrowser.js')}
     ${h.javascript_include_tag('bcmgr.js')}
     ${h.javascript_include_tag('playqueue.js')}
@@ -40,7 +41,7 @@
     <div id="top">
         <div id="breadcrumb">Bread Crumb</div>
         <div id="controls">
-            <!-- Put the flash player stuff in here!! -->
+            <!-- Put the flash player stuff in here!! !-->
             <div id="player">Flash Player</div>
             <img class="control" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
             <img class="control" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>

@@ -12,25 +12,25 @@
 function Player(domObj)
 {
     var div = domObj;
-    // some player variables to save
+    // this.some player variables to save
     var currentPosition;
     var currentVolume;
     var currentItem;
     var totalTime;
-    var so = new SWFObject('/flash/mediaplayer.swf','rubiconfl','0','0','7');
+    this.so = new SWFObject('/flash/mediaplayer.swf','rubiconfl','0','0','7');
 
-    so.useExpressInstall('/flash/expressinstall.swf')
-    so.addParam('allowfullscreen','true');
-    so.addVariable('file','music/a12883770c0e5760744b24110af1b45ef7083f7b');
-    so.addVariable('showdigits','false');
-    so.addVariable('shuffle','false');
-    so.addVariable('smoothing','false');
-    so.addVariable('enablejs','true');
-    so.addVariable('javascriptid','rubiconfl');
-    so.addVariable('type','mp3');
-    so.addVariable('usecaptions','false');
-    so.addVariable('usefullscreen','false');
-    so.write(div);
+    this.so.useExpressInstall('/flash/expressinstall.swf')
+    this.so.addParam('allowfullscreen','true');
+    this.so.addVariable('file','music/a12883770c0e5760744b24110af1b45ef7083f7b');
+    this.so.addVariable('showdigits','false');
+    this.so.addVariable('shuffle','false');
+    this.so.addVariable('smoothing','false');
+    this.so.addVariable('enablejs','true');
+    this.so.addVariable('javascriptid','rubiconfl');
+    this.so.addVariable('type','mp3');
+    this.so.addVariable('usecaptions','false');
+    this.so.addVariable('usefullscreen','false');
+    this.so.write(div);
     
     //Public functions
     this.sendEvent = sendEvent;
@@ -43,8 +43,7 @@ function Player(domObj)
     // these functions are caught by the JavascriptView object of the player.
     function sendEvent(typ,prm) 
     {
-        pl = thisMovie("rubiconfl");
-        pl.sendEvent(typ,prm); 
+        Ext.getDom('rubiconfl').sendEvent(typ,prm);
     }
 
     //TODO: Make this function less ugly than sin, use a real event model
@@ -75,32 +74,22 @@ function Player(domObj)
     // These functions are caught by the feeder object of the player.
     function loadFile(obj) 
     { 
-        thisMovie('rubiconfl').loadFile(obj); 
+        Ext.getDom('rubiconfl').loadFile(obj); 
     }
 
     function addItem(obj,idx) 
     { 
-        thisMovie('rubiconfl').addItem(obj,idx); 
+        Ext.getDom('rubiconfl').addItem(obj,idx); 
     }
 
     function removeItem(idx) 
     { 
-        thisMovie('rubiconfl').removeItem(idx); 
+        Ext.getDom('rubiconfl').removeItem(idx); 
     }
 
     function seek(percent)
     {
-        sendEvent('scrub', totalTime*percent);
-    }
-
-    // This is a javascript handler for the player and is always needed.
-    function thisMovie(movieName) 
-    {
-        if(navigator.appName.indexOf("Microsoft") != -1) {
-            return window[movieName];
-        } else {
-            return document[movieName];
-        }
+        Ext.getDom('scrub', totalTime*percent);
     }
 }
 
@@ -109,5 +98,3 @@ function getUpdate(typ,pr1,pr2,pid)
 {
     flplayer.getUpdate(typ, pr1, pr2, pid);
 }
-
-
