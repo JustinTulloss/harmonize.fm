@@ -18,7 +18,8 @@ songs_table = Table("songs", metadata,
     Column("artist", types.String, index=True),
     Column("album_id", types.Integer, ForeignKey("albums.id"), index=True),
     Column("tracknumber", types.Integer),
-    Column("recommendations", types.Integer)
+    Column("recommendations", types.Integer),
+    Column("owner_id", types.Integer, ForeignKey("friend.id"), index=True)
 )
 
 albums_table = Table("albums", metadata,
@@ -27,12 +28,6 @@ albums_table = Table("albums", metadata,
     Column("genre", types.String, index=True),
     Column("year", types.Integer, index=True),
     Column("totaltracks", types.Integer)
-)
-
-ownership_table = Table("ownership", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("fid", types.Integer, ForeignKey("friend.id"), index=True),
-    Column("mid", types.Integer, ForeignKey("songs.id"), index=True)
 )
 
 friend_table = Table("friend", metadata,
@@ -46,7 +41,7 @@ Classes that represent above tables. You can add abstractions here
 """
 
 class Songs(object): 
-    def __init__(self, id, sha, title, artist, album_id, tracknumber, recommendations):
+    def __init__(self, id, sha, title, artist, album_id, tracknumber, recommendations, owner_id):
         self.id = id
         self.sha = sha
         self.title = title
@@ -54,6 +49,7 @@ class Songs(object):
         self.album_id = album_id
         self.tracknumber = tracknumber
         self.recommendations = recommendations
+        self.owner_id = owner_id
         
 class Albums(object):
     def __init__(self, id, album_title, genre, year, totaltracks):
@@ -62,24 +58,19 @@ class Albums(object):
         self.genre = genre
         self.year = year
         self.totaltracks = totaltracks
-    
-class Ownership(object):
-    def __init__(self, id, uid, mid):
-        self.id = id
-        self.uid = uid
-        self.mid = mid
         
 class Friends(object):
     def __init__(self, id, name):
         self.id = id
         self.name = name    
+        
+
 
 mapper(Songs, songs_table)
 mapper(Albums, albums_table, properties={  
         'songs':relation(Songs, backref='album')}
     )
-mapper(Ownership, ownership_table, properties={  
-        'ownedsongs':relation(Songs, backref='owner')}
+mapper(Friends, friend_table, properties={
+        'songs':relation(Songs, backref='friend')}
     )
-mapper(Friends, friend_table)
     
