@@ -55,13 +55,66 @@ function PlayQueue(domObj, dragGroup)
             root.expand();
             clear = false;
         }
-        newNode = new Tree.AsyncTreeNode({
+
+        nodeConfig = {
             text:newRow.title, 
             id:newRow.title,
             cls: "x-tree-noicon",
             allowDrop: false
-        });
+        }
+
+        switch(newRow.type) {
+            case 'artist':
+                addArtist(newRow);
+                return;
+            case 'album':
+                nodeConfig.text = newRow.album + " - "+newRow.artist;
+                nodeConfig.id = newRow.album;
+                break;
+            case 'song':
+                nodeConfig.text = newRow.title;
+                nodeConfig.id = newRow.title;
+                nodeConfig.leaf = true;
+                break;
+            case 'genre':
+                addGenre(newRow);
+                return;
+            case 'friend':
+                addFriend(newRow);
+                return;
+        }
+
+        newNode = new Tree.AsyncTreeNode(nodeConfig);
         root.appendChild(newNode);
+    }
+
+    function addArtist(row)
+    {
+        //request albums by artist asynchronously
+        var tmpStore = new Ext.data.JsonStore({
+            url: 'player/get_data',
+            root: 'data',
+            fields: ['album', 'artist']
+        });
+        tmpStore.load({
+            params:{type:'album', artist:row.artist},
+            callback: enqueueAlbums,
+        });
+    }
+
+    function enqueueAlbums(records, options, success)
+    {
+        if (!success)
+            return;
+        for (var i = 0; i<records.length; i++) {
+            newNode = new Tree.AsyncTreeNode({
+                text:records[i].get('album') + " - " + records[i].get('artist'),
+                id:records[i].get('album'),
+                cls: "x-tree-noicon",
+                allowDrop: false
+            });
+            root.appendChild(newNode);
+        }
     }
 
 }

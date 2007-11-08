@@ -52,7 +52,7 @@ function init()
     bigshow.beginUpdate();
     bigshow.add('north', new CP('header'));
     bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
-    bigshow.add('center', new CP('browser', {fitToFrame:true}) );
+    bigshow.add('center', new Ext.GridPanel(browser.grid, {fitToFrame:true}) );
     bigshow.endUpdate();
 }
 
@@ -63,6 +63,7 @@ function descend(grid, rowIndex, e)
     record = ds.getAt(rowIndex);
     type = record.get("type");
     value = record.get(type);
+
     if (type == "song") {
         //tell player to play this song
         flplayer.sendEvent('playpause');
@@ -71,7 +72,12 @@ function descend(grid, rowIndex, e)
 
     params = bread_crumb.descend(value, new BcEntry(nextType[type]));
     params["type"] = nextType[type];
+    /*TODO: Get rid of this giant HACK! */
+    if (type == 'album')
+        params.artist = record.get('artist');
+
     ds.load({params:params});
+    browser.changeColModel(type);
 }
 
 function go(type)
@@ -79,6 +85,7 @@ function go(type)
     bread_crumb.jump_to('home');
     bread_crumb.descend(null, new BcEntry(type));
     browser.ds.load({params:{type:type}});
+    browser.changeColModel(type);
 }
 
 function jump_to(type)
@@ -86,6 +93,7 @@ function jump_to(type)
     params = bread_crumb.jump_to(type);
     params.type = type;
     browser.ds.load({params:params});
+    browser.changeColModel(type);
 }
 
 /***TODO: Get rid of this slop******/

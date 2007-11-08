@@ -21,22 +21,24 @@ function Browser(domObj, dropAction){
     // dataIndex maps the column to the specific data field in
     // the data store
     var cm = {
-        songs:new Ext.grid.ColumnModel([
-            {  id: 'add',
-               header: 'Add',
-               renderer: enqColumn,
-               sortable: false,
-               width: '20px'
+        song:new Ext.grid.ColumnModel([
+            {  
+                id: 'add',
+                header: 'Add',
+                renderer: enqColumn,
+                sortable: false,
+                width: '20px'
             },{
-               id: 'title', 
-               header: "Title",
-               dataIndex: 'title'
+                id: 'title', 
+                header: "Title",
+                dataIndex: 'title'
             },{
                 id: 'like',
                 header: "Liked",
                 renderer: starColumn,
                 sortable: true,
-                width:'20px'
+                width:'20px',
+                dataIndex: 'recs'
             },{
                id: 'album',
                header: "Album",
@@ -51,34 +53,90 @@ function Browser(domObj, dropAction){
                sortable: false,
                renderer: recColumn
             }]),
-        albums: new Ext.grid.ColumnModel([
-            { id:'add',
-              header: 'Add',
-              renderer: enqColumn,
-              sortable: false,
-              width: '20px'
+        album: new Ext.grid.ColumnModel([
+            { 
+                id:'add',
+                header: 'Add',
+                renderer: enqColumn,
+                sortable: false,
+                width: '20px'
             },{
                 id:'album',
                 header: "Album",
                 dataIndex: 'album'
             },{
+                id: 'like',
+                header: "Liked",
+                renderer: starColumn,
+                sortable: true,
+                width:'20px',
+                dataIndex: 'recs'
+            },{
                 id: 'artist',
                 header: "Artist",
                 dataIndex: 'artist'
             },{
+                id: 'year',
+                header: "Year",
+                dataIndex: 'year'
+            },{
+                id:'album_playtime',
+                header: "Total Time",
+                dataIndex: 'totalalbumtime',
+            },{
                 id:'num_tracks',
                 header: "Total Tracks",
-                dataIndex: 'numtracks',
+                dataIndex: 'totaltracks',
+            },{
+                id:'recommend',
+                header: 'Recommend',
+                renderer: recColumn
+            }]),
+        artist: new Ext.grid.ColumnModel([
+            { 
+                id:'add',
+                header: 'Add',
+                renderer: enqColumn,
+                sortable: false,
+                width: '20px'
+            },{
+                id:'artist',
+                header: "Artist",
+                dataIndex: 'artist'
+            },{
+                id: 'like',
+                header: "Liked",
+                renderer: starColumn,
+                sortable: true,
+                width:'20px',
+                dataIndex: 'recs'
+            },{
+                id:'num_albums',
+                header: "Total Albums",
+                dataIndex: 'totalalbums',
+            },{
+                id:'num_tracks',
+                header: "Total Tracks",
+                dataIndex: 'totaltracks',
+            },{
+                id:'artistplaytime',
+                header: "Total Time",
+                dataIndex: 'totalartistplaytime',
+            },{
+                id:'recommend',
+                header: 'Recommend',
+                renderer: recColumn
+ 
             }])};
 
-    cm.defaultSortable=true;
+     cm.song.defaultSortable = true;
+     cm.album.defaultSortable = true;
 
-    
 
     // create the editor grid
     this.grid = new Ext.grid.Grid(div, {
         ds: this.ds,
-        cm: cm.songs,
+        cm: cm.song,
         selModel: new Ext.grid.RowSelectionModel(),
         enableColLock:false,
         enableDragDrop: true,
@@ -120,8 +178,10 @@ function Browser(domObj, dropAction){
     }
 
     /***** public functions ****/
+    this.changeColModel = changeColModel;
     function changeColModel(type)
     {
-        this.grid.reconfigure(ds, cm[type]);
+        this.grid.reconfigure(this.ds, cm[type]);
+        this.grid.getView().fitColumns(true);
     }
 }

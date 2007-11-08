@@ -13,7 +13,7 @@ import sys
 sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
-MUSIC_FOLDER = "/Volumes/JUSTIN/Music/The Flaming Lips/At War With The Mystics"
+MUSIC_FOLDER = "/Volumes/AIUR;NASCENT411/Queen/Greatest Hits I"
 DATABASE = "sqlite:///../music.db"
 
 engine = create_engine(DATABASE)
