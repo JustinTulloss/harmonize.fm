@@ -24,66 +24,75 @@ class PlayerController(BaseController):
     
     @jsonify    
     def get_data(self):
+        filters = 0
         type = request.params.get('type')
-        filters = request.params.get('filter')
+        artist = request.params.get('artist')
+        album = request.params.get('album')
         print type
+        print artist
+        print album
         #print filters
         if type == 'album': 
-            return self.get_albums(filters)    
+            return self.get_albums(artist)    
         elif type == 'artist':
             return self.get_artists(filters)
         elif type == 'genre':
             return self.get_genres(filters)
         elif type == 'song':
-            return self.get_songs(filters) 
+            return self.get_songs(artist,album) 
                 
 
-    def get_albums(self, *filters):
-        #myartist = request.params.get('artist')
-        #myalbum = request.params.get('album')
-        #myfriend = request.params.get('fid')
-        tuples = Session.query(Albums).add_entity(Songs).join('songs').all()
-        for ar in tuples:
-            print ar[0].album_title
-        # row[0] is for album data, row[1] is for song data 
+    def get_albums(self, myartist):
+        
+        if myartist == None:            
+            #tuples = Session.query(Albums).add_entity(Songs).join('songs').all()
+            tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks from albums, songs where albums.id = songs.album_id",mapper=Albums, mapper=Songs).fetchall()
+        else:
+            tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks from albums, songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist,mapper=Albums, mapper=Songs).fetchall()
         json = {  
                  "data" : [
                         {
                          "type":"album",
-                         "artist": "%s" % (tuples[row][1].artist), 
-                         "year": tuples[row][0].year, 
-                         "genre": "%s" % (tuples[row][0].genre),
-                         "album": "%s" % (tuples[row][0].album_title), 
-                         "tracknumber": tuples[row][1].tracknumber,
-                         "totaltracks": tuples[row][0].totaltracks
-                        } for row in range(len(tuples))
+                         "artist": "%s" % (row.artist), 
+                         "year": row.year, 
+                         "genre": "%s" % (row.genre),
+                         "album": "%s" % (row.album_title), 
+                         "totaltracks": row.totaltracks
+                        } for row in tuples
                     ]
                }   
         return json  
         
-    def get_songs(self, *filters):     
+    def get_songs(self, myartist, myalbum):     
         #mytype = request.params.get('type')
         #myalbum = request.params.get('album')
         #myfriend = request.params.get('fid')
-        tuples = Session.query(Albums).add_entity(Songs).join('songs').all()
+        if myartist == None: #list all albums
+            tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id", mapper=Albums, mapper=Songs).fetchall()
+        else:
+            if myalbum == None: #filter only by artist
+                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist, mapper=Albums, mapper=Songs).fetchall()
+            else: # filter by artist and album
+                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % (myalbum,myartist), mapper=Albums, mapper=Songs).fetchall()
+
         # row[0] is for album data, row[1] is for song data 
         json = { 
                  "data" : [
                         {
                          "type":"song", 
-                         "title": "%s" % (tuples[row][1].title), 
-                         "artist": "%s" % (tuples[row][1].artist), 
-                         "year": tuples[row][0].year, 
-                         "genre": "%s" % (tuples[row][0].genre),
-                         "album": "%s" % (tuples[row][0].album_title), 
-                         "tracknumber": tuples[row][1].tracknumber,
-                         "recs": tuples[row][1].recommendations
-                        } for row in range(len(tuples))
+                         "title": "%s" % row.title, 
+                         "artist": "%s" % row.artist, 
+                         "year": row.year, 
+                         "genre": "%s" % row.genre,
+                         "album": "%s" % row.album_title, 
+                         "tracknumber": row.tracknumber,
+                         "recs": row.recommendations
+                        } for row in tuples
                     ]
                }   
         return json
         
-    def get_artists(self, *filters):
+    def get_artists(self, filters):
         #myartist = request.params.get('artist')
         #myalbum = request.params.get('album')
         #myfriend = request.params.get('fid')
@@ -96,13 +105,13 @@ class PlayerController(BaseController):
                  "data" : [
                         {
                          "type":"artist",
-                         "artist": "%s" % tuples[row][0]
-                        } for row in range(len(tuples))
+                         "artist": "%s" % row.artist
+                        } for row in tuples
                     ]
                }   
         return json          
         
-    def get_genres(self, *filters):
+    def get_genres(self, filters):
         #myartist = request.params.get('artist')
         #myalbum = request.params.get('album')
         #myfriend = request.params.get('fid')
