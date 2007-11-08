@@ -36,14 +36,14 @@ class PlayerController(BaseController):
         if myfid == None:
             if myartist == None:
                 print "correct"
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id",mapper=Albums, mapper=Songs).fetchall()        
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id", mapper=Songs).fetchall()        
             else:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist,mapper=Albums, mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist, mapper=Songs).fetchall()
         else: #we have a fid to filter on            
             if myartist == None:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.owner_id = %d" % myfid,mapper=Albums, mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.owner_id = %d" % myfid, mapper=Songs).fetchall()
             else: # we have fid and artist
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist),mapper=Albums, mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id from albums, songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist), mapper=Songs).fetchall()
         json = {  
                  "data" : [
                         {
@@ -63,20 +63,20 @@ class PlayerController(BaseController):
     
         if myfid == None:
             if myartist == None: #list all albums
-                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id", mapper=Albums, mapper=Songs).fetchall()
+                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id", mapper=Songs).fetchall()
             else:
                 if myalbum == None: #filter only by artist
-                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist, mapper=Albums, mapper=Songs).fetchall()
+                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist, mapper=Songs).fetchall()
                 else: # filter by artist and album
-                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % (myalbum,myartist), mapper=Albums, mapper=Songs).fetchall()
+                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % (myalbum,myartist), mapper=Songs).fetchall()
         else: # we have fid to filter on
             if myartist == None:
-                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d" % myfid, mapper=Albums, mapper=Songs).fetchall()
+                tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d" % myfid, mapper=Songs).fetchall()
             else:
                 if myalbum == None: # filter only by artist and fid
-                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist), mapper=Albums, mapper=Songs).fetchall()
+                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist), mapper=Songs).fetchall()
                 else: #filter on artist,album,fid
-                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.album_title='%s'" % (myfid, myartist,myalbum), mapper=Albums, mapper=Songs).fetchall()
+                    tuples = Session.execute("select * from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.album_title='%s'" % (myfid, myartist,myalbum), mapper=Songs).fetchall()
                     
 
         json = { 
