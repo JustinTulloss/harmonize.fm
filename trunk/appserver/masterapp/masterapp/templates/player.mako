@@ -35,7 +35,7 @@
         <div class="menuitem">${h.link_to_function("Albums", "go('album')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Songs", "go('song')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Friends", "go('friend')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Genres", "go('home')", Class='menuitem')}</div>
+        <div class="menuitem">${h.link_to_function("Genres", "go('genre')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>
     </div>
     <div id="top">
@@ -60,7 +60,7 @@
 </div>
 <div id="queue">
 </div>
-<div id="home" class="browser">
+<div id="home">
     <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
     <div class="menuitem">${h.link_to_function("Artists", "go('artist')", Class='menuitem')}</div>
     <div class="menuitem">${h.link_to_function("Albums", "go('album')", Class='menuitem')}</div>
@@ -70,5 +70,5 @@
     <div class="menuitem">${h.link_to_function("Settings", "go('setting')", Class='menuitem')}</div>
 </div>
 <div id="browser">
-    &nbsp;Loading...
+    Loading...
 </div>

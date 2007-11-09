@@ -24,6 +24,7 @@ function BreadCrumb(domObj, link_action)
     this.link_action = jump_to;
 
     /*public functions*/
+    this.current_view = current_view;
     this.update = update;
     this.descend = descend;
     this.ascend = ascend;

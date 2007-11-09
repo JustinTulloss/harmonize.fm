@@ -24,6 +24,7 @@ var bigshow = null;
 var gridpanel = null;
 var homepanel = null;
 var bread_crumb = null;
+var nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
 
 /******* Initialization functions ********/
 function init()
@@ -37,6 +38,9 @@ function init()
     browser.grid.on("rowdblclick", descend);
     browser.ds.on("load", mousemgr.processImages, mousemgr);
     init_seekbar();
+
+    gridpanel = new Ext.GridPanel(browser.grid, {title:"Browse", fitToFrame:true, closable:true, autocreate:true});
+    homepanel = new Ext.ContentPanel('home', {title:"Home", fitToFrame:true, closable:true, autocreate:true});
     bigshow = new Ext.BorderLayout(document.body, {
         north: {
             initializeSize: 73,
@@ -49,6 +53,7 @@ function init()
             collapsible: true
         },
         center : {
+            hideTabs: true
         }
     });
     var CP = Ext.ContentPanel
@@ -56,13 +61,13 @@ function init()
     bigshow.beginUpdate();
     bigshow.add('north', new CP('header'));
     bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
-    gridpanel = new Ext.GridPanel(browser.grid, {fitToFrame:true});
-    homepanel = new Ext.ContentPanel('home', {fitToFrame:true});
     bigshow.add('center', homepanel);
+    bigshow.add('center', gridpanel);
+    bigshow.getRegion('center').hidePanel(gridpanel);
+    bigshow.getRegion('center').showPanel(homepanel);
     bigshow.endUpdate();
 }
 
-nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
 function descend(grid, rowIndex, e)
 {
     ds = grid.getDataSource();
@@ -88,34 +93,46 @@ function descend(grid, rowIndex, e)
 
 function go(type)
 {
-    if (bread_crumb.current_view == "home" && type != "home")
+
+    if (bread_crumb.current_view() == "home" && type != "home")
     {
         bigshow.beginUpdate();
-        bigshow.remove('center', homepanel);
-        bigshow.add('center', gridpanel);
+        bigshow.getRegion('center').hidePanel(homepanel);
+        bigshow.getRegion('center').showPanel(gridpanel);
         bigshow.endUpdate();
+
+        bread_crumb.jump_to('home'); //this is not the below jump_to function
+        bread_crumb.descend(null, new BcEntry(type));
+        browser.ds.load({params:{type:type}});
+        browser.changeColModel(type);
+        return;
     }
 
-    if (bread_crumb.current_view != "home" && type == "home")
+    if (bread_crumb.current_view() != "home" && type == "home")
     {
         bigshow.beginUpdate();
-        bigshow.remove('center', homepanel);
-        bigshow.add('center', gridpanel);
+        bigshow.getRegion('center').hidePanel(gridpanel);
+        bigshow.getRegion('center').showPanel(homepanel);
         bigshow.endUpdate();
+        bread_crumb.jump_to('home'); //this is not the below jump_to function
+        return;
     }
-
-    bread_crumb.jump_to('home');
-    bread_crumb.descend(null, new BcEntry(type));
-    browser.ds.load({params:{type:type}});
-    browser.changeColModel(type);
 }
 
 function jump_to(type)
 {
-    if (type == 'home') {
+    if (type == 'home' && bread_crumb.current_view()!='home') {
         bigshow.beginUpdate();
-        bigshow.remove('center', gridpanel);
-        bigshow.add('center', homepanel);
+        bigshow.getRegion('center').hidePanel(gridpanel);
+        bigshow.getRegion('center').showPanel(homepanel);
+        bigshow.endUpdate();
+        params = bread_crumb.jump_to(type);
+        return;
+    }
+    else if (type != 'home' && bread_crumb.current_view() == 'home') {
+        bigshow.beginUpdate();
+        bigshow.getRegion('center').hidePanel(homepanel);
+        bigshow.getRegion('center').showPanel(gridpanel);
         bigshow.endUpdate();
     }
 
