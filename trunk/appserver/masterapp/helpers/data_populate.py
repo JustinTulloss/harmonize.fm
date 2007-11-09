@@ -13,7 +13,7 @@ import sys
 sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
-MUSIC_FOLDER = "C:\Documents and Settings\Jamie\My Documents\My Music\iTunes\iTunes Music\The_New_Pornographers_-_Twin_Cinema_(2005)"
+MUSIC_FOLDER = "/Volumes/AIUR;NASCENT411/The Flaming Lips"
 
 DATABASE = "sqlite:///../music.db"
 

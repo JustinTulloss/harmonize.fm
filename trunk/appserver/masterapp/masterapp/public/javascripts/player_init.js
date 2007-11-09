@@ -20,6 +20,9 @@ var Event = YAHOO.util.Event,
 var flplayer; //the flash player
 var playqueue = null;
 var browser = null;
+var bigshow = null;
+var gridpanel = null;
+var homepanel = null;
 var bread_crumb = null;
 
 /******* Initialization functions ********/
@@ -53,7 +56,9 @@ function init()
     bigshow.beginUpdate();
     bigshow.add('north', new CP('header'));
     bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
-    bigshow.add('center', new Ext.GridPanel(browser.grid, {fitToFrame:true}) );
+    gridpanel = new Ext.GridPanel(browser.grid, {fitToFrame:true});
+    homepanel = new Ext.ContentPanel('home', {fitToFrame:true});
+    bigshow.add('center', homepanel);
     bigshow.endUpdate();
 }
 
@@ -83,6 +88,22 @@ function descend(grid, rowIndex, e)
 
 function go(type)
 {
+    if (bread_crumb.current_view == "home" && type != "home")
+    {
+        bigshow.beginUpdate();
+        bigshow.remove('center', homepanel);
+        bigshow.add('center', gridpanel);
+        bigshow.endUpdate();
+    }
+
+    if (bread_crumb.current_view != "home" && type == "home")
+    {
+        bigshow.beginUpdate();
+        bigshow.remove('center', homepanel);
+        bigshow.add('center', gridpanel);
+        bigshow.endUpdate();
+    }
+
     bread_crumb.jump_to('home');
     bread_crumb.descend(null, new BcEntry(type));
     browser.ds.load({params:{type:type}});
@@ -91,6 +112,13 @@ function go(type)
 
 function jump_to(type)
 {
+    if (type == 'home') {
+        bigshow.beginUpdate();
+        bigshow.remove('center', gridpanel);
+        bigshow.add('center', homepanel);
+        bigshow.endUpdate();
+    }
+
     params = bread_crumb.jump_to(type);
     params.type = type;
     browser.ds.load({params:params});

@@ -89,7 +89,7 @@ function Player(domObj)
 
     function seek(percent)
     {
-        Ext.getDom('scrub', totalTime*percent);
+        sendEvent('scrub', totalTime*percent);
     }
 }
 

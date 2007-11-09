@@ -43,9 +43,9 @@
         <div id="controls">
             <!-- Put the flash player stuff in here!! !-->
             <div id="player">Flash Player</div>
-            <img class="control" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
-            <img class="control" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
-            <img class="control" src = "/images/next.png" onclick="flplayer.sendEvent('next')"/>
+            <img class="control mo" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
+            <img class="control mo" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
+            <img class="control mo" src = "/images/next.png" onclick="flplayer.sendEvent('next')"/>
         </div>
         <div id="status">
             <div id="time">&nbsp;</div>
@@ -62,12 +62,12 @@
 </div>
 <div id="home" class="browser">
     <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Artists", "go('artists')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Albums", "go('albums')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Songs", "go('songs')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Friends", "go('friends')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Genres", "go('genres')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Settings", "go('settings')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Artists", "go('artist')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Albums", "go('album')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Songs", "go('song')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Friends", "go('friend')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Genres", "go('genre')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Settings", "go('setting')", Class='menuitem')}</div>
 </div>
 <div id="browser">
     &nbsp;Loading...

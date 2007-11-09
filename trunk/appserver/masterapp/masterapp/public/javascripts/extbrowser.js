@@ -26,8 +26,11 @@ function Browser(domObj, dropAction){
                 id: 'add',
                 header: 'Add',
                 renderer: enqColumn,
-                sortable: false,
-                width: '20px'
+                sortable: false
+            },{
+                id: 'tracknumber', 
+                header: "#",
+                dataIndex: 'tracknumber'
             },{
                 id: 'title', 
                 header: "Title",
@@ -58,8 +61,7 @@ function Browser(domObj, dropAction){
                 id:'add',
                 header: 'Add',
                 renderer: enqColumn,
-                sortable: false,
-                width: '20px'
+                sortable: false
             },{
                 id:'album',
                 header: "Album",
@@ -98,7 +100,6 @@ function Browser(domObj, dropAction){
                 header: 'Add',
                 renderer: enqColumn,
                 sortable: false,
-                width: '20px'
             },{
                 id:'artist',
                 header: "Artist",
@@ -108,7 +109,6 @@ function Browser(domObj, dropAction){
                 header: "Liked",
                 renderer: starColumn,
                 sortable: true,
-                width:'20px',
                 dataIndex: 'recs'
             },{
                 id:'num_albums',
@@ -129,8 +129,10 @@ function Browser(domObj, dropAction){
  
             }])};
 
+     //seems like there should be a way to set this above....
      cm.song.defaultSortable = true;
      cm.album.defaultSortable = true;
+     cm.artist.defaultSortable = true;
 
 
     // create the editor grid
@@ -163,7 +165,7 @@ function Browser(domObj, dropAction){
     /**** Custom renderers ***/
     function enqColumn(value, p, record)
     {
-        return '<center><img src="/images/enqueue.png" /></center>';
+        return '<center><img class="mo" src="/images/enqueue.png" /></center>';
     }
 
     function starColumn(value, p, record)
@@ -174,7 +176,7 @@ function Browser(domObj, dropAction){
 
     function recColumn(value, p, record)
     {
-        return '<center><img src="/images/recommend.png" /></center>';
+        return '<center><img class="mo" src="/images/recommend.png" unselectable="on"/></center>';
     }
 
     /***** public functions ****/

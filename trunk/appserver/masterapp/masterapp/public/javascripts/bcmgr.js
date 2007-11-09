@@ -30,6 +30,11 @@ function BreadCrumb(domObj, link_action)
     this.jump_to = jump_to;
     this.create_query = create_query;
 
+    function current_view()
+    {
+        return bclist[current].type;
+    }
+
     function descend(curvalue, newFilter)
     {
         bclist[current].value = curvalue;

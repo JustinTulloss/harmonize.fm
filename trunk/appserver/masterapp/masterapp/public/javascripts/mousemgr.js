@@ -19,9 +19,9 @@ function MouseMgr()
 
     function processImages()
     {
-        var imgTags = Ext.select("img");
+        var imgTags = Ext.select(".mo"); //class tag for an img with a mouseover
         imgTags.on("mouseover", this.mouseover);
-        imgTags.on("mousedown", this.mousedown);
+        //imgTags.on("mousedown", this.mousedown); //put this back when we have some
         imgTags.on("mouseout", this.mouseout);
         imgTags.each(this.loadImage);
     }
@@ -52,13 +52,11 @@ function MouseMgr()
 
     function mouseout(e)
     {
-        if (this.src != null)
-            this.src = regularimgs[this.id].src;
+        this.src = regularimgs[this.id].src;
     }
     
     function mousedown(e)
     {
-        if (this.src != null)
-            this.src = clickimgs[this.id].src;
+        this.src = clickimgs[this.id].src;
     }
 }
