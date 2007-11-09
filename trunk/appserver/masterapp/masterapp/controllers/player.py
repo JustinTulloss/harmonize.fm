@@ -38,45 +38,45 @@ class PlayerController(BaseController):
         if myfid == None:
             if myartist == None:
                 if mygenre == None: # no filters
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
                         albums.id = songs.album_id group by albumid", mapper=Songs).fetchall()        
                 else: #filter only on genre
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
                         albums.id = songs.album_id and albums.genre='%s' group by albumid" % mygenre, mapper=Songs).fetchall()
             else:
                 if mygenre == None:
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
                         albums.id = songs.album_id and songs.artist = '%s' group by albumid" % myartist, mapper=Songs).fetchall()
                 else: #filter on genre and artist
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
                         albums.id = songs.album_id and songs.artist = '%s' and albums.genre='%s' \
                         group by albumid" % (myartist,mygenre), mapper=Songs).fetchall()
                 
         else: #we have a fid to filter on            
             if myartist == None:
                 if mygenre == None: #filter only on fid
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,\
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                    tuples = Session.execute("select album_title,artist,year,genre,\
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
                         where albums.id = songs.album_id and songs.owner_id = %s group by albumid" 
                         % myfid, mapper=Songs).fetchall()
                 else: #filter on fid and genre
-                    tuples = Session.execute("select distinct album_title,artist,year,genre,\
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                    tuples = Session.execute("select album_title,artist,year,genre,\
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
                         where albums.id = songs.album_id and songs.owner_id = %s and albums.genre='%s' group by albumid" 
                         % (myfid,mygenre), mapper=Songs).fetchall()                
             else: # we have fid and artist
                 if mygenre == None: # filter on fid and artist
-                    tuples = Session.execute("select distinct album_title,artist,year,genre, \
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                    tuples = Session.execute("select album_title,artist,year,genre, \
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
                         where albums.id = songs.album_id and songs.owner_id = %s and songs.artist = '%s' \
                         group by albumid" % (myfid, myartist), mapper=Songs).fetchall()
                 else: #filter on fid, artist,genre
-                     tuples = Session.execute("select distinct album_title,artist,year,genre, \
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                     tuples = Session.execute("select album_title,artist,year,genre, \
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
                         where albums.id = songs.album_id and songs.owner_id = %s and songs.artist = '%s' \
                         and albums.genre='%s' group by albumid" % (myfid, myartist,mygenre), mapper=Songs).fetchall()
 
@@ -90,7 +90,9 @@ class PlayerController(BaseController):
                          "album": "%s" % row.album_title, 
                          "totaltracks": row.totaltracks,
                          "albumlength": "%s" % self.get_album_length(row.albumid,None),
-                         "ownerid": row.owner_id
+                         "ownerid": row.owner_id,
+                         "albumid": row.albumid,
+                         "recs": row.recs
                         } for row in tuples
                     ]
                }   
@@ -158,6 +160,7 @@ class PlayerController(BaseController):
                              "type":"song", 
                              "title": "%s" % row.title, 
                              "artist": "%s" % row.artist, 
+                             "songid": row.songid,
                              "year": row.year, 
                              "genre": "%s" % row.genre,
                              "album": "%s" % row.album_title, 
@@ -183,19 +186,20 @@ class PlayerController(BaseController):
     def get_artists(self, myfid, mygenre):
         if myfid == None:
             if mygenre == None: #dont filter on anything
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
-                    from songs group by artist",mapper=Songs).fetchall()
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
+                    sum(recommendations) as recs from songs group by artist",mapper=Songs).fetchall()
             else: #filter only on genre
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
-                    from songs,albums where songs.album_id = albums.id and genre='%s' group by artist" % mygenre,mapper=Songs).fetchall()                
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
+                    sum(recommendations) as recs from songs,albums where songs.album_id = albums.id and genre='%s' \
+                    group by artist" % mygenre,mapper=Songs).fetchall()                
         else:
             if mygenre == None: #filter on fid only
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
-                    from songs where owner_id = %s group by artist" % myfid, mapper=Songs).fetchall()
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
+                    sum(recommendations) as recs from songs where owner_id = %s group by artist" % myfid, mapper=Songs).fetchall()
             else:
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
-                    from songs,albums where songs.album_id = albums.id and genre = %s and owner_id=%s group by artist" 
-                    % (mygenre,myfid),mapper=Songs).fetchall()
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
+                    sum(recommendations) as recs from songs,albums where songs.album_id = albums.id and genre = %s and \
+                    owner_id=%s group by artist" % (mygenre,myfid),mapper=Songs).fetchall()
         #fetchall returns a list
         #row[0] is the bare artist
         json = {  
@@ -206,7 +210,8 @@ class PlayerController(BaseController):
                          "totalalbums": row.totalalbums,
                          "totaltracks": row.totaltracks,
                          "artistlength": "%s" % self.get_album_length(None,row.artist),                         
-                         "ownerid": myfid                         
+                         "ownerid": myfid,
+                         "recs": row.recs
                         } for row in tuples
                     ]
                }   
@@ -254,15 +259,19 @@ class PlayerController(BaseController):
         return json          
         
     def add_rec(self):
-        songid = request.params.get('songid')
-        albumid = request.params.get('albumid')
-        if songid == None and albumid != None: #recommending entire album
-            myalbum = Session.query(Songs).filter_by(album_id=albumid).all()
+        type = request.params.get('type')
+        myid = request.params.get('id')
+        if type == 'album': #recommending entire album
+            myalbum = Session.query(Songs).filter_by(album_id=myid).all()
             for mysong in myalbum:
                 mysong.recommendations = mysong.recommendations + 1
-        elif songid != None: #individual song
-            mysong = Session.query(Songs).filter_by(id=songid).one()
+        elif type == 'song': #individual song
+            mysong = Session.query(Songs).filter_by(id=myid).one()
             mysong.recommendations = mysong.recommendations + 1
+        elif type == 'artist':
+            myalbum = Session.query(Songs).filter_by(artist=myid).all()
+            for mysong in myalbum:
+                mysong.recommendations = mysong.recommendations + 1
         else:
             return "Failure"
         #Session.save(mysong)  - this should work and use less resources...

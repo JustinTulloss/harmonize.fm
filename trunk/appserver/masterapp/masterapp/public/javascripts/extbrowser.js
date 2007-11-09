@@ -52,7 +52,8 @@ function Browser(domObj, fields){
                id: 'recommend',
                header: "Recommend",
                sortable: false,
-               renderer: recColumn
+               renderer: recColumn,
+               dataIndex: 'songid'
             }]),
         album: new Ext.grid.ColumnModel([
             { 
@@ -90,7 +91,8 @@ function Browser(domObj, fields){
             },{
                 id:'recommend',
                 header: 'Recommend',
-                renderer: recColumn
+                renderer: recColumn,
+                dataIndex: 'albumid'
             }]),
         artist: new Ext.grid.ColumnModel([
             { 
@@ -123,7 +125,8 @@ function Browser(domObj, fields){
             },{
                 id:'recommend',
                 header: 'Recommend',
-                renderer: recColumn
+                renderer: recColumn,
+                dataIndex: 'artist'
  
             }
         ]),
@@ -185,7 +188,6 @@ function Browser(domObj, fields){
     cm.friend.defaultSortable = true;
     cm.genre.defaultSortable = true;
 
-
     // create the editor grid
     this.grid = new Ext.grid.Grid(div, {
         ds: this.ds,
@@ -219,16 +221,50 @@ function Browser(domObj, fields){
     function starColumn(value, p, record)
     {
         //figure out opacity from record.recs (or something like that)
-        opacity = record.get('recs')/record.store.sum('recs');
+        recs = record.get('recs')
+        opacity = 0
+        if (recs != 0)
+            opacity = record.get('recs')/record.store.sum('recs');  
         return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
     }
 
     function recColumn(value, p, record)
     {
-        return '<center><img class="mo" src="/images/recommend.png" unselectable="on"/></center>';
+        songid = record.get('songid');    
+        albumid = record.get('albumid');
+        artist = record.get('artist');
+        if (songid != "")
+        {
+            type = 'song';
+            id = songid;
+        }
+        else if (albumid != "")
+        {
+            type = 'album';
+            id = albumid;
+        }
+        else
+        {
+            type = 'artist';
+            id = artist;
+            return '<center><img class="mo" onclick="browser.recommend(\''+type+'\',\''+id+'\')" src="/images/recommend.png" unselectable="on"/></center>';    
+        }
+        return '<center><img class="mo" onclick="browser.recommend(\''+type+'\','+id+')" src="/images/recommend.png" unselectable="on"/></center>';    
     }
 
     /***** public functions ****/
+    this.recommend = recommend;
+    function recommend(type, id)
+    {
+        var connect = new Ext.data.Connection({
+            url:'/player/add_rec',
+        });
+        connect.request({
+            params:{'id':id,
+                    'type':type}
+        });            
+        
+    }    
     this.changeColModel = changeColModel;
     function changeColModel(type)
     {
