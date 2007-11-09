@@ -36,14 +36,14 @@ class PlayerController(BaseController):
     def get_albums(self, myartist, myfid):                
         if myfid == None:
             if myartist == None:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks from albums, songs where albums.id = songs.album_id group by albums.id", mapper=Songs).fetchall()        
+                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id group by albumid", mapper=Songs).fetchall()        
             else:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks from albums, songs where albums.id = songs.album_id and songs.artist = '%s' group by albums.id" % myartist, mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.artist = '%s' group by albumid" % myartist, mapper=Songs).fetchall()
         else: #we have a fid to filter on            
             if myartist == None:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks from albums, songs where albums.id = songs.album_id and songs.owner_id = %d group by albums.id" % myfid, mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.owner_id = %d group by albumid" % myfid, mapper=Songs).fetchall()
             else: # we have fid and artist
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks from albums, songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' group by albums.id" % (myfid, myartist), mapper=Songs).fetchall()
+                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' group by albumid" % (myfid, myartist), mapper=Songs).fetchall()
         json = {  
                  "data" : [
                         {
@@ -53,6 +53,7 @@ class PlayerController(BaseController):
                          "genre": "%s" % row.genre,
                          "album": "%s" % row.album_title, 
                          "totaltracks": row.totaltracks,
+                         "albumlength": "%s" % self.get_album_length(row.albumid,None),
                          "ownerid": row.owner_id
                         } for row in tuples
                     ]
@@ -122,6 +123,7 @@ class PlayerController(BaseController):
                          "artist": "%s" % row.artist,
                          "totalalbums": row.totalalbums,
                          "totaltracks": row.totaltracks,
+                         "artistlength": "%s" % self.get_album_length(None,row.artist),                         
                          "ownerid": myfid                         
                         } for row in tuples
                     ]
@@ -173,9 +175,30 @@ class PlayerController(BaseController):
             return "Failure"
         #Session.save(mysong)  - this should work and use less resources...
         Session.commit()
-        return "Success"
+        return "Success"    
         
     
+
+        
+        
+    def get_album_length(self,albumid,myartist):
+        if albumid == None:
+            album = Session.query(Songs).filter_by(artist=myartist).all()
+        else:
+            album = Session.query(Songs).filter_by(album_id=albumid).all()
+        
+        totalsecs = 0
+        totalmins = 0
+        for song in album:
+            #Assuming length of a song is string in minutes:secs format
+            mylist = song.length.split(":")
+            totalsecs += int(mylist[1])
+            totalmins += int(mylist[0])
+        extramin = totalsecs / 60
+        secs = totalsecs % 60
+        min = totalmins + extramin
+        return ("%s:%s" % (min,secs)) 
+        
 
     def home(self):
         pass

@@ -14,7 +14,7 @@ function Browser(domObj, dropAction){
     this.ds = new Ext.data.JsonStore({
         url:'player/get_data',
         root: 'data',
-        fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 'tracknumber', 'totaltracks', 'totalalbums','recs']
+        fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 'tracknumber', 'totaltracks', 'totalalbums','recs', 'albumlength', 'artistlength']
     });
 
     // the column model has information about grid columns
@@ -84,7 +84,7 @@ function Browser(domObj, dropAction){
             },{
                 id:'album_playtime',
                 header: "Total Time",
-                dataIndex: 'totalalbumtime',
+                dataIndex: 'albumlength',
             },{
                 id:'num_tracks',
                 header: "Total Tracks",
@@ -121,7 +121,7 @@ function Browser(domObj, dropAction){
             },{
                 id:'artistplaytime',
                 header: "Total Time",
-                dataIndex: 'totalartistplaytime',
+                dataIndex: 'artistlength',
             },{
                 id:'recommend',
                 header: 'Recommend',
