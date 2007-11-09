@@ -25,6 +25,7 @@ body, html {
     width: 100%;
     text-align: center;
     vertical-align: middle;
+    margin: 20px;
 }
 
 .mainmenu {
