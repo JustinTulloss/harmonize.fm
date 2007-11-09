@@ -127,12 +127,65 @@ function Browser(domObj, dropAction){
                 header: 'Recommend',
                 renderer: recColumn
  
-            }])};
+            }
+        ]),
+        friend: new Ext.grid.ColumnModel([
+            { 
+                id:'add',
+                header: 'Add',
+                renderer: enqColumn,
+                sortable: false,
+            },{
+                id:'friend',
+                header: "Friend",
+                dataIndex: 'name'
+            },{
+                id:'numartists',
+                header: "# Artists",
+                dataIndex: 'numartists'
+            },{
+                id:'numalbums',
+                header: "# Albums",
+                dataIndex: 'numalbums'
+            },{
+                id:'likesartists',
+                header: "Likes",
+                dataIndex: 'likesartists'
+            }
+        ]),
+        genre: new Ext.grid.ColumnModel([
+            { 
+                id:'add',
+                header: 'Add',
+                renderer: enqColumn,
+                sortable: false,
+            },{
+                id:'genre',
+                header: "Genre",
+                dataIndex: 'genre'
+            },{
+                id:'numartists',
+                header: '# Artists',
+                dataIndex: 'numartists'
+            },{
+                id: 'numalbums',
+                header: '# Albums',
+                dataIndex: 'numalbums'
+            },{
+                id: 'exartists',
+                header: 'Examples',
+                dataIndex: 'exartists',
+                sortable: false
+            }
+        ]) 
+    };
 
-     //seems like there should be a way to set this above....
-     cm.song.defaultSortable = true;
-     cm.album.defaultSortable = true;
-     cm.artist.defaultSortable = true;
+    //seems like there should be a way to set this above....
+    cm.song.defaultSortable = true;
+    cm.album.defaultSortable = true;
+    cm.artist.defaultSortable = true;
+    cm.friend.defaultSortable = true;
+    cm.genre.defaultSortable = true;
 
 
     // create the editor grid
