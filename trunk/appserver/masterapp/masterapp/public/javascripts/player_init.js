@@ -60,7 +60,8 @@ function init()
 
     bigshow.beginUpdate();
     bigshow.add('north', new CP('header'));
-    bigshow.add('west', new CP('queue', {title: 'Navigation', fitToFrame:true}));
+    bigshow.add('west', new CP('queue-container', {title: 'Navigation', fitToFrame:true}));
+    //bigshow.add('west', playqueue.tree);
     bigshow.add('center', homepanel);
     bigshow.add('center', gridpanel);
     bigshow.getRegion('center').hidePanel(gridpanel);
@@ -70,10 +71,10 @@ function init()
 
 function descend(grid, rowIndex, e)
 {
-    ds = grid.getDataSource();
-    record = ds.getAt(rowIndex);
-    type = record.get("type");
-    value = record.get(type);
+    var ds = grid.getDataSource();
+    var record = ds.getAt(rowIndex);
+    var type = record.get("type");
+    var value = record.get(type);
 
     if (type == "song") {
         //tell player to play this song
@@ -94,20 +95,6 @@ function descend(grid, rowIndex, e)
 function go(type)
 {
 
-    if (bread_crumb.current_view() == "home" && type != "home")
-    {
-        bigshow.beginUpdate();
-        bigshow.getRegion('center').hidePanel(homepanel);
-        bigshow.getRegion('center').showPanel(gridpanel);
-        bigshow.endUpdate();
-
-        bread_crumb.jump_to('home'); //this is not the below jump_to function
-        bread_crumb.descend(null, new BcEntry(type));
-        browser.ds.load({params:{type:type}});
-        browser.changeColModel(type);
-        return;
-    }
-
     if (bread_crumb.current_view() != "home" && type == "home")
     {
         bigshow.beginUpdate();
@@ -117,6 +104,22 @@ function go(type)
         bread_crumb.jump_to('home'); //this is not the below jump_to function
         return;
     }
+    else if (bread_crumb.current_view() == "home" && type != "home")
+    {
+        bigshow.beginUpdate();
+        bigshow.getRegion('center').hidePanel(homepanel);
+        bigshow.getRegion('center').showPanel(gridpanel);
+        bigshow.endUpdate();
+    }
+    else if (bread_crumb.current_view() == "home" && type == "home")
+        return;
+
+    bread_crumb.jump_to('home'); //this is not the below jump_to function
+    bread_crumb.descend(null, new BcEntry(type));
+    browser.ds.load({params:{type:type}});
+    browser.changeColModel(type);
+    return;
+
 }
 
 function jump_to(type)

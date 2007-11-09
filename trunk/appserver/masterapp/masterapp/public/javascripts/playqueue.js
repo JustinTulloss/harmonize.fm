@@ -24,11 +24,12 @@ function PlayQueue(domObj, dragGroup)
 
     //Let's try a tree instead of a datasource, just for kicks and giggles
     Tree = Ext.tree;
-    tree = new Tree.TreePanel(div, {
+    var tree = new Tree.TreePanel(div, {
                 animate:true,
                 enableDD:true,
                 fitToFrame:true,
-                rootVisible:false
+                rootVisible:false,
+                autoScroll:true
             });
     root = new Tree.AsyncTreeNode({text:'queue', draggable:false, id:'source'});
     tree.setRootNode(root);
@@ -46,11 +47,18 @@ function PlayQueue(domObj, dragGroup)
     
     /* Public functions */
     this.addRow = addRow;
+    this.getTree = getTree;
+
+    function getTree()
+    {
+        //
+        return tree;
+    }
 
     function addRow(newRow)
     {
 	    if (clear==true) {
-            div.dom.innerHTML="<div id='clearQueue' class='clearQueue'<a href=# onClick='playqueue.clearQueue()'>Clear Queue<\a>";
+            div.dom.innerHTML="";
             tree.render();
             root.expand();
             clear = false;
@@ -125,7 +133,7 @@ function PlayQueue(domObj, dragGroup)
        {
          removeSong(children[0]);
 		 clear = true;
-		instructions.overwrite(div);
+		 instructions.overwrite(div);
        }
     }
     

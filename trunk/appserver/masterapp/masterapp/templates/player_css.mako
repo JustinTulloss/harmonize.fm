@@ -146,16 +146,35 @@ a.bc_link:hover {
     margin-top: 40px;
 }
 
+#queue-container {
+	background-color: ${c.profile.queue_bg};
+}
 #queue{
+    /*
     position: absolute;
     top: 0px;
     left: 0;
+    */
     z-index: 20;
     display:table;
-    width: 16%;
+    width:100%;
 	height: 100%;
     min-width: 130px;
     vertical-align: middle;
-	background-color: ${c.profile.queue_bg};
 }
 
+#queue-menu {
+    text-align: center;
+}
+
+a.queue-menu-item {
+    color:${c.profile.primary_txt};
+}
+
+a.queue-menu-item:hover {
+    color: ${c.profile.click};
+}
+
+.queue-menu-item {
+    text-decoration: underline;
+}

@@ -58,16 +58,20 @@
         </div>
     </div>
 </div>
-<div id="queue">
-</div>
+<div id= "queue-container">
+    <div id="queue-menu">
+        <a class="queue-menu-item" id="clear-queue" onclick="playqueue.clearQueue();" href="#">clear</a>
+        <a class="queue-menu-item" id="save-queue" onclick="alert('This has not yet been implemented');" href="#">save</a>
+    </div>
+    <div id= "queue"></div>
+<div>
 <div id="home">
-    <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Artists", "go('artist')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Albums", "go('album')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Songs", "go('song')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Friends", "go('friend')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Genres", "go('genre')", Class='menuitem')}</div>
-    <div class="menuitem">${h.link_to_function("Settings", "go('setting')", Class='menuitem')}</div>
+    <div class="menuitem">${h.link_to_function("Artists", "go('artist')")}</div>
+    <div class="menuitem">${h.link_to_function("Albums", "go('album')")}</div>
+    <div class="menuitem">${h.link_to_function("Songs", "go('song')")}</div>
+    <div class="menuitem">${h.link_to_function("Friends", "go('friend')")}</div>
+    <div class="menuitem">${h.link_to_function("Genres", "go('genre')")}</div>
+    <div class="menuitem">${h.link_to_function("Settings", "go('setting')")}</div>
 </div>
 <div id="browser">
     Loading...
