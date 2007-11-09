@@ -213,6 +213,7 @@ function PlayQueue(domObj, dragGroup, fields)
             };
             newNode = new Tree.AsyncTreeNode(nodeConfig);
             root.insertBefore(newNode, root.firstChild);
+            addDeleteButton(null, null, newNode, null);
         }
     }
 }
