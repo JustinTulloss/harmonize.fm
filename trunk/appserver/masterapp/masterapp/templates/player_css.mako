@@ -17,6 +17,37 @@ body, html {
     width: 16%;
 }
 
+#home {
+    text-align: center;
+}
+
+#mainlogo {
+    width: 100%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.mainmenu {
+    color: #666;
+    font-family: "Trebuchet", sans-serif;
+    font-size: 16px;
+    display: inline;
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+a.mainmenuitem:link {
+    color: #666;
+}
+
+a.mainmenuitem:visited {
+    color: #666;
+}
+
+a.mainmenuitem:hover {
+    color: ${c.profile.click};
+}
+
 .menuitem {
     display: inline;
     margin: .5em;

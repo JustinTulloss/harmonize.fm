@@ -66,12 +66,13 @@
     <div id= "queue"></div>
 <div>
 <div id="home">
-    <div class="menuitem">${h.link_to_function("Artists", "go('artist')")}</div>
-    <div class="menuitem">${h.link_to_function("Albums", "go('album')")}</div>
-    <div class="menuitem">${h.link_to_function("Songs", "go('song')")}</div>
-    <div class="menuitem">${h.link_to_function("Friends", "go('friend')")}</div>
-    <div class="menuitem">${h.link_to_function("Genres", "go('genre')")}</div>
-    <div class="menuitem">${h.link_to_function("Settings", "go('setting')")}</div>
+    <div id="mainlogo"><img src="/images/homelogo.png" /></div>
+    <div class="mainmenu">${h.link_to_function("Artists", "go('artist')", Class="mainmenuitem")}</div>
+    <div class="mainmenu">${h.link_to_function("Albums", "go('album')", Class="mainmenuitem")}</div>
+    <div class="mainmenu">${h.link_to_function("Songs", "go('song')", Class="mainmenuitem")}</div>
+    <div class="mainmenu">${h.link_to_function("Friends", "go('friend')", Class="mainmenuitem")}</div>
+    <div class="mainmenu">${h.link_to_function("Genres", "go('genre')", Class="mainmenuitem")}</div>
+    <div class="mainmenu">${h.link_to_function("Settings", "go('setting')", Class="mainmenuitem")}</div>
 </div>
 <div id="browser">
     Loading...
