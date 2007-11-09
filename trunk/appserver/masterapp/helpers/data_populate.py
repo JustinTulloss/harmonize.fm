@@ -13,7 +13,8 @@ import sys
 sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
-MUSIC_FOLDER = "/Volumes/AIUR;NASCENT411/Queen/Greatest Hits I"
+MUSIC_FOLDER = "C:\Documents and Settings\Jamie\My Documents\My Music\iTunes\iTunes Music\The_New_Pornographers_-_Twin_Cinema_(2005)"
+
 DATABASE = "sqlite:///../music.db"
 
 engine = create_engine(DATABASE)
@@ -67,6 +68,8 @@ def parse_songs(arg, dirname, fnames):
 
             newsong = Songs()
             newsong.album_id= album_id
+            newsong.recommendations = 0
+            newsong.owner_id = 3
             iter_tags(newsong, dbtags)
         except:
             print "Could not process %s" % file 

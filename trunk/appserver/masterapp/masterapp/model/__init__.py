@@ -15,10 +15,11 @@ songs_table = Table("songs", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("sha", types.String, index=True, unique=True),
     Column("title", types.String, index=True),
+    Column("length", types.String),
     Column("artist", types.String, index=True),
     Column("album_id", types.Integer, ForeignKey("albums.id"), index=True),
     Column("tracknumber", types.Integer),
-    Column("recommendations", types.Integer),
+    Column("recommendations", types.Integer, nullable=False),
     Column("owner_id", types.Integer, ForeignKey("friend.id"), index=True)
 )
 
@@ -41,16 +42,17 @@ Classes that represent above tables. You can add abstractions here
 """
 
 class Songs(object): 
-    def __init__(self, id, sha, title, artist, album_id, tracknumber, recommendations, owner_id):
+    def __init__(self, id, sha, title, artist, album_id, tracknumber, recommendations, owner_id, length):
         self.id = id
         self.sha = sha
         self.title = title
+        self.length = length
         self.artist = artist
         self.album_id = album_id
         self.tracknumber = tracknumber
         self.recommendations = recommendations
         self.owner_id = owner_id
-        
+    
 class Albums(object):
     def __init__(self, id, album_title, genre, year, totaltracks):
         self.id = id
