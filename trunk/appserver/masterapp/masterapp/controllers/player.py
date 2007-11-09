@@ -97,9 +97,9 @@ class PlayerController(BaseController):
         
     def get_artists(self, myfid):
         if myfid == None:
-            tuples = Session.execute("select distinct artist,totalalbums,totaltracks from (select artist,count(distinct album_id) as totalalbums,count(*) as totaltracks from songs group by artist)",mapper=Songs).fetchall()
+            tuples = Session.execute("select artist,count(distinct album_id) as totalalbums,count(*) as totaltracks from songs group by artist",mapper=Songs).fetchall()
         else:
-            tuples = Session.execute("select distinct artist,totalalbums,totaltracks from (select artist,count(distinct album_id) as totalalbums,count(*) as totaltracks from songs where owner_id=%d group by artist" % myfid,mapper=Songs).fetchall()
+            tuples = Session.execute("select artist,count(distinct album_id) as totalalbums,count(*) as totaltracks from songs where owner_id=%d group by artist" % myfid,mapper=Songs).fetchall()
         
         #fetchall returns a list
         #row[0] is the bare artist
