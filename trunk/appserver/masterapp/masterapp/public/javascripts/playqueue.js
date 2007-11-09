@@ -174,6 +174,8 @@ function PlayQueue(domObj, dragGroup, fields)
     this.removeSong = removeSong;
     function removeSong(delSong)
     {
+       if(delSong.nextSibling==null)
+          clear = true;
         root.removeChild(delSong);
     }
 
@@ -181,11 +183,12 @@ function PlayQueue(domObj, dragGroup, fields)
 	{
 		removeSong(this);
 	}
-	
+	                                             
 	this.removeByID = removeByID;
 	function removeByID(id)
 	{
 		delNode = tree.getNodeById(id);
+      instructions.overwrite(div);
 		removeSong(delNode);
 	}
     this.nextsong = nextsong;
