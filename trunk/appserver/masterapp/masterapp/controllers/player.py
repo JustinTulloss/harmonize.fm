@@ -20,30 +20,66 @@ class PlayerController(BaseController):
         artist = request.params.get('artist')
         album = request.params.get('album')
         fid = request.params.get('fid')
+        genre = request.params.get('genre')
         if type == 'album': 
-            return self.get_albums(artist,fid)    
+            return self.get_albums(artist,fid,genre)    
         elif type == 'artist':
-            return self.get_artists(fid)
+            return self.get_artists(fid,genre)
         elif type == 'genre':
             return self.get_genres(fid)
         elif type == 'song':
-            return self.get_songs(type,artist,album,fid) 
+            return self.get_songs(type,artist,album,fid,genre) 
         elif type == 'friend':
             return self.get_friends()
         elif type == 'queue':
-            return self.get_songs(type,artist,album,fid)
+            return self.get_songs(type,artist,album,fid,genre)
         
-    def get_albums(self, myartist, myfid):                
+    def get_albums(self, myartist, myfid, mygenre):                
         if myfid == None:
             if myartist == None:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id group by albumid", mapper=Songs).fetchall()        
+                if mygenre == None: # no filters
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                        albums.id = songs.album_id group by albumid", mapper=Songs).fetchall()        
+                else: #filter only on genre
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                        albums.id = songs.album_id and albums.genre='%s' group by albumid" % mygenre, mapper=Songs).fetchall()
             else:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.artist = '%s' group by albumid" % myartist, mapper=Songs).fetchall()
+                if mygenre == None:
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                        albums.id = songs.album_id and songs.artist = '%s' group by albumid" % myartist, mapper=Songs).fetchall()
+                else: #filter on genre and artist
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,owner_id, \
+                        count(songs.id) as totaltracks,albums.id as albumid from albums, songs where \
+                        albums.id = songs.album_id and songs.artist = '%s' and albums.genre='%s' \
+                        group by albumid" % (myartist,mygenre), mapper=Songs).fetchall()
+                
         else: #we have a fid to filter on            
             if myartist == None:
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.owner_id = %d group by albumid" % myfid, mapper=Songs).fetchall()
+                if mygenre == None: #filter only on fid
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,\
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                        where albums.id = songs.album_id and songs.owner_id = %d group by albumid" 
+                        % myfid, mapper=Songs).fetchall()
+                else: #filter on fid and genre
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,\
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                        where albums.id = songs.album_id and songs.owner_id = %d and albums.genre='%s' group by albumid" 
+                        % (myfid,mygenre), mapper=Songs).fetchall()                
             else: # we have fid and artist
-                tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks,owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' group by albumid" % (myfid, myartist), mapper=Songs).fetchall()
+                if mygenre == None: # filter on fid and artist
+                    tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks, \
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                        where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' \
+                        group by albumid" % (myfid, myartist), mapper=Songs).fetchall()
+                else: #filter on fid, artist,genre
+                     tuples = Session.execute("select distinct album_title,artist,year,genre,totaltracks, \
+                        owner_id,count(songs.id) as totaltracks,albums.id as albumid from albums, songs \
+                        where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' \
+                        and albums.genre='%s' group by albumid" % (myfid, myartist,mygenre), mapper=Songs).fetchall()
+
         json = {  
                  "data" : [
                         {
@@ -60,25 +96,61 @@ class PlayerController(BaseController):
                }   
         return json  
         
-    def get_songs(self, type, myartist, myalbum, myfid):     
+    def get_songs(self, type, myartist, myalbum, myfid, mygenre):     
     
         if myfid == None:
-            if myartist == None: #list all albums
-                tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id", mapper=Songs).fetchall()
-            else:
-                if myalbum == None: #filter only by artist
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id and songs.artist = '%s'" % myartist, mapper=Songs).fetchall()
+            if myartist == None: #no fid or artist to filter on
+                if mygenre == None:     #no filters
+                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
+                        songs.album_id", mapper=Songs).fetchall()
+                else:  #filter only on genre
+                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
+                        songs.album_id and albums.genre='%s'" % mygenre, mapper=Songs).fetchall()                    
+            else: #filter by artist
+                if myalbum == None: #filter by artist
+                    if mygenre == None:     #only filter by artist                
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.artist = '%s'" % myartist, mapper=Songs).fetchall()
+                    else: #filter by artist and genre
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.artist = '%s' and albums.genre='%s'" % (myartist,mygenre), mapper=Songs).fetchall()
+                    
                 else: # filter by artist and album
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % (myalbum,myartist), mapper=Songs).fetchall()
+                    if mygenre == None:
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % 
+                            (myalbum,myartist), mapper=Songs).fetchall()
+                    else: #filter on artist/album/genre
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and albums.album_title = '%s' and songs.artist = '%s' and albums.genre='%s'" % 
+                            (myalbum,myartist,mygenre), mapper=Songs).fetchall()
         else: # we have fid to filter on
             if myartist == None:
-                tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id and songs.owner_id = %d" % myfid, mapper=Songs).fetchall()
+                if mygenre == None:
+                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
+                        songs.album_id and songs.owner_id = %d" % myfid, mapper=Songs).fetchall()
+                else:
+                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
+                        songs.album_id and songs.owner_id = %d and albums.genre='%s'" % (myfid,mygenre), mapper=Songs).fetchall()              
             else:
                 if myalbum == None: # filter only by artist and fid
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist), mapper=Songs).fetchall()
+                    if mygenre == None:
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.owner_id = %d and songs.artist = '%s'" % (myfid, myartist), mapper=Songs).fetchall()
+                    else: #filter on genre/artist/fid
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.genre='%s'"
+                            % (myfid, myartist,mygenre), mapper=Songs).fetchall()                        
                 else: #filter on artist,album,fid
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.album_title='%s'" % (myfid, myartist,myalbum), mapper=Songs).fetchall()
-                    
+                    if mygenre == None:                        
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.album_title='%s'" 
+                            % (myfid, myartist,myalbum), mapper=Songs).fetchall()
+                    else: # filter on fid,artist,album,genre
+                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
+                            = songs.album_id and songs.owner_id = %d and songs.artist = '%s' and albums.album_title='%s'\
+                            and albums.genre='%s'" % (myfid, myartist,myalbum,mygenre), mapper=Songs).fetchall()                        
+                        
         if type == 'song':
             json = { 
                      "data" : [
@@ -108,12 +180,22 @@ class PlayerController(BaseController):
                    }  
         return json
         
-    def get_artists(self, myfid):
+    def get_artists(self, myfid, mygenre):
         if myfid == None:
-            tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks from songs group by artist",mapper=Songs).fetchall()
+            if mygenre == None: #dont filter on anything
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
+                    from songs group by artist",mapper=Songs).fetchall()
+            else: #filter only on genre
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
+                    from songs,albums where songs.album_id = albums.id and genre='%s' group by artist" % mygenre,mapper=Songs).fetchall()                
         else:
-            tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks from songs where owner_id=%d group by artist" % myfid,mapper=Songs).fetchall()
-        
+            if mygenre == None: #filter on fid only
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
+                    from songs where owner_id=%d group by artist" % myfid,mapper=Songs).fetchall()
+            else:
+                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks \
+                    from songs,albums where songs.album_id = albums.id and genre = %s and owner_id=%d group by artist" 
+                    % (mygenre,myfid),mapper=Songs).fetchall()
         #fetchall returns a list
         #row[0] is the bare artist
         json = {  
@@ -132,9 +214,11 @@ class PlayerController(BaseController):
         
     def get_genres(self, myfid):
         if myfid == None:
-            tuples = Session.execute("select distinct genre from albums",mapper=Albums).fetchall()
+            tuples = Session.execute("select genre,count(distinct artist) as numartists,count(distinct albums.id)\
+                        as numalbums from albums,songs where albums.id = songs.album_id group by genre",mapper=Albums).fetchall()
         else:
-            tuples = Session.execute("select distinct genre from albums where owner_id=%d" % myfid,mapper=Albums).fetchall()
+            tuples = Session.execute("select genre,count(distinct artist) as numartists,count(distinct albums.id)\
+                        as numalbums from albums,songs where albums.id = songs.album_id and owner_id=%d group by genre" % myfid,mapper=Albums).fetchall()
         #fetchall returns a list
         # row[0] is the bare genre
         json = { 
@@ -142,6 +226,9 @@ class PlayerController(BaseController):
                         {
                          "type":"genre",
                          "genre": "%s" % row.genre,
+                         "numartists": "%s" % row.numartists,
+                         "numalbums": "%s" % row.numalbums,
+                         "exartists": "%s" % self.get_exartists(row.genre),
                          "ownerid": myfid
                         } for row in tuples
                     ]
@@ -149,14 +236,19 @@ class PlayerController(BaseController):
         return json  
         
     def get_friends(self):
-        tuples = Session.query(Friends).all()
+        tuples = Session.execute("select friend.id as friendid,name, count(distinct artist) as numartists, \
+                    count(distinct albums.id) as numalbums from friend,songs,albums where friend.id = songs.owner_id and \
+                    songs.album_id = albums.id",mapper=Friends).fetchall()
         json = {
                  "data" : [
                         {
                          "type":"friend",
-                         "id": "%d" % tuples[row].id,
-                         "name": "%s" % tuples[row].name
-                        } for row in range(len(tuples))
+                         "friendid": row.friendid,
+                         "name": "%s" % row.name,
+                         "numartists": row.numartists,
+                         "numalbums": row.numalbums,
+                         "likesartists": self.get_likesartists(row.friendid)
+                        } for row in tuples
                     ]
                }   
         return json          
@@ -199,6 +291,21 @@ class PlayerController(BaseController):
         min = totalmins + extramin
         return ("%s:%s" % (min,secs)) 
         
+    def get_exartists(self,mygenre):
+        albums = Session.execute("select distinct artist from songs,albums where songs.id = albums.id and albums.genre='%s' limit 3"
+            % mygenre, mapper=Songs)
+        similar = ""
+        for song in albums:
+            similar += song.artist + ", "
+        return similar      
+
+    def get_likesartists(self,myfid):
+        albums = Session.execute("select distinct artist from songs,friend where songs.owner_id = friend.id and friend.id='%s' limit 3"
+            % myfid, mapper=Friends)
+        likes = ""
+        for song in albums:
+            likes += song.artist + ", "
+        return likes            
 
     def home(self):
         pass

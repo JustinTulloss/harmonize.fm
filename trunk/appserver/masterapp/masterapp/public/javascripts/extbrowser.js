@@ -14,7 +14,10 @@ function Browser(domObj, dropAction){
     this.ds = new Ext.data.JsonStore({
         url:'player/get_data',
         root: 'data',
-        fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 'tracknumber', 'totaltracks', 'totalalbums','recs', 'albumlength', 'artistlength']
+        fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 
+                  'tracknumber', 'totaltracks', 'totalalbums','recs', 
+                  'albumlength', 'artistlength', 'numartists','numalbums',
+                  'likesartists', 'exartists', 'numtracks', 'name']
     });
 
     // the column model has information about grid columns
