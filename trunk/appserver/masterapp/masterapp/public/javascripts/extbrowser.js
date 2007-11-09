@@ -4,20 +4,15 @@
  * Experimenting with replacing the YUI datatable with an extjs one
  */
 
-function Browser(domObj, dropAction){
+function Browser(domObj, fields){
     
     var div = domObj
-
-    this.dropAction = dropAction;
 
     // create the Data Store
     this.ds = new Ext.data.JsonStore({
         url:'player/get_data',
         root: 'data',
-        fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 
-                  'tracknumber', 'totaltracks', 'totalalbums','recs', 
-                  'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name', 'friend']
+        fields:fields
     });
 
     // the column model has information about grid columns
@@ -203,9 +198,6 @@ function Browser(domObj, dropAction){
         trackMouseOver: false
     });
 
-    if (this.dropAction != null)
-        this.grid.dragdrop = this.dropAction;
-
     // make the grid resizable, do before render for better performance
     var rz = new Ext.Resizable(div, {
         wrap:true,
@@ -226,8 +218,9 @@ function Browser(domObj, dropAction){
 
     function starColumn(value, p, record)
     {
-        //figure out apacity from record.recs (or something like that)
-        return '<center><img src="/images/star.png" /></center>';
+        //figure out opacity from record.recs (or something like that)
+        opacity = record.get('recs')/record.store.sum('recs');
+        return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
     }
 
     function recColumn(value, p, record)

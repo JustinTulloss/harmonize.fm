@@ -43,7 +43,8 @@ function Player(domObj)
     // these functions are caught by the JavascriptView object of the player.
     function sendEvent(typ,prm) 
     {
-        Ext.getDom('rubiconfl').sendEvent(typ,prm);
+        var dm = Ext.getDom('rubiconfl');
+        dm.sendEvent(typ,prm);
     }
 
     //TODO: Make this function less ugly than sin, use a real event model

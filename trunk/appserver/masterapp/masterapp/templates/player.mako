@@ -8,7 +8,6 @@
     <%include file="ext-all-css.mako" />
     </style>
 
-    ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
     ${h.javascript_include_tag('yui/build/animation/animation-min.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
@@ -23,6 +22,7 @@
     ${h.javascript_include_tag('extbrowser.js')}
     ${h.javascript_include_tag('bcmgr.js')}
     ${h.javascript_include_tag('playqueue.js')}
+    ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('player.js')}
     ${h.javascript_include_tag('player_init.js')}
 </%def>
@@ -43,9 +43,9 @@
         <div id="controls">
             <!-- Put the flash player stuff in here!! !-->
             <div id="player">Flash Player</div>
-            <img class="control mo" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
+            <img class="control mo" id="prevbutton" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
             <img class="control mo" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
-            <img class="control mo" src = "/images/next.png" onclick="flplayer.sendEvent('next')"/>
+            <img class="control mo" id="nextbutton" src = "/images/next.png" />
         </div>
         <div id="status">
             <div id="time">&nbsp;</div>

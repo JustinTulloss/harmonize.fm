@@ -4,9 +4,12 @@
  *  --Largely based off browser class for now
  *
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
+ *
+ *  FIXME:Major unresolved issue -- when removing tree rows, queuestore is not
+ *  currently updated to reflect the fact that the song has been removed!
  */
 
-function PlayQueue(domObj, dragGroup)
+function PlayQueue(domObj, dragGroup, fields)
 {
     var div = Ext.get(domObj);
     var queue = new Ext.dd.DropTarget(div);
@@ -23,12 +26,17 @@ function PlayQueue(domObj, dragGroup)
     instructions.overwrite(div);
     clear = true;
 
-    //Let's try a tree instead of a datasource, just for kicks and giggles
+    //This stores everything that's ever been put in the queue.
+    //The tree manages the look, this manages the actual data
+    queueStore = new Ext.data.SimpleStore({fields:fields});
+    
+    this.queue = queueStore;
+
     Tree = Ext.tree;
     var tree = new Tree.TreePanel(div, {
                 animate:true,
                 enableDD:true,
-                fitToFrame:true,
+                fitToContainer:true,
                 rootVisible:false,
 				containerScroll:true
             });
@@ -40,6 +48,7 @@ function PlayQueue(domObj, dragGroup)
 
     function dropAction(source, e, data)
     {
+        queueStore.add(data.selections);
         data.selections.each(addSelection);
     }
 
@@ -167,6 +176,7 @@ function PlayQueue(domObj, dragGroup)
     {
         root.removeChild(delSong);
     }
+
     function removeThisSong()
 	{
 		removeSong(this);
@@ -178,6 +188,30 @@ function PlayQueue(domObj, dragGroup)
 		delNode = tree.getNodeById(id);
 		removeSong(delNode);
 	}
+    this.nextsong = nextsong;
+    function nextsong(e) 
+    {
+        if(root.firstChild)
+            root.removeChild(root.firstChild);
+    }
+
+    this.backsong = backsong;
+    function backsong(e)
+    {
+        if (queueStore.getCount()>root.childNodes.length)
+        {
+            var record = queueStore.getAt(queueStore.getCount()-root.childNodes.length-1);
+            nodeConfig = {
+                text:record.get('title'), 
+                id:Ext.id(),
+                cls: "x-tree-noicon",
+                leaf:true,
+                allowDrop: false
+            };
+            newNode = new Tree.AsyncTreeNode(nodeConfig);
+            root.insertBefore(newNode, root.firstChild);
+        }
+    }
 }
 
 

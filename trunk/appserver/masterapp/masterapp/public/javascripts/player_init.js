@@ -25,6 +25,10 @@ var gridpanel = null;
 var homepanel = null;
 var bread_crumb = null;
 var nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
+var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
+                  'tracknumber', 'totaltracks', 'totalalbums','recs', 
+                  'albumlength', 'artistlength', 'numartists','numalbums',
+                  'likesartists', 'exartists', 'numtracks', 'name', 'friend'];
 
 /******* Initialization functions ********/
 function init()
@@ -33,8 +37,8 @@ function init()
     bread_crumb = new BreadCrumb('breadcrumb');
     bread_crumb.update();
     flplayer = new Player('player');
-    playqueue = new PlayQueue('queue', 'songlist');
-    browser = new Browser('browser');
+    playqueue = new PlayQueue('queue', 'songlist', fields);
+    browser = new Browser('browser', fields);
     browser.grid.on("rowdblclick", descend);
     browser.ds.on("load", mousemgr.processImages, mousemgr);
     init_seekbar();
@@ -61,12 +65,27 @@ function init()
     bigshow.beginUpdate();
     bigshow.add('north', new CP('header'));
     bigshow.add('west', new CP('queue-container', {title: 'Navigation', fitToFrame:true}));
-    //bigshow.add('west', playqueue.tree);
     bigshow.add('center', homepanel);
     bigshow.add('center', gridpanel);
     bigshow.getRegion('center').hidePanel(gridpanel);
     bigshow.getRegion('center').showPanel(homepanel);
     bigshow.endUpdate();
+
+    /* Initialize event handlers*/
+    playqueue.queue.on("add", songsqueued);
+    Ext.get("nextbutton").on("click", playqueue.nextsong);
+    Ext.get("prevbutton").on("click", playqueue.backsong);
+    //Ext.get("prevbutton").on("mouseover", playqueue.showlast5);
+}
+
+function songsqueued(store, records, index)
+{
+    //this is the first stuff into the queue
+    if (store.getCount()-records.length<=0) 
+    {
+        //flplayer.loadFile({file:'music/'+records[0].get('filename')});
+        //flplayer.sendEvent('playpause');
+    }
 }
 
 function descend(grid, rowIndex, e)
