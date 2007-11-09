@@ -124,6 +124,8 @@ function PlayQueue(domObj, dragGroup)
        while(children.length>0)
        {
          removeSong(children[0]);
+		 clear = true;
+		instructions.overwrite(div);
        }
     }
     
