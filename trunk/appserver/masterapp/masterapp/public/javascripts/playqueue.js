@@ -50,7 +50,7 @@ function PlayQueue(domObj, dragGroup)
     function addRow(newRow)
     {
 	    if (clear==true) {
-            div.dom.innerHTML="";
+            div.dom.innerHTML="<div id='clearQueue' class='clearQueue'<a href=# onClick='playqueue.clearQueue()'>Clear Queue<\a>";
             tree.render();
             root.expand();
             clear = false;
@@ -66,7 +66,7 @@ function PlayQueue(domObj, dragGroup)
         switch(newRow.type) {
             case 'artist':
                 addArtist(newRow);
-                return;
+                return;                               
             case 'album':
                 nodeConfig.text = newRow.album + " - "+newRow.artist;
                 nodeConfig.id = newRow.album;
@@ -116,7 +116,23 @@ function PlayQueue(domObj, dragGroup)
             root.appendChild(newNode);
         }
     }
-
+    
+    this.clearQueue = clearQueue;
+    function clearQueue()
+    {
+       var children = root.childNodes;
+       while(children.length>0)
+       {
+         removeSong(children[0]);
+       }
+    }
+    
+    this.removeSong = removeSong;
+    function removeSong(delSong)
+    {
+        root.removeChild(delSong);
+    }
+    
 }
 
 
