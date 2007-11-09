@@ -440,7 +440,7 @@ body.x-body-masked .x-dlg select{visibility:visible;}
 
 .x-tree-icon,.x-tree-ec-icon,.x-tree-elbow-line,.x-tree-elbow,.x-tree-elbow-end,.x-tree-elbow-plus,.x-tree-elbow-minus,.x-tree-elbow-end-plus,.x-tree-elbow-end-minus{border:0 none;height:21px;margin:0;padding:0;vertical-align:middle;width:19px;background-repeat:no-repeat;}
 .x-tree-node-collapsed .x-tree-node-icon,.x-tree-node-expanded .x-tree-node-icon,.x-tree-node-leaf .x-tree-node-icon{border:0 none;height:20px;margin:0;padding:0;vertical-align:middle;width:20px;background-position:center;background-repeat:no-repeat;}
-.x-tree-node-collapsed .x-tree-node-icon{};
+
 .x-tree-node-expanded .x-tree-node-icon{background-image:url(/images/song_collapse.png);}
 .x-tree-node-leaf .x-tree-node-icon{}
 .ext-ie input.x-tree-node-cb{width:15px;height:15px;}

@@ -19,6 +19,7 @@ function PlayQueue(domObj, dragGroup)
                     'Hit the <img class="middle" src="/images/enqueue.png" /> button',
             '</div>');
 
+	
     instructions.overwrite(div);
     clear = true;
 
@@ -29,10 +30,11 @@ function PlayQueue(domObj, dragGroup)
                 enableDD:true,
                 fitToFrame:true,
                 rootVisible:false,
-                autoScroll:true
+				containerScroll:true
             });
     root = new Tree.AsyncTreeNode({text:'queue', draggable:false, id:'source'});
     tree.setRootNode(root);
+
 
     queue.notifyDrop = dropAction;
 
@@ -66,8 +68,8 @@ function PlayQueue(domObj, dragGroup)
 
         nodeConfig = {
             text:newRow.title, 
-            id:newRow.title,
-            cls: "x-tree-noicon",
+            id:Ext.id(),
+            //cls: "x-tree-noicon",
             allowDrop: false
         }
 
@@ -81,7 +83,7 @@ function PlayQueue(domObj, dragGroup)
                 break;
             case 'song':
                 nodeConfig.text = newRow.title;
-                nodeConfig.id = newRow.title;
+                nodeConfig.id = Ext.id();
                 nodeConfig.leaf = true;
                 break;
             case 'genre':
@@ -117,13 +119,36 @@ function PlayQueue(domObj, dragGroup)
         for (var i = 0; i<records.length; i++) {
             newNode = new Tree.AsyncTreeNode({
                 text:records[i].get('album') + " - " + records[i].get('artist'),
-                id:records[i].get('album'),
+                id:Ext.id(),
                 cls: "x-tree-noicon",
                 allowDrop: false
             });
             root.appendChild(newNode);
         }
     }
+	var garbage = new Ext.dd.DropTarget("queue-menu");
+	garbage.notifyDrop = throwAway;
+	
+	function throwAway(source, ev, objData)
+	{
+		alert("whoa");
+	}
+
+	tree.on("append", addDeleteButton);
+	function addDeleteButton(theTree, theParent, theNode, index)
+	{
+		
+		theNode.setText(theNode.text+"<a href=# onclick='playqueue.removeByID(\""+theNode.id+"\")'> <img src= /images/song_remove.png><\a>");
+		/*	newID = Ext.id();
+		newDom = Ext.getDom(newID);
+		newDom.on("click", removeThisSong, theNode );
+		//ui = theNode.ui;
+		//el = ui.getTextEl();
+		//el.appendChild("<a href=# onClick='alert()'> a<\a>");
+		//Ext.DomHelper.append(el, "<a href=# onClick='alert()'> a<\a>");
+		//Dom = Ext.getDom(el);
+		//Dom.append("<a href=# onClick='alert()'> a<\a>");*/
+	}
     
     this.clearQueue = clearQueue;
     function clearQueue()
@@ -142,7 +167,17 @@ function PlayQueue(domObj, dragGroup)
     {
         root.removeChild(delSong);
     }
-    
+    function removeThisSong()
+	{
+		removeSong(this);
+	}
+	
+	this.removeByID = removeByID;
+	function removeByID(id)
+	{
+		delNode = tree.getNodeById(id);
+		removeSong(delNode);
+	}
 }
 
 
