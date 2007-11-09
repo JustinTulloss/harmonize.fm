@@ -243,7 +243,7 @@ class PlayerController(BaseController):
                  "data" : [
                         {
                          "type":"friend",
-                         "friendid": row.friendid,
+                         "friend": row.friendid,
                          "name": "%s" % row.name,
                          "numartists": row.numartists,
                          "numalbums": row.numalbums,

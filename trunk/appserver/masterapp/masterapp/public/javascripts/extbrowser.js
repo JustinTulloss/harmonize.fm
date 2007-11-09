@@ -17,7 +17,7 @@ function Browser(domObj, dropAction){
         fields: ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name']
+                  'likesartists', 'exartists', 'numtracks', 'name', 'friend']
     });
 
     // the column model has information about grid columns
