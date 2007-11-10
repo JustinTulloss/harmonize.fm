@@ -13,7 +13,8 @@ import sys
 sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
-MUSIC_FOLDER = "/Volumes/AIUR;NASCENT411/The Flaming Lips"
+
+MUSIC_FOLDER = "C:\Documents and Settings\Jamie\My Documents\My Music\iTunes\iTunes Music"
 
 DATABASE = "sqlite:///../music.db"
 
@@ -28,15 +29,20 @@ metadata = MetaData()
 
 songs = Table("songs", metadata, autoload=True, autoload_with=engine)
 albums = Table("albums", metadata, autoload=True, autoload_with=engine)
+friends = Table("friend", metadata, autoload=True, autoload_with=engine)
 
 class Songs(object):
     pass
 
 class Albums(object):
     pass
+    
+class Friends(object):
+    pass
 
 mapper(Songs, songs)
 mapper(Albums, albums)
+mapper(Friends, friends)
 
 def iter_tags(dbobj, tags):
     for key in tags.keys():
@@ -55,12 +61,14 @@ def parse_songs(arg, dirname, fnames):
             dbtags = {}
             for k in tags.keys():
                 dbtags[k] = ','.join(tags[k])
+                #print k
             qry = Session.query(Albums).filter(
                 Albums.album_title==dbtags["album"])
             album = qry.all()
             if len(album) == 0:
                 newalbum = Albums()
                 newalbum.album_title = dbtags['album']
+                #newalbum.year = dbtags['year']
                 iter_tags(newalbum, dbtags)
                 album_id = newalbum.id
             else:
@@ -69,11 +77,25 @@ def parse_songs(arg, dirname, fnames):
             newsong = Songs()
             newsong.album_id= album_id
             newsong.recommendations = 0
-            newsong.owner_id = 3
+            newsong.owner_id = (album_id % 6) + 1
+            newsong.length = "4:02"
+            newsong.filename = file
             iter_tags(newsong, dbtags)
         except:
             print "Could not process %s" % file 
+            
+def add_friends():
+    friends = ["Alex Mohr", "James Truty", "Justin Tulloss", "Paul Casperson", "Brian Smith", "Mike Phelan"]
+    id = 1
+    for friend in friends:
+        newfriend = Friends()
+        newfriend.id = id
+        newfriend.name = friend        
+        id += 1
+        Session.save(newfriend)
+    
 
 os.path.walk(MUSIC_FOLDER, parse_songs, None)
+add_friends()
 
 Session.commit()
