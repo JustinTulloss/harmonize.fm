@@ -39,11 +39,12 @@
         <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>
     </div>
     <div id="top">
+        <div id="now-playing">&nbsp;</div>
         <div id="breadcrumb">Bread Crumb</div>
         <div id="controls">
             <!-- Put the flash player stuff in here!! !-->
             <div id="player">Flash Player</div>
-            <img class="control mo" id="prevbutton" src = "/images/back.png" onclick="flplayer.sendEvent('prev')"/>
+            <img class="control mo" id="prevbutton" src = "/images/back.png" />
             <img class="control mo" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
             <img class="control mo" id="nextbutton" src = "/images/next.png" />
         </div>

@@ -15,6 +15,13 @@ function PlayQueue(domObj, dragGroup, fields)
     var queue = new Ext.dd.DropTarget(div);
     queue.addToGroup("GridDD"); //This is undocumented, but necessary!
 
+
+    npt = new Ext.Template(
+        '<div name="np">',
+        '<span id="np-title">{title}</span>',
+        '<span id="np-info">{info}</song>');
+
+
     var instructions = new Ext.Template(
             '<div id="instruction" class="instruction">',
                     'Drag here to add songs',
@@ -31,6 +38,7 @@ function PlayQueue(domObj, dragGroup, fields)
     queueStore = new Ext.data.SimpleStore({fields:fields});
     
     this.queue = queueStore;
+    var nowplaying = 0;
 
     Tree = Ext.tree;
     var tree = new Tree.TreePanel(div, {
@@ -197,16 +205,31 @@ function PlayQueue(domObj, dragGroup, fields)
     this.nextsong = nextsong;
     function nextsong(e) 
     {
+        nowplaying++;
         if(root.firstChild)
             root.removeChild(root.firstChild);
+
+        npr = queueStore.getAt(nowplaying)
+        setNowPlaying(npr);
     }
+
+    this.setNowPlaying = setNowPlaying;
+    function setNowPlaying(record)
+    {
+        npt.overwrite('now-playing', {
+                title:record.get("title"), 
+                info:record.get("artist")+' - '+record.get("album") 
+            });
+    }
+
 
     this.backsong = backsong;
     function backsong(e)
     {
         if (queueStore.getCount()>root.childNodes.length)
         {
-            var record = queueStore.getAt(queueStore.getCount()-root.childNodes.length-1);
+            var record = queueStore.getAt(nowplaying);
+            nowplaying--;
             nodeConfig = {
                 text:record.get('title'), 
                 id:Ext.id(),

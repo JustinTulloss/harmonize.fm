@@ -28,7 +28,7 @@ var nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name', 'friend', 'songid', 'albumid'];
+                  'likesartists', 'exartists', 'numtracks', 'name', 'friend', 'songid', 'albumid', 'filename'];
 
 /******* Initialization functions ********/
 function init()
@@ -83,8 +83,9 @@ function songsqueued(store, records, index)
     //this is the first stuff into the queue
     if (store.getCount()-records.length<=0) 
     {
-        //flplayer.loadFile({file:'music/'+records[0].get('filename')});
-        //flplayer.sendEvent('playpause');
+        flplayer.loadFile({file:'music/'+records[0].get('filename')});
+        flplayer.sendEvent('playpause');
+        playqueue.nextsong();
     }
 }
 
@@ -97,7 +98,9 @@ function descend(grid, rowIndex, e)
 
     if (type == "song") {
         //tell player to play this song
+        flplayer.loadFile({file:'music/'+escape(record.get('filename'))});
         flplayer.sendEvent('playpause');
+        playqueue.setNowPlaying(record);
         return;
     }
 

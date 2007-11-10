@@ -135,6 +135,30 @@ a.bc_link:hover {
     border: none;
 }
 
+#now-playing {
+    /*
+    position: relative;
+    top: 10px;
+    left: 300px;*/
+    margin-top: 5px;
+    margin-right: 400px;
+    float:right;
+    width: 40%;
+    height: 60%;
+    text-align: center;
+    background-color: ${c.profile.oddrow_bg};
+}
+
+#np-title {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#np-info {
+    display: block;
+}
+
 
 #controls {
     text-align: center;
@@ -175,7 +199,7 @@ a.bc_link:hover {
 #breadcrumb {
     float:right;
     width:84%;
-    margin-top: 40px;
+    margin-top: 0px;
 }
 
 #queue-container {

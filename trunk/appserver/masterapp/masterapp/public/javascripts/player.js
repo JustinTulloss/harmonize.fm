@@ -21,7 +21,7 @@ function Player(domObj)
 
     this.so.useExpressInstall('/flash/expressinstall.swf')
     this.so.addParam('allowfullscreen','true');
-    this.so.addVariable('file','music/a12883770c0e5760744b24110af1b45ef7083f7b');
+    //this.so.addVariable('file','music/a12883770c0e5760744b24110af1b45ef7083f7b');
     this.so.addVariable('showdigits','false');
     this.so.addVariable('shuffle','false');
     this.so.addVariable('smoothing','false');

@@ -454,7 +454,7 @@ input.x-tree-node-cb{margin-left:1px;}
 .x-tree-lines .x-tree-elbow-minus{background-image:url(../images/default/tree/elbow-minus.gif);}
 .x-tree-lines .x-tree-elbow-end{background-image:url(../images/default/tree/elbow-end.gif);}
 .x-tree-lines .x-tree-elbow-end-plus{background-image:url(/images/song_expand.png);}
-.x-tree-lines .x-tree-elbow-end-minus{background-image:url(../images/default/tree/elbow-end-minus.gif);}
+.x-tree-lines .x-tree-elbow-end-minus{background-image:url(/images/song_collapse.gif);}
 .x-tree-lines .x-tree-elbow-line{background-image:url(../images/default/tree/elbow-line.gif);}
 .x-tree-no-lines .x-tree-elbow{background:transparent;}
 .x-tree-no-lines .x-tree-elbow-plus{background-image:url(/images/song_expand.png);}
