@@ -166,7 +166,8 @@ class PlayerController(BaseController):
                              "album": "%s" % row.album_title, 
                              "tracknumber": row.tracknumber,
                              "recs": row.recommendations,
-                             "ownerid": row.owner_id
+                             "ownerid": row.owner_id,
+                             "filename": row.filename
                             } for row in tuples
                         ]
                    }   
@@ -243,7 +244,7 @@ class PlayerController(BaseController):
     def get_friends(self):
         tuples = Session.execute("select friend.id as friendid,name, count(distinct artist) as numartists, \
                     count(distinct albums.id) as numalbums from friend,songs,albums where friend.id = songs.owner_id and \
-                    songs.album_id = albums.id",mapper=Friends).fetchall()
+                    songs.album_id = albums.id group by friendid",mapper=Friends).fetchall()
         json = {
                  "data" : [
                         {

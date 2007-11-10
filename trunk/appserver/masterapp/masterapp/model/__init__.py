@@ -20,7 +20,8 @@ songs_table = Table("songs", metadata,
     Column("album_id", types.Integer, ForeignKey("albums.id"), index=True),
     Column("tracknumber", types.Integer),
     Column("recommendations", types.Integer, nullable=False),
-    Column("owner_id", types.Integer, ForeignKey("friend.id"), index=True)
+    Column("owner_id", types.Integer, ForeignKey("friend.id"), index=True),
+    Column("filename", types.String, nullable=False)
 )
 
 albums_table = Table("albums", metadata,
@@ -52,6 +53,7 @@ class Songs(object):
         self.tracknumber = tracknumber
         self.recommendations = recommendations
         self.owner_id = owner_id
+        self.filename = filename
     
 class Albums(object):
     def __init__(self, id, album_title, genre, year, totaltracks):
