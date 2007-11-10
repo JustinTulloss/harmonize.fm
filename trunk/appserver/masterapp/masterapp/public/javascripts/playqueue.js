@@ -16,7 +16,7 @@ function PlayQueue(domObj, dragGroup, fields)
     queue.addToGroup("GridDD"); //This is undocumented, but necessary!
 
 
-    npt = new Ext.Template(
+    var npt = new Ext.Template(
         '<div name="np">',
         '<span id="np-title">{title}</span>',
         '<span id="np-info">{info}</song>');
@@ -38,7 +38,7 @@ function PlayQueue(domObj, dragGroup, fields)
     queueStore = new Ext.data.SimpleStore({fields:fields});
     
     this.queue = queueStore;
-    var nowplaying = 0;
+    var nowplaying = -1;
 
     Tree = Ext.tree;
     var tree = new Tree.TreePanel(div, {
@@ -56,8 +56,8 @@ function PlayQueue(domObj, dragGroup, fields)
 
     function dropAction(source, e, data)
     {
-        queueStore.add(data.selections);
         data.selections.each(addSelection);
+        queueStore.add(data.selections);
     }
 
     function addSelection(song) {
@@ -179,6 +179,15 @@ function PlayQueue(domObj, dragGroup, fields)
        }
     }
     
+    this.setNowPlaying = setNowPlaying;
+    function setNowPlaying(record)
+    {
+        npt.overwrite('now-playing', {
+                title:record.get("title"), 
+                info:record.get("artist")+' - '+record.get("album") 
+            });
+    }
+
     this.removeSong = removeSong;
     function removeSong(delSong)
     {
@@ -211,15 +220,7 @@ function PlayQueue(domObj, dragGroup, fields)
 
         npr = queueStore.getAt(nowplaying)
         setNowPlaying(npr);
-    }
-
-    this.setNowPlaying = setNowPlaying;
-    function setNowPlaying(record)
-    {
-        npt.overwrite('now-playing', {
-                title:record.get("title"), 
-                info:record.get("artist")+' - '+record.get("album") 
-            });
+        return npr;
     }
 
 
@@ -230,6 +231,8 @@ function PlayQueue(domObj, dragGroup, fields)
         {
             var record = queueStore.getAt(nowplaying);
             nowplaying--;
+            npr = queueStore.getAt(nowplaying);
+            setNowPlaying(npr);
             nodeConfig = {
                 text:record.get('title'), 
                 id:Ext.id(),
@@ -241,6 +244,7 @@ function PlayQueue(domObj, dragGroup, fields)
             root.insertBefore(newNode, root.firstChild);
             addDeleteButton(null, null, newNode, null);
         }
+        return npr;
     }
 }
 

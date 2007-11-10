@@ -73,8 +73,8 @@ function init()
 
     /* Initialize event handlers*/
     playqueue.queue.on("add", songsqueued);
-    Ext.get("nextbutton").on("click", playqueue.nextsong);
-    Ext.get("prevbutton").on("click", playqueue.backsong);
+    Ext.get("nextbutton").on("click", nextsong);
+    Ext.get("prevbutton").on("click", backsong);
     //Ext.get("prevbutton").on("mouseover", playqueue.showlast5);
 }
 
@@ -88,6 +88,22 @@ function songsqueued(store, records, index)
         playqueue.nextsong();
     }
 }
+
+function nextsong(e)
+{
+    toplay = playqueue.nextsong();
+    flplayer.loadFile({file:'music/'+toplay.get('filename')});
+    flplayer.sendEvent('playpause');
+}
+
+function backsong(e)
+{
+    toplay = playqueue.backsong();
+    flplayer.loadFile({file:'music/'+toplay.get('filename')});
+    flplayer.sendEvent('playpause');
+}
+
+
 
 function descend(grid, rowIndex, e)
 {

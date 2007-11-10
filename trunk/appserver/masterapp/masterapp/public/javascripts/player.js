@@ -64,6 +64,9 @@ function Player(domObj)
             spos = 100*pr1/totalTime;
             Dom.setStyle('shuttle', 'left', String(spos)+"px");
         }
+        if (pr2==0) {
+            nextsong();
+        }
     }
 
     function leadingZero(nr) {
