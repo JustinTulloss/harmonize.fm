@@ -28,7 +28,8 @@ var nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name', 'friend', 'songid', 'albumid', 'filename'];
+                  'likesartists', 'exartists', 'numtracks', 'name', 'friend', 
+                  'songid', 'albumid', 'filename'];
 
 /******* Initialization functions ********/
 function init()
@@ -39,8 +40,6 @@ function init()
     flplayer = new Player('player');
     playqueue = new PlayQueue('queue', 'songlist', fields);
     browser = new Browser('browser', fields);
-    browser.grid.on("rowdblclick", descend);
-    browser.ds.on("load", mousemgr.processImages, mousemgr);
     init_seekbar();
 
     gridpanel = new Ext.GridPanel(browser.grid, {title:"Browse", fitToFrame:true, closable:true, autocreate:true});
@@ -72,38 +71,27 @@ function init()
     bigshow.endUpdate();
 
     /* Initialize event handlers*/
-    playqueue.queue.on("add", songsqueued);
-    Ext.get("nextbutton").on("click", nextsong);
-    Ext.get("prevbutton").on("click", backsong);
+    //playqueue.queue.on("add", songsqueued);
+    browser.grid.on("rowdblclick", descend);
+    browser.ds.on("load", mousemgr.processImages, mousemgr);
+    Ext.get("nextbutton").on("click", playqueue.nextsong,playqueue);
+    Ext.get("prevbutton").on("click", playqueue.backsong, playqueue);
+    playqueue.on("playsong", playnewsong);
     //Ext.get("prevbutton").on("mouseover", playqueue.showlast5);
 }
 
-function songsqueued(store, records, index)
+function enqueue(recordid)
 {
-    //this is the first stuff into the queue
-    if (store.getCount()-records.length<=0) 
-    {
-        flplayer.loadFile({file:'music/'+records[0].get('filename')});
-        flplayer.sendEvent('playpause');
-        playqueue.nextsong();
-    }
+    record = browser.ds.getById(recordid);
+    playqueue.addRecord(record);
+    Ext.EventManager.stopPropagation();
 }
 
-function nextsong(e)
+function playnewsong(song)
 {
-    toplay = playqueue.nextsong();
-    flplayer.loadFile({file:'music/'+toplay.get('filename')});
+    flplayer.loadFile({file:'music/'+song.get('filename')});
     flplayer.sendEvent('playpause');
 }
-
-function backsong(e)
-{
-    toplay = playqueue.backsong();
-    flplayer.loadFile({file:'music/'+toplay.get('filename')});
-    flplayer.sendEvent('playpause');
-}
-
-
 
 function descend(grid, rowIndex, e)
 {

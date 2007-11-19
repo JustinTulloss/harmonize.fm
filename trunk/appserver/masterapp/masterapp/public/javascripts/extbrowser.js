@@ -215,7 +215,8 @@ function Browser(domObj, fields){
     /**** Custom renderers ***/
     function enqColumn(value, p, record)
     {
-        return '<center><img class="mo" src="/images/enqueue.png" /></center>';
+        id = record.id;
+        return '<center><img onclick="enqueue(\''+id+'\')" class="mo" src="/images/enqueue.png" /></center>';
     }
 
     function starColumn(value, p, record)

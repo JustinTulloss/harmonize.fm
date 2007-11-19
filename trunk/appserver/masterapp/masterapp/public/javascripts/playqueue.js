@@ -11,15 +11,21 @@
 
 function PlayQueue(domObj, dragGroup, fields)
 {
+    var fields = fields;
     var div = Ext.get(domObj);
     var queue = new Ext.dd.DropTarget(div);
     queue.addToGroup("GridDD"); //This is undocumented, but necessary!
 
 
+    this.addEvents({
+        "newsong" : true
+    });
+
     var npt = new Ext.Template(
         '<div name="np">',
-        '<span id="np-title">{title}</span>',
-        '<span id="np-info">{info}</song>');
+            '<span id="np-title">{title}</span>',
+            '<span id="np-info">{info}</span>',
+        '</div');
 
 
     var instructions = new Ext.Template(
@@ -33,10 +39,12 @@ function PlayQueue(domObj, dragGroup, fields)
     instructions.overwrite(div);
     clear = true;
 
-    //This stores everything that's ever been put in the queue.
+    //This stores every song that's ever been put in the queue.
     //The tree manages the look, this manages the actual data
     queueStore = new Ext.data.SimpleStore({fields:fields});
-    
+
+    viewData = new Ext.util.MixedCollection();
+
     this.queue = queueStore;
     var nowplaying = -1;
 
@@ -48,33 +56,62 @@ function PlayQueue(domObj, dragGroup, fields)
                 rootVisible:false,
 				containerScroll:true
             });
-    root = new Tree.AsyncTreeNode({text:'queue', draggable:false, id:'source'});
+    root = new Tree.AsyncTreeNode({
+        text:'queue', 
+        draggable:false, 
+        id:'source'
+    });
     tree.setRootNode(root);
-
 
     queue.notifyDrop = dropAction;
 
+    function newNode(title, id, leaf)
+    {
+        nodeConfig = {
+            text:title, 
+            id:id,
+            leaf: leaf,
+            cls: "x-tree-noicon",
+            allowDrop: false
+        }
+        var nn = new Tree.AsyncTreeNode(nodeConfig);
+        return nn;
+    }
+        
     function dropAction(source, e, data)
     {
-        data.selections.each(addSelection);
-        queueStore.add(data.selections);
+        for (var i =0; i<data.selections.length; i++) {
+            addRecord(data.selections[i]);
+        }
     }
 
-    function addSelection(song) {
-        addRow(song.data);
+    function makeViewId(records, insert)
+    {
+        newViewNode = {
+            start: queueStore.getAt(queueStore.getCount()-records.length),
+            end: queueStore.getAt(queueStore.getCount()-1)
+        };
+
+        id = Ext.id(); 
+        if (insert)
+            viewData.insert(0, id, newViewNode);
+        else
+            viewData.add(id, newViewNode);
+
+        queueStore.add(records);
+
+        return id;
     }
-    
-    /* Public functions */
-    this.addRow = addRow;
+
+
     this.getTree = getTree;
-
     function getTree()
     {
-        //
         return tree;
     }
 
-    function addRow(newRow)
+    this.addRecord = addRecord;
+    function addRecord(newRow)
     {
 	    if (clear==true) {
             div.dom.innerHTML="";
@@ -83,26 +120,18 @@ function PlayQueue(domObj, dragGroup, fields)
             clear = false;
         }
 
-        nodeConfig = {
-            text:newRow.title, 
-            id:Ext.id(),
-            //cls: "x-tree-noicon",
-            allowDrop: false
-        }
-
-        switch(newRow.type) {
+        switch(newRow.get('type')) {
             case 'artist':
                 addArtist(newRow);
-                return;                               
+                return;
             case 'album':
-                nodeConfig.text = newRow.album + " - "+newRow.artist;
-                nodeConfig.id = newRow.album;
-                break;
+                addAlbum(newRow);
+                return;
             case 'song':
-                nodeConfig.text = newRow.title;
-                nodeConfig.id = Ext.id();
-                nodeConfig.leaf = true;
-                break;
+                var idx = makeViewId([newRow]);
+                var nn = newNode(newRow.get('title'),idx , true);
+                root.appendChild(nn);
+                return;
             case 'genre':
                 addGenre(newRow);
                 return;
@@ -111,8 +140,6 @@ function PlayQueue(domObj, dragGroup, fields)
                 return;
         }
 
-        newNode = new Tree.AsyncTreeNode(nodeConfig);
-        root.appendChild(newNode);
     }
 
     function addArtist(row)
@@ -121,10 +148,10 @@ function PlayQueue(domObj, dragGroup, fields)
         var tmpStore = new Ext.data.JsonStore({
             url: 'player/get_data',
             root: 'data',
-            fields: ['album', 'artist']
+            fields: fields
         });
         tmpStore.load({
-            params:{type:'album', artist:row.artist},
+            params:{type:'album', artist:row.get('artist')},
             callback: enqueueAlbums,
         });
     }
@@ -133,50 +160,49 @@ function PlayQueue(domObj, dragGroup, fields)
     {
         if (!success)
             return;
-        for (var i = 0; i<records.length; i++) {
-            newNode = new Tree.AsyncTreeNode({
-                text:records[i].get('album') + " - " + records[i].get('artist'),
-                id:Ext.id(),
-                cls: "x-tree-noicon",
-                allowDrop: false
-            });
-            root.appendChild(newNode);
-        }
+
+        for (var i=0; i<records.length; i++)
+            addAlbum(records[i]);
     }
-	var garbage = new Ext.dd.DropTarget("queue-menu");
-	garbage.notifyDrop = throwAway;
-	
-	function throwAway(source, ev, objData)
-	{
-		alert("whoa");
-	}
+
+    function addAlbum(row)
+    {
+        var tmpStore = new Ext.data.JsonStore({
+            url: 'player/get_data',
+            root: 'data',
+            fields: fields
+        });
+
+        tmpStore.load({
+            params:{type:'song', artist:row.get('artist'), album:row.get('album')},
+            callback: enqueueAlbum,
+        });
+    }
+
+    function enqueueAlbum(records, options, success)
+    {
+        if (!success)
+            return;
+        var idx = makeViewId(records);
+        var nn = newNode(records[0].get('album') + ' - '+ records[0].get('artist'), idx, false);
+        root.appendChild(nn);
+    }
 
 	tree.on("append", addDeleteButton);
 	function addDeleteButton(theTree, theParent, theNode, index)
 	{
 		
-		theNode.setText(theNode.text+"<a href=# onclick='playqueue.removeByID(\""+theNode.id+"\")'> <img src= /images/song_remove.png><\a>");
-		/*	newID = Ext.id();
-		newDom = Ext.getDom(newID);
-		newDom.on("click", removeThisSong, theNode );
-		//ui = theNode.ui;
-		//el = ui.getTextEl();
-		//el.appendChild("<a href=# onClick='alert()'> a<\a>");
-		//Ext.DomHelper.append(el, "<a href=# onClick='alert()'> a<\a>");
-		//Dom = Ext.getDom(el);
-		//Dom.append("<a href=# onClick='alert()'> a<\a>");*/
+		theNode.setText(theNode.text+"<a href=# onclick='playqueue.removeByID(\""+theNode.id+"\")'> <img src= /images/song_remove.png></a>");
 	}
     
     this.clearQueue = clearQueue;
     function clearQueue()
     {
-       var children = root.childNodes;
-       while(children.length>0)
-       {
-         removeSong(children[0]);
-		 clear = true;
-		 instructions.overwrite(div);
-       }
+        while(root.childNodes.length>0)
+            removeNode(root.childNodes[0]);
+        //I love the consistency of this API
+        queueStore.removeAll();
+        viewData.clear();
     }
     
     this.setNowPlaying = setNowPlaying;
@@ -186,66 +212,73 @@ function PlayQueue(domObj, dragGroup, fields)
                 title:record.get("title"), 
                 info:record.get("artist")+' - '+record.get("album") 
             });
+        this.fireEvent('playsong', record);
     }
 
-    this.removeSong = removeSong;
-    function removeSong(delSong)
+    this.removeNode = removeNode;
+    function removeNode(delSong)
     {
-       if(delSong.nextSibling==null)
-       {
-          clear = true;
-          instructions.overwrite(div);
-       }
+        if(delSong.nextSibling==null) {
+            clear = true;
+            instructions.overwrite(div);
+        }
+        var queueEntries = viewData.key(delSong.id);
+        var start = queueStore.indexOf(queueEntries.start);
+        var end = queueStore.indexOf(queueEntries.end);
+        delRecords = queueStore.getRange(start, end);
+        for (var i = 0; i<delRecords.length; i++)
+            queueStore.remove(delRecords[i]);
+
+        viewData.removeKey(delSong.id);
         root.removeChild(delSong);
     }
 
     function removeThisSong()
 	{
-		removeSong(this);
+        removeNode(this);
 	}
 	                                             
 	this.removeByID = removeByID;
 	function removeByID(id)
 	{
-		delNode = tree.getNodeById(id);
-		removeSong(delNode);
+        delNode = tree.getNodeById(id);
+        removeNode(delNode);
 	}
    
     this.nextsong = nextsong;
     function nextsong(e) 
     {
+        if (queueStore.getCount<1)
+            return;
+
         nowplaying++;
-        if(root.firstChild)
+        if (nowplaying > queueStore.indexOf(viewData.itemAt(0).end)) {
+            viewData.removeAt(0);
             root.removeChild(root.firstChild);
+        }
 
-        npr = queueStore.getAt(nowplaying)
-        setNowPlaying(npr);
-        return npr;
+        var npr = queueStore.getAt(nowplaying)
+        this.setNowPlaying(npr);
     }
-
 
     this.backsong = backsong;
     function backsong(e)
     {
-        if (queueStore.getCount()>root.childNodes.length)
-        {
+        if (queueStore.getCount()>root.childNodes.length) {
             var record = queueStore.getAt(nowplaying);
             nowplaying--;
             npr = queueStore.getAt(nowplaying);
-            setNowPlaying(npr);
-            nodeConfig = {
-                text:record.get('title'), 
-                id:Ext.id(),
-                cls: "x-tree-noicon",
-                leaf:true,
-                allowDrop: false
-            };
-            newNode = new Tree.AsyncTreeNode(nodeConfig);
-            root.insertBefore(newNode, root.firstChild);
-            addDeleteButton(null, null, newNode, null);
+            this.setNowPlaying(npr);
+            if (nowplaying < queueStore.indexOf(viewData.itemAt(0).start)) {
+                key = makeViewId([record], true);
+                var nn = newNode(record.get('title'), key, true);
+                root.insertBefore(nn, root.firstChild);
+            }
         }
-        return npr;
     }
 }
+
+//Make it so we can fire events
+Ext.extend(PlayQueue, Ext.util.Observable);
 
 

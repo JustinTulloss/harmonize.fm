@@ -16,12 +16,22 @@ function BcEntry(type, value)
 function BreadCrumb(domObj, link_action)
 {
     var Dom = YAHOO.util.Dom;
-    //var bclist = new Array(new BcEntry("home"), new BcEntry("artist", "Radiohead"), new BcEntry("album"));
     var bclist = new Array(new BcEntry("home"));
     var current = 0;
     var div = Dom.get(domObj);
     //this.link_action = link_action;
     this.link_action = jump_to;
+
+    /* mapping of types to display values */
+    colMap = {
+        home:'Home', 
+        artist:'Artists',
+        album:'Album',
+        songs:'Songs',
+        friend:'Friends',
+        genre:'Genres'
+    };
+
 
     /*public functions*/
     this.current_view = current_view;
@@ -77,7 +87,7 @@ function BreadCrumb(domObj, link_action)
             newId = "bc_"+bclist[i].type;
 
             if (bclist[i].value==null)
-                value = bclist[i].type.capitalize();
+                value = colMap[bclist[i].type];
             else
                 value = bclist[i].value;
 

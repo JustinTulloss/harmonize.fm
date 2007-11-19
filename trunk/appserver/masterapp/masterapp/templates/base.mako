@@ -4,7 +4,7 @@
 <html>
   <head>
     ${self.head_tags()}
-    ${h.javascript_include_tag(builtins=True)}
+    ${h.javascript_include_tag(builtins=False)}
   </head>
   <body>
     ${self.body()}
