@@ -9,12 +9,13 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 import os
 import sys
+import shutil
 
 sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
 
-MUSIC_FOLDER = "C:\Documents and Settings\Jamie\My Documents\My Music\iTunes\iTunes Music"
+MUSIC_FOLDER = "/Volumes/JUSTIN/Music/Metallica"
 
 DATABASE = "sqlite:///../music.db"
 
@@ -43,6 +44,8 @@ class Friends(object):
 mapper(Songs, songs)
 mapper(Albums, albums)
 mapper(Friends, friends)
+
+here = os.getcwd()
 
 def iter_tags(dbobj, tags):
     for key in tags.keys():
@@ -96,6 +99,6 @@ def add_friends():
     
 
 os.path.walk(MUSIC_FOLDER, parse_songs, None)
-add_friends()
+#add_friends()
 
 Session.commit()
