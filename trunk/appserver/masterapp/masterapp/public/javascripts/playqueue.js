@@ -87,7 +87,12 @@ function PlayQueue(domObj, dragGroup, fields)
 
     function makeViewId(records, insert)
     {
-        newViewNode = {
+        if (insert)
+            queueStore.insert(0,records);
+        else
+            queueStore.add(records);
+
+        var newViewNode = {
             start: queueStore.getAt(queueStore.getCount()-records.length),
             end: queueStore.getAt(queueStore.getCount()-1)
         };
@@ -97,8 +102,6 @@ function PlayQueue(domObj, dragGroup, fields)
             viewData.insert(0, id, newViewNode);
         else
             viewData.add(id, newViewNode);
-
-        queueStore.add(records);
 
         return id;
     }
