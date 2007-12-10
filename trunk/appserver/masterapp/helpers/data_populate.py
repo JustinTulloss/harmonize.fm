@@ -15,7 +15,7 @@ sys.path.append("../../../libs.py")
 from mutagen.easyid3 import EasyID3
 
 
-MUSIC_FOLDER = "/Volumes/JUSTIN/Music/Metallica"
+MUSIC_FOLDER = "/mnt/data/Users/justin/Music/Radiohead"
 
 DATABASE = "sqlite:///../music.db"
 
@@ -66,11 +66,11 @@ def parse_songs(arg, dirname, fnames):
                 dbtags[k] = ','.join(tags[k])
                 #print k
             qry = Session.query(Albums).filter(
-                Albums.album_title==dbtags["album"])
+                Albums.album ==dbtags["album"])
             album = qry.all()
             if len(album) == 0:
                 newalbum = Albums()
-                newalbum.album_title = dbtags['album']
+                #newalbum.album_title = dbtags['album']
                 #newalbum.year = dbtags['year']
                 iter_tags(newalbum, dbtags)
                 album_id = newalbum.id

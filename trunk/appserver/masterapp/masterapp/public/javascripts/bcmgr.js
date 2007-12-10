@@ -1,12 +1,30 @@
 /* Justin Tulloss
  *
- * This is for managing where we are in the world of musical views
+ * This is for managing where we are in the world of musical views.
+ *
+ * TODO: Clean this up a bit. Right now this is very closely tied to the
+ * HTML breadcrumb itself while tangling in storage for what parameters are
+ * currently in use
  */
 
-function BcEntry(type, value)
+/* An entry of data in the breadcrumb. Generally what you display and what
+ * you query for are the same, but in the case of friends and albums, we
+ * query for IDs that aren't presented anywhere. So, we allow you to
+ * differentiate between what is displayed and what you want to query for.
+ */
+function BcEntry(type, value, qrytype, qryvalue)
 {
     this.type = type;
     this.value = value;
+    if (qryvalue == null)
+        qryvalue = value;
+    else
+        this.qryvalue = qryvalue
+
+    if (qrytype == null)
+        this.qrytype = type;
+    else
+        this.qrytype = qrytype
 }
 
 /* BreadCrumb object
@@ -46,9 +64,11 @@ function BreadCrumb(domObj, link_action)
         return bclist[current].type;
     }
 
-    function descend(curvalue, newFilter)
+    function descend(curvalue, qryvalue, newFilter)
     {
         bclist[current].value = curvalue;
+        bclist[current].qryvalue = qryvalue;
+
         current++;
         bclist.splice(current, bclist.length-current, newFilter);
         return update();
@@ -130,8 +150,8 @@ function BreadCrumb(domObj, link_action)
     {
         params = {type:null};
         for(var i=0; i<current; i++) {
-            if(bclist[i].value != null)
-                params[bclist[i].type] = bclist[i].value;
+            if(bclist[i].qryvalue != null)
+                params[bclist[i].qrytype] = bclist[i].qryvalue;
         }
         return params;
     }

@@ -26,7 +26,7 @@ songs_table = Table("songs", metadata,
 
 albums_table = Table("albums", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("album_title", types.String, index=True),
+    Column("album", types.String, index=True),
     Column("genre", types.String, index=True),
     Column("year", types.Integer, index=True),
     Column("totaltracks", types.Integer)
@@ -56,9 +56,9 @@ class Songs(object):
         self.filename = filename
     
 class Albums(object):
-    def __init__(self, id, album_title, genre, year, totaltracks):
+    def __init__(self, id, album, genre, year, totaltracks):
         self.id = id
-        self.album_title = album_title
+        self.album = album
         self.genre = genre
         self.year = year
         self.totaltracks = totaltracks

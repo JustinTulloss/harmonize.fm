@@ -6,13 +6,15 @@ from sqlalchemy import sql
 import pylons
 
 #The types we can search for an their associated returned fields
+#TODO: This currently defines both valid filters and the schema.
+#      Make a new struct that defines valid filters
 schema = {
     'album': (
         'artist',
         'year', 
         'genre', 
-        'album_title', 
-        'albumid', 
+        'album', 
+        'album_id', 
         'totaltracks',
         'albumlength',
         #'ownerid',
@@ -22,9 +24,9 @@ schema = {
         'totalalbums',
         'totaltracks',
         'artistlength',
-        'ownerid',
+        #'ownerid',
         'recs'),
-    'songs':(
+    'song':(
         'title',
         'artist',
         'songid',
@@ -33,20 +35,22 @@ schema = {
         'album',
         'tracknumber',
         'recs',
-        'ownerid',
+        #'ownerid',
         'filename'),
     'genre':(
         'genre',
         'numartists',
         'exartists',
-        'ownerid'),
+        #'ownerid'
+        ),
     'friend':(
         'friend',
         'name',
         'numartists',
         'numalbums',
         'likesartists'),
-    'fid':()
+    'fid':(),
+    'album_id':()
 }
 
 class PlayerController(BaseController):
@@ -68,7 +72,7 @@ class PlayerController(BaseController):
         friend = request.params.get('friend')
         genre = request.params.get('genre')
         if type == 'album': 
-            return self.get_albums(artist,friend,genre)    
+            return self.get_albums()
         elif type == 'artist':
             return self.get_artists(friend,genre)
         elif type == 'genre':
@@ -81,14 +85,15 @@ class PlayerController(BaseController):
             return self.get_songs(type,artist,album,friend,genre)
         
 
-    def get_albums(self, myartist, myfid, mygenre):                
-        #Builds the "AND" part of the sql statement
-        #The & is overloaded to create the correct SQL
+    def _qualify_sql(self):
         qualifiers = sql.and_()
         for key,param in request.params.iteritems():
             if(schema.has_key(key)):
                 qualifiers.append(getattr(songs_table.c, key)==param)
-
+        return qualifiers
+        
+    def get_albums(self):
+        qualifiers = self._qualify_sql()
         if (len(qualifiers)==0):
             qualifiers = songs_table.c.album_id == albums_table.c.id
         else:
@@ -116,91 +121,25 @@ class PlayerController(BaseController):
         return json  
         
     def get_songs(self, type, myartist, myalbum, myfid, mygenre):     
-    
-        if myfid == None:
-            if myartist == None: #no fid or artist to filter on
-                if mygenre == None:     #no filters
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
-                        songs.album_id", mapper=Songs).fetchall()
-                else:  #filter only on genre
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
-                        songs.album_id and albums.genre='%s'" % mygenre, mapper=Songs).fetchall()                    
-            else: #filter by artist
-                if myalbum == None: #filter by artist
-                    if mygenre == None:     #only filter by artist                
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.artist = '%s'" % myartist, mapper=Songs).fetchall()
-                    else: #filter by artist and genre
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.artist = '%s' and albums.genre='%s'" % (myartist,mygenre), mapper=Songs).fetchall()
-                    
-                else: # filter by artist and album
-                    if mygenre == None:
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and albums.album_title = '%s' and songs.artist = '%s'" % 
-                            (myalbum,myartist), mapper=Songs).fetchall()
-                    else: #filter on artist/album/genre
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and albums.album_title = '%s' and songs.artist = '%s' and albums.genre='%s'" % 
-                            (myalbum,myartist,mygenre), mapper=Songs).fetchall()
-        else: # we have fid to filter on
-            if myartist == None:
-                if mygenre == None:
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
-                        songs.album_id and songs.owner_id = %s" % myfid, mapper=Songs).fetchall()
-                else:
-                    tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id = \
-                        songs.album_id and songs.owner_id = %s and albums.genre='%s'" % (myfid,mygenre), mapper=Songs).fetchall()              
-            else:
-                if myalbum == None: # filter only by artist and fid
-                    if mygenre == None:
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.owner_id = %s and songs.artist = '%s'" % (myfid, myartist), mapper=Songs).fetchall()
-                    else: #filter on genre/artist/fid
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.owner_id = %s and songs.artist = '%s' and albums.genre='%s'"
-                            % (myfid, myartist,mygenre), mapper=Songs).fetchall()                        
-                else: #filter on artist,album,fid
-                    if mygenre == None:                        
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.owner_id = %s and songs.artist = '%s' and albums.album_title='%s'" 
-                            % (myfid, myartist,myalbum), mapper=Songs).fetchall()
-                    else: # filter on fid,artist,album,genre
-                        tuples = Session.execute("select *,songs.id as songid from albums,songs where albums.id \
-                            = songs.album_id and songs.owner_id = %s and songs.artist = '%s' and albums.album_title='%s'\
-                            and albums.genre='%s'" % (myfid, myartist,myalbum,mygenre), mapper=Songs).fetchall()                        
-                        
-        if type == 'song':
-            json = { 
-                     "data" : [
-                            {
-                             "type":"song", 
-                             "title": "%s" % row.title, 
-                             "artist": "%s" % row.artist, 
-                             "songid": row.songid,
-                             "year": row.year, 
-                             "genre": "%s" % row.genre,
-                             "album": "%s" % row.album_title, 
-                             "tracknumber": row.tracknumber,
-                             "recs": row.recommendations,
-                             "ownerid": row.owner_id,
-                             "filename": row.filename
-                            } for row in tuples
-                        ]
-                   }   
-        elif type == 'queue':
-            json = { 
-                     "data" : [
-                            {
-                             "type":"queue", 
-                             "text": "%s" % row.title, 
-                             "id": row.songid, 
-                             "leaf": "true"                     
-                            } for row in tuples
-                        ]
-                   }  
-        return json
-        
+        qualifiers = self._qualify_sql()
+
+        if (len(qualifiers)==0):
+            qualifiers = songs_table.c.album_id == albums_table.c.id
+        else:
+            qualifiers.append(songs_table.c.album_id == albums_table.c.id)
+
+        qry = sql.select(
+            [
+                songs_table, 
+                albums_table, 
+                albums_table.c.id.label('albumid'), 
+                songs_table.c.id.label('songid'), 
+                songs_table.c.recommendations.label('recs')
+            ],qualifiers)
+
+        results = Session.execute(qry)
+        return self.build_json(results)
+
     def get_artists(self, myfid, mygenre):
         if myfid == None:
             if mygenre == None: #dont filter on anything

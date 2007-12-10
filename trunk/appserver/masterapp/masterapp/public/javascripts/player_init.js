@@ -24,12 +24,17 @@ var bigshow = null;
 var gridpanel = null;
 var homepanel = null;
 var bread_crumb = null;
-var nextType = {artist:'album', album:'song', genre:'artist', friend:'artist'};
+var typeinfo= {
+    artist:{next:'album'}, 
+    album:{next:'song', qry:'album_id'}, 
+    genre:{next:'artist'},
+    friend:{next:'artist', qry:'fid'}
+};
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend', 
-                  'songid', 'albumid', 'filename'];
+                  'songid', 'album_id', 'filename'];
 
 /******* Initialization functions ********/
 function init()
@@ -108,14 +113,23 @@ function descend(grid, rowIndex, e)
         return;
     }
 
-    params = bread_crumb.descend(value, new BcEntry(nextType[type]));
-    params["type"] = nextType[type];
-    /*TODO: Get rid of this giant HACK! */
-    if (type == 'album')
-        params.artist = record.get('artist');
+    var nexttype = typeinfo[type]['next'];
+    var newbc =  new BcEntry(nexttype);
+    if (typeinfo[nexttype] != null) {
+        if (typeinfo[nexttype]['qry'] != null) {
+            newbc.qrytype = typeinfo[nexttype]['qry'];
+        }
+    }
+
+    qryvalue = value;
+    if (typeinfo[type]['qry'] != null)
+        qryvalue = record.get(typeinfo[type]['qry']);
+
+    var params = bread_crumb.descend(value, qryvalue, newbc);
+    params["type"] = nexttype;
 
     ds.load({params:params});
-    browser.changeColModel(nextType[type]);
+    browser.changeColModel(nexttype);
 }
 
 function go(type)
@@ -141,7 +155,7 @@ function go(type)
         return;
 
     bread_crumb.jump_to('home'); //this is not the below jump_to function
-    bread_crumb.descend(null, new BcEntry(type));
+    bread_crumb.descend(null, null, new BcEntry(type));
     browser.ds.load({params:{type:type}});
     browser.changeColModel(type);
     return;
