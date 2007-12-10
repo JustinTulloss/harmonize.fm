@@ -1,7 +1,53 @@
 from masterapp.lib.base import *
 from masterapp.model import Songs, Albums, Friends, Session
+from masterapp.model import songs_table, albums_table, friend_table
 from masterapp.lib.profile import Profile
+from sqlalchemy import sql
 import pylons
+
+#The types we can search for an their associated returned fields
+schema = {
+    'album': (
+        'artist',
+        'year', 
+        'genre', 
+        'album_title', 
+        'albumid', 
+        'totaltracks',
+        'albumlength',
+        #'ownerid',
+        'recs'),
+    'artist':(
+        'artist',
+        'totalalbums',
+        'totaltracks',
+        'artistlength',
+        'ownerid',
+        'recs'),
+    'songs':(
+        'title',
+        'artist',
+        'songid',
+        'year',
+        'genre',
+        'album',
+        'tracknumber',
+        'recs',
+        'ownerid',
+        'filename'),
+    'genre':(
+        'genre',
+        'numartists',
+        'exartists',
+        'ownerid'),
+    'friend':(
+        'friend',
+        'name',
+        'numartists',
+        'numalbums',
+        'likesartists'),
+    'fid':()
+}
 
 class PlayerController(BaseController):
     def index(self):
@@ -34,68 +80,39 @@ class PlayerController(BaseController):
         elif type == 'queue':
             return self.get_songs(type,artist,album,friend,genre)
         
-    def get_albums(self, myartist, myfid, mygenre):                
-        if myfid == None:
-            if myartist == None:
-                if mygenre == None: # no filters
-                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
-                        albums.id = songs.album_id group by albumid", mapper=Songs).fetchall()        
-                else: #filter only on genre
-                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
-                        albums.id = songs.album_id and albums.genre='%s' group by albumid" % mygenre, mapper=Songs).fetchall()
-            else:
-                if mygenre == None:
-                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
-                        albums.id = songs.album_id and songs.artist = '%s' group by albumid" % myartist, mapper=Songs).fetchall()
-                else: #filter on genre and artist
-                    tuples = Session.execute("select album_title,artist,year,genre,owner_id, \
-                        count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs where \
-                        albums.id = songs.album_id and songs.artist = '%s' and albums.genre='%s' \
-                        group by albumid" % (myartist,mygenre), mapper=Songs).fetchall()
-                
-        else: #we have a fid to filter on            
-            if myartist == None:
-                if mygenre == None: #filter only on fid
-                    tuples = Session.execute("select album_title,artist,year,genre,\
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
-                        where albums.id = songs.album_id and songs.owner_id = %s group by albumid" 
-                        % myfid, mapper=Songs).fetchall()
-                else: #filter on fid and genre
-                    tuples = Session.execute("select album_title,artist,year,genre,\
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
-                        where albums.id = songs.album_id and songs.owner_id = %s and albums.genre='%s' group by albumid" 
-                        % (myfid,mygenre), mapper=Songs).fetchall()                
-            else: # we have fid and artist
-                if mygenre == None: # filter on fid and artist
-                    tuples = Session.execute("select album_title,artist,year,genre, \
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
-                        where albums.id = songs.album_id and songs.owner_id = %s and songs.artist = '%s' \
-                        group by albumid" % (myfid, myartist), mapper=Songs).fetchall()
-                else: #filter on fid, artist,genre
-                     tuples = Session.execute("select album_title,artist,year,genre, \
-                        owner_id,count(songs.id) as totaltracks,albums.id as albumid,sum(recommendations) as recs from albums, songs \
-                        where albums.id = songs.album_id and songs.owner_id = %s and songs.artist = '%s' \
-                        and albums.genre='%s' group by albumid" % (myfid, myartist,mygenre), mapper=Songs).fetchall()
 
-        json = {  
-                 "data" : [
-                        {
-                         "type":"album",
-                         "artist": "%s" % row.artist, 
-                         "year": row.year, 
-                         "genre": "%s" % row.genre,
-                         "album": "%s" % row.album_title, 
-                         "totaltracks": row.totaltracks,
-                         "albumlength": "%s" % self.get_album_length(row.albumid,None),
-                         "ownerid": row.owner_id,
-                         "albumid": row.albumid,
-                         "recs": row.recs
-                        } for row in tuples
-                    ]
-               }   
+    def get_albums(self, myartist, myfid, mygenre):                
+        #Builds the "AND" part of the sql statement
+        #The & is overloaded to create the correct SQL
+        qualifiers = sql.and_()
+        for key,param in request.params.iteritems():
+            if(schema.has_key(key)):
+                qualifiers.append(getattr(songs_table.c, key)==param)
+
+        if (len(qualifiers)==0):
+            qualifiers = songs_table.c.album_id == albums_table.c.id
+        else:
+            qualifiers.append(songs_table.c.album_id == albums_table.c.id)
+
+        qry = sql.select(
+            [
+                songs_table, 
+                albums_table, 
+                albums_table.c.id.label('albumid'), 
+                sql.func.sum(songs_table.c.recommendations).label('recs'),
+                sql.func.sum(songs_table.c.length).label('albumlength')
+            ],qualifiers).distinct().group_by(albums_table.c.id)
+
+        results = Session.execute(qry)
+        return self.build_json(results)
+
+    def build_json(self, results):
+        dtype = request.params.get('type')
+        json = { "data": []}
+        for row in results:
+            expanded = dict([(field, row[field]) for field in schema[dtype]])
+            json['data'].append(expanded)
+            json['data'][len(json['data'])-1]['type']=dtype
         return json  
         
     def get_songs(self, type, myartist, myalbum, myfid, mygenre):     
