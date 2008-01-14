@@ -5,16 +5,14 @@
  *
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
  *
- *  FIXME:Major unresolved issue -- when removing tree rows, queuestore is not
- *  currently updated to reflect the fact that the song has been removed!
  */
 
 function PlayQueue(domObj, dragGroup, fields)
 {
     var fields = fields;
     var div = Ext.get(domObj);
-    var queue = new Ext.dd.DropTarget(div);
-    queue.addToGroup("GridDD"); //This is undocumented, but necessary!
+    //var queue = new Ext.dd.DropTarget(div);
+    //queue.addToGroup("GridDD"); //This is undocumented, but necessary!
 
 
     this.addEvents({
@@ -25,7 +23,7 @@ function PlayQueue(domObj, dragGroup, fields)
         '<div name="np">',
             '<span id="np-title">{title}</span>',
             '<span id="np-info">{info}</span>',
-        '</div');
+        '</div>');
 
 
     var instructions = new Ext.Template(
@@ -49,7 +47,7 @@ function PlayQueue(domObj, dragGroup, fields)
     var nowplaying = -1;
 
     Tree = Ext.tree;
-    var tree = new Tree.TreePanel(div, {
+    this.tree = new Tree.TreePanel({
                 animate:true,
                 enableDD:true,
                 fitToContainer:true,
@@ -61,9 +59,9 @@ function PlayQueue(domObj, dragGroup, fields)
         draggable:false, 
         id:'source'
     });
-    tree.setRootNode(root);
+    this.tree.setRootNode(root);
 
-    queue.notifyDrop = dropAction;
+    //queue.notifyDrop = dropAction;
 
     function newNode(title, id, leaf)
     {
@@ -191,7 +189,7 @@ function PlayQueue(domObj, dragGroup, fields)
         root.appendChild(nn);
     }
 
-	tree.on("append", addDeleteButton);
+	this.tree.on("append", addDeleteButton);
 	function addDeleteButton(theTree, theParent, theNode, index)
 	{
 		
@@ -244,7 +242,7 @@ function PlayQueue(domObj, dragGroup, fields)
 	this.removeByID = removeByID;
 	function removeByID(id)
 	{
-        delNode = tree.getNodeById(id);
+        delNode = this.tree.getNodeById(id);
         removeNode(delNode);
 	}
    

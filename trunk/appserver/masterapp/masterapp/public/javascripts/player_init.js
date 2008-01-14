@@ -44,36 +44,39 @@ function init()
     bread_crumb.update();
     flplayer = new Player('player');
     playqueue = new PlayQueue('queue', 'songlist', fields);
-    browser = new Browser('browser', fields);
+    browser = new Browser(fields);
     init_seekbar();
 
-    gridpanel = new Ext.GridPanel(browser.grid, {title:"Browse", fitToFrame:true, closable:true, autocreate:true});
-    homepanel = new Ext.ContentPanel('home', {title:"Home", fitToFrame:true, closable:true, autocreate:true});
-    bigshow = new Ext.BorderLayout(document.body, {
-        north: {
-            initializeSize: 73,
-            titlebar: false
-        },
-        west: {
+    //gridpanel = new Ext.GridPanel(browser.grid, {title:"Browse", fitToFrame:true, closable:true, autocreate:true});
+    homepanel = new Ext.Panel({title:"Home", fitToFrame:true, closable:true, autocreate:true, contentEl:'home', header: false});
+    centerpanel = new Ext.Panel({
+        layout:'card', 
+        items:[homepanel, browser.grid], 
+        activeItem: 0
+    });
+    bigshow = new Ext.Viewport({
+        layout: 'border',
+        items: [{
+            region: 'north',
+            height: 73,
+            titlebar: false,
+            contentEl: 'header'
+        },{
+            region: 'west',
             split: true,
-            initialSize: '16%',
+            width: '16%',
             titlebar:false,
-            collapsible: true
-        },
-        center : {
-            hideTabs: true
-        }
+            collapsible: true,
+            items: [playqueue.tree]
+        }, {
+            region: 'center',
+            id: 'centerpanel',
+            layout: 'card',
+            activeItem: 0,
+            items: [homepanel, browser.grid]
+        }]
     });
     var CP = Ext.ContentPanel
-
-    bigshow.beginUpdate();
-    bigshow.add('north', new CP('header'));
-    bigshow.add('west', new CP('queue-container', {title: 'Navigation', fitToFrame:true}));
-    bigshow.add('center', homepanel);
-    bigshow.add('center', gridpanel);
-    bigshow.getRegion('center').hidePanel(gridpanel);
-    bigshow.getRegion('center').showPanel(homepanel);
-    bigshow.endUpdate();
 
     /* Initialize event handlers*/
     //playqueue.queue.on("add", songsqueued);
@@ -100,7 +103,7 @@ function playnewsong(song)
 
 function descend(grid, rowIndex, e)
 {
-    var ds = grid.getDataSource();
+    var ds = grid.getStore();
     var record = ds.getAt(rowIndex);
     var type = record.get("type");
     var value = record.get(type);
@@ -137,19 +140,13 @@ function go(type)
 
     if (bread_crumb.current_view() != "home" && type == "home")
     {
-        bigshow.beginUpdate();
-        bigshow.getRegion('center').hidePanel(gridpanel);
-        bigshow.getRegion('center').showPanel(homepanel);
-        bigshow.endUpdate();
+        bigshow.getComponent('centerpanel').getLayout().setActiveItem(0);
         bread_crumb.jump_to('home'); //this is not the below jump_to function
         return;
     }
     else if (bread_crumb.current_view() == "home" && type != "home")
     {
-        bigshow.beginUpdate();
-        bigshow.getRegion('center').hidePanel(homepanel);
-        bigshow.getRegion('center').showPanel(gridpanel);
-        bigshow.endUpdate();
+        bigshow.getComponent('centerpanel').getLayout().setActiveItem(1);
     }
     else if (bread_crumb.current_view() == "home" && type == "home")
         return;
@@ -165,18 +162,12 @@ function go(type)
 function jump_to(type)
 {
     if (type == 'home' && bread_crumb.current_view()!='home') {
-        bigshow.beginUpdate();
-        bigshow.getRegion('center').hidePanel(gridpanel);
-        bigshow.getRegion('center').showPanel(homepanel);
-        bigshow.endUpdate();
+        bigshow.getComponent('centerpanel').getLayout().setActiveItem(0);
         params = bread_crumb.jump_to(type);
         return;
     }
     else if (type != 'home' && bread_crumb.current_view() == 'home') {
-        bigshow.beginUpdate();
-        bigshow.getRegion('center').hidePanel(homepanel);
-        bigshow.getRegion('center').showPanel(gridpanel);
-        bigshow.endUpdate();
+        bigshow.getComponent('centerpanel').getLayout().setActiveItem(1);
     }
 
     params = bread_crumb.jump_to(type);

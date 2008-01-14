@@ -4,10 +4,9 @@
  * Experimenting with replacing the YUI datatable with an extjs one
  */
 
-function Browser(domObj, fields){
+function Browser(fields)
+{
     
-    var div = domObj
-
     // create the Data Store
     this.ds = new Ext.data.JsonStore({
         url:'player/get_data',
@@ -189,7 +188,7 @@ function Browser(domObj, fields){
     cm.genre.defaultSortable = true;
 
     // create the editor grid
-    this.grid = new Ext.grid.Grid(div, {
+    this.grid = new Ext.grid.GridPanel({
         ds: this.ds,
         cm: cm.song,
         selModel: new Ext.grid.RowSelectionModel(),
@@ -201,7 +200,7 @@ function Browser(domObj, fields){
     });
 
     // make the grid resizable, do before render for better performance
-    var rz = new Ext.Resizable(div, {
+    /*var rz = new Ext.Resizable(div, {
         wrap:true,
         minHeight:100,
         pinned:true,
@@ -210,7 +209,7 @@ function Browser(domObj, fields){
     rz.on('resize', this.grid.autoSize, this.grid);
 
     // render it
-    this.grid.render();
+    this.grid.render();*/
 
     /**** Custom renderers ***/
     function enqColumn(value, p, record)
