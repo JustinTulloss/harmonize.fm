@@ -36,7 +36,6 @@ class Mover(BaseAction):
             self.frm = os.path.join(self.frm, file.name)
         else:
             self.frm = f.name
-
         if (os.path.exists(self.to)):
             os.remove(self.frm) #the file already exists
             file["new"] = False
