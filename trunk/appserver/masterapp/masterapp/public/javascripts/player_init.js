@@ -47,13 +47,8 @@ function init()
     browser = new Browser(fields);
     init_seekbar();
 
-    //gridpanel = new Ext.GridPanel(browser.grid, {title:"Browse", fitToFrame:true, closable:true, autocreate:true});
     homepanel = new Ext.Panel({title:"Home", fitToFrame:true, closable:true, autocreate:true, contentEl:'home', header: false});
-    centerpanel = new Ext.Panel({
-        layout:'card', 
-        items:[homepanel, browser.grid], 
-        activeItem: 0
-    });
+
     bigshow = new Ext.Viewport({
         layout: 'border',
         items: [{
@@ -92,7 +87,7 @@ function enqueue(recordid)
 {
     record = browser.ds.getById(recordid);
     playqueue.addRecord(record);
-    Ext.EventManager.stopPropagation();
+    Ext.EventObject.stopPropagation();
 }
 
 function playnewsong(song)

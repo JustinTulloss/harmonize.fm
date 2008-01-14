@@ -10,10 +10,6 @@
 function PlayQueue(domObj, dragGroup, fields)
 {
     var fields = fields;
-    var div = Ext.get(domObj);
-    //var queue = new Ext.dd.DropTarget(div);
-    //queue.addToGroup("GridDD"); //This is undocumented, but necessary!
-
 
     this.addEvents({
         "newsong" : true
@@ -34,7 +30,6 @@ function PlayQueue(domObj, dragGroup, fields)
             '</div>');
 
 	
-    instructions.overwrite(div);
     clear = true;
 
     //This stores every song that's ever been put in the queue.
@@ -50,9 +45,17 @@ function PlayQueue(domObj, dragGroup, fields)
     this.tree = new Tree.TreePanel({
                 animate:true,
                 enableDD:true,
+                ddGroup:'GridDD',
+                ddScroll: true,
                 fitToContainer:true,
                 rootVisible:false,
-				containerScroll:true
+				containerScroll:true,
+                fitToFrame: true,
+                ctCls: 'queue-container',
+                dropConfig: {
+                    allowContainerDrop: true,
+                    ddGroup: 'GridDD'
+                }
             });
     root = new Tree.AsyncTreeNode({
         text:'queue', 
@@ -60,8 +63,6 @@ function PlayQueue(domObj, dragGroup, fields)
         id:'source'
     });
     this.tree.setRootNode(root);
-
-    //queue.notifyDrop = dropAction;
 
     function newNode(title, id, leaf)
     {
@@ -115,8 +116,8 @@ function PlayQueue(domObj, dragGroup, fields)
     function addRecord(newRow)
     {
 	    if (clear==true) {
-            div.dom.innerHTML="";
-            tree.render();
+            //div.dom.innerHTML="";
+            this.tree.render();
             root.expand();
             clear = false;
         }
@@ -221,7 +222,7 @@ function PlayQueue(domObj, dragGroup, fields)
     {
         if(delSong.nextSibling==null) {
             clear = true;
-            instructions.overwrite(div);
+            //instructions.overwrite(div);
         }
         var queueEntries = viewData.key(delSong.id);
         var start = queueStore.indexOf(queueEntries.start);
