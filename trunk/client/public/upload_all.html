@@ -1,0 +1,20 @@
+<html>
+<head>
+	<script type="text/javascript" src="ext-base.js"></script>
+	<script type="text/javascript" src="ext-all.js"></script>
+	<script type="text/javascript">
+		Ext.onReady(function() {
+			var upload_progress = Ext.get('upload_progress');
+			upload_progress.load({
+				url: 'upload_all',
+				text: 'Upload in progress...',
+				method: 'POST'
+			});
+			upload_progress.show();
+		});
+	</script>
+</head>
+<body onload="">
+	<p id="upload_progress" />
+</body>
+</html>
