@@ -7,12 +7,14 @@
     </style>
 
     ${h.stylesheet_link_tag('ext-all')}
+    ${h.stylesheet_link_tag('ext-ux-slidezone')}
     ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
     ${h.javascript_include_tag('yui/build/animation/animation-min.js')}
     ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
     ${h.javascript_include_tag('yui/build/connection/connection-min.js')}
     ${h.javascript_include_tag('ext-2.0/adapter/ext/ext-base.js')}
     ${h.javascript_include_tag('ext-2.0/ext-all-debug.js')}
+    ${h.javascript_include_tag('ext-2.0/source/widgets/ux/SlideZone.js')}
     ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
     ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
     ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
@@ -51,9 +53,8 @@
             <div id="time">&nbsp;</div>
             <div id="time2">&nbsp;</div>
             <div id="timeline" tabindex="-1">
-                <div id="shuttle">
-                    <img src= "/images/shuttle.png">
-                </div>
+                <!--<div id="shuttle">
+                </div>-->
             </div>
         </div>
     </div>

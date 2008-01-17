@@ -187,6 +187,26 @@ var scaleFactor = 1;
 
 function init_seekbar()
 {
+    slider = new Ext.ux.SlideZone('timeline', {
+        type: 'horizontal',
+        size:100,
+        sliderWidth: 13,
+        //sliderHeight: 13,
+        maxValue: 100,
+        minValue: 0,
+        sliderSnap: 1,
+        sliders: [{
+            value: 0,
+            name: 'shuttle'
+        }]
+    });
+
+    slider.getSlider('shuttle').on('drag',
+        function() {
+            flplayer.seek(this.value/100)
+        });
+
+    /*
     slider = YAHOO.widget.Slider.getHorizSlider(bg, 
             thumb, topConstraint, bottomConstraint, 1);
 
@@ -228,6 +248,7 @@ function init_seekbar()
             slider.setValue(Math.round(v/scaleFactor));
             }
             });
+    */
 }
 Ext.onReady(init);
 /****End of Initializations ****/

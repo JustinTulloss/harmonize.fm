@@ -181,14 +181,15 @@ a.bc_link:hover {
     width: 113px;
     height: 13px;
 	margin: 0 auto;
-    background-image: url("/images/timeline-bg.png");
+    /*background-image: url("/images/timeline-bg.png");
 	background-position: center center;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;*/
 }
 
+    /*
 #shuttle {
     position: absolute;
-}
+}*/
 
 #time2 {
     float: right;
@@ -202,7 +203,7 @@ a.bc_link:hover {
     margin-top: 0px;
 }
 
-#queue-container {
+.queue-container {
 	background-color: ${c.profile.queue_bg};
 }
 #queue{

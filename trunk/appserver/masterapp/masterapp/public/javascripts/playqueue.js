@@ -51,7 +51,7 @@ function PlayQueue(domObj, dragGroup, fields)
                 rootVisible:false,
 				containerScroll:true,
                 fitToFrame: true,
-                ctCls: 'queue-container',
+                cls: 'queue-container',
                 dropConfig: {
                     allowContainerDrop: true,
                     ddGroup: 'GridDD'
