@@ -30,6 +30,7 @@
 
 <div id="header">
     <div id="menu">
+        <!--
         <div id="searchbar" tabindex="-1">Search...</div>
         <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Artists", "go('artist')", Class='menuitem')}</div>
@@ -37,7 +38,7 @@
         <div class="menuitem">${h.link_to_function("Songs", "go('song')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Friends", "go('friend')", Class='menuitem')}</div>
         <div class="menuitem">${h.link_to_function("Genres", "go('genre')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>
+        <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>-->
     </div>
     <div id="top">
         <div id="now-playing">&nbsp;</div>
@@ -52,20 +53,11 @@
         <div id="status">
             <div id="time">&nbsp;</div>
             <div id="time2">&nbsp;</div>
-            <div id="timeline" tabindex="-1">
-                <!--<div id="shuttle">
-                </div>-->
-            </div>
+            <div id="timeline" tabindex="-1"></div>
         </div>
     </div>
 </div>
-<div id= "queue-container">
-    <div id="queue-menu">
-        <a class="queue-menu-item" id="clear-queue" onclick="playqueue.clearQueue();" href="#">clear</a>
-        <a class="queue-menu-item" id="save-queue" onclick="alert('This has not yet been implemented');" href="#">save</a>
-    </div>
-    <div id= "queue"></div>
-<div>
+
 <div id="home">
     <div id="mainlogo"><img src="/images/homelogo.png" /></div>
     <div class="mainmenu">${h.link_to_function("Artists", "go('artist')", Class="mainmenuitem")}</div>
@@ -74,7 +66,4 @@
     <div class="mainmenu">${h.link_to_function("Friends", "go('friend')", Class="mainmenuitem")}</div>
     <div class="mainmenu">${h.link_to_function("Genres", "go('genre')", Class="mainmenuitem")}</div>
     <div class="mainmenu">${h.link_to_function("Settings", "go('setting')", Class="mainmenuitem")}</div>
-</div>
-<div id="browser">
-    Loading...
 </div>

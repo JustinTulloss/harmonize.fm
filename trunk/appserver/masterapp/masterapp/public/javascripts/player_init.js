@@ -7,10 +7,7 @@
  * 10/31/2007 - Moved classes to their own files --JMT
  */
 
-/*Globals to make the YUI library easier to access */
-var Event = YAHOO.util.Event,
-    Dom   = YAHOO.util.Dom,
-    lang  = YAHOO.lang;
+Ext.BLANK_IMAGE_URL='/images/s.gif';
 
 /* Other necessary globals. Any globals outside of here 
  * should be removed at some point, or determined as necessary
@@ -46,6 +43,7 @@ function init()
     playqueue = new PlayQueue('queue', 'songlist', fields);
     browser = new Browser(fields);
     init_seekbar();
+    init_top_menu();
 
     homepanel = new Ext.Panel({title:"Home", fitToFrame:true, closable:true, autocreate:true, contentEl:'home', header: false});
 
@@ -53,7 +51,7 @@ function init()
         layout: 'border',
         items: [{
             region: 'north',
-            height: 73,
+            height: 76,
             titlebar: false,
             contentEl: 'header'
         },{
@@ -171,19 +169,8 @@ function jump_to(type)
     browser.changeColModel(type);
 }
 
-/***TODO: Get rid of this slop******/
 var slider, 
-bg="timeline", thumb="shuttle", 
-valuearea="slider-value", textfield="slider-converted-value"
-
-// The slider can move 0 pixels up
-var topConstraint = 0;
-
-// The slider can move 100 pixels
-var bottomConstraint = 100;
-
-// Custom scale factor for converting the pixel offset into a real value
-var scaleFactor = 1;
+bg="timeline", thumb="shuttle" 
 
 function init_seekbar()
 {
@@ -205,50 +192,27 @@ function init_seekbar()
         function() {
             flplayer.seek(this.value/100)
         });
+}
 
-    /*
-    slider = YAHOO.widget.Slider.getHorizSlider(bg, 
-            thumb, topConstraint, bottomConstraint, 1);
+function init_top_menu()
+{
+    topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
+    var homebtn = new Ext.Toolbar.Button({text:'Home', cls:'menuitem'});
+    var artistbtn= new Ext.Toolbar.Button({text:'Artists', cls:'menuitem'});
+    var albumbtn= new Ext.Toolbar.Button({text:'Albums', cls:'menuitem'});
+    var songsbtn= new Ext.Toolbar.Button({text:'Songs', cls:'menuitem'});
+    var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
+    var genresbtn= new Ext.Toolbar.Button({text:'Genres', cls:'menuitem'});
+    var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
+    homebtn.on('click', go);
+    artistbtn.on('click', go);
+    albumbtn.on('click', go);
+    songsbtn.on('click', go);
+    friendsbtn.on('click', go);
+    genresbtn.on('click', go);
+    settingsbtn.on('click', go);
 
-    slider.getRealValue = function() {
-        return Math.round(this.getValue() * scaleFactor);
-    }
-
-    slider.subscribe("change", function(offsetFromStart) {
-
-            //figure out how much we changed
-            //send that change to the player
-            flplayer.seek(offsetFromStart/100);
-            // Update the title attribute on the background.  This helps assistive
-            // technology to communicate the state change
-            Dom.get(bg).title = "slider value = " + actualValue;
-
-            });
-
-    slider.subscribe("slideStart", function() {
-            YAHOO.log("slideStart fired", "warn");
-            });
-
-    slider.subscribe("slideEnd", function() {
-            YAHOO.log("slideEnd fired", "warn");
-            });
-
-    // Listen for keystrokes on the form field that displays the
-    // control's value.  While not provided by default, having a
-    // form field with the slider is a good way to help keep your
-    // application accessible.
-    Event.on(textfield, "keydown", function(e) {
-
-            // set the value when the 'return' key is detected
-            if (Event.getCharCode(e) === 13) {
-            var v = parseFloat(this.value, 10);
-            v = (lang.isNumber(v)) ? v : 0;
-
-            // convert the real value into a pixel offset
-            slider.setValue(Math.round(v/scaleFactor));
-            }
-            });
-    */
+    topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,genresbtn,settingsbtn);
 }
 Ext.onReady(init);
 /****End of Initializations ****/

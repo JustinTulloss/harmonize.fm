@@ -99,7 +99,7 @@ a.bc_link:hover {
     display:inline;
 }
 
-#menu {
+.menu {
     display:block;
     height: 18px;
     width:100%;

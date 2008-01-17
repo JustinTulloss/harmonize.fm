@@ -1,17 +1,18 @@
 .x-slide-zone-horizontal {
-	height: 40px;
+	height: 13px;
 	background-repeat: no-repeat;
 	background-image: url('/images/timeline-bg.png');
+    background-position: center center;
 	z-index: 30;
 
 }
 
 .x-thumb-slider-horizontal {
 	width: 18px;
-	height: 20px;
+	height: 13px;
 	/* Using margin-top in Safari applies the style twice after 
 	  the first drag start. Use top instead. */
-	top: 11px; 
+	/*top: 11px; */
 	background: url('/images/shuttle.png') no-repeat;
 	z-index: 35;
 }

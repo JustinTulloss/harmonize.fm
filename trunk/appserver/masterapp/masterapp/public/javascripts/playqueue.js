@@ -1,7 +1,6 @@
 /* Justin Tulloss
  * 
  * Javascript to manage what's going on with the playqueue
- *  --Largely based off browser class for now
  *
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
  *
@@ -43,6 +42,7 @@ function PlayQueue(domObj, dragGroup, fields)
 
     Tree = Ext.tree;
     this.tree = new Tree.TreePanel({
+                id: 'queue',
                 animate:true,
                 enableDD:true,
                 ddGroup:'GridDD',
@@ -54,15 +54,22 @@ function PlayQueue(domObj, dragGroup, fields)
                 cls: 'queue-container',
                 dropConfig: {
                     allowContainerDrop: true,
-                    ddGroup: 'GridDD'
+                    ddGroup: 'GridDD',
                 }
             });
+
     root = new Tree.AsyncTreeNode({
         text:'queue', 
         draggable:false, 
-        id:'source'
     });
+
     this.tree.setRootNode(root);
+    //this.tree.on('render', setupDropAction, this);
+
+    function setupDropAction()
+    {
+        this.tree.dropZone.notifyDrop = dropAction;
+    }
 
     function newNode(title, id, leaf)
     {
@@ -79,6 +86,7 @@ function PlayQueue(domObj, dragGroup, fields)
         
     function dropAction(source, e, data)
     {
+        alert('dropped!');
         for (var i =0; i<data.selections.length; i++) {
             addRecord(data.selections[i]);
         }
