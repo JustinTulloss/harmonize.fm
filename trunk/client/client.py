@@ -71,9 +71,33 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			self.send_response(404)
 			self.end_headers()
 
+upload_gen = None
+
+def upload_generator(song_list):
+	songs_left = len(song_list)
+
+	for song in song_list:
+		yield songs_left
+		upload_file(song)
+		songs_left -= 1
+	
+	while True:
+		yield 0
+
+#Ideally, should be returning just songs remaining, and uploading should happen
+#in another thread, so that uploading happends even if browser is closed
 def upload_all():
-	time.sleep(10)
-	return 'Upload complete.'
+	global upload_gen
+	if upload_gen == None:
+		song_list = get_music_files('/Users/brian/Music')
+		upload_gen = upload_generator(song_list)
+	
+	songs_left = upload_gen.next()
+
+	if songs_left == 0:
+		return 'Upload Complete.'
+	else:
+		return '%s songs remaining...' % songs_left
 
 action_mappings = {'upload_all':upload_all}
 
