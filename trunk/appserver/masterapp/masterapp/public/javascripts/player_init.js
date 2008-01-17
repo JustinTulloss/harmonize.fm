@@ -210,7 +210,7 @@ function init_top_menu()
     songsbtn.on('click', go);
     friendsbtn.on('click', go);
     genresbtn.on('click', go);
-    settingsbtn.on('click', go);
+    settingsbtn.on('click', showSettings);
 
     topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,genresbtn,settingsbtn);
 }
@@ -227,4 +227,41 @@ function mouseGoesOut()
 {
 	this.src = mouseOuts[this.number].src;
 }
+	
+function showSettings(){
+	// create the window on the first click and reuse on subsequent clicks
+	var win;
+	if(!win){
+		win = new Ext.Window({
+			width:500,
+			height:300,
+			closeAction:'hide',
+			autoScroll:'true',
+			html:showFriends,
+			layout:'accordion',
+			buttons: [{
+				text:'Save',
+				handler: function(){
+					win.hide();
+					alert('settings saved');
+			}},{
+				text:'Close', 
+				handler: function(){
+					win.hide();
+				}
+			}]
+		});
+	}
+	win.show(this);
+};
 
+function showFriends(){
+return "<br><form>\
+		<input type='checkbox' name='friends' value='Dave Bergman'>Dave Bergman<br>\
+		<input type='checkbox' name='friends' value='Paul Casperson'>Paul Casperson<br>\
+		<input type='checkbox' name='friends' value='Alex Mohr'>Alex Mohr<br>\
+		<input type='checkbox' name='friends' value='Mike Phelan'>Mike Phelan<br>\
+		<input type='checkbox' name='friends' value='Brian Smith'>Brian Smith<br>\
+		<input type='checkbox' name='friends' value='Justin Tulloss'>Justin Tulloss<br>\
+		</form>";
+};
