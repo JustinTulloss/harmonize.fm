@@ -17,9 +17,10 @@ def make_map():
     map.connect('error/:action/:id', controller='error')
 
     # CUSTOM ROUTES HERE
-    map.resource('upload', 'uploads')
     map.connect('uploads/:id', controller='uploads', action='upload_new',
         conditions=dict(method=['POST']))
+    map.connect('uploads/:id', controller='uploads', action='file_exists',
+        conditions=dict(method=['GET']))
 
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
