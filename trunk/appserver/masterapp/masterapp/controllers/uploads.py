@@ -11,19 +11,6 @@ class UploadsController(BaseController):
     # a resource setup:
     #     map.resource('upload', 'uploads')
 
-
-    def index(self, format='html'):
-        """GET /uploads: All items in the collection."""
-        # url_for('uploads')
-        return "List all"
-
-    #don't use this
-    def create(self):
-        """POST /uploads: Create a new item."""
-        # url_for('uploads')
-        return "1"
-        #return str(dir(request))
-
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         dest_dir = config['app_conf']['upload_dir']
@@ -31,42 +18,16 @@ class UploadsController(BaseController):
         #need to actually make this file
         if not os.path.exists(dest_path):
             dest_file = file(dest_path, 'w')
-            dest_file.write(
-                request.body.read(int(request.environ["CONTENT_LENGTH"])))
+            chunk_size = 1024
+            file_size = int(request.environ["CONTENT_LENGTH"])
+            for i in range(0, file_size, chunk_size):
+              dest_file.write(request.body.read(chunk_size))
+
+            dest_file.write(request.body.read(file_size%chunk_size))
 
         return "1"
-
-    def new(self, format='html'):
-        """GET /uploads/new: Form to create a new item."""
-        # url_for('new_upload')
-        pass
-
-    def update(self, id):
-        """PUT /uploads/id: Update an existing item."""
-        # Forms posted to this method should contain a hidden field:
-        #    <input type="hidden" name="_method" value="PUT" />
-        # Or using helpers:
-        #    h.form(h.url_for('upload', id=ID),
-        #           method='put')
-        # url_for('upload', id=ID)
-        pass
-
-    def delete(self, id):
-        """DELETE /uploads/id: Delete an existing item."""
-        # Forms posted to this method should contain a hidden field:
-        #    <input type="hidden" name="_method" value="DELETE" />
-        # Or using helpers:
-        #    h.form(h.url_for('upload', id=ID),
-        #           method='delete')
-        # url_for('upload', id=ID)
-        pass
-
-    def show(self, id, format='html'):
-        """GET /uploads/id: Show a specific item."""
-        # url_for('upload', id=ID)
-        return id
-
-    def edit(self, id, format='html'):
-        """GET /uploads/id;edit: Form to edit an existing item."""
-        # url_for('edit_upload', id=ID)
-        pass
+        
+    def file_exists(self, id):
+        """GET /uploads/id : This is to check whether a file has already been
+        uploaded or not. Returns a 1 if it has and a 0 otherwise"""
+        return '0'
