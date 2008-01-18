@@ -3,32 +3,32 @@
 	<script type="text/javascript" src="ext-base.js"></script>
 	<script type="text/javascript" src="ext-all.js"></script>
 	<script type="text/javascript">
-		function process_upload(last_result) {
-			//var response = last_result.response.responseText;
-			var upload_progress = Ext.get('upload_progress')
-			//upload_progress.update(response);
-
-			//if (response != 'Upload complete.') {
-				upload_progress.load({
+		function process_upload(el, success, response, options) {
+			el.update(response.responseText);
+		
+			if (response.responseText != 'Upload Complete.') {
+				el.load({
 					url: 'upload_all',
 					method: 'POST',
-					callback: process_upload
+					callback: process_upload,
 				});
-			//}
+			} 
 		}
 
 		Ext.onReady(function() {
 			var upload_progress = Ext.get('upload_progress');
+			upload_progress.getUpdater().showLoadIndicator = false;
+
 			upload_progress.load({
 				url: 'upload_all',
 				method: 'POST',
-				callback: process_upload
+				callback: process_upload,
 			});
 			upload_progress.show();
 		});
 	</script>
 </head>
 <body onload="">
-	<p id="upload_progress">Upload starting...</p>
+	<div id="upload_progress">Upload starting...</div>
 </body>
 </html>

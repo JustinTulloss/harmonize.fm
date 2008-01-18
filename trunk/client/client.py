@@ -89,10 +89,12 @@ def upload_generator(song_list):
 def upload_all():
 	global upload_gen
 	if upload_gen == None:
-		song_list = get_music_files('/Users/brian/Music')
+		song_list = get_music_files('/media/sda1/MyMusic/Air/Talkie Walkie/')
 		upload_gen = upload_generator(song_list)
 	
 	songs_left = upload_gen.next()
+	
+	//time.sleep(3)
 
 	if songs_left == 0:
 		return 'Upload Complete.'
