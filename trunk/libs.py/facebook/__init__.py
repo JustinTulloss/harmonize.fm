@@ -37,16 +37,20 @@ import mimetypes
 try:
     import simplejson
     RESPONSE_FORMAT = 'JSON'
-except:
-    print 'NOTE: PyFacebook can use simplejson if it is installed, which'
-    print 'is much faster than XML and also uses less bandwith. Go to'
-    print 'http://undefined.org/python/#simplejson to download it, or do'
-    print 'apt-get install python-simplejson on a Debian-like system.'
-    print ''
-    print 'Falling back to XML...'
+except ImportError:
+    try:
+        from django.utils import simplejson
+        RESPONSE_FORMAT = 'JSON'
+    except ImportError:
+        print 'NOTE: PyFacebook can use simplejson if it is installed, which'
+        print 'is much faster than XML and also uses less bandwith. Go to'
+        print 'http://undefined.org/python/#simplejson to download it, or do'
+        print 'apt-get install python-simplejson on a Debian-like system.'
+        print ''
+        print 'Falling back to XML...'
 
-    from xml.dom import minidom
-    RESPONSE_FORMAT = 'XML'
+        from xml.dom import minidom
+        RESPONSE_FORMAT = 'XML'
 
 __all__ = ['Facebook']
 
@@ -88,6 +92,26 @@ METHODS = {
             ('image_4_link', str, ['optional']),
             ('priority', int, ['optional']),
         ],
+
+        'publishTemplatizedAction': [
+            # facebook expects title_data and body_data to be JSON
+            # simplejson.dumps({'place':'Florida'}) would do fine
+            ('actor_id', int, []),
+            ('title_template', str, []),
+            ('title_data', str, ['optional']),
+            ('body_template', str, ['optional']),
+            ('body_data', str, ['optional']),
+            ('body_general', str, ['optional']),
+            ('image_1', str, ['optional']),
+            ('image_1_link', str, ['optional']),
+            ('image_2', str, ['optional']),
+            ('image_2_link', str, ['optional']),
+            ('image_3', str, ['optional']),
+            ('image_3_link', str, ['optional']),
+            ('image_4', str, ['optional']),
+            ('image_4_link', str, ['optional']),
+            ('target_ids', list, ['optional']),
+        ],
     },
 
     # fql methods
@@ -109,6 +133,7 @@ METHODS = {
         'getAppUsers': [],
     },
 
+    # notifications methods
     'notifications': {
         'get': [],
 
@@ -125,18 +150,27 @@ METHODS = {
             ('image', str, []),
             ('invite', bool, []),
         ],
+
+        'sendEmail': [
+            ('recipients', list, []),
+            ('subject', str, []),
+            ('text', str, ['optional']),
+            ('fbml', str, ['optional']),
+        ]
     },
 
     # profile methods
     'profile': {
         'setFBML': [
-            ('markup', str, []),
             ('uid', int, ['optional']),
+            ('profile', str, ['optional']),
+            ('profile_action', str, ['optional']),
+            ('mobile_fbml', str, ['optional']),
         ],
 
         'getFBML': [
             ('uid', int, ['optional']),
-        ]
+        ],
     },
 
     # users methods
@@ -149,6 +183,15 @@ METHODS = {
         'getLoggedInUser': [],
 
         'isAppAdded': [],
+
+        'hasAppPermission': [
+            ('ext_perm', str, []),
+        ],
+
+        'setStatus': [
+            ('status', str, []),
+            ('clear', bool, []),
+        ],
     },
 
     # events methods
@@ -181,7 +224,59 @@ METHODS = {
         ],
 
         'getMembers': [
-            ('gid', int, [])
+            ('gid', int, []),
+        ],
+    },
+
+    # marketplace methods
+    'marketplace': {
+        'createListing': [
+            ('listing_id', int, []),
+            ('show_on_profile', bool, []),
+            ('listing_attrs', str, []),
+        ],
+
+        'getCategories': [],
+
+        'getListings': [
+            ('listing_ids', list, []),
+            ('uids', list, []),
+        ],
+
+        'getSubCategories': [
+            ('category', str, []),
+        ],
+
+        'removeListing': [
+            ('listing_id', int, []),
+            ('status', str, []),
+        ],
+
+        'search': [
+            ('category', str, ['optional']),
+            ('subcategory', str, ['optional']),
+            ('query', str, ['optional']),
+        ],
+    },
+
+    # pages methods
+    'pages': {
+        'getInfo': [
+            ('page_ids', list, ['optional']),
+            ('uid', int, ['optional']),
+        ],
+
+        'isAdmin': [
+            ('page_id', int, []),
+        ],
+
+        'isAppAdded': [
+            ('page_id', int, []),
+        ],
+
+        'isFan': [
+            ('page_id', int, []),
+            ('uid', int, []),
         ],
     },
 
@@ -243,8 +338,9 @@ class Proxy(object):
         self._client = client
         self._name = name
 
-    def __call__(self, method, args=None):
-        self._client._add_session_args(args)
+    def __call__(self, method, args=None, add_session_args=True):
+        if add_session_args:
+            self._client._add_session_args(args)
 
         return self._client('%s.%s' % (self._name, method), args)
 
@@ -459,6 +555,12 @@ class Facebook(object):
     in_canvas
         True if the current request is for a canvas page.
 
+    internal
+        True if this Facebook object is for an internal application (one that can be added on Facebook)
+
+    page_id
+        Set to the page_id of the current page (if any)
+
     secret
         Secret that is used after getSession for desktop apps.
 
@@ -480,7 +582,7 @@ class Facebook(object):
 
     """
 
-    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None):
+    def __init__(self, api_key, secret_key, auth_token=None, app_name=None, callback_path=None, internal=None):
         """
         Initializes a new Facebook object which provides wrappers for the Facebook API.
 
@@ -504,10 +606,12 @@ class Facebook(object):
         self.auth_token = auth_token
         self.secret = None
         self.uid = None
+        self.page_id = None
         self.in_canvas = False
         self.added = False
         self.app_name = app_name
         self.callback_path = callback_path
+        self.internal = internal
         self._friends = None
 
         for namespace in METHODS:
@@ -520,7 +624,7 @@ class Facebook(object):
         """Hashes arguments by joining key=value pairs, appending a secret, and then taking the MD5 hex digest."""
         hasher = md5.new(''.join(['%s=%s' % (x, args[x]) for x in sorted(args.keys())]))
         if secret:
-            hasher.updated(secret)
+            hasher.update(secret)
         elif self.secret:
             hasher.update(self.secret)
         else:
@@ -579,6 +683,8 @@ class Facebook(object):
         for arg in args.items():
             if type(arg[1]) == list:
                 args[arg[0]] = ','.join(str(a) for a in arg[1])
+            elif type(arg[1]) == unicode:
+                args[arg[0]] = arg[1].encode("UTF-8")
 
         args['method'] = method
         args['api_key'] = self.api_key
@@ -598,7 +704,7 @@ class Facebook(object):
             raise RuntimeError('Session key not set. Make sure auth.getSession has been called.')
 
         args['session_key'] = self.session_key
-        args['call_id'] = str(int(time.time()) * 1000)
+        args['call_id'] = str(int(time.time() * 1000))
 
         return args
 
@@ -649,6 +755,14 @@ class Facebook(object):
         return 'http://www.facebook.com/%s.php?%s' % (page, urllib.urlencode(args))
 
 
+    def get_app_url(self, path=''):
+        """
+        Returns the URL for this app's canvas page, according to app_name.
+        
+        """
+        return 'http://apps.facebook.com/%s/%s' % (self.app_name, path)
+
+
     def get_add_url(self, next=None):
         """
         Returns the URL that the user should be redirected to in order to add the application.
@@ -662,7 +776,23 @@ class Facebook(object):
         return self.get_url('install', **args)
 
 
-    def get_login_url(self, next=None, popup=False):
+    def get_authorize_url(self, next=None, next_cancel=None):
+        """
+        Returns the URL that the user should be redirected to in order to add the application.
+
+        """
+        args = {'api_key': self.api_key, 'v': '1.0'}
+
+        if next is not None:
+            args['next'] = next
+
+        if next_cancel is not None:
+            args['next_cancel'] = next_cancel
+
+        return self.get_url('authorize', **args)
+
+
+    def get_login_url(self, next=None, popup=False, canvas=True):
         """
         Returns the URL that the user should be redirected to in order to login.
 
@@ -673,6 +803,9 @@ class Facebook(object):
 
         if next is not None:
             args['next'] = next
+			
+        if canvas is True:
+            args['canvas'] = 1
 
         if popup is True:
             args['popup'] = 1
@@ -689,29 +822,29 @@ class Facebook(object):
         webbrowser.open(self.get_login_url(popup=popup))
 
 
-    def redirect(self, url):
-        """
-        Redirects to the given URL, depending on if a request is in the
-        canvas. Must be implemented in subclasses.
-
-        """
-        raise NotImplementedError('redirect() must be implemented in subclasses.')
-
-
-    def check_session(self, request, next=''):
+    def check_session(self, request):
         """
         Checks the given Django HttpRequest for Facebook parameters such as
-        POST variables or an auth token. If the session is valid, returns None
+        POST variables or an auth token. If the session is valid, returns True
         and this object can now be used to access the Facebook API. Otherwise,
-        it returns an HttpResponse which either asks the user to log in or grant
-        access permissions to this application.
+        it returns False, and the application should take the appropriate action
+        (either log the user in or have him add the application).
 
         """
         self.in_canvas = (request.POST.get('fb_sig_in_canvas') == '1')
 
+        if self.session_key and (self.uid or self.page_id):
+            return True
+
         if request.method == 'POST':
             params = self.validate_signature(request.POST)
         else:
+            if 'installed' in request.GET:
+                self.added = True
+
+            if 'fb_page_id' in request.GET:
+                self.page_id = request.GET['fb_page_id']
+
             if 'auth_token' in request.GET:
                 self.auth_token = request.GET['auth_token']
 
@@ -719,22 +852,17 @@ class Facebook(object):
                     self.auth.getSession()
                 except FacebookError, e:
                     self.auth_token = None
-                    return self.redirect(self.get_login_url(next=next))
-                return
+                    return False
+
+                return True
 
             params = self.validate_signature(request.GET)
 
         if not params:
-            return self.redirect(self.get_login_url(next=next))
+            return False
 
         if params.get('in_canvas') == '1':
             self.in_canvas = True
-
-        if 'session_key' in params and 'user' in params:
-            self.session_key = params['session_key']
-            self.uid = params['user']
-        else:
-            return self.redirect(self.get_url('tos', api_key=self.api_key, v='1.0', next=next))
 
         if params.get('added') == '1':
             self.added = True
@@ -743,7 +871,23 @@ class Facebook(object):
             self.session_key_expires = int(params['expires'])
 
         if 'friends' in params:
-            self._friends = params['friends'].split(',')
+            if params['friends']:
+                self._friends = params['friends'].split(',')
+            else:
+                self._friends = []
+
+        if 'session_key' in params:
+            self.session_key = params['session_key']
+            if 'user' in params:
+                self.uid = params['user']
+            elif 'page_id' in params:
+                self.page_id = params['page_id']
+            else:
+                return False
+        else:
+            return False
+
+        return True
 
 
     def validate_signature(self, post, prefix='fb_sig', timeout=None):
@@ -774,8 +918,8 @@ class Facebook(object):
 if __name__ == '__main__':
     # sample desktop application
 
-    api_key = 'cec673d0ef3fbc12395d0d3500cd72f9'
-    secret_key = 'a08f822bf3d7f80ee25c47414fe98be1'
+    api_key = ''
+    secret_key = ''
 
     facebook = Facebook(api_key, secret_key)
 
@@ -783,7 +927,7 @@ if __name__ == '__main__':
 
     # Show login window
     # Set popup=True if you want login without navigational elements
-    facebook.login(popup=True)
+    facebook.login()
 
     # Login to the window, then press enter
     print 'After logging in, press enter...'
