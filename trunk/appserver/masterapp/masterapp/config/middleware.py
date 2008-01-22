@@ -37,7 +37,9 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = PylonsApp()
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-
+    from facebook.wsgi import create_pylons_facebook_middleware
+    app = create_pylons_facebook_middleware(app, app_conf)
+    
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, error_template=error_template,
