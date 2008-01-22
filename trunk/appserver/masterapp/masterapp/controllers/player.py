@@ -3,6 +3,8 @@ from masterapp.model import Songs, Albums, Friends, Session
 from masterapp.model import songs_table, albums_table, friend_table
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql
+from facebook import FacebookError
+from facebook.wsgi import facebook
 import pylons
 
 #The types we can search for an their associated returned fields
@@ -54,6 +56,17 @@ schema = {
 }
 
 class PlayerController(BaseController):
+    def __before__(self):
+        action = request.environ['pylons.routes_dict']['action']
+        c.facebook = facebook
+        if not session.has_key('fbsession'):
+            if facebook.check_session(request):
+                session['fbsession']=facebook.session_key
+                session.save()
+            else:
+                url = facebook.get_login_url(next='/player', canvas=False)
+                facebook.redirect_to(url)
+
     def index(self):
         c.profile = Profile()
         return render('/player.mako')
