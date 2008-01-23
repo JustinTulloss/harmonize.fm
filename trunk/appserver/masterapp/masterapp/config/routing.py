@@ -21,6 +21,8 @@ def make_map():
         conditions=dict(method=['POST']))
     map.connect('uploads/:id', controller='uploads', action='file_exists',
         conditions=dict(method=['GET']))
+    map.connect('desktop_redirect', controller='uploads', 
+		action='desktop_redirect', conditions=dict(method=['GET']))
 
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')

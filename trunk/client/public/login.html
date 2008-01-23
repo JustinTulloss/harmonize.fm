@@ -1,0 +1,13 @@
+<%
+c.fb = c.facebook.Facebook(
+	"cec673d0ef3fbc12395d0d3500cd72f9", 
+	"a08f822bf3d7f80ee25c47414fe98be1")
+c.fb.desktop=False
+%>
+<html>
+<body>
+<a href="${c.fb.get_login_url(canvas=False, next='/desktop_redirect')}">
+	Click here to login!
+</a>
+</body>
+</html>
