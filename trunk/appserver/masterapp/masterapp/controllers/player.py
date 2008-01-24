@@ -5,6 +5,7 @@ from masterapp.lib.profile import Profile
 from sqlalchemy import sql
 from facebook import FacebookError
 from facebook.wsgi import facebook
+from pylons import config
 import pylons
 
 #The types we can search for an their associated returned fields
@@ -62,10 +63,15 @@ class PlayerController(BaseController):
         if not session.has_key('fbsession'):
             if facebook.check_session(request):
                 session['fbsession']=facebook.session_key
+		session['fbuid']=facebook.uid
                 session.save()
             else:
                 url = facebook.get_login_url(next='/player', canvas=False)
                 facebook.redirect_to(url)
+	else: 
+		#fb = Facebook(config['pyfacebook.apikey'], config['pyfacebook.secret'])
+		facebook.session_key = session['fbsession']
+		facebook.uid = session['fbuid']
 
     def index(self):
         c.profile = Profile()
@@ -211,22 +217,8 @@ class PlayerController(BaseController):
         return json  
         
     def get_friends(self):
-        tuples = Session.execute("select friend.id as friendid,name, count(distinct artist) as numartists, \
-                    count(distinct albums.id) as numalbums from friend,songs,albums where friend.id = songs.owner_id and \
-                    songs.album_id = albums.id group by friendid",mapper=Friends).fetchall()
-        json = {
-                 "data" : [
-                        {
-                         "type":"friend",
-                         "friend": row.friendid,
-                         "name": "%s" % row.name,
-                         "numartists": row.numartists,
-                         "numalbums": row.numalbums,
-                         "likesartists": self.get_likesartists(row.friendid)
-                        } for row in tuples
-                    ]
-               }   
-        return json          
+	userStore = facebook.friends.getAppUsers()
+        return dict(data = facebook.users.getInfo(userStore))
         
     def add_rec(self):
         type = request.params.get('type')
