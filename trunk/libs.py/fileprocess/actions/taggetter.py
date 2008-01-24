@@ -1,5 +1,8 @@
+import logging
 from mutagen.easyid3 import EasyID3
 from baseaction import BaseAction
+
+log = logging.getLogger(__name__)
 
 class TagGetter(BaseAction):
     """
@@ -9,8 +12,8 @@ class TagGetter(BaseAction):
     """
     def process(self, file):
         """This is rediculously easy with easyid3"""
-        if file["new"] == False:
-            return file
+        #if file["new"] == False:
+        #    return file
 
         audio = EasyID3(file["fname"])
         comma = ','
@@ -19,4 +22,6 @@ class TagGetter(BaseAction):
         #I join the lists here for ease of processing later.
         for k in audio.keys():
             file[k] = comma.join(file[k])
+
+        log.debug("File object tagged: " + str(file))
         return file

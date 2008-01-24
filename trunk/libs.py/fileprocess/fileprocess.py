@@ -7,6 +7,7 @@ from Queue import Queue, Empty
 from actions.mover import Mover
 from actions.taggetter import TagGetter
 from actions.dbrecorder import DBRecorder
+from actions.brainztagger import BrainzTagger
 from actions.s3uploader import S3Uploader
 
 file_queue = Queue()
@@ -28,10 +29,11 @@ class FileUploadThread(object):
         self._endqueue = Queue()
         self.running = 1
         #TODO: Move this class initialization to some config file?
-        #self.handlers.append(Mover())
+        self.handlers.append(Mover())
         self.handlers.append(TagGetter())
+        self.handlers.append(BrainzTagger())
         #self.handlers.append(DBRecorder())
-        self.handlers.append(S3Uploader())
+        #self.handlers.append(S3Uploader())
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):

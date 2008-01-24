@@ -1,5 +1,6 @@
 import logging
-from musicbrainz2.webservice import Query, TrackFilter, WebServiceError
+from baseaction import BaseAction
+from musicbrainz2.webservice import Query, TrackFilter, WebServiceError, ReleaseIncludes
 
 log = logging.getLogger(__name__)
 
@@ -14,27 +15,27 @@ class BrainzTagger(BaseAction):
         # construct it very carefully. Dynamic my ass. These are exactly
         # the types of things one should never see in Python --JMT
         filter = None
-        if file.haskey('title') and 
-            file.haskey('artist') and 
-            file.haskey('album'):
+        if file.has_key('title') and \
+            file.has_key('artist') and \
+            file.has_key('album'):
             filter = TrackFilter(
                 title = file['title'],
                 artistName = file['artist'],
                 releaseTitle = file['album'],
                 limit = 1
             )
-        elif file.haskey('title') and file.haskey('artist'):
+        elif file.has_key('title') and file.has_key('artist'):
             filter = TrackFilter(
                 title = file['title'],
                 artistName = file['artist'],
                 limit = 1
             )
-        elif file.haskey('title') and file.haskey('album'):
+        elif file.has_key('title') and file.has_key('album'):
             filter = TrackFilter(
                 title = file['title'],
                 releaseTitle = file['album']
             )
-        elif file.haskey('title'):
+        elif file.has_key('title'):
             filter = TrackFilter(title = file['title'], limit=1)
         else: #TODO: Analyze and try to do a PUID match.
             log.info('Analysis needs to be done on '+file['fname'])
@@ -46,16 +47,16 @@ class BrainzTagger(BaseAction):
             log.info('Brainz match not found for '+file['fname'])
             return file
         result = result[0] #We just care about the best result
-        if result.score < 80 #Not a sure match, let's just keep ours
+        if result.score < 80: #Not a sure match, let's just keep ours
             log.info('Brainz match not adequate for '+file['fname'])
             return file
 
         # Get info on the album (TODO:Cache some albums)
         include = ReleaseIncludes(releaseEvents=True, tracks=True)
-        album = q.getReleaseById(result.tracks.release[0].id, include=include)
+        album = mbquery.getReleaseById(result.track.releases[0].id, include=include)
 
         # Get info on the artist (TODO: Cache some artists)
-        artist = q.getReleaseById(result.tracks.artist.id)
+        artist = mbquery.getArtistById(result.track.artist.id)
 
         # Fill out the tags. Oh yeah.
         file['title'] = result.track.title
@@ -63,7 +64,7 @@ class BrainzTagger(BaseAction):
         file['artistsort'] = artist.sortName
         file['album'] = album.title
         file['length'] = result.track.duration #in seconds. Perfect.
-        file['year'] = album.getEarliestReleaseDate().split('-')[0]
+        file['date'] = album.getEarliestReleaseDate().split('-')[0]
         file['tracknumber'] = result.track.releases[0].getTracksOffset()+1
         file['totaltracks'] = len(album.tracks)
         file['mbtrackid'] = result.track.id
@@ -72,6 +73,6 @@ class BrainzTagger(BaseAction):
         file['asin'] = album.asin #probably a good thing to have ;)
 
         log.debug(file['title'] + ' by ' + file['artist'] + 
-            'successfully tagged by MusicBrainz')
+            ' successfully tagged by MusicBrainz: ' + str(file))
 
         return file
