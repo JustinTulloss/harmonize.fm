@@ -1,6 +1,6 @@
 import os.path as path
 import time, webbrowser, cgi
-import facebook, upload
+import upload
 from urlparse import urlsplit
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from mako.template import Template
@@ -32,13 +32,19 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		else:
 			return None
 
+	def redirect(self, url):
+		print 'Redirecting to: ', url
+		self.send_response(307)
+		self.send_header('Location', url)
+		self.end_headers()
+
 	def handle_request(self):
 		#split path into components, take the path, strip leading /
 		split_url = urlsplit(self.path)
 		request_path = split_url.path[1:]
 		
 		#parse the query string
-		c_globals.query = parse_qs(split_url.query)
+		c_global.query = cgi.parse_qs(split_url.query)
 
 		response = self.render_file(request_path)
 		if response == None:
@@ -49,6 +55,9 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			not_found_response = open(self.not_found_path()).read()
 			response = Template(not_found_response).render(c=c_global)
 		else:
+			if type(response) == Redirect: #Special case for redirect
+				self.redirect(response.url)
+				return
 			self.send_response(200)
 
 		self.end_headers()
@@ -62,12 +71,20 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		c_global.request_body = self.rfile.read()
 		self.handle_request()
 
-action_mappings = {'upload_all':upload.upload_all}
+def complete_login(c):
+	c.session_key = c.query['session_key'][0]
+	return Redirect('index.html')
 
-class Global():
+action_mappings = {'upload_all':upload.upload_all, 
+	'complete_login':complete_login}
+
+class Global(object):
 	pass
 c_global = Global() #This is all the important state for the templates
-c_global.facebook = facebook
+
+class Redirect(object):
+	def __init__(self, url):
+		self.url = url
 
 if __name__ == '__main__':
 	server = HTTPServer(('localhost', 8080), ClientHTTPServer)

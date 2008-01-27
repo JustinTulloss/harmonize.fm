@@ -13,12 +13,12 @@ def get_music_files(dir):
 def is_music_file(file):
 	return re.match(r'.*\.mp3$', file) != None
 
-def upload_file(file):
+def upload_file(file, session_key):
 	file_contents = open(file).read()
 	file_sha = hashlib.sha1(file_contents).hexdigest()
 
 	connection = httplib.HTTPConnection('127.0.0.1', 2985)
-	url = '/uploads/' + file_sha
+	url = '/uploads/' + file_sha + '?session_key=' + session_key
 	connection.request('GET', url)
 
 	if connection.getresponse.read() == '0':
@@ -28,12 +28,12 @@ def upload_file(file):
 
 upload_gen = None
 
-def upload_generator(song_list):
+def upload_generator(song_list, c):
 	songs_left = len(song_list)
 
 	for song in song_list:
 		yield songs_left
-		upload_file(song)
+		upload_file(song, c.session_key)
 		songs_left -= 1
 	
 	while True:
@@ -45,7 +45,7 @@ def upload_all(c):
 	global upload_gen
 	if upload_gen == None:
 		song_list = get_music_files('/media/sda1/MyMusic/Air/Talkie Walkie/')
-		upload_gen = upload_generator(song_list)
+		upload_gen = upload_generator(song_list, c)
 	
 	songs_left = upload_gen.next()
 	

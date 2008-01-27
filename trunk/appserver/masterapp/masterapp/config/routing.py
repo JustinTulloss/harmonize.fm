@@ -23,6 +23,8 @@ def make_map():
         conditions=dict(method=['GET']))
     map.connect('desktop_redirect', controller='uploads', 
 		action='desktop_redirect', conditions=dict(method=['GET']))
+    map.connect('desktop_login', controller='uploads', 
+		action='desktop_login', conditions=dict(method=['GET']))
 
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')

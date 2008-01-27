@@ -1,7 +1,10 @@
+# vim:expandtab:smarttab
 import logging
-import os 
+import os
+from facebook.wsgi import facebook
 
 from masterapp.lib.base import *
+from fileprocess.fileprocess import file_queue
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +16,11 @@ class UploadsController(BaseController):
 
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
+        #first get session key
+        session_key = request.params.get('session_key')
+        if session_key == None:
+            return '0'
+
         dest_dir = config['app_conf']['upload_dir']
         dest_path = os.path.join(dest_dir, id)
         #need to actually make this file
@@ -26,10 +34,10 @@ class UploadsController(BaseController):
             dest_file.write(request.body.read(file_size%chunk_size))
 
             #finally, put the file in file_queue for processing
-            fdict = dict(fname=dest_path) #need to add user or session id 
+            fdict = dict(fname=dest_path, fbsession=session_key) 
             file_queue.put(fdict)
 
-        return "1"
+        return '1'
         
     def file_exists(self, id):
         """GET /uploads/id : This is to check whether a file has already been
@@ -43,4 +51,14 @@ class UploadsController(BaseController):
             return '0'
     
     def desktop_redirect(self):
-        redirect_to('http://localhost:8080/index.html')
+        if facebook.check_session(request):
+            url = 'http://localhost:8080/complete_login?session_key='+ \
+                facebook.session_key
+        else:
+            url = 'http://localhost:8080/login_error.html'
+        #session_key returns unicode, have to convert back to string
+        redirect_to(str(url)) 
+
+    def desktop_login(self):
+        url = facebook.get_login_url(canvas=False, next='/desktop_redirect')
+        redirect_to(str(url))
