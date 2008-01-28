@@ -38,17 +38,17 @@ class BrainzTagger(BaseAction):
         elif file.has_key('title'):
             filter = TrackFilter(title = file['title'], limit=1)
         else: #TODO: Analyze and try to do a PUID match.
-            log.info('Analysis needs to be done on '+file['fname'])
+            log.info('Analysis needs to be done on %s',file['fname'])
             return file
 
         result = mbquery.getTracks(filter)
         if len(result)== 0:
             #Uh oh, nothing found. TODO:What now??
-            log.info('Brainz match not found for '+file['fname'])
+            log.info('Brainz match not found for %s',file['fname'])
             return file
         result = result[0] #We just care about the best result
         if result.score < 80: #Not a sure match, let's just keep ours
-            log.info('Brainz match not adequate for '+file['fname'])
+            log.info('Brainz match not adequate for %s',file['fname'])
             return file
 
         # Get info on the album (TODO:Cache some albums)
@@ -72,7 +72,6 @@ class BrainzTagger(BaseAction):
         file['mbartistid'] = result.track.artist.id
         file['asin'] = album.asin #probably a good thing to have ;)
 
-        log.debug(file['title'] + ' by ' + file['artist'] + 
-            ' successfully tagged by MusicBrainz: ' + str(file))
+        log.debug('%s successfully tagged by MusicBrainz: %s', file['title'], file)
 
         return file

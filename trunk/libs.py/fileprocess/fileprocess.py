@@ -5,6 +5,7 @@ from Queue import Queue, Empty
 
 #The different handlers, eventually to be done elsewhere?
 from actions.mover import Mover
+from actions.facebook import Facebook
 from actions.taggetter import TagGetter
 from actions.dbrecorder import DBRecorder
 from actions.brainztagger import BrainzTagger
@@ -30,9 +31,10 @@ class FileUploadThread(object):
         self.running = 1
         #TODO: Move this class initialization to some config file?
         self.handlers.append(Mover())
+        self.handlers.append(Facebook())
         self.handlers.append(TagGetter())
         self.handlers.append(BrainzTagger())
-        #self.handlers.append(DBRecorder())
+        self.handlers.append(DBRecorder())
         #self.handlers.append(S3Uploader())
 
         # Set up our chain of handlers

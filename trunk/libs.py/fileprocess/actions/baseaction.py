@@ -17,8 +17,9 @@ class BaseAction(object):
         while(self._running): #praying that reading this is atomic
             nf = self.queue.get()
             nextfile = self.process(nf)
-            if self.nextqueue != None:
-                self.nextqueue.put(nextfile)
+            if nextfile != False:
+                if self.nextqueue != None:
+                    self.nextqueue.put(nextfile)
     
     def stop(self):
         self._running = 0
