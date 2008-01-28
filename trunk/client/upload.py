@@ -1,4 +1,7 @@
-import os, re, hashlib
+import os, re, hashlib, httplib
+import os.path as path
+
+UPLOAD_PATH = '/Users/justin/Music/Feist'
 
 def get_music_files(dir):
 	music_files = []
@@ -6,7 +9,7 @@ def get_music_files(dir):
 	for root, dirs, files in os.walk(dir):
 		for file in files:
 			if is_music_file(file):
-				music_files.append(path.join(root, file))
+				music_files.append(os.path.join(root, file))
 	
 	return music_files
 
@@ -44,7 +47,7 @@ def upload_generator(song_list, c):
 def upload_all(c):
 	global upload_gen
 	if upload_gen == None:
-		song_list = get_music_files('/media/sda1/MyMusic/Air/Talkie Walkie/')
+		song_list = get_music_files(UPLOAD_PATH)
 		upload_gen = upload_generator(song_list, c)
 	
 	songs_left = upload_gen.next()
