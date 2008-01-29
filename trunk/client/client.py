@@ -58,8 +58,11 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			if type(response) == Redirect: #Special case for redirect
 				self.redirect(response.url)
 				return
-			self.send_response(200)
+			else: self.send_response(200)
 
+		if type(response) != str:
+			print 'Error: response is not string!'
+	
 		self.end_headers()
 		self.wfile.write(response)
 		
@@ -68,7 +71,10 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		self.handle_request()
 	
 	def do_POST(self):
-		c_global.request_body = self.rfile.read()
+		if self.headers.has_key('Content-Length'):
+			length = int(self.headers['Content-Length'])
+			print 'Content-Length: ' + self.headers['Content-Length']
+			c_global.request_body = self.rfile.read(length)
 		self.handle_request()
 
 def complete_login(c):

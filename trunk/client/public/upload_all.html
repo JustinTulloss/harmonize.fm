@@ -3,15 +3,20 @@
 	<script type="text/javascript" src="ext-base.js"></script>
 	<script type="text/javascript" src="ext-all.js"></script>
 	<script type="text/javascript">
+		function get_songs_remaining() {
+			var el = Ext.get('upload_progress');
+			el.load({
+				url: 'upload_all',
+				method: 'POST',
+				callback: process_upload,
+			});
+		}	
+			
 		function process_upload(el, success, response, options) {
-			el.update(response.responseText);
+			el.update(response.responseText + ' songs remaining');
 		
-			if (response.responseText != 'Upload Complete.') {
-				el.load({
-					url: 'upload_all',
-					method: 'POST',
-					callback: process_upload,
-				});
+			if (response.responseText != '0') {
+				setTimeout("get_songs_remaining();", 2000);
 			} 
 		}
 

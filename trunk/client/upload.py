@@ -1,7 +1,8 @@
 import os, re, hashlib, httplib
 import os.path as path
+from thread import start_new_thread
 
-UPLOAD_PATH = '/Users/justin/Music/Feist'
+UPLOAD_PATH = '/media/sda1/MyMusic/Air/Talkie Walkie'
 
 def get_music_files(dir):
 	music_files = []
@@ -24,38 +25,32 @@ def upload_file(file, session_key):
 	url = '/uploads/' + file_sha + '?session_key=' + session_key
 	connection.request('GET', url)
 
-	if connection.getresponse.read() == '0':
+	if connection.getresponse().read() == '0':
 		connection.request('POST', url, file_contents)
 
 	connection.close()
 
-upload_gen = None
+#A global representing the songs remaining to be uploaded
+songs_left = None
 
-def upload_generator(song_list, c):
-	songs_left = len(song_list)
-
+def upload_files(song_list, session_key):
+	global songs_left
 	for song in song_list:
-		yield songs_left
-		upload_file(song, c.session_key)
+		upload_file(song, session_key)
 		songs_left -= 1
 	
-	while True:
-		yield 0
+	songs_left = 0
 
 #Ideally, should be returning just songs remaining, and uploading should happen
 #in another thread, so that uploading happends even if browser is closed
 def upload_all(c):
-	global upload_gen
-	if upload_gen == None:
+	if not hasattr(c, 'session_key'):
+		return 'Error: not logged into Facebook!'
+
+	global songs_left
+	if songs_left == None:
 		song_list = get_music_files(UPLOAD_PATH)
-		upload_gen = upload_generator(song_list, c)
-	
-	songs_left = upload_gen.next()
-	
-	#time.sleep(3)
-
-	if songs_left == 0:
-		return 'Upload Complete.'
-	else:
-		return '%s songs remaining...' % songs_left
-
+		songs_left = len(song_list)
+		start_new_thread(upload_files, (song_list, c.session_key))
+		return str(songs_left)
+	else: return str(songs_left)
