@@ -1,0 +1,33 @@
+import logging
+import os
+from baseaction import BaseAction
+from facebook import Facebook, FacebookError
+from pylons import config
+
+log = logging.getLogger(__name__)
+
+class FacebookAction(BaseAction):
+    def __init__(self):
+        super(FacebookAction, self).__init__()
+        self.apikey = config['pyfacebook.apikey']
+        self.secret = config['pyfacebook.secret']
+    """
+    This action fetches any data we might need on a user from facebook
+    """
+    def process(self, file):
+        facebook = Facebook(self.apikey, self.secret)
+        facebook.session_key = file['fbsession']
+        try:
+            userinfo = facebook.users.getLoggedInUser()
+        except FacebookError, e:
+            #TODO: Error handling. What do we do if the user isn't logged in?
+            if e.code == 102: #session key has expired
+                os.remove(file['fname'])
+                log.info('%s is not a valid session, removing upload', file['fbsession'])
+                return False
+
+
+        file['fbid']=userinfo['uid']
+        log.debug('Found user %s', userinfo['uid'])
+
+        return file

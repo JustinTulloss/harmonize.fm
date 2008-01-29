@@ -1,10 +1,13 @@
 #A simple file moving module that renames the file
 #to its sha1 name in the media directory
 
+import logging
 from pylons import config
 import sha, os
 from baseaction import BaseAction
 from shutil import move
+
+log = logging.getLogger(__name__)
 
 READCHUNK = 1024 #1 kb at a time, don't want to stall the system
 
@@ -20,6 +23,7 @@ class Mover(BaseAction):
         The overridden process function, moves the file and renames it.
         Assumes the file is rewound
         """
+        log.debug('Moving %s', file['fname'])
         f = open(file["fname"], 'rb')
         s = sha.new()
         readbytes = READCHUNK
