@@ -1,5 +1,6 @@
 import logging
 import S3
+import os
 from baseaction import BaseAction
 
 log = logging.getLogger(__name__)
@@ -28,9 +29,9 @@ class S3Uploader(BaseAction):
 
         response=conn.put(BUCKET, file['sha'], data)
         if (response.message == '200 OK'):
-            log.debug("%s successfully uploaded to S3", file['title'])
             os.remove(file['fname'])
             file['fname'] = '/'.join([conn.server, BUCKET, file['sha']])
+            log.debug("%s successfully uploaded to S3", file['title'])
         else:
             log.error(response.message)
 

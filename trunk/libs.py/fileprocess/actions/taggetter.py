@@ -12,8 +12,6 @@ class TagGetter(BaseAction):
     """
     def process(self, file):
         """This is rediculously easy with easyid3"""
-        #if file["new"] == False:
-        #    return file
 
         audio = EasyID3(file["fname"])
         comma = ','

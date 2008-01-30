@@ -9,11 +9,6 @@ from fileprocess.fileprocess import file_queue
 log = logging.getLogger(__name__)
 
 class UploadsController(BaseController):
-    """REST Controller styled on the Atom Publishing Protocol"""
-    # To properly map this controller, ensure your config/routing.py file has
-    # a resource setup:
-    #     map.resource('upload', 'uploads')
-
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         #first get session key
@@ -38,6 +33,7 @@ class UploadsController(BaseController):
             #finally, put the file in file_queue for processing
             fdict = dict(fname=dest_path, fbsession=session_key) 
             file_queue.put(fdict)
+            dest_file.close()
 
         return '1'
         

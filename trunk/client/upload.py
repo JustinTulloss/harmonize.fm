@@ -2,7 +2,7 @@ import os, re, hashlib, httplib
 import os.path as path
 from thread import start_new_thread
 
-UPLOAD_PATH = '/media/sda1/MyMusic/Air/Talkie Walkie'
+UPLOAD_PATH = '/Users/justin/Music/Feist'
 
 def get_music_files(dir):
 	music_files = []

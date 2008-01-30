@@ -23,13 +23,15 @@ function Browser(fields)
                 id: 'add',
                 header: 'Add',
                 renderer: enqColumn,
+                width: 25,
                 sortable: false
             },{
                 id: 'tracknumber', 
                 header: "#",
+                width: '20px',
                 dataIndex: 'tracknumber'
             },{
-                id: 'title', 
+                id: 'auto', 
                 header: "Title",
                 dataIndex: 'title'
             },{
@@ -61,7 +63,7 @@ function Browser(fields)
                 renderer: enqColumn,
                 sortable: false
             },{
-                id:'album',
+                id:'auto',
                 header: "Album",
                 dataIndex: 'album'
             },{
@@ -100,7 +102,7 @@ function Browser(fields)
                 renderer: enqColumn,
                 sortable: false,
             },{
-                id:'artist',
+                id:'auto',
                 header: "Artist",
                 dataIndex: 'artist'
             },{
@@ -136,7 +138,7 @@ function Browser(fields)
                 renderer: enqColumn,
                 sortable: false,
             },{
-                id:'friend',
+                id:'auto',
                 header: "Friend",
                 dataIndex: 'name'
             },{
@@ -160,7 +162,7 @@ function Browser(fields)
                 renderer: enqColumn,
                 sortable: false,
             },{
-                id:'genre',
+                id:'auto',
                 header: "Genre",
                 dataIndex: 'genre'
             },{
@@ -195,21 +197,9 @@ function Browser(fields)
         enableColLock:false,
         enableDragDrop: true,
         loadMask: true,
-        autoSizeColumns: true,
+        autoExpandColumn: 'auto',
         trackMouseOver: false
     });
-
-    // make the grid resizable, do before render for better performance
-    /*var rz = new Ext.Resizable(div, {
-        wrap:true,
-        minHeight:100,
-        pinned:true,
-        handles: 's'
-    });
-    rz.on('resize', this.grid.autoSize, this.grid);
-
-    // render it
-    this.grid.render();*/
 
     /**** Custom renderers ***/
     function enqColumn(value, p, record)

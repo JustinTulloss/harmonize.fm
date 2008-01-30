@@ -25,7 +25,7 @@ class uploader:
         if not (self.url and self.fname):
             raise Exception("You must set the url and file to upload first")
 
-        req = self.build_request({"user":self.user}, (("file", self.fname, self._fd.read()),))
+        req = self.build_request({"fbsession":self.user}, (("file", self.fname, self._fd.read()),))
         resp = urlopen(req)
 
         msg = resp.read()

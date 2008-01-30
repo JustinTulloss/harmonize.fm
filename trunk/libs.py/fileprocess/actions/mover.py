@@ -28,23 +28,27 @@ class Mover(BaseAction):
         s = sha.new()
         readbytes = READCHUNK
 
-        while(readbytes):
+        while readbytes>0:
             readstring = f.read(readbytes)
             s.update(readstring)
             readbytes = len(readstring)
 
         file["new"]=True
         file["sha"]= s.hexdigest()
-        self.to = os.path.join(self.to, file["sha"])
+        to = os.path.join(self.to, file["sha"])
         if not os.path.isabs(f.name):
-            self.frm = os.path.join(self.frm, file.name)
+            frm = os.path.join(self.frm, f.name)
         else:
-            self.frm = f.name
-        if (os.path.exists(self.to)):
-            os.remove(self.frm) #the file already exists
-            file["new"] = False
+            frm = f.name
+        if (os.path.exists(to)):
+            os.remove(frm) #the file already exists
+            #TODO: There's a race condition here if two people are
+            # uploading the same file at the same time. Tell the 
+            # client to try re-uploading
+            log.warn('%s already exists, removing', to)
+            return False
         else:
-            move(self.frm, self.to)
+            move(frm, to)
 
-        file["fname"] = self.to
+        file["fname"] = to
         return file

@@ -1,6 +1,8 @@
+import logging
+import S3
 from masterapp.lib.base import *
-from masterapp.model import Songs, Albums, Friends, Session
-from masterapp.model import songs_table, albums_table, friend_table
+from masterapp.model import Song, Album, Owner, File, Session, TagData
+from masterapp.model import songs_table, albums_table, files_table, owners_table
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql
 from facebook import FacebookError
@@ -8,53 +10,10 @@ from facebook.wsgi import facebook
 from pylons import config
 import pylons
 
-#The types we can search for an their associated returned fields
-#TODO: This currently defines both valid filters and the schema.
-#      Make a new struct that defines valid filters
-schema = {
-    'album': (
-        'artist',
-        'year', 
-        'genre', 
-        'album', 
-        'album_id', 
-        'totaltracks',
-        'albumlength',
-        #'ownerid',
-        'recs'),
-    'artist':(
-        'artist',
-        'totalalbums',
-        'totaltracks',
-        'artistlength',
-        #'ownerid',
-        'recs'),
-    'song':(
-        'title',
-        'artist',
-        'songid',
-        'year',
-        'genre',
-        'album',
-        'tracknumber',
-        'recs',
-        #'ownerid',
-        'filename'),
-    'genre':(
-        'genre',
-        'numartists',
-        'exartists',
-        #'ownerid'
-        ),
-    'friend':(
-        'friend',
-        'name',
-        'numartists',
-        'numalbums',
-        'likesartists'),
-    'fid':(),
-    'album_id':()
-}
+log = logging.getLogger(__name__)
+
+AWS_ACCESS_KEY_ID = '17G635SNK33G1Y7NZ2R2'
+AWS_SECRET_ACCESS_KEY = 'PHDzFig4NYRJoKKW/FerfhojljL+sbNyYB9bEpHs'
 
 class PlayerController(BaseController):
     def __before__(self):
@@ -63,15 +22,18 @@ class PlayerController(BaseController):
         if not session.has_key('fbsession'):
             if facebook.check_session(request):
                 session['fbsession']=facebook.session_key
-		session['fbuid']=facebook.uid
+                session['fbuid']=facebook.uid
+                session['fbfriends']=facebook.friends.getAppUsers()
                 session.save()
             else:
-                url = facebook.get_login_url(next='/player', canvas=False)
+                next = '%s' % (request.environ['PATH_INFO'])
+                if request.environ['QUERY_STRING'] != '':
+                    next = '%s?%s' % (next, request.environ['QUERY_STRING'])
+                url = facebook.get_login_url(next=next, canvas=False)
                 facebook.redirect_to(url)
-	else: 
-		#fb = Facebook(config['pyfacebook.apikey'], config['pyfacebook.secret'])
-		facebook.session_key = session['fbsession']
-		facebook.uid = session['fbuid']
+        else: 
+            facebook.session_key = session['fbsession']
+            facebook.uid = session['fbuid']
 
     def index(self):
         c.profile = Profile()
@@ -83,6 +45,24 @@ class PlayerController(BaseController):
     def settings(self):
         return "This is the change settings form!"
     
+    def get_song_url(self, id):
+        """
+        Fetches the S3 authenticated url of a song.
+        Right now, this provides no security at all since anybody with a 
+        facebook login can request a url. However, now it's possible to track
+        who's doing what, and if we can come up with conclusive proof that
+        somebody is stealing music through our logs, we can ban them.
+        """
+        song = Session.query(Song).filter(Song.id==id).first()
+        for file in song.files:
+            if file.inuse == False:
+                qsgen = S3.QueryStringAuthGenerator(
+                    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+                qsgen.set_expires_in(song.length*3)
+                return qsgen.get('music.rubiconmusicplayer.com', file.sha)
+        #if we get here, all files are in use! Damn it!
+        return False
+
     @jsonify    
     def get_data(self):
         type = request.params.get('type')
@@ -97,67 +77,43 @@ class PlayerController(BaseController):
         elif type == 'genre':
             return self.get_genres(friend)
         elif type == 'song':
-            return self.get_songs(type,artist,album,friend,genre) 
+            return self.get_songs()
         elif type == 'friend':
             return self.get_friends()
         elif type == 'queue':
             return self.get_songs(type,artist,album,friend,genre)
         
-
-    def _qualify_sql(self):
-        qualifiers = sql.and_()
-        for key,param in request.params.iteritems():
-            if(schema.has_key(key)):
-                qualifiers.append(getattr(songs_table.c, key)==param)
-        return qualifiers
+    def _qualify_sql(self, qry):
+        if not request.params.get('artist') == None:
+            qry.filter(TagData.artist == request.params.get('artist'))
+        if not request.params.get('album') == None:
+            qry.filter(TagData.album == request.params.get('album'))
+        if not request.params.get('friend') == None:
+            qry.filter(TagData.owner.fbid == request.params.get('friend'))
+        return qry
         
-    def get_albums(self):
-        qualifiers = self._qualify_sql()
-        if (len(qualifiers)==0):
-            qualifiers = songs_table.c.album_id == albums_table.c.id
-        else:
-            qualifiers.append(songs_table.c.album_id == albums_table.c.id)
-
-        qry = sql.select(
-            [
-                songs_table, 
-                albums_table, 
-                albums_table.c.id.label('albumid'), 
-                sql.func.sum(songs_table.c.recommendations).label('recs'),
-                sql.func.sum(songs_table.c.length).label('albumlength')
-            ],qualifiers).distinct().group_by(albums_table.c.id)
-
-        results = Session.execute(qry)
-        return self.build_json(results)
-
-    def build_json(self, results):
+    def _build_json(self, results):
         dtype = request.params.get('type')
         json = { "data": []}
         for row in results:
-            expanded = dict([(field, row[field]) for field in schema[dtype]])
+            expanded = {}
+            for field in row.c.keys():
+                expanded[field] = getattr(row, field)
             json['data'].append(expanded)
             json['data'][len(json['data'])-1]['type']=dtype
-        return json  
+        return json
+
+    def get_albums(self):
+        qry = Session.query(TagData)
+        qry = self._qualify_sql(qry)
+        results = qry.all()
+        return self._build_json(results)
         
-    def get_songs(self, type, myartist, myalbum, myfid, mygenre):     
-        qualifiers = self._qualify_sql()
-
-        if (len(qualifiers)==0):
-            qualifiers = songs_table.c.album_id == albums_table.c.id
-        else:
-            qualifiers.append(songs_table.c.album_id == albums_table.c.id)
-
-        qry = sql.select(
-            [
-                songs_table, 
-                albums_table, 
-                albums_table.c.id.label('albumid'), 
-                songs_table.c.id.label('songid'), 
-                songs_table.c.recommendations.label('recs')
-            ],qualifiers)
-
-        results = Session.execute(qry)
-        return self.build_json(results)
+    def get_songs(self):
+        qry = Session.query(TagData)
+        qry = self._qualify_sql(qry)
+        results = qry.all()
+        return self._build_json(results)
 
     def get_artists(self, myfid, mygenre):
         if myfid == None:
@@ -217,7 +173,7 @@ class PlayerController(BaseController):
         return json  
         
     def get_friends(self):
-	userStore = facebook.friends.getAppUsers()
+        userStore = facebook.friends.getAppUsers()
         return dict(data = facebook.users.getInfo(userStore))
         
     def add_rec(self):

@@ -20,6 +20,7 @@ var browser = null;
 var bigshow = null;
 var gridpanel = null;
 var homepanel = null;
+var fbauth = null;
 var bread_crumb = null;
 var typeinfo= {
     artist:{next:'album'}, 
@@ -31,7 +32,7 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend', 
-                  'songid', 'album_id', 'filename'];
+                  'songid', 'albumid', 'id'];
 
 /******* Initialization functions ********/
 function init()
@@ -94,18 +95,36 @@ function playnewsong(song)
     flplayer.sendEvent('playpause');
 }
 
+function playsong(song)
+{
+    Ext.Ajax.request({
+        url:'/player/get_song_url/'+song.get('id'),
+        success: loadsongurl,
+        failure: badsongurl
+    });
+}
+
+function loadsongurl(response, options)
+{
+    flplayer.loadFile({file:response.responseText});
+    flplayer.sendEvent('playpause');
+}
+
+function badsongurl(response, options)
+{
+    //TODO: Work this into real error handling scheme
+    alert("Bad response: "+response);
+}
+
 function descend(grid, rowIndex, e)
 {
-    var ds = grid.getStore();
-    var record = ds.getAt(rowIndex);
+    var record = grid.getStore().getAt(rowIndex);
     var type = record.get("type");
     var value = record.get(type);
 
     if (type == "song") {
         //tell player to play this song
-        flplayer.loadFile({file:'music/'+escape(record.get('filename'))});
-        flplayer.sendEvent('playpause');
-        playqueue.setNowPlaying(record);
+        playsong(record);
         return;
     }
 
@@ -204,12 +223,12 @@ function init_top_menu()
     var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
     var genresbtn= new Ext.Toolbar.Button({text:'Genres', cls:'menuitem'});
     var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
-    homebtn.on('click', go);
-    artistbtn.on('click', go);
-    albumbtn.on('click', go);
-    songsbtn.on('click', go);
-    friendsbtn.on('click', go);
-    genresbtn.on('click', go);
+    homebtn.on('click', function() {go('home')});
+    artistbtn.on('click', function() {go('artist')});
+    albumbtn.on('click', function() {go('album')});
+    songsbtn.on('click', function() {go('song')});
+    friendsbtn.on('click', function() {go('friend')});
+    genresbtn.on('click', function() {go('genre')});
     settingsbtn.on('click', showSettings);
 
     topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,genresbtn,settingsbtn);
@@ -237,7 +256,7 @@ function showSettings(){
 			height:300,
 			closeAction:'hide',
 			autoScroll:'true',
-			html:showFriends,
+			html:showFriends(),
 			layout:'accordion',
 			buttons: [{
 				text:'Save',

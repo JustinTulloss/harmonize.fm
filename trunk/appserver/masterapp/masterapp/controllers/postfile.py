@@ -14,9 +14,6 @@ class PostfileController(BaseController):
         f = open(fname,'wb')
         shutil.copyfileobj(request.POST['file'].file, f)
         f.close()
-        fdict = dict(fname=fname, uid=request.POST['user'])
+        fdict = dict(fname=fname, fbsession=request.POST['fbsession'])
         file_queue.put(fdict)
-        # Return a rendered template
-        #   return render_response('/some/template.html')
-        # or, Return a response object
         return SUCCESS

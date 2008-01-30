@@ -22,7 +22,6 @@ def load_environment(global_conf, app_conf):
                  templates=[os.path.join(root, 'templates')])
 
     sys.path.insert(0,os.path.join(root, '..', '..','..', 'libs.py'))
-    from fileprocess.fileprocess import FileUploadThread
 
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='masterapp',
@@ -38,9 +37,11 @@ def load_environment(global_conf, app_conf):
     tmpl_options['mako.output_encoding'] = 'UTF-8'
     tmpl_options['mako.default_filters'] = ['decode.utf8']
 
-    #Starting extra processing threads here
-    fuploader = FileUploadThread()
- 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
     config['pylons.g'].sa_engine = engine_from_config(config, 'sqlalchemy.default.')
+
+    #Starting extra processing threads here
+    from fileprocess.fileprocess import FileUploadThread
+    fuploader = FileUploadThread()
+

@@ -25,6 +25,7 @@
     ${h.javascript_include_tag('playqueue.js')}
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('player.js')}
+    ${h.javascript_include_tag('auth.js')}
     ${h.javascript_include_tag('player_init.js')}
 </%def>
 

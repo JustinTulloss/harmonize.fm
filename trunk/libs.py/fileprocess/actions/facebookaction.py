@@ -27,7 +27,7 @@ class FacebookAction(BaseAction):
                 return False
 
 
-        file['fbid']=userinfo['uid']
-        log.debug('Found user %s', userinfo['uid'])
+        file['fbid']=userinfo
+        log.debug('Found user %s', userinfo)
 
         return file
