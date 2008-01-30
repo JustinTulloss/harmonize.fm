@@ -23,15 +23,17 @@ class UploadsController(BaseController):
 
         dest_dir = config['app_conf']['upload_dir']
         dest_path = os.path.join(dest_dir, id)
-        #need to actually make this file
+
         if not os.path.exists(dest_path):
             dest_file = file(dest_path, 'w')
             chunk_size = 1024
             file_size = int(request.environ["CONTENT_LENGTH"])
-            for i in range(0, file_size, chunk_size):
-              dest_file.write(request.body.read(chunk_size))
+            body = request.environ['wsgi.input']
 
-            dest_file.write(request.body.read(file_size%chunk_size))
+            for i in range(0, file_size/chunk_size):
+                dest_file.write(body.read(chunk_size))
+ 
+            dest_file.write(body.read(file_size%chunk_size))
 
             #finally, put the file in file_queue for processing
             fdict = dict(fname=dest_path, fbsession=session_key) 

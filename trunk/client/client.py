@@ -73,7 +73,6 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 	def do_POST(self):
 		if self.headers.has_key('Content-Length'):
 			length = int(self.headers['Content-Length'])
-			print 'Content-Length: ' + self.headers['Content-Length']
 			c_global.request_body = self.rfile.read(length)
 		self.handle_request()
 

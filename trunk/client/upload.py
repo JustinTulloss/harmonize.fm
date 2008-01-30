@@ -26,7 +26,8 @@ def upload_file(file, session_key):
 	connection.request('GET', url)
 
 	if connection.getresponse().read() == '0':
-		connection.request('POST', url, file_contents)
+		connection.request('POST', url, file_contents, 
+			{'Content-Type':'audio/x-mpeg-3'})
 
 	connection.close()
 
