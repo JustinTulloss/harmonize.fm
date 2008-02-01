@@ -22,6 +22,7 @@ var gridpanel = null;
 var homepanel = null;
 var fbauth = null;
 var bread_crumb = null;
+var settingspanel = null;
 var typeinfo= {
     artist:{next:'album'}, 
     album:{next:'song', qry:'album_id'}, 
@@ -43,6 +44,7 @@ function init()
     flplayer = new Player('player');
     playqueue = new PlayQueue('queue', 'songlist', fields);
     browser = new Browser(fields);
+    settingspanel = new SettingsPanel();
     init_seekbar();
     init_top_menu();
 
@@ -229,7 +231,8 @@ function init_top_menu()
     songsbtn.on('click', function() {go('song')});
     friendsbtn.on('click', function() {go('friend')});
     genresbtn.on('click', function() {go('genre')});
-    settingsbtn.on('click', showSettings);
+    settingsbtn.on('click', settingspanel.showSettings, settingspanel);
+
 
     topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,genresbtn,settingsbtn);
 }
@@ -247,40 +250,3 @@ function mouseGoesOut()
 	this.src = mouseOuts[this.number].src;
 }
 	
-function showSettings(){
-	// create the window on the first click and reuse on subsequent clicks
-	var win;
-	if(!win){
-		win = new Ext.Window({
-			width:500,
-			height:300,
-			closeAction:'hide',
-			autoScroll:'true',
-			html:showFriends(),
-			layout:'accordion',
-			buttons: [{
-				text:'Save',
-				handler: function(){
-					win.hide();
-					alert('settings saved');
-			}},{
-				text:'Close', 
-				handler: function(){
-					win.hide();
-				}
-			}]
-		});
-	}
-	win.show(this);
-};
-
-function showFriends(){
-return "<br><form>\
-		<input type='checkbox' name='friends' value='Dave Bergman'>Dave Bergman<br>\
-		<input type='checkbox' name='friends' value='Paul Casperson'>Paul Casperson<br>\
-		<input type='checkbox' name='friends' value='Alex Mohr'>Alex Mohr<br>\
-		<input type='checkbox' name='friends' value='Mike Phelan'>Mike Phelan<br>\
-		<input type='checkbox' name='friends' value='Brian Smith'>Brian Smith<br>\
-		<input type='checkbox' name='friends' value='Justin Tulloss'>Justin Tulloss<br>\
-		</form>";
-};

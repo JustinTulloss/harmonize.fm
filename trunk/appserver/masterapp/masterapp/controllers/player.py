@@ -175,7 +175,25 @@ class PlayerController(BaseController):
     def get_friends(self):
         userStore = facebook.friends.getAppUsers()
         return dict(data = facebook.users.getInfo(userStore))
+	
+    @jsonify
+    def get_checked_friends(self):
+        userStore = facebook.friends.getAppUsers()
+        userList = facebook.users.getInfo(userStore)
+        for user in userList:
+            user["checked"]=self.get_active(user["uid"])
+            #~ user['name']=user['name']
+            #~ user['uid']=user['uid']
         
+        userDict = dict(data = userList) 
+        return userDict
+	
+    def get_active(self, uid):
+        if uid == 1908861:
+            return True	
+        else:
+            return False
+	
     def add_rec(self):
         type = request.params.get('type')
         myid = request.params.get('id')

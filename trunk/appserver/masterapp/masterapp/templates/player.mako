@@ -22,11 +22,13 @@
     ${h.javascript_include_tag('mousemgr.js')}
     ${h.javascript_include_tag('extbrowser.js')}
     ${h.javascript_include_tag('bcmgr.js')}
+    ${h.javascript_include_tag('settingspanel.js')}
     ${h.javascript_include_tag('playqueue.js')}
     ${h.javascript_include_tag('swfobject.js')}
     ${h.javascript_include_tag('player.js')}
     ${h.javascript_include_tag('auth.js')}
     ${h.javascript_include_tag('player_init.js')}
+
 </%def>
 
 <div id="header">
