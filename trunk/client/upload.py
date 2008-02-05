@@ -65,6 +65,8 @@ def upload_all(c):
 	else: return str(songs_left)
 
 def contains_dir(dir_path):
+	if not os.access(dir_path, os.R_OK):
+		return False
 	return [dir for dir in os.listdir(dir_path) if path.isdir(path.join(dir_path, dir))] != []
 
 def get_dir_listing(c):
