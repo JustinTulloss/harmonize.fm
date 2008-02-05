@@ -20,7 +20,11 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 
 		if path.exists(file_path):
 			requested_file = open(file_path)
-			return Template(requested_file.read()).render(c=c_global)
+			root, ext = path.splitext(file_path)
+			if ext == '.html':
+				return Template(requested_file.read()).render(c=c_global)
+			else:	
+				return requested_file.read()
 		else:
 			return None
 		
@@ -74,6 +78,12 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		if self.headers.has_key('Content-Length'):
 			length = int(self.headers['Content-Length'])
 			c_global.request_body = self.rfile.read(length)
+			if self.headers.has_key('Content-Type') and \
+					self.headers['Content-Type']=='application/x-www-form-urlencoded':
+				c_global.post_query = cgi.parse_qs(c_global.request_body)
+			else:
+				c_global.post_query = None
+
 		self.handle_request()
 
 def complete_login(c):
@@ -81,11 +91,13 @@ def complete_login(c):
 	return Redirect('index.html')
 
 action_mappings = {'upload_all':upload.upload_all, 
-	'complete_login':complete_login}
+	'complete_login':complete_login,
+	'get_dir_listing':upload.get_dir_listing}
 
 class Global(object):
 	pass
 c_global = Global() #This is all the important state for the templates
+c_global.upload = upload
 
 class Redirect(object):
 	def __init__(self, url):

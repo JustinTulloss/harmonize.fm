@@ -25,7 +25,7 @@
 			upload_progress.getUpdater().showLoadIndicator = false;
 
 			upload_progress.load({
-				url: 'upload_all',
+				url: 'upload_all'+location.search,
 				method: 'POST',
 				callback: process_upload,
 			});

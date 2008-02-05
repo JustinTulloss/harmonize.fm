@@ -1,8 +1,54 @@
 <html>
+<head>
+<link rel="stylesheet" type="text/css" href="resources/css/ext-all.css" />
+<!--link rel="stylesheet" type="text/css" href="stylesheets/ext-ux-slidezone.css"/-->
+<script type="text/javascript" src="ext-base.js"></script>
+<script type="text/javascript" src="ext-all.js"></script>
+<script type="text/javascript">
+	function add_dir_browser() {
+		var tree = new Ext.tree.TreePanel({
+			el:'dir-browser',
+			autoScroll:true,
+			animate:true,
+			containerScroll:true,
+			loader: new Ext.tree.TreeLoader({dataUrl:'get_dir_listing'})
+		});
+
+		var root = new Ext.tree.AsyncTreeNode({
+			text:'/',
+			draggable:false,
+			id:'/'
+		});
+		tree.setRootNode(root);
+		
+		tree.on('click', function(node, e) {
+			var el = Ext.get('dir-name');
+			var path = node.id;
+			el.update(path);
+			var input = Ext.get('dir-name-input');
+			input.dom.value = node.id;
+		});
+
+		var el = Ext.get('dir-browser');
+		el.setVisible(true);
+
+		tree.render();
+		tree.expand();
+	}
+</script>
+</head
 <body>
 	<form action="upload_all.html">
-		<input type="submit" value="Upload all" />
-		Upload all music found
+		<span>Upload all music found</span>
+		<input type="submit" value="Upload all" method="GET" />
+		<div>
+			in <span id="dir-name">${c.upload.get_default_path()}</span>
+			<input type="hidden" name="path" id="dir-name-input"
+					value="${c.upload.get_default_path()}" />
+			<input type="submit" value="Change" 
+				onclick="add_dir_browser(); return false;" />
+		</div>
 	</form>
+	<div id="dir-browser" style="overflow:auto; height:300px;width:250px;border:1px solid #c3daf9; visibility:hidden;"></div>
 </body>
 </html>
