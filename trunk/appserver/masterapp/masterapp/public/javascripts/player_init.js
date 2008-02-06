@@ -25,15 +25,15 @@ var bread_crumb = null;
 var settingspanel = null;
 var typeinfo= {
     artist:{next:'album'}, 
-    album:{next:'song', qry:'album_id'}, 
+    album:{next:'song', qry:'albumid'}, 
     genre:{next:'artist'},
-    friend:{next:'artist', qry:'fid'}
+    friend:{next:'artist', qry:'fbid'}
 };
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name', 'friend', 
-                  'songid', 'albumid', 'id'];
+                  'likesartists', 'exartists', 'numtracks', 'name', 'friend',
+                  'songid', 'albumid', 'id', 'fbid'];
 
 /******* Initialization functions ********/
 function init()
@@ -145,7 +145,7 @@ function descend(grid, rowIndex, e)
     var params = bread_crumb.descend(value, qryvalue, newbc);
     params["type"] = nexttype;
 
-    ds.load({params:params});
+    grid.getStore().load({params:params});
     browser.changeColModel(nexttype);
 }
 

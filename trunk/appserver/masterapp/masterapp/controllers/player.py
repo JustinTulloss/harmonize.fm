@@ -1,10 +1,10 @@
 import logging
 import S3
 from masterapp.lib.base import *
-from masterapp.model import Song, Album, Owner, File, Session, TagData
+from masterapp.model import Song, Album, Artist, Owner, File, Session, TagData
 from masterapp.model import songs_table, albums_table, files_table, owners_table
 from masterapp.lib.profile import Profile
-from sqlalchemy import sql
+from sqlalchemy import sql, or_
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -24,6 +24,7 @@ class PlayerController(BaseController):
                 session['fbsession']=facebook.session_key
                 session['fbuid']=facebook.uid
                 session['fbfriends']=facebook.friends.getAppUsers()
+                session['fbfriends'].append(facebook.uid)
                 session.save()
             else:
                 next = '%s' % (request.environ['PATH_INFO'])
@@ -73,7 +74,7 @@ class PlayerController(BaseController):
         if type == 'album': 
             return self.get_albums()
         elif type == 'artist':
-            return self.get_artists(friend,genre)
+            return self.get_artists()
         elif type == 'genre':
             return self.get_genres(friend)
         elif type == 'song':
@@ -83,13 +84,6 @@ class PlayerController(BaseController):
         elif type == 'queue':
             return self.get_songs(type,artist,album,friend,genre)
         
-    def _qualify_sql(self, qry):
-        if not request.params.get('artist') == None:
-            qry.filter(TagData.artist == request.params.get('artist'))
-        if not request.params.get('album') == None:
-            qry.filter(TagData.album == request.params.get('album'))
-        if not request.params.get('friend') == None:
-            qry.filter(TagData.owner.fbid == request.params.get('friend'))
         return qry
         
     def _build_json(self, results):
@@ -103,78 +97,55 @@ class PlayerController(BaseController):
             json['data'][len(json['data'])-1]['type']=dtype
         return json
 
+    def _filter_friends(self, qry):
+        # Friends filter
+        fbclause = sql.expression.or_()
+        for friend in session['fbfriends']:
+            fbclause.append(Owner.fbid==friend)
+        qry=qry.filter(fbclause)
+        return qry
+
     def get_albums(self):
-        qry = Session.query(TagData)
-        qry = self._qualify_sql(qry)
+        qry = Session.query(Album).join(['songs', 'files', 'owners'])
+        qry = self._filter_friends(qry)
+
+        if not request.params.get('artist') == None:
+            qry=qry.filter(Album.artist == request.params.get('artist'))
+        if not request.params.get('friend') == None:
+            qry=qry.filter(Owner.fbid == request.params.get('friend'))
         results = qry.all()
         return self._build_json(results)
         
     def get_songs(self):
-        qry = Session.query(TagData)
-        qry = self._qualify_sql(qry)
+        qry = Session.query(Song).join('album').reset_joinpoint().join(['files', 'owners'])
+        qry = self._filter_friends(qry)
+
+        if not request.params.get('artist') == None:
+            qry=qry.filter(Album.artist == request.params.get('artist'))
+        if not request.params.get('album') == None:
+            qry=qry.filter(Album.albumid== request.params.get('album'))
+        if not request.params.get('friend') == None:
+            qry=qry.filter(Owner.fbid == request.params.get('friend'))
+
         results = qry.all()
         return self._build_json(results)
 
-    def get_artists(self, myfid, mygenre):
-        if myfid == None:
-            if mygenre == None: #dont filter on anything
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
-                    sum(recommendations) as recs from songs group by artist",mapper=Songs).fetchall()
-            else: #filter only on genre
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
-                    sum(recommendations) as recs from songs,albums where songs.album_id = albums.id and genre='%s' \
-                    group by artist" % mygenre,mapper=Songs).fetchall()                
-        else:
-            if mygenre == None: #filter on fid only
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
-                    sum(recommendations) as recs from songs where owner_id = %s group by artist" % myfid, mapper=Songs).fetchall()
-            else:
-                tuples = Session.execute("select artist, count( distinct album_id ) as totalalbums,count(*) as totaltracks, \
-                    sum(recommendations) as recs from songs,albums where songs.album_id = albums.id and genre = %s and \
-                    owner_id=%s group by artist" % (mygenre,myfid),mapper=Songs).fetchall()
-        #fetchall returns a list
-        #row[0] is the bare artist
-        json = {  
-                 "data" : [
-                        {
-                         "type":"artist",
-                         "artist": "%s" % row.artist,
-                         "totalalbums": row.totalalbums,
-                         "totaltracks": row.totaltracks,
-                         "artistlength": "%s" % self.get_album_length(None,row.artist),                         
-                         "ownerid": myfid,
-                         "recs": row.recs
-                        } for row in tuples
-                    ]
-               }   
-        return json          
-        
-    def get_genres(self, myfid):
-        if myfid == None:
-            tuples = Session.execute("select genre,count(distinct artist) as numartists,count(distinct albums.id)\
-                        as numalbums from albums,songs where albums.id = songs.album_id group by genre",mapper=Albums).fetchall()
-        else:
-            tuples = Session.execute("select genre,count(distinct artist) as numartists,count(distinct albums.id)\
-                        as numalbums from albums,songs where albums.id = songs.album_id and owner_id=%s group by genre" % myfid,mapper=Albums).fetchall()
-        #fetchall returns a list
-        # row[0] is the bare genre
-        json = { 
-                 "data" : [
-                        {
-                         "type":"genre",
-                         "genre": "%s" % row.genre,
-                         "numartists": "%s" % row.numartists,
-                         "numalbums": "%s" % row.numalbums,
-                         "exartists": "%s" % self.get_exartists(row.genre),
-                         "ownerid": myfid
-                        } for row in tuples
-                    ]
-               }   
-        return json  
+    def get_artists(self):
+        qry = Session.query(Artist).join(['songs','files','owners'])
+        qry=self._filter_friends(qry)
+        if not request.params.get('friend') == None:
+            qry=qry.filter(Owner.fbid == request.params.get('friend'))
+        results = qry.all()
+        return self._build_json(results)
         
     def get_friends(self):
-        userStore = facebook.friends.getAppUsers()
-        return dict(data = facebook.users.getInfo(userStore))
+        dtype = request.params.get('type')
+        userStore = session['fbfriends']
+        data=facebook.users.getInfo(userStore)
+        for row in data:
+            row['fbid']=row['uid']
+            row['type']=dtype
+        return dict(data=data)
 	
     @jsonify
     def get_checked_friends(self):
@@ -213,27 +184,7 @@ class PlayerController(BaseController):
         #Session.save(mysong)  - this should work and use less resources...
         Session.commit()
         return "Success"    
-        
-    
-        
-    def get_album_length(self,albumid,myartist):
-        if albumid == None:
-            album = Session.query(Songs).filter_by(artist=myartist).all()
-        else:
-            album = Session.query(Songs).filter_by(album_id=albumid).all()
-        
-        totalsecs = 0
-        totalmins = 0
-        for song in album:
-            #Assuming length of a song is string in minutes:secs format
-            mylist = song.length.split(":")
-            totalsecs += int(mylist[1])
-            totalmins += int(mylist[0])
-        extramin = totalsecs / 60
-        secs = totalsecs % 60
-        min = totalmins + extramin
-        return ("%s:%s" % (min,secs)) 
-        
+
     def get_exartists(self,mygenre):
         albums = Session.execute("select distinct artist from songs,albums where songs.album_id = albums.id and albums.genre='%s' limit 3"
             % mygenre, mapper=Songs)
