@@ -12,8 +12,6 @@ class DBRecorder(BaseAction):
     def process(self, file):
         from masterapp import model
         
-        # *****REMOVE THIS ONCE THE FACEBOOK MODULE IS INSERTED*****
-        file['fbid'] = 1908861
         # Check to see if this file has already been uploaded by this person.
         qry = model.Session.query(model.Owner).join('file').filter(
             and_(model.File.sha == file['sha'], model.Owner.fbid==file['fbid'])
