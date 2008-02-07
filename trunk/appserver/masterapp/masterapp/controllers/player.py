@@ -86,55 +86,71 @@ class PlayerController(BaseController):
         
         return qry
         
+    # TODO: I don't want to think about it now, but these two functions would
+    # be cleaner if they were recursive. Do that.
+    def _expand_row(self, sqlrow):
+        expanded = {}
+        for field in sqlrow.c.keys():
+            expanded[field] = getattr(sqlrow, field)
+        return expanded
+
     def _build_json(self, results):
         dtype = request.params.get('type')
         json = { "data": []}
         for row in results:
-            expanded = {}
-            for field in row.c.keys():
-                expanded[field] = getattr(row, field)
-            json['data'].append(expanded)
+            if type(row) == tuple: #Is this really dirty? it feels dirty
+                expanded = {}
+                for entity in row:
+                    expanded.update(self._expand_row(entity))
+                json['data'].append(expanded)
+            else:
+                json['data'].append(self._expand_row(row))
             json['data'][len(json['data'])-1]['type']=dtype
         return json
 
     def _filter_friends(self, qry):
-        # Friends filter
+        """
+        This function creates a giant SQL OR statement that restricts
+        the files you can select from to files owned by any of your friends.
+        It assumes you are joined to the Owners table.
+        """
         fbclause = sql.expression.or_()
         for friend in session['fbfriends']:
             fbclause.append(Owner.fbid==friend)
-        qry=qry.filter(fbclause)
+        qry = qry.filter(fbclause)
         return qry
+
+    def get_songs(self):
+        qry = Session.query(Song).join('album').\
+            reset_joinpoint().join(['files', 'owners']).add_entity(Album)
+        qry = self._filter_friends(qry)
+
+        if not request.params.get('artist') == None:
+            qry = qry.filter(Album.artist == request.params.get('artist'))
+        if not request.params.get('album') == None:
+            qry = qry.filter(Album.albumid== request.params.get('album'))
+        if not request.params.get('friend') == None:
+            qry = qry.filter(Owner.fbid == request.params.get('friend'))
+
+        results = qry.all()
+        return self._build_json(results)
 
     def get_albums(self):
         qry = Session.query(Album).join(['songs', 'files', 'owners'])
         qry = self._filter_friends(qry)
 
         if not request.params.get('artist') == None:
-            qry=qry.filter(Album.artist == request.params.get('artist'))
+            qry = qry.filter(Album.artist == request.params.get('artist'))
         if not request.params.get('friend') == None:
-            qry=qry.filter(Owner.fbid == request.params.get('friend'))
+            qry = qry.filter(Owner.fbid == request.params.get('friend'))
         results = qry.all()
         return self._build_json(results)
         
-    def get_songs(self):
-        qry = Session.query(Song).join('album').reset_joinpoint().join(['files', 'owners'])
-        qry = self._filter_friends(qry)
-
-        if not request.params.get('artist') == None:
-            qry=qry.filter(Album.artist == request.params.get('artist'))
-        if not request.params.get('album') == None:
-            qry=qry.filter(Album.albumid== request.params.get('album'))
-        if not request.params.get('friend') == None:
-            qry=qry.filter(Owner.fbid == request.params.get('friend'))
-
-        results = qry.all()
-        return self._build_json(results)
-
     def get_artists(self):
         qry = Session.query(Artist).join(['songs','files','owners'])
-        qry=self._filter_friends(qry)
+        qry = self._filter_friends(qry)
         if not request.params.get('friend') == None:
-            qry=qry.filter(Owner.fbid == request.params.get('friend'))
+            qry = qry.filter(Owner.fbid == request.params.get('friend'))
         results = qry.all()
         return self._build_json(results)
         
@@ -153,8 +169,6 @@ class PlayerController(BaseController):
         userList = facebook.users.getInfo(userStore)
         for user in userList:
             user["checked"]=self.get_active(user["uid"])
-            #~ user['name']=user['name']
-            #~ user['uid']=user['uid']
         
         userDict = dict(data = userList) 
         return userDict

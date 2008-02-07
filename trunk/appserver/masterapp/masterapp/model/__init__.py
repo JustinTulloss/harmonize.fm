@@ -95,7 +95,7 @@ mapper(Album, albums_table, properties={
     'albumlength': column_property(
         select([func.sum(songs_table.c.length).label('albumlength')],
             songs_table.c.albumid == albums_table.c.id, correlate=False
-        ).as_scalar()
+        ).as_scalar().label('albumlength')
     )
 })
 mapper(Artist, artists, properties={
