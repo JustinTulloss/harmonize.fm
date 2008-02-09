@@ -1,20 +1,28 @@
 <html>
 <head>
+</head>
+<body onload="">
+	<div id="upload_progress">Upload starting...</div>
 	<script type="text/javascript" src="ext-base.js"></script>
 	<script type="text/javascript" src="ext-all.js"></script>
 	<script type="text/javascript">
 		function get_songs_remaining() {
 			var el = Ext.get('upload_progress');
 			el.load({
-				url: 'upload_all',
+				url: 'uploads_remaining',
 				method: 'POST',
 				callback: process_upload,
 			});
 		}	
 			
 		function process_upload(el, success, response, options) {
-			el.update(response.responseText + ' songs remaining');
-		
+			if (isNaN(Number(response.responseText))) {
+				el.update(response.responseText);
+			}
+			else {
+				el.update(response.responseText + ' songs remaining');
+			}
+
 			if (response.responseText != '0') {
 				setTimeout("get_songs_remaining();", 2000);
 			} 
@@ -25,15 +33,13 @@
 			upload_progress.getUpdater().showLoadIndicator = false;
 
 			upload_progress.load({
-				url: 'upload_all'+location.search,
+				url: 'begin_upload'+location.search,
 				method: 'POST',
 				callback: process_upload,
 			});
 			upload_progress.show();
+			
 		});
 	</script>
-</head>
-<body onload="">
-	<div id="upload_progress">Upload starting...</div>
 </body>
 </html>

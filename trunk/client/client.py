@@ -1,9 +1,9 @@
 import os.path as path
-import time, webbrowser, cgi
-import upload
+import os, time, webbrowser, cgi, imp
 from urlparse import urlsplit
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from mako.template import Template
+from response import Redirect
 
 class ClientHTTPServer(BaseHTTPRequestHandler):
 	base_dir = 'public'
@@ -29,10 +29,10 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			return None
 		
 	def render_mapping(self, request_path):
-		global action_mappings
+		actions = c_global.actions
 		
-		if action_mappings.has_key(request_path):
-			return action_mappings[request_path](c_global)
+		if actions.has_key(request_path):
+			return actions[request_path](c_global)
 		else:
 			return None
 
@@ -86,22 +86,23 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 
 		self.handle_request()
 
-def complete_login(c):
-	c.session_key = c.query['session_key'][0]
-	return Redirect('index.html')
 
-action_mappings = {'upload_all':upload.upload_all, 
-	'complete_login':complete_login,
-	'get_dir_listing':upload.get_dir_listing}
+class Env(object):
+	def __init__(self, module_path='scripts'):
+		#this is a mapping from urls to functions that take an Env as argument
+		self.actions = {}
 
-class Global(object):
-	pass
-c_global = Global() #This is all the important state for the templates
-c_global.upload = upload
+		module_list = \
+			[path.splitext(filename)[0] for filename in os.listdir(module_path)\
+			 if path.splitext(filename)[1] == '.py']
+		for module_name in module_list:
+			module_info = imp.find_module(module_name, [module_path])
+			module = imp.load_module(module_name, module_info[0], 
+									 module_info[1], module_info[2])
+			setattr(self, module_name, module)
+			module.update_actions(self.actions)
 
-class Redirect(object):
-	def __init__(self, url):
-		self.url = url
+c_global = Env()
 
 if __name__ == '__main__':
 	server = HTTPServer(('localhost', 8080), ClientHTTPServer)
