@@ -8,7 +8,7 @@
 		<span>Upload all music found</span>
 		<input type="submit" value="Upload all" method="GET" />
 		<div>
-			<div style="float:left; margin=4em;">in</div>
+			<div style="float:left;">in</div>
 			<div id="dir-browser" style="overflow:auto; height:300px;width:250px;visibility:hidden;"></div>
 			<input type="hidden" name="path" id="dir-name-input"
 					value="${c.upload.get_default_path()}" />
@@ -23,6 +23,7 @@
 <script type="text/javascript" src="ext-all.js"></script>
 <script type="text/javascript">
 	function add_dir_browser() {
+		var tree_loader = new Ext.tree.TreeLoader({dataUrl:'get_dir_listing'});
 		var tree = new Ext.tree.TreePanel({
 			el:'dir-browser',
 			autoScroll:true,
@@ -32,8 +33,11 @@
 			title:'${c.upload.get_default_path()}',
 			titleCollapse:true,
 			containerScroll:true,
-			loader: new Ext.tree.TreeLoader({dataUrl:'get_dir_listing'})
+			dropConfig: {appendOnly:true},
+			loader:tree_loader
 		});
+
+		new Ext.tree.TreeSorter(tree, {});
 
 		var root = new Ext.tree.AsyncTreeNode({
 			text:'/',
@@ -41,13 +45,41 @@
 			id:'/'
 		});
 		tree.setRootNode(root);
+		root.expand();
 		
 		tree.on('click', function(node, e) {
-			//var el = Ext.get('dir-name');
-			var path = node.id;
-			//el.update(path);
+			tree.setTitle(node.id);
 			var input = Ext.get('dir-name-input');
 			input.dom.value = node.id;
+			selected_node = node;
+		});
+
+		var firstExpand = true;
+		tree.on('expand', function(panel) {
+			if (firstExpand) {
+			//Apparently my ensureVisible on expand doesn't work the first time
+			//, at least immediately
+				setTimeout("selected_node.ensureVisible();", 100);
+				firstExpand = false;
+			}
+			else
+				selected_node.ensureVisible();
+		});
+
+		tree_loader.on('load', function expand_nodes(loader, node, response) {
+			for (var i=0; i<node.childNodes.length; i++) {
+				var child = node.childNodes[i];
+				if (child.attributes.attributes) { 
+					if (child.attributes.attributes.auto_expand) {
+						child.expand();
+						expand_nodes(loader, child, response);
+					}
+					else if (child.attributes.attributes.select) {
+						child.select();
+						selected_node = child;
+					}
+				}
+			}
 		});
 
 		var el = Ext.get('dir-browser');
