@@ -16,6 +16,17 @@ AWS_ACCESS_KEY_ID = '17G635SNK33G1Y7NZ2R2'
 AWS_SECRET_ACCESS_KEY = 'PHDzFig4NYRJoKKW/FerfhojljL+sbNyYB9bEpHs'
 
 class PlayerController(BaseController):
+    def __init__(self):
+        super(PlayerController, self).__init__()
+        self.datahandlers = {
+            'artist': self._get_artists,
+            'album': self._get_albums,
+            'song':self._get_songs,
+            'playlist': self._get_playlists,
+            'friend': self._get_friends
+        }
+
+
     def __before__(self):
         action = request.environ['pylons.routes_dict']['action']
         c.facebook = facebook
@@ -28,8 +39,6 @@ class PlayerController(BaseController):
                 session.save()
             else:
                 next = '%s' % (request.environ['PATH_INFO'])
-                if request.environ['QUERY_STRING'] != '':
-                    next = '%s?%s' % (next, request.environ['QUERY_STRING'])
                 url = facebook.get_login_url(next=next, canvas=False)
                 facebook.redirect_to(url)
         else: 
@@ -39,12 +48,6 @@ class PlayerController(BaseController):
     def index(self):
         c.profile = Profile()
         return render('/player.mako')
-    
-    def enqueue(self):
-        return request.POST["id"]
-            
-    def settings(self):
-        return "This is the change settings form!"
     
     def get_song_url(self, id):
         """
@@ -67,24 +70,21 @@ class PlayerController(BaseController):
     @jsonify    
     def get_data(self):
         type = request.params.get('type')
-        artist = request.params.get('artist')
-        album = request.params.get('album')
-        friend = request.params.get('friend')
-        genre = request.params.get('genre')
+        handler=self.datahandlers.get(type)
+        return handler()
+
+        """
         if type == 'album': 
             return self.get_albums()
         elif type == 'artist':
             return self.get_artists()
-        elif type == 'genre':
-            return self.get_genres(friend)
         elif type == 'song':
             return self.get_songs()
         elif type == 'friend':
             return self.get_friends()
         elif type == 'queue':
             return self.get_songs(type,artist,album,friend,genre)
-        
-        return qry
+            """
         
     # TODO: I don't want to think about it now, but these two functions would
     # be cleaner if they were recursive. Do that.
@@ -120,7 +120,7 @@ class PlayerController(BaseController):
         qry = qry.filter(fbclause)
         return qry
 
-    def get_songs(self):
+    def _get_songs(self):
         qry = Session.query(Song).join('album').\
             reset_joinpoint().join(['files', 'owners']).add_entity(Album)
         qry = self._filter_friends(qry)
@@ -135,7 +135,7 @@ class PlayerController(BaseController):
         results = qry.all()
         return self._build_json(results)
 
-    def get_albums(self):
+    def _get_albums(self):
         qry = Session.query(Album).join(['songs', 'files', 'owners'])
         qry = self._filter_friends(qry)
 
@@ -146,7 +146,7 @@ class PlayerController(BaseController):
         results = qry.all()
         return self._build_json(results)
         
-    def get_artists(self):
+    def _get_artists(self):
         qry = Session.query(Artist).join(['songs','files','owners'])
         qry = self._filter_friends(qry)
         if not request.params.get('friend') == None:
@@ -154,7 +154,7 @@ class PlayerController(BaseController):
         results = qry.all()
         return self._build_json(results)
         
-    def get_friends(self):
+    def _get_friends(self):
         dtype = request.params.get('type')
         userStore = session['fbfriends']
         data=facebook.users.getInfo(userStore)
@@ -162,6 +162,9 @@ class PlayerController(BaseController):
             row['fbid']=row['uid']
             row['type']=dtype
         return dict(data=data)
+
+    def _get_playlists(self):
+        pass
 	
     @jsonify
     def get_checked_friends(self):

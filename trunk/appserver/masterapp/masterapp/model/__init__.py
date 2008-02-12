@@ -47,6 +47,17 @@ albums_table = Table("albums", metadata,
     Column("totaltracks", types.Integer)
 )
 
+playlists_table = Table("playlists", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("owner", types.Integer, ForeignKey("owners.id"), index=True)
+)
+
+playlistsongs_table= Table("playlistsongs", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("playlistid", types.Integer, ForeignKey("playlists.id"), index=True),
+    Column("songid", types.Integer, ForeignKey("songs.id"))
+)
+
 artists = select([albums_table.c.id, albums_table.c.artist, albums_table.c.mbartistid], distinct=True).alias('artists')
 
 tagdata = sql.join(songs_table, albums_table,
@@ -71,6 +82,9 @@ class Album(object):
     pass
 
 class Artist(object):
+    pass
+
+class Playlist(object):
     pass
         
 class TagData(object):
@@ -100,6 +114,9 @@ mapper(Album, albums_table, properties={
 })
 mapper(Artist, artists, properties={
     'songs':relation(Song)
+})
+mapper(Playlist, playlistsongs_table, properties={
+    'songs':relation(Song),
 })
 mapper(TagData, tagdata, properties={
     'id': songs_table.c.id,
