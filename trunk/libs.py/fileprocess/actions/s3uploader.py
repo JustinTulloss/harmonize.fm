@@ -31,7 +31,7 @@ class S3Uploader(BaseAction):
         if (response.message == '200 OK'):
             os.remove(file['fname'])
             file['fname'] = '/'.join([conn.server, BUCKET, file['sha']])
-            log.debug("%s successfully uploaded to S3", file['title'])
+            log.info("%s successfully uploaded to S3", file['title'])
         else:
             log.error(response.message)
 

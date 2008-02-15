@@ -64,7 +64,7 @@ class BrainzTagger(BaseAction):
         file['artistsort'] = artist.sortName
         file['album'] = album.title
         file['length'] = result.track.duration #in seconds. Perfect.
-        file['date'] = album.getEarliestReleaseDate().split('-')[0]
+        file['year'] = album.getEarliestReleaseDate().split('-')[0]
         file['tracknumber'] = result.track.releases[0].getTracksOffset()+1
         file['totaltracks'] = len(album.tracks)
         file['mbtrackid'] = result.track.id

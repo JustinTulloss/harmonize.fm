@@ -40,7 +40,7 @@ class DBRecorder(BaseAction):
             model.Session.save(dbfile)
         else:
             owner.file = dbfile
-            model.Session.save(owner)
+            model.Session.update(owner)
             model.Session.commit()
             log.debug('%s already uploaded, removing', file['fname'])
             os.remove(file['fname'])
@@ -77,11 +77,11 @@ class DBRecorder(BaseAction):
 
         #Make sure our cross links are all in place
         song.albumid = album.id
-        model.Session.save(song)
+        model.Session.update(song)
         owner.fileid = dbfile.id
-        model.Session.save(owner)
+        model.Session.update(owner)
         dbfile.songid = song.id
-        model.Session.save(dbfile)
+        model.Session.update(dbfile)
         model.Session.commit()
 
         file['songid'] = song.id
@@ -89,7 +89,7 @@ class DBRecorder(BaseAction):
         file['albumid'] = album.id
         file['ownerid'] = owner.id
 
-        log.debug('%s by %s successfully inserted into the database', 
+        log.info('%s by %s successfully inserted into the database', 
             file['title'], file['artist'])
 
         return file

@@ -2,7 +2,10 @@
 # Does all the ugly stuff, starts threads, defines queues, eats babies, etc.
 
 from Queue import *
+import logging
 import threading
+
+log = logging.getLogger(__name__)
 
 class BaseAction(object):
     def __init__(self):
@@ -16,7 +19,11 @@ class BaseAction(object):
     def _loop(self):
         while(self._running): #praying that reading this is atomic
             nf = self.queue.get()
-            nextfile = self.process(nf)
+            try:
+                nextfile = self.process(nf)
+            except Exception, e:
+                log.exception(e)
+                return #TODO:drop this file, need to report back at some point
             if nextfile != False:
                 if self.nextqueue != None:
                     self.nextqueue.put(nextfile)
