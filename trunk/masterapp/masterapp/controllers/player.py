@@ -1,8 +1,11 @@
+# vim:expandtab:smarttab
 import logging
 import S3
 from masterapp.lib.base import *
-from masterapp.model import Song, Album, Artist, Owner, File, Session, TagData
-from masterapp.model import songs_table, albums_table, files_table, owners_table
+from masterapp.model import \
+    Song, Album, Artist, Owner, File, Session, TagData
+from masterapp.model import \
+    songs_table, albums_table, files_table, owners_table
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql, or_
 from facebook import FacebookError
@@ -14,6 +17,8 @@ log = logging.getLogger(__name__)
 
 AWS_ACCESS_KEY_ID = '17G635SNK33G1Y7NZ2R2'
 AWS_SECRET_ACCESS_KEY = 'PHDzFig4NYRJoKKW/FerfhojljL+sbNyYB9bEpHs'
+
+DEFAULT_EXPIRATION = 5 #minutes to expire a song access URL
 
 class PlayerController(BaseController):
     def __init__(self):
@@ -62,7 +67,11 @@ class PlayerController(BaseController):
             if file.inuse == False:
                 qsgen = S3.QueryStringAuthGenerator(
                     AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-                qsgen.set_expires_in(song.length*3)
+                if song.length>0:
+                    qsgen.set_expires_in(song.length*3)
+                else:
+                    qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
+
                 return qsgen.get('music.rubiconmusicplayer.com', file.sha)
         #if we get here, all files are in use! Damn it!
         return False
@@ -70,22 +79,9 @@ class PlayerController(BaseController):
     @jsonify    
     def get_data(self):
         type = request.params.get('type')
-        handler=self.datahandlers.get(type)
+        handler=self.datahandlers[type]
         return handler()
 
-        """
-        if type == 'album': 
-            return self.get_albums()
-        elif type == 'artist':
-            return self.get_artists()
-        elif type == 'song':
-            return self.get_songs()
-        elif type == 'friend':
-            return self.get_friends()
-        elif type == 'queue':
-            return self.get_songs(type,artist,album,friend,genre)
-            """
-        
     # TODO: I don't want to think about it now, but these two functions would
     # be cleaner if they were recursive. Do that.
     def _expand_row(self, sqlrow):
@@ -201,22 +197,3 @@ class PlayerController(BaseController):
         #Session.save(mysong)  - this should work and use less resources...
         Session.commit()
         return "Success"    
-
-    def get_exartists(self,mygenre):
-        albums = Session.execute("select distinct artist from songs,albums where songs.album_id = albums.id and albums.genre='%s' limit 3"
-            % mygenre, mapper=Songs)
-        similar = ""
-        for song in albums:
-            similar += song.artist + ", "
-        return similar      
-
-    def get_likesartists(self,myfid):
-        albums = Session.execute("select distinct artist from songs,friend where songs.owner_id = friend.id and friend.id='%s' limit 3"
-            % myfid, mapper=Friends)
-        likes = ""
-        for song in albums:
-            likes += song.artist + ", "
-        return likes            
-
-    def home(self):
-        pass

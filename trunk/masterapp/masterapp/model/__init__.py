@@ -20,9 +20,20 @@ files_table = Table("files", metadata,
 
 owners_table = Table("owners", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("fbid", types.Integer, index=True),
+    Column("uid", types.Integer, ForeignKey('users.id'), index=True),
     Column("fileid", types.Integer, ForeignKey("files.id"), index=True),
-    Column("recommendations", types.Integer, nullable=False),
+)
+
+users_table = Table("users", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("fbid", types.Integer, index=True),
+)
+
+songstats_table = Table("songstats", metadata,
+    Column("id", types.Integer, primary_key=True),
+    Column("songid", types.Integer, ForeignKey("songs.id"), index=True),
+    Column("uid", types.Integer, ForeignKey('users.id'), index=True),
+    Column("lastrecommended", types.DateTime, nullable=False),
     Column("playcount", types.Integer, nullable=False)
 )
 
@@ -32,7 +43,7 @@ songs_table = Table("songs", metadata,
     Column("title", types.String, index=True),
     Column("length", types.Integer, nullable=False),
     Column("albumid", types.Integer, ForeignKey("albums.id"), index=True),
-    Column("tracknumber", types.Integer),
+    Column("tracknumber", types.Integer)
 )
 
 albums_table = Table("albums", metadata,
@@ -49,7 +60,7 @@ albums_table = Table("albums", metadata,
 
 playlists_table = Table("playlists", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("owner", types.Integer, ForeignKey("owners.id"), index=True)
+    Column("owner", types.Integer, ForeignKey("users.id"), index=True)
 )
 
 playlistsongs_table= Table("playlistsongs", metadata,
@@ -68,6 +79,9 @@ tagdata = sql.join(songs_table, albums_table,
 Classes that represent above tables. You can add abstractions here
 (like constructors) that make the tables even easier to work with
 """
+
+class User(object):
+    pass
 
 class Owner(object):
     pass
@@ -95,11 +109,13 @@ class TagData(object):
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
 """
+mapper(User, users_table)
 mapper(File, files_table, properties={
     'song': relation(Song, backref='files')
 })
 mapper(Owner, owners_table, properties={
     'file': relation(File, backref='owners')
+    'user': relation(User)
 })
 mapper(Song, songs_table)
 mapper(Album, albums_table, properties={  
