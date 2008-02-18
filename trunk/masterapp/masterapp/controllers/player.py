@@ -3,7 +3,7 @@ import logging
 import S3
 from masterapp.lib.base import *
 from masterapp.model import \
-    Song, Album, Artist, Owner, File, Session, User
+    Song, Album, Artist, Owner, File, Session, User, Playlist
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql, or_
 from facebook import FacebookError
@@ -37,6 +37,8 @@ class PlayerController(BaseController):
             if facebook.check_session(request):
                 session['fbsession']=facebook.session_key
                 session['fbuid']=facebook.uid
+                session['user'] = Session.query(User).filter(
+                    User.fbid==facebook.uid).first()
                 session['fbfriends']=facebook.friends.getAppUsers()
                 session['fbfriends'].append(facebook.uid)
                 session.save()
@@ -162,7 +164,11 @@ class PlayerController(BaseController):
         return dict(data=data)
 
     def _get_playlists(self):
-        pass
+        qry = Session.query(Playlist).join('owner')
+        qry = qry.filter(User.id == session['user'].id)
+        qry = qry.order_by(Playlist.name)
+        results = qry.all()
+        return self._build_json(results)
 	
     @jsonify
     def get_checked_friends(self):

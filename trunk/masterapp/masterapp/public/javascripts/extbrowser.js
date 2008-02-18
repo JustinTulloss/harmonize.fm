@@ -42,19 +42,20 @@ function Browser(fields)
                 width:'20px',
                 dataIndex: 'recs'
             },{
-               id: 'album',
-               header: "Album",
-               dataIndex: 'album'
+                id: 'artist',
+                header: 'Artist',
+                sortable: true,
+                dataIndex: 'artist'
             },{
-               id: 'artist',
-               header: "Artist",
-               dataIndex: 'artist'
+                id: 'album',
+                header: 'Album',
+                sortable: true,
+                dataIndex: 'album'
             },{
-               id: 'recommend',
-               header: "Recommend",
-               sortable: false,
-               renderer: recColumn,
-               dataIndex: 'songid'
+                id:'length',
+                header: "Length",
+                renderer: lengthColumn,
+                dataIndex: 'length',
             }]),
         album: new Ext.grid.ColumnModel([
             { 
@@ -84,6 +85,7 @@ function Browser(fields)
             },{
                 id:'album_playtime',
                 header: "Total Time",
+                renderer: lengthColumn,
                 dataIndex: 'albumlength',
             },{
                 id:'num_tracks',
@@ -155,7 +157,7 @@ function Browser(fields)
                 dataIndex: 'likesartists'
             }
         ]),
-        genre: new Ext.grid.ColumnModel([
+        playlist: new Ext.grid.ColumnModel([
             { 
                 id:'add',
                 header: 'Add',
@@ -163,21 +165,16 @@ function Browser(fields)
                 sortable: false,
             },{
                 id:'auto',
-                header: "Genre",
-                dataIndex: 'genre'
+                header: "Name",
+                dataIndex: 'name'
             },{
-                id:'numartists',
-                header: '# Artists',
-                dataIndex: 'numartists'
+                id: 'numtracks',
+                header: '# Tracks',
+                dataIndex: 'numtracks'
             },{
-                id: 'numalbums',
-                header: '# Albums',
-                dataIndex: 'numalbums'
-            },{
-                id: 'exartists',
-                header: 'Examples',
-                dataIndex: 'exartists',
-                sortable: false
+                id:'length',
+                header: 'Length',
+                dataIndex: 'totallength'
             }
         ]) 
     };
@@ -187,7 +184,7 @@ function Browser(fields)
     cm.album.defaultSortable = true;
     cm.artist.defaultSortable = true;
     cm.friend.defaultSortable = true;
-    cm.genre.defaultSortable = true;
+    cm.playlist.defaultSortable = true;
 
     // create the editor grid
     this.grid = new Ext.grid.GridPanel({
@@ -218,6 +215,23 @@ function Browser(fields)
         return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
     }
 
+    function lengthColumn(value, p, record)
+    {
+        //Value is the length in milliseconds
+        value = Math.floor(value/1000);
+        var secs = digitize(value % 60);
+        var mins = Math.floor(value / 60 % (60*60));
+        var hrs = Math.floor(value / (60*60));
+
+        time = String.format("{0}:{1}", mins, secs);
+        if (hrs>0) {
+            mins = digitize(mins);
+            time = String.format("{0}:{1}:{2}", hrs, mins, secs);
+        }
+        return time;
+    }
+
+
     function recColumn(value, p, record)
     {
         songid = record.get('songid');    
@@ -241,6 +255,13 @@ function Browser(fields)
         }
         return '<center><img class="mo" onclick="browser.recommend(\''+type+'\','+id+')" src="/images/recommend.png" unselectable="on"/></center>';    
     }
+
+    function digitize(value)
+    {
+        if (value<10)
+            return String.format("0{0}", value);
+        else return value;
+    }    
 
     /***** public functions ****/
     this.recommend = recommend;

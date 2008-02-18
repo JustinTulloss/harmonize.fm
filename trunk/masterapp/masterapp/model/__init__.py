@@ -60,12 +60,14 @@ albums_table = Table("albums", metadata,
 
 playlists_table = Table("playlists", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("owner", types.Integer, ForeignKey("users.id"), index=True)
+    Column("ownerid", types.Integer, ForeignKey("users.id"), index=True),
+    Column("name", types.String)
 )
 
 playlistsongs_table= Table("playlistsongs", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("playlistid", types.Integer, ForeignKey("playlists.id"), index=True),
+    Column("songindex", types.Integer),
     Column("songid", types.Integer, ForeignKey("songs.id"))
 )
 
@@ -97,6 +99,8 @@ class Artist(object):
 class Playlist(object):
     pass
         
+class PlaylistSong(Song):
+    pass
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -124,6 +128,10 @@ mapper(Album, albums_table, properties={
 mapper(Artist, artists, properties={
     'songs':relation(Song)
 })
-mapper(Playlist, playlistsongs_table, properties={
-    'songs':relation(Song)
+
+mapper(PlaylistSong, playlistsongs_table, inherits=Song)
+
+mapper(Playlist, playlists_table, properties={
+    'owner':relation(User),
+    'songs':relation(PlaylistSong)
 })

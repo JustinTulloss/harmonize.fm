@@ -45,9 +45,9 @@ function BreadCrumb(domObj, link_action)
         home:'Home', 
         artist:'Artists',
         album:'Album',
-        songs:'Songs',
+        song:'Songs',
         friend:'Friends',
-        genre:'Genres'
+        playlist:'Playlists'
     };
 
 

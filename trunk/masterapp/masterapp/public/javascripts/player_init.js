@@ -26,14 +26,14 @@ var settingspanel = null;
 var typeinfo= {
     artist:{next:'album'}, 
     album:{next:'song', qry:'albumid'}, 
-    genre:{next:'artist'},
+    playlist:{next:'song', qry:'playlistid'},
     friend:{next:'artist', qry:'fbid'}
 };
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend',
-                  'songid', 'albumid', 'id', 'fbid'];
+                  'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid'];
 
 /******* Initialization functions ********/
 function init()
@@ -223,18 +223,18 @@ function init_top_menu()
     var albumbtn= new Ext.Toolbar.Button({text:'Albums', cls:'menuitem'});
     var songsbtn= new Ext.Toolbar.Button({text:'Songs', cls:'menuitem'});
     var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
-    var genresbtn= new Ext.Toolbar.Button({text:'Genres', cls:'menuitem'});
+    var playlistsbtn= new Ext.Toolbar.Button({text:'Playlists', cls:'menuitem'});
     var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
     homebtn.on('click', function() {go('home')});
     artistbtn.on('click', function() {go('artist')});
     albumbtn.on('click', function() {go('album')});
     songsbtn.on('click', function() {go('song')});
     friendsbtn.on('click', function() {go('friend')});
-    genresbtn.on('click', function() {go('genre')});
+    playlistsbtn.on('click', function() {go('playlist')});
     settingsbtn.on('click', settingspanel.showSettings, settingspanel);
 
 
-    topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,genresbtn,settingsbtn);
+    topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,playlistsbtn,settingsbtn);
 }
 Ext.onReady(init);
 /****End of Initializations ****/
