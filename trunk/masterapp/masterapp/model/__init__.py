@@ -51,7 +51,7 @@ albums_table = Table("albums", metadata,
     Column("mbid", types.String, index=True, unique=True),
     Column("artist", types.String, nullable=False,index=True),
     Column("artistsort", types.String),
-    Column("mbartistid", types.String, unique=True),
+    Column("mbartistid", types.String),
     Column("asin", types.String, unique=True),
     Column("title", types.String, index=True),
     Column("year", types.Integer, index=True),
@@ -69,11 +69,7 @@ playlistsongs_table= Table("playlistsongs", metadata,
     Column("songid", types.Integer, ForeignKey("songs.id"))
 )
 
-artists = select([albums_table.c.id, albums_table.c.artist, albums_table.c.mbartistid], distinct=True).alias('artists')
-
-tagdata = sql.join(songs_table, albums_table,
-    songs_table.c.albumid == albums_table.c.id).join(files_table,
-    files_table.c.songid == songs_table.c.id)
+artists = select([albums_table.c.id,albums_table.c.artist, albums_table.c.artistsort, albums_table.c.mbartistid], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -101,10 +97,6 @@ class Artist(object):
 class Playlist(object):
     pass
         
-class TagData(object):
-    pass
-
-
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -114,7 +106,7 @@ mapper(File, files_table, properties={
     'song': relation(Song, backref='files')
 })
 mapper(Owner, owners_table, properties={
-    'file': relation(File, backref='owners')
+    'file': relation(File, backref='owners'),
     'user': relation(User)
 })
 mapper(Song, songs_table)
@@ -124,21 +116,14 @@ mapper(Album, albums_table, properties={
     'album':albums_table.c.title,
     'albumlength': column_property(
         select([func.sum(songs_table.c.length).label('albumlength')],
-            songs_table.c.albumid == albums_table.c.id, correlate=False
-        ).as_scalar().label('albumlength')
+            songs_table.c.albumid == albums_table.c.id,
+            group_by=songs_table.c.albumid
+        ).correlate(albums_table).label('albumlength')
     )
 })
 mapper(Artist, artists, properties={
     'songs':relation(Song)
 })
 mapper(Playlist, playlistsongs_table, properties={
-    'songs':relation(Song),
-})
-mapper(TagData, tagdata, properties={
-    'id': songs_table.c.id,
-    'fileid': files_table.c.id,
-    'songid': songs_table.c.id,
-    'album': albums_table.c.title,
-    'albumid': albums_table.c.id,
-    'owners': relation(Owner)
+    'songs':relation(Song)
 })

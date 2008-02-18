@@ -1,4 +1,6 @@
+from __future__ import with_statement
 import logging
+import threading
 from baseaction import BaseAction
 from musicbrainz2.webservice import Query, TrackFilter, WebServiceError, ReleaseIncludes
 
@@ -7,9 +9,13 @@ log = logging.getLogger(__name__)
 class BrainzTagger(BaseAction):
     def __init__(self):
         super(BrainzTagger, self).__init__()
+        self.artistcache = dict()
+        self.albumcache = dict()
+        self.cachelock = threading.Lock()
 
     def process(self, file):
         mbquery = Query()
+
         # The implementation of the MB Library sucks, so I can't access
         # the filter in a normal way after I construct it. So I have to
         # construct it very carefully. Dynamic my ass. These are exactly
@@ -41,7 +47,13 @@ class BrainzTagger(BaseAction):
             log.info('Analysis needs to be done on %s',file['fname'])
             return file
 
-        result = mbquery.getTracks(filter)
+        try:
+            result = mbquery.getTracks(filter)
+        except WebServiceError, e:
+            log.warn("Could not contact musicbrainz, bailing on %s", 
+                file['title'])
+            return False
+
         if len(result)== 0:
             #Uh oh, nothing found. TODO:What now??
             log.info('Brainz match not found for %s',file['fname'])
@@ -51,12 +63,23 @@ class BrainzTagger(BaseAction):
             log.info('Brainz match not adequate for %s',file['fname'])
             return file
 
-        # Get info on the album (TODO:Cache some albums)
-        include = ReleaseIncludes(releaseEvents=True, tracks=True)
-        album = mbquery.getReleaseById(result.track.releases[0].id, include=include)
+        # Get info on the album, cache it for future songs
+        mbalbumid = result.track.releases[0].id
+        if self.albumcache.has_key(mbalbumid):
+            album = self.albumcache[mbalbumid]
+        else:
+            with self.cachelock:
+                include = ReleaseIncludes(releaseEvents=True, tracks=True)
+                album = mbquery.getReleaseById(mbalbumid, include=include)
+                self.albumcache[mbalbumid]= album
 
-        # Get info on the artist (TODO: Cache some artists)
-        artist = mbquery.getArtistById(result.track.artist.id)
+        # Get info on the artist, cache it for future songs
+        mbartistid = result.track.artist.id
+        if self.artistcache.has_key(mbartistid):
+            artist = self.artistcache[mbartistid]
+        else:
+            with self.cachelock:
+                artist = mbquery.getArtistById(mbartistid)
 
         # Fill out the tags. Oh yeah.
         file['title'] = result.track.title
@@ -72,6 +95,6 @@ class BrainzTagger(BaseAction):
         file['mbartistid'] = result.track.artist.id
         file['asin'] = album.asin #probably a good thing to have ;)
 
-        log.debug('%s successfully tagged by MusicBrainz: %s', file['title'], file)
+        log.debug('%s successfully tagged by MusicBrainz', file['title'])
 
         return file

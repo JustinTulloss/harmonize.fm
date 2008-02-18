@@ -3,9 +3,7 @@ import logging
 import S3
 from masterapp.lib.base import *
 from masterapp.model import \
-    Song, Album, Artist, Owner, File, Session, TagData
-from masterapp.model import \
-    songs_table, albums_table, files_table, owners_table
+    Song, Album, Artist, Owner, File, Session, User
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql, or_
 from facebook import FacebookError
@@ -66,7 +64,8 @@ class PlayerController(BaseController):
         for file in song.files:
             if file.inuse == False:
                 qsgen = S3.QueryStringAuthGenerator(
-                    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+                    AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+                )
                 if song.length>0:
                     qsgen.set_expires_in(song.length*3)
                 else:
@@ -108,17 +107,17 @@ class PlayerController(BaseController):
         """
         This function creates a giant SQL OR statement that restricts
         the files you can select from to files owned by any of your friends.
-        It assumes you are joined to the Owners table.
+        It assumes you are joined to the Users table.
         """
         fbclause = sql.expression.or_()
         for friend in session['fbfriends']:
-            fbclause.append(Owner.fbid==friend)
+            fbclause.append(User.fbid==friend)
         qry = qry.filter(fbclause)
         return qry
 
     def _get_songs(self):
         qry = Session.query(Song).join('album').\
-            reset_joinpoint().join(['files', 'owners']).add_entity(Album)
+            reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
         qry = self._filter_friends(qry)
 
         if not request.params.get('artist') == None:
@@ -126,27 +125,30 @@ class PlayerController(BaseController):
         if not request.params.get('album') == None:
             qry = qry.filter(Album.albumid== request.params.get('album'))
         if not request.params.get('friend') == None:
-            qry = qry.filter(Owner.fbid == request.params.get('friend'))
+            qry = qry.filter(User.id == request.params.get('friend'))
 
+        qry = qry.order_by([Album.artistsort, Album.album, Song.tracknumber])
         results = qry.all()
         return self._build_json(results)
 
     def _get_albums(self):
-        qry = Session.query(Album).join(['songs', 'files', 'owners'])
+        qry = Session.query(Album).join(['songs', 'files', 'owners', 'user'])
         qry = self._filter_friends(qry)
 
         if not request.params.get('artist') == None:
             qry = qry.filter(Album.artist == request.params.get('artist'))
         if not request.params.get('friend') == None:
-            qry = qry.filter(Owner.fbid == request.params.get('friend'))
+            qry = qry.filter(User.id == request.params.get('friend'))
+        qry = qry.order_by([Album.artistsort, Album.album])
         results = qry.all()
         return self._build_json(results)
         
     def _get_artists(self):
-        qry = Session.query(Artist).join(['songs','files','owners'])
+        qry = Session.query(Artist).join(['songs','files','owners', 'user'])
         qry = self._filter_friends(qry)
         if not request.params.get('friend') == None:
-            qry = qry.filter(Owner.fbid == request.params.get('friend'))
+            qry = qry.filter(User.id == request.params.get('friend'))
+        qry = qry.order_by(Artist.artistsort)
         results = qry.all()
         return self._build_json(results)
         

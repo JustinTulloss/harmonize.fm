@@ -23,7 +23,9 @@ class BaseAction(object):
                 nextfile = self.process(nf)
             except Exception, e:
                 log.exception(e)
-                return #TODO:drop this file, need to report back at some point
+                #TODO:drop this file, need to report back at some point
+                nextfile=False
+
             if nextfile != False:
                 if self.nextqueue != None:
                     self.nextqueue.put(nextfile)
