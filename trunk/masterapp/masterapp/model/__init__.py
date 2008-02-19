@@ -132,6 +132,7 @@ mapper(Artist, artists, properties={
 mapper(PlaylistSong, playlistsongs_table, inherits=Song)
 
 mapper(Playlist, playlists_table, properties={
+    'playlistid': playlists_table.c.id,
     'owner':relation(User),
-    'songs':relation(PlaylistSong)
+    'songs':relation(PlaylistSong, backref='playlist')
 })

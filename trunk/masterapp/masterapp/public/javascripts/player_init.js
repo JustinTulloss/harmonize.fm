@@ -26,7 +26,7 @@ var settingspanel = null;
 var typeinfo= {
     artist:{next:'album'}, 
     album:{next:'song', qry:'albumid'}, 
-    playlist:{next:'song', qry:'playlistid'},
+    playlist:{next:'playlistsong', qry:'playlistid'},
     friend:{next:'artist', qry:'fbid'}
 };
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 

@@ -3,7 +3,7 @@ import logging
 import S3
 from masterapp.lib.base import *
 from masterapp.model import \
-    Song, Album, Artist, Owner, File, Session, User, Playlist
+    Song, Album, Artist, Owner, File, Session, User, Playlist, PlaylistSong
 from masterapp.lib.profile import Profile
 from sqlalchemy import sql, or_
 from facebook import FacebookError
@@ -26,9 +26,9 @@ class PlayerController(BaseController):
             'album': self._get_albums,
             'song':self._get_songs,
             'playlist': self._get_playlists,
+            'playlistsong': self._get_playlistsongs,
             'friend': self._get_friends
         }
-
 
     def __before__(self):
         action = request.environ['pylons.routes_dict']['action']
@@ -128,6 +128,8 @@ class PlayerController(BaseController):
             qry = qry.filter(Album.albumid== request.params.get('album'))
         if not request.params.get('friend') == None:
             qry = qry.filter(User.id == request.params.get('friend'))
+        if not request.params.get('playlist') == None:
+            qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
         qry = qry.order_by([Album.artistsort, Album.album, Song.tracknumber])
         results = qry.all()
@@ -167,6 +169,14 @@ class PlayerController(BaseController):
         qry = Session.query(Playlist).join('owner')
         qry = qry.filter(User.id == session['user'].id)
         qry = qry.order_by(Playlist.name)
+        results = qry.all()
+        return self._build_json(results)
+
+    def _get_playlistsongs(self):
+        qry = Session.query(PlaylistSong).join('playlist').reset_joinpoint(). \
+            join('album').reset_joinpoint().join(['files', 'owners', 'user'])
+        qry = self._filter_friends(qry)
+        qry = qry.filter(Playlist.playlistid == request.params.get('playlist'))
         results = qry.all()
         return self._build_json(results)
 	

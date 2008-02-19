@@ -176,7 +176,7 @@ function Browser(fields)
                 header: 'Length',
                 dataIndex: 'totallength'
             }
-        ]) 
+        ]),
     };
 
     //seems like there should be a way to set this above....
@@ -186,6 +186,7 @@ function Browser(fields)
     cm.friend.defaultSortable = true;
     cm.playlist.defaultSortable = true;
 
+    cm.playlistsong = cm.song;
     // create the editor grid
     this.grid = new Ext.grid.GridPanel({
         ds: this.ds,
