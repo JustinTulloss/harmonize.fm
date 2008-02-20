@@ -78,7 +78,8 @@ Classes that represent above tables. You can add abstractions here
 """
 
 class User(object):
-    pass
+    def __init__(self, fbid):
+        self.fbid = fbid
 
 class Owner(object):
     pass

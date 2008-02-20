@@ -19,8 +19,9 @@ from paste.deploy import loadapp
 from routes import url_for
 
 from sqlalchemy import engine_from_config
+from masterapp import model
 
-__all__ = ['url_for', 'TestController']
+__all__ = ['url_for', 'TestController', 'TestModel', 'model']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
@@ -38,8 +39,17 @@ class TestModel(TestCase):
     def setUp(self):
         model.Session.remove()
         model.metadata.create_all(model.Session.bind)
+        self.populate_model()
 
-class TestController(TestCase):
+    def tearDown(self):
+        model.metadata.drop_all(model.Session.bind)
+
+    def populate_model(self):
+        user = model.User(1909354)
+        model.Session.save(user)
+        model.Session.commit()
+
+class TestController(TestModel):
 
     def __init__(self, *args, **kwargs):
         wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)

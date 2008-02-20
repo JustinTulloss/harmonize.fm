@@ -34,6 +34,20 @@ class PlayerController(BaseController):
     def __before__(self):
         action = request.environ['pylons.routes_dict']['action']
         c.facebook = facebook
+
+        if 'paste.testing_variables' in request.environ:
+            #We're testing. Setup a permanent facebook session
+            facebook.session_key = '08bd66d3ebc459d32391d0d2-1909354'
+            facebook.uid = 1909354
+            session['fbsession']= facebook.session_key
+            session['fbuid']= facebook.uid
+            session['user'] = Session.query(User).filter(
+                User.fbid==facebook.uid).first()
+            session['fbfriends']=facebook.friends.getAppUsers()
+            session['fbfriends'].append(facebook.uid)
+            session.save()
+            return
+
         if not session.has_key('fbsession'):
             if facebook.check_session(request):
                 session['fbsession']=facebook.session_key
@@ -90,7 +104,7 @@ class PlayerController(BaseController):
     @jsonify    
     def get_data(self):
         type = request.params.get('type')
-        handler=self.datahandlers[type]
+        handler=self.datahandlers.get(type, self._json_failure)
         return handler()
 
     # TODO: I don't want to think about it now, but these two functions would
@@ -100,6 +114,9 @@ class PlayerController(BaseController):
         for field in sqlrow.c.keys():
             expanded[field] = getattr(sqlrow, field)
         return expanded
+
+    def _json_failure(self):
+        return {'success':False, 'data':[]}
 
     def _build_json(self, results):
         dtype = request.params.get('type')
@@ -113,6 +130,8 @@ class PlayerController(BaseController):
             else:
                 json['data'].append(self._expand_row(row))
             json['data'][len(json['data'])-1]['type']=dtype
+
+        json['success']=True
         return json
 
     def _filter_friends(self, qry):
@@ -173,7 +192,7 @@ class PlayerController(BaseController):
         for row in data:
             row['fbid']=row['uid']
             row['type']=dtype
-        return dict(data=data)
+        return dict(success=True, data=data)
 
     def _get_playlists(self):
         qry = Session.query(Playlist).join('owner')
