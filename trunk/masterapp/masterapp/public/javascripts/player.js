@@ -30,23 +30,16 @@ function Player(domObj)
     this.so.addVariable('usecaptions','false');
     this.so.addVariable('usefullscreen','false');
     this.so.write(div);
-    
-    //Public functions
-    this.sendEvent = sendEvent;
-    this.getUpdate = getUpdate;
-    this.loadFile = loadFile;
-    this.addItem = addItem;
-    this.removeItem = removeItem;
-    this.seek = seek;
 
     // these functions are caught by the JavascriptView object of the player.
+    this.sendEvent = sendEvent;
     function sendEvent(typ,prm) 
     {
-        var dm = Ext.getDom('rubiconfl');
-        dm.sendEvent(typ,prm);
+        Ext.getDom('rubiconfl').sendEvent(typ,prm);
     }
 
     //TODO: Make this function less ugly than sin, use a real event model
+    this.getUpdate = getUpdate;
     function getUpdate(typ,pr1,pr2,pid) {
         if(typ == "time") { currentPosition = pr1; }
         else if(typ == "volume") { currentVolume = pr1; }
@@ -77,22 +70,50 @@ function Player(domObj)
     // These functions are caught by the feeder object of the player.
     function loadFile(obj) 
     { 
-        Ext.getDom('rubiconfl').loadFile(obj); 
     }
 
+    this.addItem = addItem;
     function addItem(obj,idx) 
     { 
         Ext.getDom('rubiconfl').addItem(obj,idx); 
     }
 
+    this.removeItem = removeItem;
     function removeItem(idx) 
     { 
         Ext.getDom('rubiconfl').removeItem(idx); 
     }
 
+    this.seek = seek;
     function seek(percent)
     {
         sendEvent('scrub', totalTime*percent);
+    }
+
+    this.playsong = playsong;
+    function playsong(song)
+    {
+        Ext.Ajax.request({
+            url:'/player/get_song_url/'+song.get('id'),
+            success: loadsongurl,
+            failure: badsongurl
+        });
+    }
+
+    function loadsongurl(response, options)
+    {
+        Ext.getDom('rubiconfl').loadFile({file:response.responseText});
+        sendEvent('playpause');
+    }
+
+    function badsongurl(response, options)
+    {
+        //TODO: Work this into real error handling scheme
+        if (response.status == 404)
+            Ext.Msg.alert("Not Available", 
+                "This song is not available at this time. \
+                Perhaps somebody else is listening to it. \
+                Try again in a few minutes.");
     }
 }
 

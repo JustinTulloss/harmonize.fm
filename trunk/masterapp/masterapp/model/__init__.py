@@ -15,7 +15,6 @@ files_table = Table("files", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("sha", types.String, index=True, unique=True),
     Column("songid", types.Integer, ForeignKey("songs.id"),index=True),
-    Column("inuse", types.Boolean, nullable=False, default=False)
 )
 
 owners_table = Table("owners", metadata,

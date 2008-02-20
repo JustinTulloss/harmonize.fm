@@ -29,6 +29,7 @@ class PlayerController(BaseController):
             'playlistsong': self._get_playlistsongs,
             'friend': self._get_friends
         }
+        self.usedfiles = dict()
 
     def __before__(self):
         action = request.environ['pylons.routes_dict']['action']
@@ -62,9 +63,13 @@ class PlayerController(BaseController):
         who's doing what, and if we can come up with conclusive proof that
         somebody is stealing music through our logs, we can ban them.
         """
+        if session.get('playing') != None:
+            # TODO: Make this structure threadsafe
+            self.usedfiles.pop(session['playing'])
+
         song = Session.query(Song).filter(Song.id==id).first()
         for file in song.files:
-            if file.inuse == False:
+            if not self.usedfiles.has_key(file.id):
                 qsgen = S3.QueryStringAuthGenerator(
                     AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
                 )
@@ -72,10 +77,15 @@ class PlayerController(BaseController):
                     qsgen.set_expires_in(song.length*3)
                 else:
                     qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
-
+                
+                #Mark the file as in use
+                self.usedfiles[file.id] = file.owners
+                session['playing'] = file.id
+                session.save()
                 return qsgen.get('music.rubiconmusicplayer.com', file.sha)
         #if we get here, all files are in use! Damn it!
-        return False
+        session['playing'] = None
+        abort(404)
 
     @jsonify    
     def get_data(self):

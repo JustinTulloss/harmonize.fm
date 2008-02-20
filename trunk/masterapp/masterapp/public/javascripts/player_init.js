@@ -27,6 +27,8 @@ var typeinfo= {
     artist:{next:'album'}, 
     album:{next:'song', qry:'albumid'}, 
     playlist:{next:'playlistsong', qry:'playlistid'},
+    song:{next:'play'},
+    playlistsong:{next:'play'},
     friend:{next:'artist', qry:'fbid'}
 };
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
@@ -80,7 +82,7 @@ function init()
     browser.ds.on("load", mousemgr.processImages, mousemgr);
     Ext.get("nextbutton").on("click", playqueue.nextsong,playqueue);
     Ext.get("prevbutton").on("click", playqueue.backsong, playqueue);
-    playqueue.on("playsong", playnewsong);
+    //playqueue.on("playsong", playnewsong);
     //Ext.get("prevbutton").on("mouseover", playqueue.showlast5);
 }
 
@@ -91,46 +93,19 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
-function playnewsong(song)
-{
-    flplayer.loadFile({file:'music/'+song.get('filename')});
-    flplayer.sendEvent('playpause');
-}
-
-function playsong(song)
-{
-    Ext.Ajax.request({
-        url:'/player/get_song_url/'+song.get('id'),
-        success: loadsongurl,
-        failure: badsongurl
-    });
-}
-
-function loadsongurl(response, options)
-{
-    flplayer.loadFile({file:response.responseText});
-    flplayer.sendEvent('playpause');
-}
-
-function badsongurl(response, options)
-{
-    //TODO: Work this into real error handling scheme
-    alert("Bad response: "+response);
-}
-
 function descend(grid, rowIndex, e)
 {
     var record = grid.getStore().getAt(rowIndex);
     var type = record.get("type");
     var value = record.get(type);
+    var nexttype = typeinfo[type]['next'];
 
-    if (type == "song") {
+    if (nexttype = 'play') {
         //tell player to play this song
-        playsong(record);
+        flplayer.playsong(record);
         return;
     }
 
-    var nexttype = typeinfo[type]['next'];
     var newbc =  new BcEntry(nexttype);
     if (typeinfo[nexttype] != null) {
         if (typeinfo[nexttype]['qry'] != null) {
