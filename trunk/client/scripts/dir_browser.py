@@ -5,12 +5,13 @@ def update_actions(actions):
 	actions['get_dir_listing'] = get_dir_listing
 
 def contains_dir(dir_path):
-    if not os.access(dir_path, os.R_OK):
-        return False
-    for file in os.listdir(dir_path):
-        if path.isdir(path.join(dir_path, file)):
-            return True
-    return False
+	try:
+		for file in os.listdir(dir_path):
+			if path.isdir(path.join(dir_path, file)):
+				return True
+		return False
+	except IOError:
+		return False #any directory that gives errors is not a directory I want
 
 def get_dir_listing(c):
 	request_dir = c.post_query['node'][0]
@@ -18,7 +19,9 @@ def get_dir_listing(c):
 	return simplejson.dumps(node_list)
 
 def get_dir_listing_aux(request_dir):
-	new_dirs = [dir for dir in os.listdir(request_dir) if path.isdir(path.join(request_dir, dir))]
+	new_dirs = [dir for dir in os.listdir(request_dir) if \
+				path.isdir(path.join(request_dir, dir)) and dir[0] != '.' \
+				and os.access(path.join(request_dir, dir), os.R_OK)]
 
 	node_list = []
 	for dir in new_dirs:

@@ -7,6 +7,7 @@ from thread import start_new_thread
 def update_actions(actions):
 	actions['uploads_remaining'] = uploads_remaining
 	actions['begin_upload'] = begin_upload
+	actions['upload_itunes'] = upload_itunes
 
 def get_default_path():
 	paths = {'posix':os.getenv('HOME'),
@@ -44,6 +45,7 @@ def upload_file(file, session_key):
 	if connection.getresponse().read() == '0':
 		connection.request('POST', url, file_contents, 
 			{'Content-Type':'audio/x-mpeg-3'})
+
 def upload_files(song_list, session_key):
 	global songs_left
 	for song in song_list:
@@ -81,7 +83,17 @@ def create_song_list(file_path, session_key):
 	#song_list = get_music_files(UPLOAD_PATH)
 	song_list = get_music_files(file_path)
 	songs_left = len(song_list)
-	start_new_thread(upload_files, (song_list, session_key))
+	upload_files(song_list, session_key)
+	#start_new_thread(upload_files, (song_list, session_key))
+
+def upload_itunes_library(itunes, session_key):
+	global songs_left
+	file_path = itunes.get_library_file()
+	if file_path:
+		library = itunes.ITunes(file_path)
+		song_list = library.get_all_track_filenames()
+		songs_left = len(song_list)
+		upload_files(song_list, session_key)
 
 def begin_upload(c):
 	if not hasattr(c, 'session_key'):
@@ -99,3 +111,6 @@ def uploads_remaining(c):
 		return str(songs_left)
 	else: return 'Error: uploading has not begun'
 
+def upload_itunes(c):
+	start_new_thread(upload_itunes_library, (c.itunes, c.session_key))
+	return "Finding music..."

@@ -4,6 +4,14 @@
 <!--link rel="stylesheet" type="text/css" href="stylesheets/ext-ux-slidezone.css"/-->
 </head>
 <body onload="add_dir_browser();">
+	% if c.itunes.get_library_file() != None:
+		<form action="upload_itunes">
+			<span>Upload iTunes music library</span>
+			<input type="submit" value="Upload iTunes" method="GET" />
+		</form>
+	% else:
+		<p>Arrrrrggggg</p>
+	% endif
 	<form action="upload_all.html">
 		<span>Upload all music found</span>
 		<input type="submit" value="Upload all" method="GET" />
