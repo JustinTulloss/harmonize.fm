@@ -82,25 +82,61 @@ class User(object):
         self.fbid = fbid
 
 class Owner(object):
-    pass
+    def __init__(self, uid, fid):
+        self.uid = uid
+        self.fileid = fid
 
 class File(object):
-    pass
+    def __init__(self, sha, songid):
+        self.sha = sha
+        self.songid = songid
 
 class Song(object): 
-    pass
+    def __init__(self, title, albumid, mbid='', length=0, tracknum=None):
+        self.title = title
+        self.albumid = albumid
+        self.mbid = mbid
+        self.length = length
+        self.tracknum =tracknum
     
 class Album(object):
-    pass
+    def __init__(self, title, mbid=None, artist=None, artistsort=None,
+        mbartistid=None, asin=None, year=None, totaltracks=0):
+        self.title = title
+        self.artist = None
+        if artistsort != None:
+            self.artistsort = artistsort
+        else:
+            self.artistsort = artist
+        self.mbartistid = mbartistid
+        self.asin = asin
+        self.year = year
+        self.totaltracks = totaltracks
 
 class Artist(object):
     pass
 
 class Playlist(object):
-    pass
-        
+    def __init__(self, name, ownerid, *songs):
+        """
+        Constructs a new playlist.
+
+        *songs should really be a list of PlaylistSong
+        """
+        self.name = name
+        self.ownerid = ownerid
+        Session.save(self)
+        Session.commit()
+
+        for song in songs:
+            song.playlistid = self.id
+            self.songs.append(song)
+
 class PlaylistSong(Song):
-    pass
+    def __init__(self, playlistid, songindex, songid):
+        self.playlistid = playlistid
+        self.songindex = songindex
+        self.songid = songid
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries

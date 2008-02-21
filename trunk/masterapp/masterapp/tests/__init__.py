@@ -35,6 +35,11 @@ test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
+"""
+Fake Data. Sorry, I really don't care to put this elsewhere
+"""
+mockfbids = {'brian':1908861,'justin':1909354, 'alex':1906752, 'beth':1906978}
+
 class TestModel(TestCase):
     def setUp(self):
         model.Session.remove()
@@ -45,9 +50,12 @@ class TestModel(TestCase):
         model.metadata.drop_all(model.Session.bind)
 
     def populate_model(self):
-        user = model.User(1909354)
-        model.Session.save(user)
+        for fbid in mockfbids.itervalues():
+            user = model.User(fbid)
+            model.Session.save(user)
+
         model.Session.commit()
+
 
 class TestController(TestModel):
 
