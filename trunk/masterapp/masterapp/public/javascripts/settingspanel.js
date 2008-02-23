@@ -1,38 +1,39 @@
-/* A series of helper functions to display/edit the 
- * list of friends whose music you see
- * 1/26/08 ASM/JMT 
- */
-
-function SettingsPanel(){
-    var friendsForm;
+/*  New settingspanel.js making the friends
+ *  panel a grid instead of a form
+ *  2/18/08 by A-Mo */
+ 
+ 
+ function SettingsPanel(){
     var win;
-    var checkboxes;
+    var friendGrid;    
     var friendStore;
-    this.checkboxes = checkboxes;
-    this.friendStore = friendStore;
-    
-    this.makeBoxes = makeBoxes;
-    function makeBoxes(record){
-        this.checkboxes[this.friendStore.indexOf(record)] = new Ext.form.Checkbox({
-            boxLabel:record.get('name'),
-            name:record.get('uid'),
-            checked:record.get('checked')
+    this.win=win;
+
+    this.MakeGrid=MakeGrid;
+    function MakeGrid(){    
+        var sm = new Ext.grid.CheckboxSelectionModel();
+        this.friendGrid = new Ext.grid.GridPanel({
+            store:this.friendStore,
+            cm: new Ext.grid.ColumnModel([
+                sm,
+               {header: "name", dataIndex: "name"}]),
+            width:500,
+            height:300,
+            sm:new Ext.grid.CheckboxSelectionModel(),
+            iconCls:'icon-grid',
+            frame:true
         });
     };
     
-    this.populateForm = populateForm;
-    function populateForm(r, options, success){
-        this.checkboxes = [r.length];
-        this.friendStore.each(this.makeBoxes, this);
-        friendsForm = new Ext.form.FormPanel({
-            items:this.checkboxes
-        });
+    this.PopulateGrid=PopulateGrid;
+    function PopulateGrid(){
+        this.MakeGrid();
         win = new Ext.Window({
             width:500,
             height:300,
             closeAction:'hide',
             autoScroll:true,
-            items:friendsForm,
+            items:this.friendGrid,
             layout:'fit',
             buttons: [{
                 text:'Save',
@@ -48,33 +49,32 @@ function SettingsPanel(){
         win.show();
     };
     
-    this.showSettings = showSettings;
-    function showSettings(){
-        this.friendStore = new Ext.data.JsonStore({
+    this.ShowSettings=ShowSettings;
+    function ShowSettings(){
+        var friend = Ext.data.Record.create([
+            {name:"name"},
+            {name:"uid"},
+            {name:"checked"}
+        ]);
+        var reader = new Ext.data.JsonReader({
+            root:"data",
+            id:"uid"
+        }, friend);
+        
+        this.friendStore = new Ext.data.Store({
             url:'player/get_checked_friends',
+            reader:reader,
             root:'data',
             fields:['name', 'uid', 'checked']
         });
         //TODO:  status updater (ext.msg.wait?)
         this.friendStore.load({
             scope:this,
-            callback: this.populateForm,
+            callback:this.PopulateGrid,
             add:false
         });
-        this.friendStore.on('loadexception', this.blowsUp, this);
-   };
-    
-    this.blowsUp = blowsUp
-    function blowsUp(proxy, o, arg, e){
-        alert(e.message);
-    }
-    this.onSuccess = onSuccess;
-    function onSuccess(form, action){
-        alert('blao');
     };
-    this.onFailure = onFailure;
-    function onFailure(form, action){
-        alert('failure');
-    }
-
+    
+    
+    
 };

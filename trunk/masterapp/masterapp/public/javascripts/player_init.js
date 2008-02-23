@@ -206,7 +206,7 @@ function init_top_menu()
     songsbtn.on('click', function() {go('song')});
     friendsbtn.on('click', function() {go('friend')});
     playlistsbtn.on('click', function() {go('playlist')});
-    settingsbtn.on('click', settingspanel.showSettings, settingspanel);
+    settingsbtn.on('click', settingspanel.ShowSettings, settingspanel);
 
 
     topmenu.add(homebtn,artistbtn,albumbtn,songsbtn,friendsbtn,playlistsbtn,settingsbtn);
