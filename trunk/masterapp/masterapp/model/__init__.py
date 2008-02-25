@@ -38,21 +38,21 @@ songstats_table = Table("songstats", metadata,
 
 songs_table = Table("songs", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("mbid", types.String, index=True, unique=True),
-    Column("title", types.String, index=True),
-    Column("length", types.Integer, nullable=False),
+    Column("mbid", types.Unicode, index=True, unique=True),
+    Column("title", types.Unicode, index=True),
+    Column("length", types.Integer),
     Column("albumid", types.Integer, ForeignKey("albums.id"), index=True),
     Column("tracknumber", types.Integer)
 )
 
 albums_table = Table("albums", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("mbid", types.String, index=True, unique=True),
-    Column("artist", types.String, nullable=False,index=True),
-    Column("artistsort", types.String),
-    Column("mbartistid", types.String),
-    Column("asin", types.String, unique=True),
-    Column("title", types.String, index=True),
+    Column("mbid", types.Unicode, index=True, unique=True),
+    Column("artist", types.Unicode, index=True),
+    Column("artistsort", types.Unicode),
+    Column("mbartistid", types.Unicode),
+    Column("asin", types.Unicode, unique=True),
+    Column("title", types.Unicode, index=True),
     Column("year", types.Integer, index=True),
     Column("totaltracks", types.Integer)
 )
@@ -60,7 +60,7 @@ albums_table = Table("albums", metadata,
 playlists_table = Table("playlists", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("ownerid", types.Integer, ForeignKey("users.id"), index=True),
-    Column("name", types.String)
+    Column("name", types.Unicode)
 )
 
 playlistsongs_table= Table("playlistsongs", metadata,
@@ -78,29 +78,29 @@ Classes that represent above tables. You can add abstractions here
 """
 
 class User(object):
-    def __init__(self, fbid):
+    def __init__(self, fbid=None):
         self.fbid = fbid
 
 class Owner(object):
-    def __init__(self, uid, fid):
+    def __init__(self, uid=None, fid=None):
         self.uid = uid
         self.fileid = fid
 
 class File(object):
-    def __init__(self, sha, songid):
+    def __init__(self, sha=None, songid=None):
         self.sha = sha
         self.songid = songid
 
 class Song(object): 
-    def __init__(self, title, albumid, mbid='', length=0, tracknum=None):
+    def __init__(self, title=None, albumid=None, mbid=None, length=0, tracknumber=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
         self.length = length
-        self.tracknum =tracknum
+        self.tracknumber =tracknumber
     
 class Album(object):
-    def __init__(self, title, mbid=None, artist=None, artistsort=None,
+    def __init__(self, title=None, mbid=None, artist=None, artistsort=None,
         mbartistid=None, asin=None, year=None, totaltracks=0):
         self.title = title
         self.artist = None

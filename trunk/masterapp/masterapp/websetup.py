@@ -15,6 +15,11 @@ def setup_config(command, filename, section, vars):
 
     from masterapp import model
 
-    print "Creating tables"
+    log.info("Creating tables")
     model.metadata.create_all(bind=config['pylons.g'].sa_engine)
-    print "Successfully setup"
+    if config['populate_model'] == 'true':
+        log.info("Populating data")
+        import masterapp.lib.populate_model as populate_model
+        populate_model.populate()
+
+    log.info("Successfully setup")

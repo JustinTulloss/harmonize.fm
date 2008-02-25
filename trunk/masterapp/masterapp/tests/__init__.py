@@ -10,6 +10,7 @@ setup-app) with the project's test.ini configuration file.
 """
 import os
 import sys
+import hashlib
 from unittest import TestCase
 
 import pkg_resources
@@ -20,6 +21,7 @@ from routes import url_for
 
 from sqlalchemy import engine_from_config
 from masterapp import model
+from masterapp.lib import populate_model
 
 __all__ = ['url_for', 'TestController', 'TestModel', 'model']
 
@@ -35,26 +37,16 @@ test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
-"""
-Fake Data. Sorry, I really don't care to put this elsewhere
-"""
-mockfbids = {'brian':1908861,'justin':1909354, 'alex':1906752, 'beth':1906978}
 
 class TestModel(TestCase):
     def setUp(self):
         model.Session.remove()
         model.metadata.create_all(model.Session.bind)
-        self.populate_model()
+        populate_model.populate()
 
     def tearDown(self):
         model.metadata.drop_all(model.Session.bind)
 
-    def populate_model(self):
-        for fbid in mockfbids.itervalues():
-            user = model.User(fbid)
-            model.Session.save(user)
-
-        model.Session.commit()
 
 
 class TestController(TestModel):

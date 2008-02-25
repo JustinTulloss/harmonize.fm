@@ -39,7 +39,8 @@ def load_environment(global_conf, app_conf):
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)
-    config['pylons.g'].sa_engine = engine_from_config(config, 'sqlalchemy.default.')
+    config['pylons.g'].sa_engine = \
+        engine_from_config(config, 'sqlalchemy.default.')
 
     #Starting extra processing threads here
     from fileprocess.fileprocess import FileUploadThread

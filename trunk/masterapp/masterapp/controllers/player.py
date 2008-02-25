@@ -77,6 +77,7 @@ class PlayerController(BaseController):
         who's doing what, and if we can come up with conclusive proof that
         somebody is stealing music through our logs, we can ban them.
         """
+        #FIXME: This is completely wrong. There might be more than 1 owner per file
         if session.get('playing') != None:
             # TODO: Make this structure threadsafe
             self.usedfiles.pop(session['playing'])
@@ -206,6 +207,8 @@ class PlayerController(BaseController):
             join('album').reset_joinpoint().join(['files', 'owners', 'user'])
         qry = self._filter_friends(qry)
         qry = qry.filter(Playlist.playlistid == request.params.get('playlist'))
+
+        qry = qry.order_by(PlaylistSong.songindex)
         results = qry.all()
         return self._build_json(results)
 	
