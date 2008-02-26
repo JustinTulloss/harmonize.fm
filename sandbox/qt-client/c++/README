@@ -1,0 +1,3 @@
+To compile on linux:
+
+qmake -project -o demo.pro && qmake && make
