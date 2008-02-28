@@ -100,7 +100,7 @@ function descend(grid, rowIndex, e)
     var value = record.get(type);
     var nexttype = typeinfo[type]['next'];
 
-    if (nexttype = 'play') {
+    if (nexttype == 'play') {
         //tell player to play this song
         flplayer.playsong(record);
         return;

@@ -11,4 +11,7 @@ class Globals(object):
         initialization and is available during requests via the 'g'
         variable
         """
-        pass
+        # This is a dictionary of all the file ids currently being played
+        # in the system right now. It's keyed by the file.id and the owners
+        # collection is the value
+        self.usedfiles = dict()
