@@ -37,7 +37,6 @@ def populate():
 
         # Setup song
         song = model.Song()
-        #_assign_anything(track, song)
         song.title = track.get('title')
         song.tracknumber = track.get('tracknumber')
         song.length = track.get('length')

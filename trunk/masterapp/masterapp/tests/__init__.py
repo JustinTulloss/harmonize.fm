@@ -20,6 +20,7 @@ from paste.deploy import loadapp
 from routes import url_for
 
 from sqlalchemy import engine_from_config
+from sqlalchemy import engine
 from masterapp import model
 from masterapp.lib import populate_model
 
@@ -36,7 +37,6 @@ pkg_resources.require('PasteScript')
 test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
-
 
 class TestModel(TestCase):
     def setUp(self):

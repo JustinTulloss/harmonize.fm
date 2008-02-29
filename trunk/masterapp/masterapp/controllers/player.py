@@ -77,7 +77,7 @@ class PlayerController(BaseController):
             g.usedfiles.pop(session['playing'])
 
         files= Session.query(File).\
-            join(['owners', 'user']).filter(File.songid==id)
+            join(['owners', 'user']).filter(File.songid==int(id))
         files = self._filter_friends(files)
         files = files.all()
         # TODO: Think of a more efficient way of doing this. Perhaps the inuse
@@ -97,7 +97,7 @@ class PlayerController(BaseController):
                     return qsgen.get(config['S3_music_bucket'], file.sha)
         #if we get here, all files are in use! Damn it!
         session['playing'] = None
-        abort(404)
+        return 'false'
 
     @jsonify    
     def get_data(self):
