@@ -1,5 +1,7 @@
 # vim:expandtab:smarttab
 import logging
+import time
+
 import S3
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends
@@ -31,7 +33,8 @@ class PlayerController(BaseController):
         somebody is stealing music through our logs, we can ban them.
         """
         if session.get('playing') != None:
-            g.usedfiles.pop(session['playing'])
+            if g.usedfiles.has_key(session['playing']):
+                g.usedfiles.pop(session['playing'])
 
         files= Session.query(File).\
             join(['owners', 'user']).filter(File.songid==int(id))
@@ -47,13 +50,15 @@ class PlayerController(BaseController):
                     )
                     qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
                     
-                    #Mark the file as in use
-                    g.usedfiles[(file.id, owner.id)] = file.owners
+                    #Mark the file as in use, with the time it can come back
+                    g.usedfiles[(file.id, owner.id)] = \
+                        time.time()+DEFAULT_EXPIRATION*60
                     session['playing'] = (file.id, owner.id)
                     session.save()
                     return qsgen.get(config['S3_music_bucket'], file.sha)
         #if we get here, all files are in use! Damn it!
         session['playing'] = None
+        session.save()
         return 'false'
 
     @jsonify

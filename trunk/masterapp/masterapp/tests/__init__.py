@@ -38,14 +38,17 @@ test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
+#Populate test data here. Remember to undo any changes you make to the data.
+model.metadata.create_all(model.Session.bind)
+populate_model.populate()
+
 class TestModel(TestCase):
     def setUp(self):
         model.Session.remove()
-        model.metadata.create_all(model.Session.bind)
-        populate_model.populate()
 
     def tearDown(self):
-        model.metadata.drop_all(model.Session.bind)
+        #model.metadata.drop_all(model.Session.bind)
+        pass
 
 
 

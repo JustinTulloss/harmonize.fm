@@ -11,50 +11,13 @@ class TestPlayerController(TestController):
         assert response.c.profile != None
         assert 'Rubicon Web Player' in response
 
-    def test_get_data(self):
-        """
-        Testing <root>/player/get_data
-        """
-        """
-        # Test that failure is returned on bad invocation
-        response = self.app.get(url_for(
-            controller='player', 
-            action='get_data'
-        ))
-        assert '"success": false' in response
-        """
-
-        #Test fetching all of each particular type
-        types = [
-            'artist',
-            'album',
-            'song',
-            'friend',
-            'playlist',
-            'playlistsong'
-        ]
-        for type in types:
-            yield self.check_metadata, type
-
-    def check_metadata(self, type):
-        """
-        Testing the different types of data that can be fetched
-        """
-        print "Testing %s" % type
-        response = self.app.get(url_for(
-            controller='player', 
-            action='get_data'
-        ), params={'type': type })
-        assert '"success": true' in response, \
-            "%s did not return success" % type
-        
     def test_get_song_url(self):
         """
-        Testing <root>/get_song_url/<songid>
+        Testing <root>/player/songurl/<songid>
         """
         response = self.app.get(url_for(
             controller='player',
-            action = 'get_song_url',
+            action = 'songurl',
             id = 7
         ))
 
@@ -73,7 +36,7 @@ class TestPlayerController(TestController):
 
         response = self.app.get(url_for(
             controller='player',
-            action = 'get_song_url',
+            action = 'songurl',
             id = 8
         ))
         assert 'false' in response, \
