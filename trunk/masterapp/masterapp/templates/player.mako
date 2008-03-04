@@ -8,44 +8,27 @@
 
     ${h.stylesheet_link_tag('ext-all')}
     ${h.stylesheet_link_tag('ext-ux-slidezone')}
-    ${h.javascript_include_tag('yui/build/yahoo-dom-event/yahoo-dom-event.js')}
-    ${h.javascript_include_tag('yui/build/animation/animation-min.js')}
-    ${h.javascript_include_tag('yui/build/element/element-beta-min.js')}
-    ${h.javascript_include_tag('yui/build/connection/connection-min.js')}
-    ${h.javascript_include_tag('ext-2.0/adapter/ext/ext-base.js')}
-    ${h.javascript_include_tag('ext-2.0/ext-all-debug.js')}
-    ${h.javascript_include_tag('ext-2.0/source/widgets/ux/SlideZone.js')}
-    ${h.javascript_include_tag('yui/build/datasource/datasource-beta-min.js')}
-    ${h.javascript_include_tag('yui/build/dragdrop/dragdrop-min.js')}
-    ${h.javascript_include_tag('yui/build/datatable/datatable-beta-debug.js')}
-    ${h.javascript_include_tag('yui/build/slider/slider-min.js')}
-    ${h.javascript_include_tag('mousemgr.js')}
-    ${h.javascript_include_tag('extbrowser.js')}
-    ${h.javascript_include_tag('bcmgr.js')}
-    ${h.javascript_include_tag('settingspanel.js')}
-    ${h.javascript_include_tag('playqueue.js')}
-    ${h.javascript_include_tag('swfobject.js')}
-    ${h.javascript_include_tag('player.js')}
-    ${h.javascript_include_tag('auth.js')}
-    ${h.javascript_include_tag('player_init.js')}
+    ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
+    ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
+    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
+    ${h.javascript_include_tag('lib/swfobject.js')}
+    ${h.javascript_include_tag('player/metatypeinfo.js')}
+    ${h.javascript_include_tag('player/extbrowser.js')}
+    ${h.javascript_include_tag('player/bcmgr.js')}
+    ${h.javascript_include_tag('player/settingspanel.js')}
+    ${h.javascript_include_tag('player/playqueue.js')}
+    ${h.javascript_include_tag('player/player.js')}
+    ${h.javascript_include_tag('player/auth.js')}
+    ${h.javascript_include_tag('player/player_init.js')}
 
 </%def>
 
 <div id="header">
     <div id="menu">
-        <!--
-        <div id="searchbar" tabindex="-1">Search...</div>
-        <div class="menuitem">${h.link_to_function("Home", "go('home')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Artists", "go('artist')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Albums", "go('album')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Songs", "go('song')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Friends", "go('friend')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Genres", "go('genre')", Class='menuitem')}</div>
-        <div class="menuitem">${h.link_to_function("Settings", "go('home')", Class='menuitem')}</div>-->
     </div>
     <div id="top">
         <div id="now-playing">&nbsp;</div>
-        <div id="breadcrumb">Bread Crumb</div>
+        <div id="breadcrumb"></div>
         <div id="controls">
             <!-- Put the flash player stuff in here!! !-->
             <div id="player">Flash Player</div>
