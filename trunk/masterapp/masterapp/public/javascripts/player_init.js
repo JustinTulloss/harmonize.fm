@@ -119,7 +119,6 @@ function descend(grid, rowIndex, e)
 
     var params = bread_crumb.descend(value, qryvalue, newbc);
     params["type"] = nexttype;
-
     grid.getStore().load({params:params});
     browser.changeColModel(nexttype);
 }

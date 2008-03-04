@@ -94,7 +94,7 @@ function Player(domObj)
     function playsong(song)
     {
         Ext.Ajax.request({
-            url:'/player/get_song_url/'+song.get('id'),
+            url:'/player/songurl/'+song.get('id'),
             success: loadsongurl,
             failure: badsongurl
         });

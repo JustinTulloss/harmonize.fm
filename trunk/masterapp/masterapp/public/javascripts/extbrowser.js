@@ -9,8 +9,9 @@ function Browser(fields)
     
     // create the Data Store
     this.ds = new Ext.data.JsonStore({
-        url:'player/get_data',
+        url:'metadata',
         root: 'data',
+        successProperty: 'success',
         fields:fields
     });
 
