@@ -1,17 +1,17 @@
 <%inherit file="base.mako" />
 
 <%def name="head_tags()">
+    ${h.stylesheet_link_tag('ext-all')}
+    ${h.stylesheet_link_tag('ext-ux-slidezone')}
     <title>Rubicon Web Player</title>
     <style type="text/css">
     <%include file="player_css.mako" /> 
     </style>
 
-    ${h.stylesheet_link_tag('ext-all')}
-    ${h.stylesheet_link_tag('ext-ux-slidezone')}
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
     ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
     ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
-    ${h.javascript_include_tag('lib/swfobject.js')}
+    ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('player/metatypeinfo.js')}
     ${h.javascript_include_tag('player/viewmgr.js')}
     ${h.javascript_include_tag('player/extbrowser.js')}
@@ -31,10 +31,9 @@
         <div id="now-playing">&nbsp;</div>
         <div id="breadcrumb"></div>
         <div id="controls">
-            <!-- Put the flash player stuff in here!! !-->
-            <div id="player">Flash Player</div>
+            <div id="flash"></div>
             <img class="control mo" id="prevbutton" src = "/images/back.png" />
-            <img class="control mo" id="playbutton" src = "/images/play.png" onclick="flplayer.sendEvent('playpause')"/>
+            <img class="control mo" id="playbutton" src = "/images/play.png" onclick="player.sendEvent('playpause')"/>
             <img class="control mo" id="nextbutton" src = "/images/next.png" />
         </div>
         <div id="status">

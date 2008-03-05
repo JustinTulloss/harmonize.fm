@@ -30,7 +30,6 @@ function init()
     browser = new Browser(fields);
     settingspanel = new SettingsPanel();
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
-    init_seekbar();
 
     /* Initialize event handlers*/
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
@@ -51,61 +50,6 @@ function enqueue(recordid)
     record = browser.ds.getById(recordid);
     playqueue.addRecord(record);
     Ext.EventObject.stopPropagation();
-}
-
-function descend(grid, rowIndex, e)
-{
-    var record = grid.getStore().getAt(rowIndex);
-    var type = record.get("type");
-    var value = record.get(type);
-    var nexttype = typeinfo[type]['next'];
-
-    if (nexttype == 'play') {
-        //tell player to play this song
-        player.playsong(record);
-        return;
-    }
-
-    var newbc =  new BcEntry(nexttype);
-    if (typeinfo[nexttype] != null) {
-        if (typeinfo[nexttype]['qry'] != null) {
-            newbc.qrytype = typeinfo[nexttype]['qry'];
-        }
-    }
-
-    qryvalue = value;
-    if (typeinfo[type]['qry'] != null)
-        qryvalue = record.get(typeinfo[type]['qry']);
-
-    var params = bread_crumb.descend(value, qryvalue, newbc);
-    params["type"] = nexttype;
-    grid.getStore().load({params:params});
-    browser.changeColModel(nexttype);
-}
-
-var slider, 
-bg="timeline", thumb="shuttle" 
-
-function init_seekbar()
-{
-    slider = new Ext.ux.SlideZone('timeline', {
-        type: 'horizontal',
-        size:100,
-        sliderWidth: 13,
-        //sliderHeight: 13,
-        maxValue: 100,
-        minValue: 0,
-        sliderSnap: 1,
-        sliders: [{
-            value: 0,
-            name: 'shuttle'
-        }]
-    });
-
-    slider.getSlider('shuttle').on('drag',
-        function() {
-            player.seek(this.value/100)
-        });
 }
 
 Ext.onReady(init);

@@ -1,64 +1,69 @@
 /* Justin Tulloss
  *
  * The javascript class for manipulating the flash mp3 player
+ * 
+ * 03/05/2008 - Cleaning this up. With the ability to investigate the flash
+ *              javascript interaction, I think it should be possible to make
+ *              this much cleaner.
  */
 
 /********
- * Flash Player class.
- * Used to communicate to and from the flash player
+ * Used to communicate to and from the flash player, controls
+ * the interactions with the actual play controllers too.
  *
- * Params: Takes a div that will be replaced by the flash player swf
  */
-function Player(domObj)
+function Player()
 {
-    var div = domObj;
     // this.some player variables to save
-    var currentPosition;
-    var currentVolume;
-    var currentItem;
+    var position;
+    var volume;
     var totalTime;
-    this.so = new SWFObject('/flash/mediaplayer.swf','rubiconfl','0','0','7');
+    var playingsong;
+    var nextsong;
 
-    this.so.useExpressInstall('/flash/expressinstall.swf')
-    this.so.addParam('allowfullscreen','true');
-    this.so.addVariable('showdigits','false');
-    this.so.addVariable('shuffle','false');
-    this.so.addVariable('smoothing','false');
-    this.so.addVariable('enablejs','true');
-    this.so.addVariable('javascriptid','rubiconfl');
-    this.so.addVariable('type','mp3');
-    this.so.addVariable('usecaptions','false');
-    this.so.addVariable('usefullscreen','false');
-    this.so.write(div);
+    init_playcontrols();
+
+    /* Soundmanager configuration */
+    soundManager.url='/flash/soundmanager2.swf';
+    soundManager.debugMode = true;
+    soundManager.useConsole = true;
+
+    this.sm.onerror = function () {
+        /* TODO: Tie into actual error handling mechanism */
+        alert ('An error occurred loading the soundmanager');
+
+    function init_seekbar()
+    {
+        slider = new Ext.ux.SlideZone('timeline', {
+            type: 'horizontal',
+            size:100,
+            sliderWidth: 13,
+            //sliderHeight: 13,
+            maxValue: 100,
+            minValue: 0,
+            sliderSnap: 1,
+            sliders: [{
+                value: 0,
+                name: 'shuttle'
+            }]
+        });
+
+        slider.getSlider('shuttle').on('drag',
+            function() {
+                player.seek(this.value/100)
+            });
+    }
+
+    function init_playcontrols()
+    {
+        init_seekbar();
+    }   
 
     // these functions are caught by the JavascriptView object of the player.
     this.sendEvent = sendEvent;
     function sendEvent(typ,prm) 
     {
-        Ext.getDom('rubiconfl').sendEvent(typ,prm);
-    }
-
-    //TODO: Make this function less ugly than sin, use a real event model
-    this.getUpdate = getUpdate;
-    function getUpdate(typ,pr1,pr2,pid) {
-        if(typ == "time") { currentPosition = pr1; }
-        else if(typ == "volume") { currentVolume = pr1; }
-        var id = document.getElementById(typ);
-        var id2 = document.getElementById(typ + '2');
-        mins = Math.round(pr1/60);
-        secs = Math.round(pr1%60);
-        id.innerHTML = leadingZero(mins) + ":" + leadingZero(secs);
-        mins = Math.round(pr2/60);
-        secs = Math.round(pr2%60);
-        pr2 == undefined ? null: id2.innerHTML = "-"+leadingZero(mins)+":"+leadingZero(secs);
-        if (typ == "time") {
-            totalTime = pr1 + pr2;
-            spos = 100*pr1/totalTime;
-            Dom.setStyle('shuttle', 'left', String(spos)+"px");
-        }
-        if (pr2==0) {
-            nextsong();
-        }
+        //Ext.getDom('rubiconfl').sendEvent(typ,prm);
     }
 
     function leadingZero(nr) {
@@ -75,13 +80,13 @@ function Player(domObj)
     this.addItem = addItem;
     function addItem(obj,idx) 
     { 
-        Ext.getDom('rubiconfl').addItem(obj,idx); 
+        //Ext.getDom('rubiconfl').addItem(obj,idx); 
     }
 
     this.removeItem = removeItem;
     function removeItem(idx) 
     { 
-        Ext.getDom('rubiconfl').removeItem(idx); 
+        //Ext.getDom('rubiconfl').removeItem(idx); 
     }
 
     this.seek = seek;
@@ -102,8 +107,7 @@ function Player(domObj)
 
     function loadsongurl(response, options)
     {
-        Ext.getDom('rubiconfl').loadFile({file:response.responseText});
-        sendEvent('playpause');
+        soundManager.play('playingsong', 'response.responseText');
     }
 
     function badsongurl(response, options)
@@ -120,5 +124,5 @@ function Player(domObj)
 /* TODO: Figure out why I can't send updates to an object */
 function getUpdate(typ,pr1,pr2,pid)
 {
-    flplayer.getUpdate(typ, pr1, pr2, pid);
+    //flplayer.getUpdate(typ, pr1, pr2, pid);
 }
