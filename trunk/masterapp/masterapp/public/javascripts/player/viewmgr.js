@@ -69,7 +69,7 @@ function ViewManager(crumb, objects)
         songsbtn.on('click', function() {bread_crumb.go('song')});
         friendsbtn.on('click', function() {bread_crumb.go('friend')});
         playlistsbtn.on('click', function() {bread_crumb.go('playlist')});
-        //settingsbtn.on('click', settingspanel.ShowSettings, settingspanel);
+        settingsbtn.on('click', settingspanel.ShowSettings, settingspanel);
 
 
         topmenu.add(
