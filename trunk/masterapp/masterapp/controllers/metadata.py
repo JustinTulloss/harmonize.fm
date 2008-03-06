@@ -116,6 +116,7 @@ class MetadataController(BaseController):
         data=facebook.users.getInfo(userStore)
         for row in data:
             row['fbid']=row['uid']
+            row['friend'] = row['name']
             row['type']=dtype
         return {'success':True, 'data':data}
 

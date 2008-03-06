@@ -16,21 +16,29 @@ function Player()
 {
     // this.some player variables to save
     var position;
-    var volume;
+    var state = 0; //stopped, paused, or playing (0, 1, 2)
+    var volume = 80;
     var totalTime;
     var playingsong;
     var nextsong;
 
-    init_playcontrols();
+    this.addEvents({
+        'nextsong': true,
+        'prevsong': true,
+    });
 
     /* Soundmanager configuration */
     soundManager.url='/flash/soundmanager2.swf';
     soundManager.debugMode = true;
     soundManager.useConsole = true;
+    soundManager.consoleOnly = true;
+    soundManager.defaultOptions.volume = 80;
 
-    this.sm.onerror = function () {
+    soundManager.onerror = function () {
         /* TODO: Tie into actual error handling mechanism */
         alert ('An error occurred loading the soundmanager');
+    }
+
 
     function init_seekbar()
     {
@@ -54,60 +62,70 @@ function Player()
             });
     }
 
-    function init_playcontrols()
-    {
-        init_seekbar();
-    }   
-
-    // these functions are caught by the JavascriptView object of the player.
-    this.sendEvent = sendEvent;
-    function sendEvent(typ,prm) 
-    {
-        //Ext.getDom('rubiconfl').sendEvent(typ,prm);
-    }
-
-    function leadingZero(nr) {
-        if (nr < 10)
-            nr = "0" + nr;
-        return nr;
-    }
-
-    // These functions are caught by the feeder object of the player.
-    function loadFile(obj) 
-    { 
-    }
-
-    this.addItem = addItem;
-    function addItem(obj,idx) 
-    { 
-        //Ext.getDom('rubiconfl').addItem(obj,idx); 
-    }
-
-    this.removeItem = removeItem;
-    function removeItem(idx) 
-    { 
-        //Ext.getDom('rubiconfl').removeItem(idx); 
-    }
-
+    /* Event handlers */
     this.seek = seek;
     function seek(percent)
     {
-        sendEvent('scrub', totalTime*percent);
+        soundManager.setPosition(playingsong, totalTime*percent);
     }
 
-    this.playsong = playsong;
-    function playsong(song)
+    function playpause(e)
     {
+        soundManager.togglePause(playingsong);
+    }
+
+    function nextclicked(e)
+    {
+        /* initiates the nextsong chain of events. True for play now.*/
+        this.fireEvent('nextsong', true);
+    }
+
+    function prevclicked(e)
+    {
+        this.fireEvent('prevsong', true);
+    }
+    /* End event handlers */
+
+    this.init_playcontrols = init_playcontrols;
+    function init_playcontrols()
+    {
+        init_seekbar();
+        Ext.get('playbutton').on('click', playpause, this);
+        Ext.get('nextbutton').on('click', nextclicked, this);
+        Ext.get('prevbutton').on('click', prevclicked, this);
+    }   
+    this.init_playcontrols();
+
+    this.playsong = function (grid, songindex, e)
+    {
+        var song = grid.store.getAt(songindex);
+        var clickedtype = song.get('type');
+        var clickedinfo = typeinfo[clickedtype];
+        if (clickedinfo.next != 'play')
+            return;
+
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('id'),
             success: loadsongurl,
-            failure: badsongurl
+            failure: badsongurl,
+            songid: song.get('id'),
+            playnow: true,
+            scope: this
         });
-    }
+    };
 
     function loadsongurl(response, options)
     {
-        soundManager.play('playingsong', 'response.responseText');
+        if(playingsong)
+            soundManager.destroySound(playingsong);
+        toplay = playingsong = options.songid;
+
+        soundManager.createSound({
+            id: playingsong,
+            url:response.responseText,
+            volume: volume
+        });
+        soundManager.play(playingsong);
     }
 
     function badsongurl(response, options)
@@ -120,9 +138,4 @@ function Player()
                 Try again in a few minutes.");
     }
 }
-
-/* TODO: Figure out why I can't send updates to an object */
-function getUpdate(typ,pr1,pr2,pid)
-{
-    //flplayer.getUpdate(typ, pr1, pr2, pid);
-}
+Ext.extend(Player, Ext.util.Observable);

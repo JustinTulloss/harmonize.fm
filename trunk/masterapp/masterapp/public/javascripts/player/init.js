@@ -36,13 +36,12 @@ function init()
     bread_crumb.on('newfilter', browser.load, browser);
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgrid', add_grid_listeners);
-    Ext.get("nextbutton").on("click", playqueue.nextsong, playqueue);
-    Ext.get("prevbutton").on("click", playqueue.backsong, playqueue);
 }
 
 function add_grid_listeners(crumb, e)
 {
     crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
+    crumb.panel.on("rowdblclick", player.playsong, player);
 }
 
 function enqueue(recordid)

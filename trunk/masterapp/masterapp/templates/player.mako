@@ -28,12 +28,11 @@
     <div id="menu">
     </div>
     <div id="top">
-        <div id="now-playing">&nbsp;</div>
         <div id="breadcrumb"></div>
         <div id="controls">
             <div id="flash"></div>
             <img class="control mo" id="prevbutton" src = "/images/back.png" />
-            <img class="control mo" id="playbutton" src = "/images/play.png" onclick="player.sendEvent('playpause')"/>
+            <img class="control mo" id="playbutton" src = "/images/play.png" />
             <img class="control mo" id="nextbutton" src = "/images/next.png" />
         </div>
         <div id="status">
