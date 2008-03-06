@@ -3,6 +3,7 @@
  * Javascript to manage what's going on with the playqueue
  *
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
+ *  Updated 03/05/08 (r162) to not suck --JMT
  *
  */
 

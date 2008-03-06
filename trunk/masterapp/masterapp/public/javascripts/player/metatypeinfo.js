@@ -26,18 +26,7 @@ var render = {
 
     lengthColumn: function (value, p, record)
     {
-        //Value is the length in milliseconds
-        value = Math.floor(value/1000);
-        var secs = digitize(value % 60);
-        var mins = Math.floor(value / 60 % (60*60));
-        var hrs = Math.floor(value / (60*60));
-
-        time = String.format("{0}:{1}", mins, secs);
-        if (hrs>0) {
-            mins = digitize(mins);
-            time = String.format("{0}:{1}:{2}", hrs, mins, secs);
-        }
-        return time;
+        return format_time(value)
     },
 
 
@@ -274,6 +263,23 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend',
                   'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid'];
+
+function format_time(value)
+{
+
+    //Value is the length in milliseconds
+    value = Math.floor(value/1000);
+    var secs = digitize(value % 60);
+    var mins = Math.floor(value / 60 % (60*60));
+    var hrs = Math.floor(value / (60*60));
+
+    time = String.format("{0}:{1}", mins, secs);
+    if (hrs>0) {
+        mins = digitize(mins);
+        time = String.format("{0}:{1}:{2}", hrs, mins, secs);
+    }
+    return time;
+}
 
 function digitize(value)
 {

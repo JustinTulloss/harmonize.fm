@@ -21,6 +21,8 @@ function Player()
     var totalTime;
     var playingsong;
     var nextsong;
+    var slider;
+    var shuttle;
 
     this.addEvents({
         'nextsong': true,
@@ -56,7 +58,8 @@ function Player()
             }]
         });
 
-        slider.getSlider('shuttle').on('drag',
+        shuttle = slider.getSlider('shuttle');
+        shuttle.on('drag',
             function() {
                 player.seek(this.value/100)
             });
@@ -77,12 +80,12 @@ function Player()
     function nextclicked(e)
     {
         /* initiates the nextsong chain of events. True for play now.*/
-        this.fireEvent('nextsong', true);
+        this.fireEvent('nextsong', this.playsong);
     }
 
     function prevclicked(e)
     {
-        this.fireEvent('prevsong', true);
+        this.fireEvent('prevsong', this.playsong);
     }
     /* End event handlers */
 
@@ -94,38 +97,62 @@ function Player()
         Ext.get('nextbutton').on('click', nextclicked, this);
         Ext.get('prevbutton').on('click', prevclicked, this);
     }   
+
     this.init_playcontrols();
 
-    this.playsong = function (grid, songindex, e)
+    this.playgridrow = playgridrow
+    function playgridrow(grid, songindex, e)
     {
-        var song = grid.store.getAt(songindex);
-        var clickedtype = song.get('type');
-        var clickedinfo = typeinfo[clickedtype];
-        if (clickedinfo.next != 'play')
-            return;
+        this.playsong(grid.store.getAt(songindex));
+    }
 
+    this.playsong = playsong;
+    function playsong (song)
+    {
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('id'),
             success: loadsongurl,
             failure: badsongurl,
             songid: song.get('id'),
+            songlength: song.get('length'),
             playnow: true,
             scope: this
         });
-    };
+    }
 
     function loadsongurl(response, options)
     {
         if(playingsong)
             soundManager.destroySound(playingsong);
-        toplay = playingsong = options.songid;
+        playingsong = options.songid;
 
+        var me = this;
         soundManager.createSound({
             id: playingsong,
             url:response.responseText,
-            volume: volume
+            volume: volume,
+            whileplaying: updatetime
         });
         soundManager.play(playingsong);
+    }
+
+    /*note that "this" is the sound below. Might change that.*/
+    function updatetime()
+    {
+        if (this.bytesLoaded != this.bytesTotal)
+            total = this.durationEstimate;
+        else
+            total = this.duration
+        Ext.get('time').update(format_time(this.position));
+        Ext.get('time2').update('-'+format_time(total-this.position));
+        updateseekbar(this.position/total);
+    }
+
+    function updateseekbar(percentage)
+    {
+        /* This actually needs to be percentage*totallength*/
+        //slider.setValue(percentage*100);
+        shuttle.setPosition([percentage*100]);
     }
 
     function badsongurl(response, options)

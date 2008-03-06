@@ -81,9 +81,6 @@ function BreadCrumb()
         var clickedtype = row.get('type');
         var clickedinfo = typeinfo[clickedtype];
 
-        if (clickedinfo.next == 'play') //We don't care
-            return;
-
         /* Change the old crumb to show updated values */
         bclist[current].value = row.get(clickedtype);
         if (clickedinfo.qry)

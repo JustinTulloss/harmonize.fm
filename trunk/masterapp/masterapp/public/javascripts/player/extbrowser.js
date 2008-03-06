@@ -8,7 +8,9 @@
 function Browser(fields)
 {
     this.addEvents({
-        "newgrid" : true
+        "newgrid" : true,
+        "newgridleaf" : true,
+        "newgridbranch" : true
     });
         
     /***** public functions ****/
@@ -43,6 +45,10 @@ function Browser(fields)
                 trackMouseOver: false
             });
             this.fireEvent('newgrid', crumb);
+            if (typeinfo[crumb.type].next == 'play')
+                this.fireEvent('newgridleaf', crumb);
+            else
+                this.fireEvent('newgridbranch', crumb);
         }
     }
 

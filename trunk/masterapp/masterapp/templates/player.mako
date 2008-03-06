@@ -36,8 +36,8 @@
             <img class="control mo" id="nextbutton" src = "/images/next.png" />
         </div>
         <div id="status">
-            <div id="time">&nbsp;</div>
-            <div id="time2">&nbsp;</div>
+            <div id="time">0:00</div>
+            <div id="time2">0:00</div>
             <div id="timeline" tabindex="-1"></div>
         </div>
     </div>

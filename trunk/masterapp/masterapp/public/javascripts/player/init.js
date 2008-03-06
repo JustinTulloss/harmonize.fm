@@ -25,7 +25,7 @@ var settingspanel = null;
 function init()
 {
     bread_crumb = new BreadCrumb();
-    player = new Player('player');
+    player = new Player();
     playqueue = new PlayQueue('queue', 'songlist', fields);
     browser = new Browser(fields);
     settingspanel = new SettingsPanel();
@@ -35,13 +35,18 @@ function init()
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
-    browser.on('newgrid', add_grid_listeners);
+    browser.on('newgridbranch', add_grid_listeners);
+    browser.on('newgridleaf', add_grid_leaf_listeners);
 }
 
 function add_grid_listeners(crumb, e)
 {
     crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
-    crumb.panel.on("rowdblclick", player.playsong, player);
+}
+
+function add_grid_leaf_listeners(crumb, e)
+{
+    crumb.panel.on("rowdblclick", player.playgridrow, player);
 }
 
 function enqueue(recordid)
