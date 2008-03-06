@@ -12,6 +12,7 @@
     ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
     ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
+    ${h.javascript_include_tag('lib/helpers.js')}
     ${h.javascript_include_tag('player/metatypeinfo.js')}
     ${h.javascript_include_tag('player/viewmgr.js')}
     ${h.javascript_include_tag('player/extbrowser.js')}
