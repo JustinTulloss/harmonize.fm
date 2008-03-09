@@ -37,6 +37,7 @@ function init()
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgridbranch', add_grid_listeners);
     browser.on('newgridleaf', add_grid_leaf_listeners);
+    browser.on('enqueue', playqueue.enqueue, playqueue);
 }
 
 function add_grid_listeners(crumb, e)

@@ -8,10 +8,15 @@
 function Browser(fields)
 {
     this.addEvents({
-        "newgrid" : true,
-        "newgridleaf" : true,
-        "newgridbranch" : true
+        newgrid : true,
+        newgridleaf : true,
+        newgridbranch : true,
+        enqueue : true
     });
+
+    this.actions={
+        addtoqueue: function(records) {this.fireEvent('enqueue', records)}
+    };
         
     /***** public functions ****/
     this.load = load;
@@ -44,11 +49,30 @@ function Browser(fields)
                 autoExpandColumn: 'auto',
                 trackMouseOver: false
             });
+            crumb.panel.on('render', function(grid) {
+                grid.browser = this;
+                grid.getView().mainBody.on('mousedown', this.onMouseDown, grid);
+            }, this);
+
             this.fireEvent('newgrid', crumb);
             if (typeinfo[crumb.type].next == 'play')
                 this.fireEvent('newgridleaf', crumb);
             else
                 this.fireEvent('newgridbranch', crumb);
+        }
+    }
+
+    /* this is called in the scope of the grid */
+    this.onMouseDown = onMouseDown;
+    function onMouseDown(e, div)
+    {
+        /* XXX: Does this loop scale to lots of actions? */
+        for (action in this.browser.actions) {
+            if (Ext.get(div).hasClass(action)) {
+                e.stopEvent(); /* Keep this row from getting selected */
+                var records = this.getSelectionModel().getSelections();
+                this.browser.actions[action].call(this.browser, records);
+            }
         }
     }
 

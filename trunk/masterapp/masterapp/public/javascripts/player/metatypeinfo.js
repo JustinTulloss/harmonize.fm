@@ -6,12 +6,14 @@
  * just assume that it exists. Let's hope I don't hate myself for that later.
  */
 
+/* TODO: Move all the renderer stuff into its own file. */
+t_add_col = new Ext.Template('<img class="mo addtoqueue" src="/images/enqueue.png" />');
 var render = {
 
     enqColumn: function (value, p, record)
     {
         id = record.id;
-        return '<center><img onclick="enqueue(\''+id+'\')" class="mo" src="/images/enqueue.png" /></center>';
+        return t_add_col.apply();
     },
 
     starColumn: function (value, p, record)
@@ -172,6 +174,13 @@ var typeinfo = {
     song:{
         next:'play', 
         display:'Songs',
+        enqueuefxn: function(record)
+            {
+                /* To call this function, make sure this is the queue */
+                title = record.get('title');
+                newnode = new QueueNode(title, record, {leaf: true});
+                this.root.appendChild(newnode.treenode);
+            },
         cm: new Ext.grid.ColumnModel([
             {  
                 id: 'add',

@@ -25,13 +25,13 @@ function Player()
     var shuttle;
 
     this.addEvents({
-        'nextsong': true,
-        'prevsong': true,
+        nextsong: true,
+        prevsong: true,
     });
 
     /* Soundmanager configuration */
     soundManager.url='/flash/soundmanager2.swf';
-    soundManager.debugMode = true;
+    soundManager.debugMode = false;
     soundManager.useConsole = true;
     soundManager.consoleOnly = true;
     soundManager.defaultOptions.volume = 80;
