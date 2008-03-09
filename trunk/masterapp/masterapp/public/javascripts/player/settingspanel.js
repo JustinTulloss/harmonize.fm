@@ -8,6 +8,7 @@
     var friendGrid;    
     var friendStore;
     this.win=win;
+    this.friendStore = friendStore;
 
     this.MakeGrid=MakeGrid;
     function MakeGrid(){    
@@ -29,27 +30,36 @@
     this.PopulateGrid=PopulateGrid;
     function PopulateGrid(){
         this.MakeGrid();
-        win = new Ext.Window({
-            width:500,
-            height:300,
-            closeAction:'hide',
-            autoScroll:true,
-            items:this.friendGrid,
-            layout:'fit',
-            buttons: [{
-                text:'Save',
-                handler: function(){
-                    win.hide();
-                }},{
-                text:'Close', 
-                handler: function(){
+        if(!win){
+            win = new Ext.Window({
+                width:500,
+                height:300,
+                closeAction:'hide',
+                autoScroll:true,
+                items:this.friendGrid,
+                layout:'fit',
+                buttons: [{
+                    text:'Save',
+                    handler: function(){
                         win.hide();
-                    }
-            }]
-        });
+                       // this.CommitStoreChanges();
+                    }},{
+                    text:'Close', 
+                    handler: function(){
+                            win.hide();
+                        }
+                }]
+            });
+        }
         win.show();
+        //win.on("close", this.friendStore.rejectChanges);
         var checkedRecs = this.friendStore.query("checked", "true", true, false);
         this.friendGrid.getSelectionModel().selectRecords(checkedRecs.items);
+    };
+    
+    this.CommitStoreChanges = CommitStoreChanges;
+    function CommitStoreChanges(){
+        
     };
     
     this.ShowSettings=ShowSettings;
