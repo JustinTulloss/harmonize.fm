@@ -11,7 +11,7 @@
 
     this.MakeGrid=MakeGrid;
     function MakeGrid(){    
-        var sm = new Ext.grid.CheckboxSelectionModel();
+         var sm = new Ext.grid.CheckboxSelectionModel({dataIndex:"checked"});
         this.friendGrid = new Ext.grid.GridPanel({
             store:this.friendStore,
             cm: new Ext.grid.ColumnModel([
@@ -19,10 +19,11 @@
                {header: "name", dataIndex: "name"}]),
             width:500,
             height:300,
-            sm:new Ext.grid.CheckboxSelectionModel(),
+            sm:sm,
             iconCls:'icon-grid',
             frame:true
         });
+       
     };
     
     this.PopulateGrid=PopulateGrid;
@@ -47,6 +48,8 @@
             }]
         });
         win.show();
+        var checkedRecs = this.friendStore.query("checked", "true", true, false);
+        this.friendGrid.getSelectionModel().selectRecords(checkedRecs.items);
     };
     
     this.ShowSettings=ShowSettings;
