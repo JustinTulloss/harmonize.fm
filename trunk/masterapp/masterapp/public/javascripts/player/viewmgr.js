@@ -37,14 +37,9 @@ function ViewManager(crumb, objects)
             height: 76,
             titlebar: false,
             contentEl: 'header'
-        },{
-            region: 'west',
-            split: true,
-            width: '16%',
-            titlebar:false,
-            collapsible: true,
-            items: [objects.queue.tree]
-        }, {
+        }, 
+        objects.queue.panel,
+        {
             region: 'center',
             id: 'centerpanel',
             layout: 'card',

@@ -174,13 +174,7 @@ var typeinfo = {
     song:{
         next:'play', 
         display:'Songs',
-        enqueuefxn: function(record)
-            {
-                /* To call this function, make sure this is the queue */
-                title = record.get('title');
-                newnode = new QueueNode(title, record, {leaf: true});
-                this.root.appendChild(newnode.treenode);
-            },
+        nodeclass: SongQueueNode,
         cm: new Ext.grid.ColumnModel([
             {  
                 id: 'add',
