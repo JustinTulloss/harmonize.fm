@@ -27,6 +27,7 @@ function Player()
     this.addEvents({
         nextsong: true,
         prevsong: true,
+        showprev: true
     });
 
     /* Soundmanager configuration */
@@ -74,7 +75,10 @@ function Player()
 
     function playpause(e)
     {
-        soundManager.togglePause(playingsong);
+        if (playingsong)
+            soundManager.togglePause(playingsong);
+        else
+            this.fireEvent('nextsong', this.playsong);
     }
 
     function nextclicked(e)
@@ -87,6 +91,17 @@ function Player()
     {
         this.fireEvent('prevsong', this.playsong);
     }
+
+    function showprev(e)
+    {
+        this.fireEvent('showprev');
+    }
+
+    function hideprev(e)
+    {
+        this.fireEvent('hideprev');
+    }
+
     /* End event handlers */
 
     this.init_playcontrols = init_playcontrols;
@@ -96,6 +111,8 @@ function Player()
         Ext.get('playbutton').on('click', playpause, this);
         Ext.get('nextbutton').on('click', nextclicked, this);
         Ext.get('prevbutton').on('click', prevclicked, this);
+        Ext.get('prevbutton').on('mouseover', showprev, this);
+        Ext.get('prevbutton').on('mouseout', hideprev, this);
     }   
 
     this.init_playcontrols();
@@ -118,6 +135,15 @@ function Player()
             playnow: true,
             scope: this
         });
+    }
+
+    this.stop = stop;
+    function stop()
+    {
+        if (playingsong) {
+            soundManager.destroySound(playingsong);
+            playingsong = null;
+        }
     }
 
     function loadsongurl(response, options)

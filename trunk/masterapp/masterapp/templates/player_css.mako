@@ -68,6 +68,7 @@ a.menuitem:hover {
 }
 
 .instruction {
+	background-color: ${c.profile.queue_bg};
     text-align: center;
     display: table-cell;
     vertical-align: middle;
@@ -106,6 +107,10 @@ a.bc_link:hover {
     z-index:23;
     background: #486BAA;
     text-align: center;
+}
+
+.nowplaying {
+    font-weight: bold;
 }
 
 #searchbar {
@@ -201,37 +206,4 @@ a.bc_link:hover {
     float:right;
     width:84%;
     margin-top: 0px;
-}
-
-.queue-container {
-	background-color: ${c.profile.queue_bg};
-}
-#queue{
-    /*
-    position: absolute;
-    top: 0px;
-    left: 0;
-    */
-    z-index: 20;
-    display:table;
-    width:100%;
-	height: 100%;
-    min-width: 130px;
-    vertical-align: middle;
-}
-
-#queue-menu {
-    text-align: center;
-}
-
-a.queue-menu-item {
-    color:${c.profile.primary_txt};
-}
-
-a.queue-menu-item:hover {
-    color: ${c.profile.click};
-}
-
-.queue-menu-item {
-    text-decoration: underline;
 }

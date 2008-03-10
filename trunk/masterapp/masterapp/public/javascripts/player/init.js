@@ -38,6 +38,12 @@ function init()
     browser.on('newgridbranch', add_grid_listeners);
     browser.on('newgridleaf', add_grid_leaf_listeners);
     browser.on('enqueue', playqueue.enqueue, playqueue);
+    player.on('nextsong', playqueue.dequeue, playqueue);
+    player.on('prevsong', playqueue.prev, playqueue);
+    player.on('showprev', playqueue.showprev, playqueue);
+    player.on('hideprev', playqueue.hideprev, playqueue);
+    playqueue.on('playsong', player.playsong, player);
+    playqueue.on('stop', player.stop, player);
 }
 
 function add_grid_listeners(crumb, e)
