@@ -104,6 +104,7 @@ var typeinfo = {
         next:'song', 
         qry:'albumid', 
         display:'Albums',
+        nodeclass: AlbumQueueNode,
         cm: new Ext.grid.ColumnModel([
             { 
                 id:'add',

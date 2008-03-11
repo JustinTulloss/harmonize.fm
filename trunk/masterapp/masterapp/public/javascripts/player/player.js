@@ -12,13 +12,13 @@
  * the interactions with the actual play controllers too.
  *
  */
+
 function Player()
 {
     // this.some player variables to save
     var position;
     var state = 0; //stopped, paused, or playing (0, 1, 2)
     var volume = 80;
-    var totalTime;
     var playingsong;
     var nextsong;
     var slider;
@@ -33,9 +33,8 @@ function Player()
     /* Soundmanager configuration */
     soundManager.url='/flash/soundmanager2.swf';
     soundManager.debugMode = false;
-    soundManager.useConsole = true;
+    soundManager.useConsole = false;
     soundManager.consoleOnly = true;
-    soundManager.defaultOptions.volume = 80;
 
     soundManager.onerror = function () {
         /* TODO: Tie into actual error handling mechanism */
@@ -70,7 +69,9 @@ function Player()
     this.seek = seek;
     function seek(percent)
     {
-        soundManager.setPosition(playingsong, totalTime*percent);
+        sound = soundManager.getSoundById(playingsong);
+        time = soundduration(sound);
+        soundManager.setPosition(playingsong, time*percent);
     }
 
     function playpause(e)
@@ -81,6 +82,7 @@ function Player()
             this.fireEvent('nextsong', this.playsong);
     }
 
+    this.nextclicked = nextclicked;
     function nextclicked(e)
     {
         /* initiates the nextsong chain of events. True for play now.*/
@@ -89,6 +91,14 @@ function Player()
 
     function prevclicked(e)
     {
+        if (playingsong)
+        {
+            sound = soundManager.getSoundById(playingsong);
+            if (sound.position > 1000) {
+                soundManager.setPosition(playingsong, 0);
+                return;
+            }
+        }
         this.fireEvent('prevsong', this.playsong);
     }
 
@@ -116,12 +126,6 @@ function Player()
     }   
 
     this.init_playcontrols();
-
-    this.playgridrow = playgridrow
-    function playgridrow(grid, songindex, e)
-    {
-        this.playsong(grid.store.getAt(songindex));
-    }
 
     this.playsong = playsong;
     function playsong (song)
@@ -152,32 +156,44 @@ function Player()
             soundManager.destroySound(playingsong);
         playingsong = options.songid;
 
-        var me = this;
         soundManager.createSound({
             id: playingsong,
+            player: this,
             url:response.responseText,
             volume: volume,
-            whileplaying: updatetime
+            whileplaying: function(){
+                updatetime.call(this.options.player, this)
+            },
+            onfinish: function(){
+                this.options.player.nextclicked.call(this.options.player, this);
+            }
         });
         soundManager.play(playingsong);
     }
 
     /*note that "this" is the sound below. Might change that.*/
-    function updatetime()
+    function updatetime(sound)
     {
-        if (this.bytesLoaded != this.bytesTotal)
-            total = this.durationEstimate;
-        else
-            total = this.duration
-        Ext.get('time').update(format_time(this.position));
-        Ext.get('time2').update('-'+format_time(total-this.position));
-        updateseekbar(this.position/total);
+        var total = soundduration(sound);
+        Ext.get('time').update(format_time(sound.position));
+        Ext.get('time2').update('-'+format_time(total-sound.position));
+        updateseekbar(sound.position/total);
     }
+
+    function soundduration(sound)
+    {
+        var total;
+        if (sound.bytesLoaded != sound.bytesTotal)
+            total = sound.durationEstimate;
+        else
+            total = sound.duration
+        return total;
+    }
+
 
     function updateseekbar(percentage)
     {
         /* This actually needs to be percentage*totallength*/
-        //slider.setValue(percentage*100);
         shuttle.setPosition([percentage*100]);
     }
 
@@ -190,5 +206,8 @@ function Player()
                 Perhaps somebody else is listening to it. \
                 Try again in a few minutes.");
     }
+
+    /* Soundmanager default options */
+    soundManager.defaultOptions.volume = 80;
 }
 Ext.extend(Player, Ext.util.Observable);

@@ -85,7 +85,7 @@ function PlayQueue()
         }
 
         for (i = 0; i < records.length; i++) {
-            this.newnode(records[i]);
+            this.newnode({record:records[i]});
         }
 
         if(play)
@@ -93,10 +93,11 @@ function PlayQueue()
     }
 
     this.newnode = newnode
-    function newnode(record, index, replace)
+    function newnode(config)
     {
-        type = record.get('type');
-        return new typeinfo[type].nodeclass(this, record, index, replace);
+        type = config.record.get('type');
+        config.queue = this;
+        return new typeinfo[type].nodeclass(config);
     }
 
     this.dequeue = dequeue;
@@ -108,10 +109,31 @@ function PlayQueue()
             this.playing = null;
         }
         node = this.root.firstChild;
-        if (node)
-            new PlayingQueueNode(this, node.record, true);
+        if (node) {
+            node.dequeue();
+        }
         else
             this.fireEvent('stop');
+    }
+
+    this.playgridrow = playgridrow
+    function playgridrow(grid, songindex, e)
+    {
+        this.playnow(grid.store.getAt(songindex));
+    }
+
+    this.playnow = playnow;
+    function playnow(record)
+    {
+        if (this.playing != null) {
+            this.playing.remove();
+            this.played.push(this.playing.record);
+            this.playing = null;
+        }
+        new PlayingQueueNode({
+            record: record,
+            queue: this
+        });
     }
 
     this.prev = prev;
@@ -123,11 +145,19 @@ function PlayQueue()
         }
 
         if (this.playing)
-            this.newnode(this.playing.record, 0, true)
+            this.newnode({
+                record: this.playing.record, 
+                index: 0,
+                replace: true
+            });
 
         var record = this.played.pop();
         if (record) {
-            this.playing = new PlayingQueueNode(this, record, false);
+            this.playing = new PlayingQueueNode({
+                queue: this, 
+                record: record, 
+                replace: false
+            });
         }
         else {
             this.playing = null;
@@ -141,8 +171,12 @@ function PlayQueue()
     this.remove = remove;
     function remove(node, checked)
     {
-        if (checked)
+        if (checked) {
+            var p = node.parentNode;
             node.remove();
+            if (p.update_text)
+                p.update_text();
+        }
     }
 
     this.reorder = reorder;
@@ -157,8 +191,11 @@ function PlayQueue()
         showingprev = true;
         for (i = this.played.length-1; i>=this.played.length-5; i--) {
             if (this.played[i]) {
-                var newnode = this.newnode(this.played[i], 0)
-                newnode.disable();
+                var newnode = this.newnode({
+                    record: this.played[i], 
+                    disabled: true,
+                    index:0
+                });
             }
             else
                 break;
@@ -205,58 +242,173 @@ Ext.extend(PlayQueue, Ext.util.Observable);
  * being prefetched or when it's time for this node to be played. It's all quite
  * complex.
  */
-function QueueNode(queue, record, index, replace)
+function QueueNode(config)
 {
+    this.config = config;
     QueueNode.superclass.constructor.call(this, this.config);
     /* Prototype for QueueNodes, meant to be extended */
-    this.record = record;
-    this.queue = queue;
+    this.record = config.record;
+    this.queue = config.queue;
+    this.root = config.root;
+    if(this.root == null)
+        this.root = this.queue.root;
 
-    if (index != null) {
-        if (replace)
-            this.queue.root.replaceChild(this, this.queue.root.item(index));
+    if (config.index != null) {
+        if (config.replace)
+            this.queue.root.replaceChild(this, 
+                this.root.item(this.config.index)
+            );
         else
-            this.queue.root.insertBefore(this,this.queue.root.item(index));
+            this.root.insertBefore(this,
+                this.root.item(this.config.index)
+            );
     }
     else
-        this.queue.root.appendChild(this);
-    this.dequeue = function() {};
+        this.root.appendChild(this);
+
+    this.dequeue = function() {return true;};
+    this.update_text = function () {};
 }
 
-function SongQueueNode(queue, record, index, replace)
+function SongQueueNode(config)
 {
-    this.config = {
-        text: record.get('title'),
-        checked: false,
-        leaf: true,
-        draggable: true
-    }
+    config.text = config.record.get('title');
+    config.checked = false;
+    config.leaf = true;
+    config.draggable = true;
 
-    SongQueueNode.superclass.constructor.call(this, queue, record, index, replace);
+    SongQueueNode.superclass.constructor.call(this, config);
+    this.dequeue = dequeue
+    function dequeue()
+    {
+        //this.config.replace = true;
+        new PlayingQueueNode({
+            queue: this.queue,
+            record: this.record,
+            replace: true
+        });
+    }
 }
 
-function PlayingQueueNode(queue, record, replace)
+function PlayingQueueNode(config)
 {
-    this.config = {
-        text: record.get('title'),
-        leaf: true,
-        draggable: false,
-        allowDrop: false,
-        allowDrag: false,
-        cls: 'nowplaying'
-    }
+    config.text = config.record.get('title');
+    config.leaf = true;
+    config.checked = null;
+    config.draggable = false;
+    config.allowDrop = false;
+    config.allowDrag = false;
+    config.cls = 'nowplaying';
+    config.index = 0;
 
-    SongQueueNode.superclass.constructor.call(this, queue, record, 0, replace);
+    SongQueueNode.superclass.constructor.call(this, config);
     this.queue.playing = this;
     this.queue.fireEvent('playsong', this.record);
 }
 
-function AlbumQueueNode(queue, name, record, config)
+function AlbumQueueNode(config)
 {
-    AlbumQueueNode.superclass.constructor.call(this, queue, record);
+    config.text = String.format('{0} ({1}/{1})', 
+        config.record.get('album'),
+        config.record.get('totaltracks')
+    );
+    config.draggable = true;
+    config.checked = false;
+    config.allowDrop = false;
+    config.expandable = true;
+    config.leaf = false;
+
+    this.songs = new Ext.data.JsonStore({
+        url: 'metadata',
+        root: 'data',
+        sortInfo: {field: 'tracknumber', direction: 'DESC'},
+        baseParams: {type:'song', album:config.record.get('albumid')},
+        successParameter: 'success',
+        autoLoad: false,
+        fields: fields
+    });
+    this.songs_loaded = false;
+
+    AlbumQueueNode.superclass.constructor.call(this, config);
+
+    this.dequeue = dequeue;
+    function dequeue()
+    {
+        /* When an album is dequeued, just get its songs and queue them */
+        if (this.songs_loaded) {
+            this.queue.playing = new PlayingQueueNode({
+                record: this.firstChild.record,
+                queue: this.firstChild.queue,
+            });
+            this.firstChild.remove();
+
+            /* now that one of my songs is playing, update myself*/
+            this.update_text();
+            return true;
+        }
+        else {
+            this.songs.load({
+                callback: songs_callback,
+                scope: this,
+                play: true
+            });
+            return false
+        }
+    }
+
+    this.update_text = update_text;
+    function update_text()
+    {
+        this.setText(String.format('{0} ({1}/{2})',
+            this.record.get('album'),
+            this.childNodes.length,
+            this.record.get('totaltracks')
+        ));
+        if (this.childNodes.length == 0) /* end of album */
+            this.remove();
+    }
+
+    function on_expand(node)
+    {
+        if (!this.songs_loaded)
+            this.songs.load({
+                callback: songs_callback,
+                scope: this,
+                play: false
+            });
+    }
+
+    function songs_callback(records, options, success)
+    {
+        if(!success)
+        {
+            alert("Something fucked up");
+            return;
+        }
+
+        this.songs_loaded = true;
+        queue_songs.call(this);
+        if (options.play){
+            this.queue.dequeue();
+        }
+    }
+
+    function queue_songs()
+    {
+        this.songs.each(function(record) {
+            newnode = new SongQueueNode({
+                queue: this.queue, 
+                record: record,
+                root: this,
+                index:0
+            });
+        }, this);
+    }
+
+    this.on('expand', on_expand, this);
 }
 
-function ArtistQueueNode(queue, name, record, config)
+function ArtistQueueNode(queue, name, record)
 {
     ArtistQueueNode.superclass.constructor.call(this, queue, record);
 }

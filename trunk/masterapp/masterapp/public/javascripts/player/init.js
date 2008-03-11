@@ -34,14 +34,17 @@ function init()
     /* Initialize event handlers*/
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
+
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgridbranch', add_grid_listeners);
     browser.on('newgridleaf', add_grid_leaf_listeners);
     browser.on('enqueue', playqueue.enqueue, playqueue);
+
     player.on('nextsong', playqueue.dequeue, playqueue);
     player.on('prevsong', playqueue.prev, playqueue);
     player.on('showprev', playqueue.showprev, playqueue);
     player.on('hideprev', playqueue.hideprev, playqueue);
+
     playqueue.on('playsong', player.playsong, player);
     playqueue.on('stop', player.stop, player);
 }
@@ -53,7 +56,7 @@ function add_grid_listeners(crumb, e)
 
 function add_grid_leaf_listeners(crumb, e)
 {
-    crumb.panel.on("rowdblclick", player.playgridrow, player);
+    crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
 }
 
 function enqueue(recordid)
