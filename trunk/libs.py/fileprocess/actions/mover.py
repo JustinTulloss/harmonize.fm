@@ -3,13 +3,12 @@
 
 import logging
 from pylons import config
-import sha, os
+import os
+import guid
 from baseaction import BaseAction
 from shutil import move
 
 log = logging.getLogger(__name__)
-
-READCHUNK = 1024 #1 kb at a time, don't want to stall the system
 
 class Mover(BaseAction):
     
@@ -24,22 +23,12 @@ class Mover(BaseAction):
         Assumes the file is rewound
         """
         log.debug('Moving %s', file['fname'])
-        f = open(file["fname"], 'rb')
-        s = sha.new()
-        readbytes = READCHUNK
 
-        while readbytes>0:
-            readstring = f.read(readbytes)
-            s.update(readstring)
-            readbytes = len(readstring)
-
-        file["new"]=True
-        file["sha"]= s.hexdigest()
-        to = os.path.join(self.to, file["sha"])
+        to = os.path.join(self.to, guid.generate())
         if not os.path.isabs(f.name):
-            frm = os.path.join(self.frm, f.name)
+            frm = os.path.join(self.frm, file['fname'])
         else:
-            frm = f.name
+            frm = file['fname']
         if (os.path.exists(to)):
             os.remove(frm) #the file already exists
             #TODO: There's a race condition here if two people are

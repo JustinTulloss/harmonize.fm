@@ -46,7 +46,7 @@ class PlayerController(BaseController):
             for owner in file.owners:
                 if not g.usedfiles.has_key((file.id, owner.id)):
                     qsgen = S3.QueryStringAuthGenerator(
-                        config['S3_accesskey'], config['S3_secret']
+                        config['S3.accesskey'], config['S3.secret']
                     )
                     qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
                     
@@ -55,7 +55,7 @@ class PlayerController(BaseController):
                         time.time()+DEFAULT_EXPIRATION*60
                     session['playing'] = (file.id, owner.id)
                     session.save()
-                    return qsgen.get(config['S3_music_bucket'], file.sha)
+                    return qsgen.get(config['S3.music_bucket'], file.sha)
         #if we get here, all files are in use! Damn it!
         session['playing'] = None
         session.save()

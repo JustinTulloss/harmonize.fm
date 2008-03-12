@@ -13,6 +13,7 @@
     ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('lib/helpers.js')}
+    ${h.javascript_include_tag('player/errmgr.js')}
     ${h.javascript_include_tag('player/viewmgr.js')}
     ${h.javascript_include_tag('player/extbrowser.js')}
     ${h.javascript_include_tag('player/bcmgr.js')}

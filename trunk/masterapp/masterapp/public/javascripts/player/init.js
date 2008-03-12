@@ -20,6 +20,7 @@ var browser = null;
 var viewmgr = null;
 var bread_crumb = null;
 var settingspanel = null;
+var errmgr = null;
 
 /******* Initialization functions ********/
 function init()
@@ -30,6 +31,7 @@ function init()
     browser = new Browser(fields);
     settingspanel = new SettingsPanel();
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
+    errmgr = new ErrorManager();
 
     /* Initialize event handlers*/
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
