@@ -21,47 +21,54 @@ class BrainzTagger(BaseAction):
         # construct it very carefully. Dynamic my ass. These are exactly
         # the types of things one should never see in Python --JMT
         filter = None
-        if file.has_key('title') and \
-            file.has_key('artist') and \
-            file.has_key('album'):
-            filter = TrackFilter(
-                title = file['title'],
-                artistName = file['artist'],
-                releaseTitle = file['album'],
-                limit = 1
-            )
-        elif file.has_key('title') and file.has_key('artist'):
-            filter = TrackFilter(
-                title = file['title'],
-                artistName = file['artist'],
-                limit = 1
-            )
-        elif file.has_key('title') and file.has_key('album'):
-            filter = TrackFilter(
-                title = file['title'],
-                releaseTitle = file['album']
-            )
-        elif file.has_key('title'):
-            filter = TrackFilter(title = file['title'], limit=1)
-        else: #TODO: Analyze and try to do a PUID match.
-            log.info('Analysis needs to be done on %s',file['fname'])
+        if not file.has_key('title'):
+            #TODO: Analyze and try to do a PUID match.
+            log.info('Analysis needs to be done on %s',file.get('fname'))
             return file
 
-        try:
-            result = mbquery.getTracks(filter)
-        except WebServiceError, e:
-            log.warn("Could not contact musicbrainz, bailing on %s", 
-                file['title'])
-            return False
+        arglist = [
+            ['title', 'releaseTitle'],
+            ['title', 'artistName'],
+            ['title', 'artistName', 'releaseTitle']
+        ]
+        args = {
+            'title': file.get('title'), 
+            'artistName': file.get('artist'),
+            'releaseTitle': file.get('album')
+        }
+        result = []
+        while len(result) == 0 and len(arglist)>0:
+            fargs = {}
+            for arg in arglist.pop():
+                fargs[arg] = args[arg]
+            filter = TrackFilter(**fargs)
+            try:
+                result = mbquery.getTracks(filter)
+            except WebServiceError, e:
+                log.warn(
+                    "There was a problem with MusicBrainz, bailing on %s: %s", 
+                    args, e
+                ) 
+                return False
 
         if len(result)== 0:
             #Uh oh, nothing found. TODO:What now??
-            log.info('Brainz match not found for %s',file['fname'])
+            log.info('Brainz match not found for %s',file.get('title'))
             return file
-        result = result[0] #We just care about the best result
-        if result.score < 80: #Not a sure match, let's just keep ours
-            log.info('Brainz match not adequate for %s',file['fname'])
-            return file
+
+        if len(result)>1:
+            for r in result:
+                if r.score < 80:
+                    result.remove(r)
+            if len(result) == 0:
+                log.info('Brainz match not adequate for %s',file.get('title'))
+                return file
+            if len(result)>1:
+                #TODO: Run a PUID analysis
+                log.info("Found multiple versions of %s", file.get('title'))
+                return False
+
+        result = result[0]
 
         # Get info on the album, cache it for future songs
         mbalbumid = result.track.releases[0].id
@@ -80,14 +87,18 @@ class BrainzTagger(BaseAction):
         else:
             with self.cachelock:
                 artist = mbquery.getArtistById(mbartistid)
+                self.artistcache[mbartistid] = artist
 
         # Fill out the tags. Oh yeah.
         file['title'] = result.track.title
         file['artist'] = result.track.artist.name
         file['artistsort'] = artist.sortName
         file['album'] = album.title
-        file['length'] = result.track.duration #in seconds. Perfect.
-        file['year'] = album.getEarliestReleaseDate().split('-')[0]
+        file['length'] = result.track.duration #in milliseconds
+        try:
+            file['year'] = album.getEarliestReleaseDate().split('-')[0]
+        except:
+            pass
         file['tracknumber'] = result.track.releases[0].getTracksOffset()+1
         file['totaltracks'] = len(album.tracks)
         file['mbtrackid'] = result.track.id
@@ -95,6 +106,6 @@ class BrainzTagger(BaseAction):
         file['mbartistid'] = result.track.artist.id
         file['asin'] = album.asin #probably a good thing to have ;)
 
-        log.debug('%s successfully tagged by MusicBrainz', file['title'])
+        log.debug('%s successfully tagged by MusicBrainz', file.get('title'))
 
         return file
