@@ -43,6 +43,6 @@ def load_environment(global_conf, app_conf):
         engine_from_config(config, 'sqlalchemy.default.')
 
     #Starting extra processing threads here
-    from fileprocess.fileprocess import FileUploadThread
+    from fileprocess import FileUploadThread
     fuploader = FileUploadThread()
 

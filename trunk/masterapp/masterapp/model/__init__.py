@@ -67,7 +67,7 @@ playlistsongs_table= Table("playlistsongs", metadata,
     Column("id", types.Integer, primary_key=True),
     Column("playlistid", types.Integer, ForeignKey("playlists.id"), nullable=False, index=True),
     Column("songindex", types.Integer),
-    Column("songid", types.Integer, nullable=False, ForeignKey("songs.id"))
+    Column("songid", types.Integer, ForeignKey("songs.id"), nullable=False)
 )
 
 artists = select([albums_table.c.id,albums_table.c.artist, albums_table.c.artistsort, albums_table.c.mbartistid], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')

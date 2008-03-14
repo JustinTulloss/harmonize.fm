@@ -1,17 +1,36 @@
 #A thread that allows us to process files
+from __future__ import with_statement
 import pylons
 import threading
 from Queue import Queue, Empty
 
 #The different handlers, eventually to be done elsewhere?
-from actions.mover import Mover
-from actions.facebookaction import FacebookAction
-from actions.taggetter import TagGetter
-from actions.dbrecorder import DBRecorder
-from actions.brainztagger import BrainzTagger
-from actions.s3uploader import S3Uploader
+from actions import *
 
 file_queue = Queue()
+msglock = threading.Lock()
+
+class NextAction(object):
+    def __init__(self):
+        self.NOTHING = 0
+        self.TRYAGAIN = 1
+        self.FAILURE = 2
+        self.AUTHENTICATE = 3
+
+class UploadStatus(object):
+    def __init__(self, message=None, nextaction=None, file=None):
+        assert file.has_key('session')
+        assert file['session'] is not None
+
+        self.nextaction = nextaction
+        self.message = message
+        self.file = file
+
+        with msglock:
+            file['session']['uploadmsgs'].append(self)
+            file['session'].save()
+
+na = NextAction()
 
 class FileUploadThread(object):
     """
@@ -26,22 +45,25 @@ class FileUploadThread(object):
 
     def __init__(self):
         super(FileUploadThread, self).__init__()
-        self.handlers = []
         self._endqueue = Queue()
         self.running = 1
+
         #TODO: Move this class initialization to some config file?
-        self.handlers.append(Mover())
-        self.handlers.append(FacebookAction())
-        self.handlers.append(TagGetter())
-        self.handlers.append(BrainzTagger())
-        self.handlers.append(DBRecorder())
-        self.handlers.append(S3Uploader())
+        self.handlers = [
+            Mover(),
+            FacebookAction(),
+            TagGetter(),
+            DBChecker(),
+            BrainzTagger(),
+            DBRecorder(),
+            S3Uploader()
+        ]
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):
             self.handlers[x].nextqueue = self.handlers[x+1].queue
 
-        self.handlers[len(self.handlers)-1].nextqueue = self._endqueue
+        #self.handlers[len(self.handlers)-1].nextqueue = self._endqueue
 
         #GO GO GO!
         self._thread = threading.Thread(None,self)
@@ -51,4 +73,3 @@ class FileUploadThread(object):
         while(self.running):
             newfile = file_queue.get()
             self.handlers[0].queue.put(newfile)
-

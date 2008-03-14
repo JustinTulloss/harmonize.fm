@@ -3,6 +3,7 @@ import hashlib, os
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, HeaderNotFoundError
 from baseaction import BaseAction
+import fileprocess
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +24,8 @@ class TagGetter(BaseAction):
         except HeaderNotFoundError:
             log.info("A non-mp3 file was uploaded")
             os.remove(file['fname'])
+            msg = "%s is not an mp3 file" % file.get('fname')
+            fileprocess.UploadStatus(msg, fileprocess.na.FAILURE, file)
             return False
 
         file.update(audio)

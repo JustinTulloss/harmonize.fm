@@ -2,6 +2,7 @@ from __future__ import with_statement
 import logging
 import threading
 from baseaction import BaseAction
+import fileprocess
 from musicbrainz2.webservice import Query, TrackFilter, WebServiceError, ReleaseIncludes
 
 log = logging.getLogger(__name__)
@@ -24,7 +25,8 @@ class BrainzTagger(BaseAction):
         if not file.has_key('title'):
             #TODO: Analyze and try to do a PUID match.
             log.info('Analysis needs to be done on %s',file.get('fname'))
-            return file
+            fileprocess.UploadStatus("File had no tags", fileprocess.na.FAILURE, file)
+            return False
 
         arglist = [
             ['title', 'releaseTitle'],
@@ -49,12 +51,15 @@ class BrainzTagger(BaseAction):
                     "There was a problem with MusicBrainz, bailing on %s: %s", 
                     args, e
                 ) 
+                fileprocess.UploadStatus("Could not contact tagging service", 
+                    fileprocess.na.TRYAGAIN, file)
                 return False
 
         if len(result)== 0:
             #Uh oh, nothing found. TODO:What now??
             log.info('Brainz match not found for %s',file.get('title'))
-            return file
+            fileprocess.UploadStatus("No tags found for file", fileprocess.na.FAILURE, file)
+            return False
 
         if len(result)>1:
             for r in result:
@@ -62,10 +67,13 @@ class BrainzTagger(BaseAction):
                     result.remove(r)
             if len(result) == 0:
                 log.info('Brainz match not adequate for %s',file.get('title'))
-                return file
+                fileprocess.UploadStatus("Could not find accurate tags for file", 
+                    fileprocess.na.FAILURE, file)
+                return False
             if len(result)>1:
                 #TODO: Run a PUID analysis
                 log.info("Found multiple versions of %s", file.get('title'))
+                fileprocess.UploadStatus("Too many versions of tags found", fileprocess.na.FAILURE, file)
                 return False
 
         result = result[0]
@@ -101,9 +109,11 @@ class BrainzTagger(BaseAction):
             pass
         file['tracknumber'] = result.track.releases[0].getTracksOffset()+1
         file['totaltracks'] = len(album.tracks)
-        file['mbtrackid'] = result.track.id
-        file['mbalbumid'] = album.id
-        file['mbartistid'] = result.track.artist.id
+
+        # The musicbrainz ids are urls. I just keep the actual id part
+        file['mbtrackid'] = result.track.id.rsplit('/').pop()
+        file['mbalbumid'] = album.id.rsplit('/').pop()
+        file['mbartistid'] = result.track.artist.id.rsplit('/').pop()
         file['asin'] = album.asin #probably a good thing to have ;)
 
         log.debug('%s successfully tagged by MusicBrainz', file.get('title'))

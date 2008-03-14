@@ -8,108 +8,79 @@ log = logging.getLogger(__name__)
 class DBRecorder(BaseAction):
     """
     This action takes a dictionary of music data and inserts it into the database
+
+    There are certain assumptions here. One is that this is a file that has not
+    been seen before. It has a unique sha in the system. It might not be a 
+    unique song (hence the query by mbid), but the sha has not been seen before.
+    Therefore, we need to create a new Owner and a new File after we get the
+    correct metadata in place.
     """
+
     def process(self, file):
-        from masterapp import model
+        assert file.has_key('mbtrackid') and file.has_key('mbalbumid') \
+            and file.has_key('dbuser')
         
-        # Get this user, create him if he doesn't exist
-        qry = model.Session.query(model.User).filter(
-            model.User.fbid == file['fbid']
-        )
-        user = qry.first()
-        if user == None:
-            user = model.User()
-            user.fbid = file['fbid']
-            model.Session.save(user)
-            model.Session.commit()
+        from masterapp import model
 
-        # Check to see if this file has already been uploaded by this person.
-        qry = model.Session.query(model.Owner).join('file').filter(
-            and_(model.File.sha == file['sha'], model.Owner.id==user.id)
-        )
-        ownerfile = qry.first()
-        if ownerfile != None:
-            #Just bail now, this file's already been uploaded
-            os.remove(file['fname'])
-            log.debug('%s has already been uploaded by %s', 
-                file['fname'], file['fbid'])
-            return False
-
-        # Check to see if this file has been uploaded, 
-        # just add it to this user if it has
-        owner = model.Owner()
-        owner.user = user
-        owner.recommendations = 0
-        owner.playcount = 0
-        log.debug("Adding %s to %s's music", file['title'], file['fbid'])
-        model.Session.save(owner)
-
-        qry = model.Session.query(model.File).filter(
-            model.File.sha==file['sha']
-        )
-        dbfile = qry.first()
-        if dbfile == None:
-            dbfile = model.File()
-            dbfile.sha = file['sha']
-            log.debug("New file %s added to files", file['sha'])
-            model.Session.save(dbfile)
-        else:
-            owner.file = dbfile
-            model.Session.update(owner)
-            model.Session.commit()
-            log.debug('%s already uploaded, removing', file['fname'])
-            os.remove(file['fname'])
-            return False
-                        
         #Insert a new song if it does not exist
         qry = model.Session.query(model.Song).filter(
             model.Song.mbid==file["mbtrackid"]
         )
         song = qry.first()
         if song == None:
-            song = model.Song()
-            song.title = file['title']
-            song.length = file['length']
-            song.tracknumber = file['tracknumber']
-            song.mbid = file['mbtrackid']
-            log.debug("Saving new song %s", song.title)
-            model.Session.save(song)
+            song = self.create_song(file)
 
-            # Insert a new album if it does not exist
-            qry = model.Session.query(model.Album).filter(
-                model.Album.mbid == file['mbalbumid']
-            )
-            album = qry.first()
-            if album == None:
-                album = model.Album()
-                for key in file.keys():
-                    try:
-                        setattr(album, key, file[key])
-                    except:
-                        pass #This just means the album table doesn't store that piece of info
-                album.title = file['album']
-                album.mbid = file['mbalbumid']
-                log.debug("Saving new album %s", album.title)
-                model.Session.save(album)
+        # Create a new file associated with the song we found or created
+        dbfile = model.File()
+        dbfile.sha = file['sha']
+        dbfile.song = song
+        log.debug("New file %s added to files", file['sha'])
+        model.Session.save(dbfile)
 
-        model.Session.commit()
-
-        #Make sure our cross links are all in place
-        song.albumid = album.albumid
-        model.Session.update(song)
-        owner.fileid = dbfile.id
-        owner.uid = user.id
-        model.Session.update(owner)
-        dbfile.songid = song.id
-        model.Session.update(dbfile)
-        model.Session.commit()
-
-        file['songid'] = song.id
-        file['fileid'] = dbfile.id
-        file['albumid'] = album.albumid
-        file['ownerid'] = owner.id
+        # add the file to this user's library
+        owner = model.Owner()
+        owner.user = file['dbuser']
+        owner.recommendations = 0
+        owner.playcount = 0
+        owner.file = dbfile
+        log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
+        model.Session.save(owner)
 
         log.info('%s by %s successfully inserted into the database', 
-            file['title'], file['artist'])
+            file.get('title'), file.get('artist'))
 
+        model.Session.commit() # Woot! Write baby, write!
         return file
+
+    def create_song(self, file):
+        song = model.Song()
+        song.title = file.get('title')
+        song.length = file.get('length')
+        song.tracknumber = file.get('tracknumber')
+        song.mbid = file['mbtrackid']
+        log.debug("Saving new song %s", song.title)
+
+        # Insert a new album if it does not exist
+        qry = model.Session.query(model.Album).filter(
+            model.Album.mbid == file['mbalbumid']
+        )
+        album = qry.first()
+        if album == None:
+            album = self.create_album(file)
+
+        song.album = album
+        model.Session.save(song)
+        return song
+
+    def create_album(self, file):
+        album = model.Album()
+        for key in file.keys():
+            try:
+                setattr(album, key, file[key])
+            except:
+                pass #This just means the album table doesn't store that piece of info
+        album.title = file['album']
+        album.mbid = file['mbalbumid']
+        log.debug("Saving new album %s", album.title)
+        model.Session.save(album)
+        return album

@@ -1,7 +1,7 @@
 import logging
 import os
 from baseaction import BaseAction
-from facebook import Facebook, FacebookError
+import fileprocess
 from pylons import config
 
 log = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ class FacebookAction(BaseAction):
             if e.code == 102: #session key has expired
                 os.remove(file['fname'])
                 log.info('%s is not a valid session, removing upload', file['fbsession'])
+                fileprocess.UploadStatus("Session no longer valid", fileprocess.na.AUTHENTICATE, file)
                 return False
 
 

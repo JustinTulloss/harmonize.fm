@@ -6,6 +6,7 @@ from pylons import config
 import os
 import guid
 from baseaction import BaseAction
+import fileprocess
 from shutil import move
 
 log = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ class Mover(BaseAction):
         else:
             frm = file['fname']
         if not os.path.exists(frm):
+            fileprocess.UploadStatus("File not uploaded correctly", 
+                fileprocess.na.TRYAGAIN, file)
             return False
         move(frm, to)
 

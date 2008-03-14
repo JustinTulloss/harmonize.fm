@@ -1,13 +1,14 @@
 # The mother of all file actions
 # Does all the ugly stuff, starts threads, defines queues, eats babies, etc.
-
 from Queue import *
+import fileprocess
 import logging
 import threading
-
+import os
 log = logging.getLogger(__name__)
 
 class BaseAction(object):
+
     def __init__(self):
         self.queue = Queue()
         self.nextqueue = None
@@ -23,12 +24,18 @@ class BaseAction(object):
                 nextfile = self.process(nf)
             except Exception, e:
                 log.exception(e)
-                #TODO:drop this file, need to report back at some point
+                fileprocess.UploadsStatus("Upload had an unexpected failure", 
+                    fileprocess.na.TRYAGAIN, nf)
                 nextfile=False
 
             if nextfile != False:
                 if self.nextqueue != None:
                     self.nextqueue.put(nextfile)
+            else: # cleanup
+                try:
+                    os.remove(file['fname'])
+                except:
+                    pass
     
     def stop(self):
         self._running = 0

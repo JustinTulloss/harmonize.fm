@@ -2,6 +2,7 @@ import logging
 import S3
 import os
 from baseaction import BaseAction
+import fileprocess
 from pylons import config
 
 log = logging.getLogger(__name__)
@@ -42,5 +43,7 @@ class S3Uploader(BaseAction):
             log.info("%s successfully uploaded to S3", file['title'])
         else:
             log.error(response.message)
+            fileprocess.UploadStatus("Could not save uploaded file", fileprocess.na.TRYAGAIN, file)
+            return False
 
         return file
