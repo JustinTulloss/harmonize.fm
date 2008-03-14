@@ -24,13 +24,13 @@ class TagGetter(BaseAction):
         except HeaderNotFoundError:
             log.info("A non-mp3 file was uploaded")
             os.remove(file['fname'])
-            msg = "%s is not an mp3 file" % file.get('fname')
-            fileprocess.UploadStatus(msg, fileprocess.na.FAILURE, file)
+            fileprocess.UploadStatus("File is not an MP3 file", 
+                fileprocess.na.FAILURE, file)
             return False
 
         file.update(audio)
-        #EasyID3 pulls every tag out as a list, which is kind of annoying.
-        #I join the lists here for ease of processing later.
+        # EasyID3 pulls every tag out as a list, which is kind of annoying.
+        # I join the lists here for ease of processing later.
         for k in audio.keys():
             file[k] = ','.join(file[k])
 

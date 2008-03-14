@@ -27,7 +27,7 @@ class UploadStatus(object):
         self.file = file
 
         with msglock:
-            file['session']['uploadmsgs'].append(self)
+            file['session'].get('uploadmsgs').append(self)
             file['session'].save()
 
 na = NextAction()
@@ -48,7 +48,6 @@ class FileUploadThread(object):
         self._endqueue = Queue()
         self.running = 1
 
-        #TODO: Move this class initialization to some config file?
         self.handlers = [
             Mover(),
             FacebookAction(),

@@ -7,12 +7,17 @@ from ..actions.mover import Mover
 from ..actions.taggetter import TagGetter
 from ..actions.brainztagger import BrainzTagger
 
-import os, shutil
+import pymock
+import os, shutil, sys
+sys.path.append('..')
+from mock import Mock
+
 from pylons import config
 from paste.deploy import appconfig
 
 class TestActions(unittest.TestCase):
     def setUp(self):
+        os.path
         logging.basicConfig(level=logging.INFO)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
@@ -24,9 +29,15 @@ class TestActions(unittest.TestCase):
         os.mkdir(config['media_dir'])
         shutil.copytree('./test/testfiles', config['upload_dir'])
 
+
         self.fdata = mockfiles.copy()
         for key,f in mockfiles.iteritems():
             self.fdata[key]=f.copy()
+            # Also add mocked session
+            self.fdata[key]['session'] = Mock(spec={})
+            self.fdata[key]['session']._methods.append('save')
+            self.fdata[key]['session'].has_key.return_value=True
+            self.fdata[key]['session'].get.return_value = []
 
     def tearDown(self):
         shutil.rmtree(config['upload_dir'])
@@ -64,8 +75,9 @@ class TestActions(unittest.TestCase):
         assert b is not None, "BrainzTagger not constructed"
 
         of = self.fdata['nonexistenttags'].copy()
-        nf = b.process(self.fdata['nonexistenttags'])
-        assert of == nf, 'Brainz modified a file without a match'
+        assert_false(b.process(self.fdata['nonexistenttags']))
+        assert self.fdata['nonexistenttags']['session'].save.called
+        self.fdata['nonexistenttags']['session'].reset()
 
         nf = b.process(self.fdata['goodtags'])
         assert nf, "Brainz failed to process properly tagged song"
@@ -83,3 +95,5 @@ class TestActions(unittest.TestCase):
             "Brainz did not fill in missing album"
 
         assert_false(b.process(self.fdata['multipleversions']))
+        assert self.fdata['multipleversions']['session'].save.called
+        self.fdata['multipleversions']['session'].reset()
