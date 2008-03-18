@@ -14,7 +14,7 @@ import pylons
 
 log = logging.getLogger(__name__)
 
-DEFAULT_EXPIRATION = 5 #minutes to expire a song access URL
+DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
 
 class PlayerController(BaseController):
     def __before__(self):
@@ -76,23 +76,3 @@ class PlayerController(BaseController):
             return True	
         else:
             return False
-	
-    def add_rec(self):
-        type = request.params.get('type')
-        myid = request.params.get('id')
-        if type == 'album': #recommending entire album
-            myalbum = Session.query(Songs).filter_by(album_id=myid).all()
-            for mysong in myalbum:
-                mysong.recommendations = mysong.recommendations + 1
-        elif type == 'song': #individual song
-            mysong = Session.query(Songs).filter_by(id=myid).one()
-            mysong.recommendations = mysong.recommendations + 1
-        elif type == 'artist':
-            myalbum = Session.query(Songs).filter_by(artist=myid).all()
-            for mysong in myalbum:
-                mysong.recommendations = mysong.recommendations + 1
-        else:
-            return "Failure"
-        #Session.save(mysong)  - this should work and use less resources...
-        Session.commit()
-        return "Success"    
