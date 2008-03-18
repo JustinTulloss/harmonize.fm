@@ -25,7 +25,9 @@ class BrainzTagger(BaseAction):
         if not file.has_key('title'):
             #TODO: Analyze and try to do a PUID match.
             log.info('Analysis needs to be done on %s',file.get('fname'))
-            fileprocess.UploadStatus("File had no tags", fileprocess.na.FAILURE, file)
+            file['msg'] = "File had not tags"
+            file['na'] = fileprocess.na.FAILURE
+            self.cleanup(file)
             return False
 
         arglist = [
@@ -51,14 +53,16 @@ class BrainzTagger(BaseAction):
                     "There was a problem with MusicBrainz, bailing on %s: %s", 
                     args, e
                 ) 
-                fileprocess.UploadStatus("Could not contact tagging service", 
-                    fileprocess.na.TRYAGAIN, file)
+                file['msg'] = "Could not contact tagging service"
+                file['na'] = fileprocess.na.TRYAGAIN
                 return False
 
         if len(result)== 0:
             #Uh oh, nothing found. TODO:What now??
             log.info('Brainz match not found for %s',file.get('title'))
-            fileprocess.UploadStatus("No tags found for file", fileprocess.na.FAILURE, file)
+            file['msg'] = "No tags found for file"
+            file['na'] = fileprocess.na.FAILURE
+            self.cleanup(file)
             return False
 
         if len(result)>1:
@@ -67,13 +71,16 @@ class BrainzTagger(BaseAction):
                     result.remove(r)
             if len(result) == 0:
                 log.info('Brainz match not adequate for %s',file.get('title'))
-                fileprocess.UploadStatus("Could not find accurate tags for file", 
-                    fileprocess.na.FAILURE, file)
+                file['msg'] = "Could not find accurate tags for file"
+                file['na'] = fileprocess.na.FAILURE
+                self.cleanup(file)
                 return False
             if len(result)>1:
                 #TODO: Run a PUID analysis
                 log.info("Found multiple versions of %s", file.get('title'))
-                fileprocess.UploadStatus("Too many versions of tags found", fileprocess.na.FAILURE, file)
+                file['msg'] = "Too many versions of tags found"
+                file['na'] = fileprocess.na.FAILURE
+                self.cleanup(file)
                 return False
 
         result = result[0]

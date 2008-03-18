@@ -9,10 +9,10 @@ log = logging.getLogger(__name__)
 
 class BaseAction(object):
 
-    def __init__(self, cleanup, nextqueue = None):
+    def __init__(self, cleanup=None, nextqueue = None):
         self.queue = Queue()
         self.nextqueue = nextqueue
-        self.cleanup = cleanup
+        self.cleanup_handler = cleanup
         self._running = 1
         self._thread=threading.Thread(None, self._loop)
         self._thread.start()
@@ -25,18 +25,14 @@ class BaseAction(object):
                 nextfile = self.process(nf)
             except Exception, e:
                 log.exception(e)
-                fileprocess.UploadsStatus("Upload had an unexpected failure", 
-                    fileprocess.na.TRYAGAIN, nf)
+                file['msg'] = "Upload had an unexpected failure"
+                file['na']  = fileprocess.na.TRYAGAIN
+                self.cleanup(file)
                 nextfile=False
 
             if nextfile != False:
                 if self.nextqueue != None:
                     self.nextqueue.put(nextfile)
-            else: # cleanup
-                try:
-                    os.remove(file['fname'])
-                except:
-                    pass
     
     def stop(self):
         self._running = 0
@@ -47,6 +43,10 @@ class BaseAction(object):
         self._running = 1
         if not self._thread.isAlive():
             self._thread.run()
+
+    def cleanup(self, file):
+        if self.cleanup_handler != None:
+            self.cleanup_handler.put(file)
 
     def process(self, nf):
         """

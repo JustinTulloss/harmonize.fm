@@ -51,20 +51,19 @@ class FileUploadThread(object):
         cleanup = Cleanup() # A Special thread for cleaning up errors
 
         self.handlers = [
-            Mover(cleanup),
-            FacebookAction(cleanup),
-            TagGetter(cleanup),
-            DBChecker(cleanup),
-            BrainzTagger(cleanup),
-            DBRecorder(cleanup),
-            S3Uploader(cleanup)
+            Mover(),
+            FacebookAction(),
+            TagGetter(),
+            DBChecker(),
+            BrainzTagger(),
+            DBRecorder(),
+            S3Uploader()
         ]
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):
             self.handlers[x].nextqueue = self.handlers[x+1].queue
-
-        #self.handlers[len(self.handlers)-1].nextqueue = self._endqueue
+            self.handlers[x].cleanup_handler = cleanup
 
         #GO GO GO!
         self._thread = threading.Thread(None,self)

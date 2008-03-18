@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 
 class Mover(BaseAction):
     
-    def __init__(self, *args):
-        super(Mover, self).__init__(args)
+    def __init__(self):
+        super(Mover, self).__init__()
         self.to = config['media_dir']
         self.frm = config['upload_dir']
     
