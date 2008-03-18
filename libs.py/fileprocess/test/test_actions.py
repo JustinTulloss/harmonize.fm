@@ -3,7 +3,8 @@ import logging
 import nose
 from nose.tools import *
 from mockfiles import mockfiles
-from ..actions import Mover, TagGetter, BrainzTagger, Cleanup
+from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction
+import fileprocess
 
 import pymock
 import os, shutil, sys
@@ -128,3 +129,20 @@ class TestActions(unittest.TestCase):
             "Cleanup did not update session"
         assert_false(os.path.exists(self.fdata['goodfile']['fname']),
             "Cleanup did not remove file")
+
+    def testFacebook(self):
+        f = FacebookAction()
+        f.cleanup_handler = Mock()
+        assert f is not None, "Facebook Action not constructed"
+        
+        # Test bad facebook session
+        assert_false(f.process(self.fdata['badfbsession']))
+        assert f.cleanup_handler.put.called,\
+            "Did not properly cleanup after facebook failed"
+        assert self.fdata['badfbsession']['na'] == fileprocess.na.AUTHENTICATE,\
+            "Facebook Action did not request reauthentication"
+
+        nf = f.process(self.fdata['goodfbsession'])
+        assert nf['fbid'] is not None, \
+            "Facebook Action failed to populate facebook uid"
+

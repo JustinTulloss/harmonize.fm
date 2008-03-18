@@ -31,5 +31,12 @@ mockfiles = {
     'multipleversions': {
         u'title': u'Happiness is a Warm Gun',
         u'artist': u'The Beatles'
+    },
+    'goodfbsession': {
+        u'fbsession': u'08bd66d3ebc459d32391d0d2-1909354'
+    },
+    'badfbsession': {
+        u'fbsession': u'notevenclose to legit'
     }
+ 
 }
