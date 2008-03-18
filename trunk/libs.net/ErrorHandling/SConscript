@@ -1,6 +1,0 @@
-import os
-
-Import('*')
-sources = all('cs')
-
-lib = net.CLILibrary('ErrorHandling', sources, ASSEMBLYREFS=[])
