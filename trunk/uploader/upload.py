@@ -1,4 +1,4 @@
-import os, re, hashlib, httplib
+import os, re, hashlib, httplib, sys
 import os.path as path
 from thread import start_new_thread
 import time
@@ -29,10 +29,16 @@ def get_music_files(dir):
 
 def is_music_file(file):
 	return file.endswith('.mp3')
-	#return re.match(r'.*\.mp3$', file) != None
 
 def upload_file(file, session_key):
-	file_contents = open(file).read()
+	try:
+		fd = open(file)
+		file_contents = fd.read()
+		fd.close()
+	except IOError, e:
+		sys.stderr.write('Unable to read file %s, skipping.\n' % file)
+		return
+
 	file_sha = hashlib.sha1(file_contents).hexdigest()
 
 	connection = httplib.HTTPConnection('127.0.0.1', 2985)

@@ -3,3 +3,5 @@ syntax:glob
 *.swp
 *.pyc
 *.o
+trunk/uploader/dist
+trunk/uploader/build
