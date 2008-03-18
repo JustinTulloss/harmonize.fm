@@ -41,9 +41,10 @@ class DBChecker(BaseAction):
             os.remove(file['fname'])
             log.debug('%s has already been uploaded by %s', 
                 file.get('fname'), file['fbid'])
-            fileprocess.UploadStatus("File already uploaded by user", fileprocess.na.NOTHING, file)
+            file['msg'] = "File has already been uploaded by user"
+            file['na'] = fileprocess.na.NOTHING
+            self.cleanup(file)
             return False
-
 
         qry = model.Session.query(model.File).filter(
             model.File.sha==file['sha']
@@ -58,8 +59,8 @@ class DBChecker(BaseAction):
             model.Session.save(owner)
             model.Session.commit()
             log.debug('%s already uploaded, removing', file['fname'])
-            os.remove(file['fname'])
-            fileprocess.UploadStatus("File successfully uploaded", fileprocess.na.NOTHING, file)
+            self.cleanup(file)
             return False
 
         file['dbuser'] = user
+        return file

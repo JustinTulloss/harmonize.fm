@@ -12,11 +12,11 @@ READCHUNK = 1024 *128 #128k at a time, i think that's fair
 class S3Uploader(BaseAction):
     def process(self, file):
         if config['S3.upload'] == 'false':
-            os.remove(file['fname'])
             log.warn("Removed %s because S3.upload flag is set to false", 
                 file['fname']
             )
-            return file
+            self.cleanup(file)
+            return False
 
         conn = S3.AWSAuthConnection(
             config['S3.accesskey'], 
@@ -43,7 +43,10 @@ class S3Uploader(BaseAction):
             log.info("%s successfully uploaded to S3", file['title'])
         else:
             log.error(response.message)
-            fileprocess.UploadStatus("Could not save uploaded file", fileprocess.na.TRYAGAIN, file)
+            file['msg'] = "Could not save file"
+            file['na'] = fileprocess.na.TRYAGAIN
+            self.cleanup(file)
             return False
 
-        return file
+        self.cleanup(file)
+        return False

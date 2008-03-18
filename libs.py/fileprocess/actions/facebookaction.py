@@ -7,8 +7,8 @@ from pylons import config
 log = logging.getLogger(__name__)
 
 class FacebookAction(BaseAction):
-    def __init__(self):
-        super(FacebookAction, self).__init__()
+    def __init__(self, *args):
+        super(FacebookAction, self).__init__(args)
         self.apikey = config['pyfacebook.apikey']
         self.secret = config['pyfacebook.secret']
     """

@@ -5,6 +5,7 @@ from dbchecker import DBChecker
 from brainztagger import BrainzTagger
 from dbrecorder import DBRecorder
 from s3uploader import S3Uploader
+from cleanup import Cleanup
 
 __all__=[
     'Mover', 
@@ -13,5 +14,6 @@ __all__=[
     'DBChecker', 
     'BrainzTagger',
     'DBRecorder',
-    'S3Uploader'
+    'S3Uploader',
+    'Cleanup'
 ]

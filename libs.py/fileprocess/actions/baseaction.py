@@ -9,9 +9,10 @@ log = logging.getLogger(__name__)
 
 class BaseAction(object):
 
-    def __init__(self):
+    def __init__(self, cleanup, nextqueue = None):
         self.queue = Queue()
-        self.nextqueue = None
+        self.nextqueue = nextqueue
+        self.cleanup = cleanup
         self._running = 1
         self._thread=threading.Thread(None, self._loop)
         self._thread.start()

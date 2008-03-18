@@ -8,8 +8,8 @@ from musicbrainz2.webservice import Query, TrackFilter, WebServiceError, Release
 log = logging.getLogger(__name__)
 
 class BrainzTagger(BaseAction):
-    def __init__(self):
-        super(BrainzTagger, self).__init__()
+    def __init__(self, *args):
+        super(BrainzTagger, self).__init__(args)
         self.artistcache = dict()
         self.albumcache = dict()
         self.cachelock = threading.Lock()

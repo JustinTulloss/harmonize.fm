@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 
 class Mover(BaseAction):
     
-    def __init__(self):
-        super(Mover, self).__init__()
+    def __init__(self, *args):
+        super(Mover, self).__init__(args)
         self.to = config['media_dir']
         self.frm = config['upload_dir']
     
@@ -31,8 +31,9 @@ class Mover(BaseAction):
         else:
             frm = file['fname']
         if not os.path.exists(frm):
-            fileprocess.UploadStatus("File not uploaded correctly", 
-                fileprocess.na.TRYAGAIN, file)
+            file['msg'] = "An Error occurred while processing file"
+            file['na'] = fileprocess.na.TRYAGAIN
+            self.cleanup(file)
             return False
         move(frm, to)
 
