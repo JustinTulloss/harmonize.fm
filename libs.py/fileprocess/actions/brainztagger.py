@@ -46,15 +46,9 @@ class BrainzTagger(BaseAction):
             for arg in arglist.pop():
                 fargs[arg] = args[arg]
             filter = TrackFilter(**fargs)
-            try:
-                result = mbquery.getTracks(filter)
-            except WebServiceError, e:
-                log.warn(
-                    "There was a problem with MusicBrainz, bailing on %s: %s", 
-                    args, e
-                ) 
-                file['msg'] = "Could not contact tagging service"
-                file['na'] = fileprocess.na.TRYAGAIN
+            log.debug("querying brainz for %s", fargs)
+            result = self.query_brainz(file,mbquery.getTracks,filter)
+            if result == False:
                 return False
 
         if len(result)== 0:
@@ -90,9 +84,16 @@ class BrainzTagger(BaseAction):
         if self.albumcache.has_key(mbalbumid):
             album = self.albumcache[mbalbumid]
         else:
+            include = ReleaseIncludes(releaseEvents=True, tracks=True)
+            album = self.query_brainz(
+                file,
+                mbquery.getReleaseById,
+                mbalbumid, 
+                include=include
+            )
+            if album == False:
+                return False
             with self.cachelock:
-                include = ReleaseIncludes(releaseEvents=True, tracks=True)
-                album = mbquery.getReleaseById(mbalbumid, include=include)
                 self.albumcache[mbalbumid]= album
 
         # Get info on the artist, cache it for future songs
@@ -100,8 +101,11 @@ class BrainzTagger(BaseAction):
         if self.artistcache.has_key(mbartistid):
             artist = self.artistcache[mbartistid]
         else:
+            artist = mbquery.getArtistById(mbartistid)
+            artist=self.query_brainz(file,mbquery.getArtistById, mbartistid)
+            if artist == False:
+                return False
             with self.cachelock:
-                artist = mbquery.getArtistById(mbartistid)
                 self.artistcache[mbartistid] = artist
 
         # Fill out the tags. Oh yeah.
@@ -126,3 +130,17 @@ class BrainzTagger(BaseAction):
         log.debug('%s successfully tagged by MusicBrainz', file.get('title'))
 
         return file
+
+    def query_brainz(self, file, callable, *args, **kwargs):
+        try:
+            result = callable(*args, **kwargs)
+            return result
+        except WebServiceError, e:
+            log.warn(
+                "There was a problem with MusicBrainz, bailing on %s: %s", 
+                args, e
+            ) 
+            file['msg'] = "Could not contact tagging service"
+            file['na'] = fileprocess.na.TRYAGAIN
+            self.cleanup(file)
+            return False

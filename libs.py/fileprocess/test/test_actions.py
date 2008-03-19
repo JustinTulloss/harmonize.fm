@@ -124,6 +124,19 @@ class TestActions(TestBase):
             "Cleanup not called on multipleversions"
         b.cleanup_handler.reset()
 
+        # Test a broken response from musicbrainz (which happens a lot)
+        import musicbrainz2.webservice
+        def getTracks(*args, **kwargs):
+            raise musicbrainz2.webservice.WebServiceError("Testing Error")
+        @patch(musicbrainz2.webservice.Query, 'getTracks', getTracks)
+        def query(file):
+            b.process(file)
+
+        assert_false(query(self.fdata['goodtags']))
+        assert b.cleanup_handler.put.called, \
+            "Cleanup not called on multipleversions"
+        b.cleanup_handler.reset()
+
     def testCleanup(self):
         c = Cleanup()
         assert c is not None, "Cleanup not constructed"
@@ -207,8 +220,6 @@ class TestDBActions(TestBase):
     These actions need a database to back them. Since databases are painful
     and slow to set up for unit testing purposes, they get their own class
     """
-
-
     def __init__(self, *args):
         super(TestDBActions, self).__init__(*args)
         config['pylons.g'] = Mock()
@@ -220,8 +231,8 @@ class TestDBActions(TestBase):
 
     def setUp(self):
         super(TestDBActions, self).setUp()
-        self.model.metadata.create_all(self.model.Session.bind)
         self.model.Session.remove()
+        self.model.metadata.create_all(self.model.Session.bind)
 
     def tearDown(self):
         super(TestDBActions, self).tearDown()
@@ -269,4 +280,54 @@ class TestDBActions(TestBase):
         ).all(), "New owner of old file not properly inserted"
 
     def testDBRecorder(self):
-        pass
+        r = DBRecorder()
+        c = DBChecker() #Use this instead of querying for correct results
+        assert r is not None, "DBRecorder not constructed"
+
+        # Create our DB user
+        user = self.model.User()
+        user.fbid = self.fdata['dbrec']['fbid']
+        self.model.Session.save(user)
+        self.model.Session.commit()
+        self.fdata['dbrec']['dbuser'] = user
+
+        # Test insertion of good record
+        nf = r.process(self.fdata['dbrec'])
+        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong'] and nf['dbalbum']
+        assert_false(c.process(self.fdata['dbrec']),
+            "Checker did not detect clean record insertion")
+        nf.pop('dbowner')
+        nf.pop('dbfile')
+        nf.pop('dbsong')
+        nf.pop('dbalbum')
+
+        # Test insertion of same record with different user and sha
+        self.fdata['dbrec']['sha'] = '256f863d46e7a03cc4f05bab267e313d4b258e01'
+        self.fdata['dbrec']['fbid'] = 1908861 
+        user = self.model.User()
+        user.fbid = self.fdata['dbrec']['fbid']
+        self.model.Session.save(user)
+        self.model.Session.commit()
+        self.fdata['dbrec']['dbuser'] = user
+        nf = r.process(self.fdata['dbrec'])
+        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong']
+        assert not nf.has_key('dbalbum') #This key only exists on a new album
+        assert_false(c.process(self.fdata['dbrec']),
+            "Checker did not detect duplicate song insertion")
+        nf.pop('dbowner')
+        nf.pop('dbfile')
+        nf.pop('dbsong')
+
+        # Test insertion of same record with different sha
+        self.fdata['dbrec']['sha'] = '1dfbc8174c31551c3f7698a344fe6dc2d6a0f431'
+        nf = r.process(self.fdata['dbrec'])
+        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong']
+        assert not nf.has_key('dbalbum')
+        assert_false(c.process(self.fdata['dbrec']),
+            "Checker did not detect duplicate song and user insertion")
+        nf.pop('dbowner')
+        nf.pop('dbfile')
+        nf.pop('dbsong')
+
+        # Test insertion of incomplete record
+        assert_raises(AssertionError, r.process,  self.fdata['goodtags'])

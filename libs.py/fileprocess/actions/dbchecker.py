@@ -63,4 +63,5 @@ class DBChecker(BaseAction):
             self.cleanup(file)
             return False
 
+        model.Session.remove()
         return file
