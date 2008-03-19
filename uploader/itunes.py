@@ -53,7 +53,7 @@ class ITunes(object):
 			filename = track['Location']
 			#for right now, only upload local files
 			if filename[:16] == 'file://localhost':
-				track_filenames.append(url2pathname(str(filename))[16:])
+				track_filenames.append(url2pathname(str(filename)[16:]))
 
 		return track_filenames
 	
