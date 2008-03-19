@@ -21,7 +21,7 @@ class TestActions(unittest.TestCase):
         logging.basicConfig(level=logging.INFO)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
-                '/../../masterapp/development.ini'
+                '/../../masterapp/test.ini'
             )
         )
         config['upload_dir']='./test/testuploaddir'
@@ -195,3 +195,4 @@ class TestActions(unittest.TestCase):
         nf = s.process(self.fdata['goodfile'])
         assert s.cleanup_handler.put.called, \
             "S3 did not clean up local file when not uploading"
+
