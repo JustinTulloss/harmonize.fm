@@ -7,17 +7,20 @@ from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
     S3Uploader
 import fileprocess
 
+from sqlalchemy import engine_from_config
+from sqlalchemy import engine
+
 import pymock
 import os, shutil, sys
 sys.path.append('..')
 from mock import Mock, patch, sentinel
 
-from pylons import config
+from pylons import config, g
 from paste.deploy import appconfig
 
-class TestActions(unittest.TestCase):
-    def setUp(self):
-        os.path
+class TestBase(unittest.TestCase):
+    def __init__(self, *args):
+        super(TestBase, self).__init__(*args)
         logging.basicConfig(level=logging.INFO)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
@@ -26,9 +29,10 @@ class TestActions(unittest.TestCase):
         )
         config['upload_dir']='./test/testuploaddir'
         config['media_dir']='./test/teststagingdir'
+
+    def setUp(self):
         os.mkdir(config['media_dir'])
         shutil.copytree('./test/testfiles', config['upload_dir'])
-
 
         self.fdata = mockfiles.copy()
         for key,f in mockfiles.iteritems():
@@ -43,6 +47,8 @@ class TestActions(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(config['upload_dir'])
         shutil.rmtree(config['media_dir'])
+
+class TestActions(TestBase):
 
     def testMover(self):
         m = Mover()
@@ -196,3 +202,30 @@ class TestActions(unittest.TestCase):
         assert s.cleanup_handler.put.called, \
             "S3 did not clean up local file when not uploading"
 
+class TestDBActions(TestBase):
+    """
+    These actions need a database to back them. Since databases are painful
+    and slow to set up for unit testing purposes, they get their own class
+    """
+
+
+    def __init__(self, *args):
+        super(TestDBActions, self).__init__(*args)
+        config['pylons.g'] = Mock()
+        config['pylons.g'].sa_engine = engine_from_config(config,
+            prefix = 'sqlalchemy.default.'
+        )
+        from masterapp import model
+        self.model = model
+
+    def setUp(self):
+        super(TestDBActions, self).setUp()
+        self.model.metadata.create_all(self.model.Session.bind)
+        self.model.Session.remove()
+
+    def tearDown(self):
+        super(TestDBActions, self).tearDown()
+        self.model.metadata.drop_all(self.model.Session.bind)
+
+    def testDBChecker(self):
+        pass

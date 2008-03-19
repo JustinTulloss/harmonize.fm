@@ -62,5 +62,3 @@ class S3Uploader(BaseAction):
             file['na'] = fileprocess.na.TRYAGAIN
             self.cleanup(file)
             return False
-
-
