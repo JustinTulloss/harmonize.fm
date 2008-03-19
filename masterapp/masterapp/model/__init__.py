@@ -25,7 +25,7 @@ owners_table = Table("owners", metadata,
 
 users_table = Table("users", metadata,
     Column("id", types.Integer, primary_key=True),
-    Column("fbid", types.Integer, nullable=False, index=True),
+    Column("fbid", types.Integer, nullable=False, index=True, unique=True),
 )
 
 songstats_table = Table("songstats", metadata,

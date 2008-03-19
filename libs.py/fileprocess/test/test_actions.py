@@ -4,7 +4,7 @@ import nose
 from nose.tools import *
 from mockfiles import mockfiles
 from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
-    S3Uploader
+    S3Uploader, DBChecker, DBRecorder
 import fileprocess
 
 from sqlalchemy import engine_from_config
@@ -228,11 +228,45 @@ class TestDBActions(TestBase):
         self.model.metadata.drop_all(self.model.Session.bind)
 
     def testDBChecker(self):
+        c = DBChecker()
+        assert c is not None, "Failed to create dbchecker"
+        c.cleanup_handler = Mock()
+
         # Test creating a user and inserting a brand new file
+        nf = c.process(self.fdata['dbrec'])
+        assert nf['dbuser'].id is not None,\
+            "Failed to insert new user into the database"
+        assert nf['dbuser'].fbid == self.fdata['dbrec']['fbid'], \
+            "Failed to associate new user with fbid"
+
+        # Insert some records to indicate this file is owned
+        dbf = self.model.File()
+        dbf.sha = self.fdata['dbrec']['sha']
+        dbf.songid = 1
+        self.model.Session.save(dbf)
+
+        dbo = self.model.Owner()
+        dbo.user = nf['dbuser']
+        dbo.file = dbf
+        self.model.Session.save(dbo)
+        self.model.Session.commit()
+        
         # Test a file this client has already uploaded
+        assert_false(c.process(self.fdata['dbrec']),
+            "File insertion should have failed as it was already uploaded")
+        assert c.cleanup_handler.put.called,\
+            "Did not call cleanup on identical upload"
+        c.cleanup_handler.put.reset()
+        assert self.fdata['dbrec']['na'] == fileprocess.na.NOTHING,\
+            "Improperly called identical upload a failure"
+
         # Test a file that another client has already uploaded
-        # Test a new file with an already existing user
-        pass
+        self.fdata['dbrec']['fbid'] = 1908861 
+        assert_false(c.process(self.fdata['dbrec']),
+            "Already uploaded file by 1 user not recognized by another")
+        assert self.model.Session.query(self.model.Owner).filter(
+            self.model.Owner.id==self.fdata['dbrec']['dbuser'].id
+        ).all(), "New owner of old file not properly inserted"
 
     def testDBRecorder(self):
         pass

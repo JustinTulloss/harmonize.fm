@@ -42,6 +42,7 @@ mockfiles = {
     },
     'dbrec': {
         u'fbid': 1909354,
+        u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
         u'album': u'Broken Bride', 
         u'mbalbumid': u'defeb27b-ac1d-4d65-a97a-0c45fa4f9710', 
         u'title': u'Save Our City', 

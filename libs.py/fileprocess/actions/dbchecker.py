@@ -31,6 +31,8 @@ class DBChecker(BaseAction):
             model.Session.save(user)
             model.Session.commit()
 
+        file['dbuser'] = user
+
         # Check to see if this file has already been uploaded by this person.
         qry = model.Session.query(model.Owner).join('file').filter(
             and_(model.File.sha == file['sha'], model.Owner.id==user.id)
@@ -38,7 +40,6 @@ class DBChecker(BaseAction):
         ownerfile = qry.first()
         if ownerfile != None:
             #Just bail now, this file's already been uploaded
-            os.remove(file['fname'])
             log.debug('%s has already been uploaded by %s', 
                 file.get('fname'), file['fbid'])
             file['msg'] = "File has already been uploaded by user"
@@ -55,12 +56,11 @@ class DBChecker(BaseAction):
             owner = model.Owner()
             owner.file = dbfile
             owner.user = user
-            log.debug("Adding %s to %s's music", file['title'], file['fbid'])
+            log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
             model.Session.save(owner)
             model.Session.commit()
-            log.debug('%s already uploaded, removing', file['fname'])
+            log.debug('%s already uploaded, removing', file.get('fname'))
             self.cleanup(file)
             return False
 
-        file['dbuser'] = user
         return file
