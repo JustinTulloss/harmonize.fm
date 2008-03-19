@@ -1,10 +1,12 @@
 mockfiles = {
     'empty' : {},
     'neupload' : {
-        u'fname': u'nonexistent.mp3'
+        u'fname': u'nonexistent.mp3',
+        u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
     },
     'goodfile' : {
-        u'fname': u'good.mp3'
+        u'fname': u'good.mp3',
+        u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
     },
     'notmp3': {
         u'fname': u'notafile.mp3'

@@ -3,13 +3,14 @@ import logging
 import nose
 from nose.tools import *
 from mockfiles import mockfiles
-from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction
+from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
+    S3Uploader
 import fileprocess
 
 import pymock
 import os, shutil, sys
 sys.path.append('..')
-from mock import Mock
+from mock import Mock, patch, sentinel
 
 from pylons import config
 from paste.deploy import appconfig
@@ -146,3 +147,51 @@ class TestActions(unittest.TestCase):
         assert nf['fbid'] is not None, \
             "Facebook Action failed to populate facebook uid"
 
+    def testS3(self):
+        s = S3Uploader()
+        assert s is not None, "S3 uploader not constructed"
+        s.cleanup_handler = Mock()
+
+        config['S3.upload'] = True
+
+        # Test an empty file
+        assert_raises(AssertionError, s.process, self.fdata['empty'])
+
+        # Test a nonexistent file
+        # XXX: This doesn't actually make sense. If for some reason,
+        # the file is lost, we need to undo everything we've done. It's
+        # a bad situation that will hopefully never happen.
+        assert_false(s.process(self.fdata['neupload']),
+            "Did not fail on nonexistent file"
+        )
+
+        # Test a good file (patch out the actual upload)
+        self.fdata['goodfile']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
+        putfxn = Mock()
+        putfxn.return_value = sentinel
+        putfxn.return_value.message = '200 OK'
+        import S3
+        @patch(S3.AWSAuthConnection, 'put', putfxn)
+        def upload(file):
+            s.process(file)
+
+        upload(self.fdata['goodfile'])
+        assert putfxn.called, "S3 did not upload file"
+        assert s.cleanup_handler.put.called, \
+            "S3 did not clean up local file"
+        s.cleanup_handler.put.reset()
+
+        # Test for when S3 returns an error
+        putfxn.return_value.message = '500 Server Error'
+        upload(self.fdata['goodfile'])
+        assert s.cleanup_handler.put.called, \
+            "S3 did not clean up local file"
+        s.cleanup_handler.put.reset()
+
+        
+        # Test the development no-op code
+        config['S3.upload'] = False
+        nf = s.process(self.fdata['goodfile'])
+        assert s.cleanup_handler.put.called, \
+            "S3 did not clean up local file when not uploading"
