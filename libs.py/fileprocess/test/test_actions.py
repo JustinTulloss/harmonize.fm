@@ -228,4 +228,11 @@ class TestDBActions(TestBase):
         self.model.metadata.drop_all(self.model.Session.bind)
 
     def testDBChecker(self):
+        # Test creating a user and inserting a brand new file
+        # Test a file this client has already uploaded
+        # Test a file that another client has already uploaded
+        # Test a new file with an already existing user
+        pass
+
+    def testDBRecorder(self):
         pass

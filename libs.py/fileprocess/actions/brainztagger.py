@@ -105,23 +105,23 @@ class BrainzTagger(BaseAction):
                 self.artistcache[mbartistid] = artist
 
         # Fill out the tags. Oh yeah.
-        file['title'] = result.track.title
-        file['artist'] = result.track.artist.name
-        file['artistsort'] = artist.sortName
-        file['album'] = album.title
-        file['length'] = result.track.duration #in milliseconds
+        file[u'title'] = result.track.title
+        file[u'artist'] = result.track.artist.name
+        file[u'artistsort'] = artist.sortName
+        file[u'album'] = album.title
+        file[u'length'] = result.track.duration #in milliseconds
         try:
-            file['year'] = album.getEarliestReleaseDate().split('-')[0]
+            file[u'year'] = album.getEarliestReleaseDate().split('-')[0]
         except:
             pass
-        file['tracknumber'] = result.track.releases[0].getTracksOffset()+1
-        file['totaltracks'] = len(album.tracks)
+        file[u'tracknumber'] = result.track.releases[0].getTracksOffset()+1
+        file[u'totaltracks'] = len(album.tracks)
 
         # The musicbrainz ids are urls. I just keep the actual id part
-        file['mbtrackid'] = result.track.id.rsplit('/').pop()
-        file['mbalbumid'] = album.id.rsplit('/').pop()
-        file['mbartistid'] = result.track.artist.id.rsplit('/').pop()
-        file['asin'] = album.asin #probably a good thing to have ;)
+        file[u'mbtrackid'] = result.track.id.rsplit('/').pop()
+        file[u'mbalbumid'] = album.id.rsplit('/').pop()
+        file[u'mbartistid'] = result.track.artist.id.rsplit('/').pop()
+        file[u'asin'] = album.asin #probably a good thing to have ;)
 
         log.debug('%s successfully tagged by MusicBrainz', file.get('title'))
 
