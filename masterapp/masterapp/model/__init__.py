@@ -9,68 +9,25 @@ Session = scoped_session(sessionmaker(
                         transactional=True, 
                         bind=config['pylons.g'].sa_engine))
 
-metadata = MetaData()
+metadata = MetaData(bind=Session.bind)
 
-files_table = Table("files", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("sha", types.String(40), index=True, unique=True),
-    Column("songid", types.Integer, ForeignKey("songs.id"), nullable=False, index=True),
-)
+files_table = Table("files", metadata, autoload=True)
+owners_table = Table("owners", metadata, autoload=True)
+users_table = Table("users", metadata, autoload=True)
+songstats_table = Table("songstats", metadata, autoload=True)
+songs_table = Table("songs", metadata, autoload=True)
+albums_table = Table("albums", metadata,autoload=True)
+playlists_table = Table("playlists", metadata, autoload=True)
+playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
+blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
+blockedartists_table = Table("blockedartists", metadata, autoload=True)
 
-owners_table = Table("owners", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("uid", types.Integer, ForeignKey('users.id'), nullable=False, index=True),
-    Column("fileid", types.Integer, ForeignKey("files.id"), nullable=False, index=True),
-)
-
-users_table = Table("users", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("fbid", types.Integer, nullable=False, index=True),
-)
-
-songstats_table = Table("songstats", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("songid", types.Integer, ForeignKey("songs.id"), nullable=False, index=True),
-    Column("uid", types.Integer, ForeignKey('users.id'), index=True),
-    Column("lastrecommended", types.DateTime, nullable=False),
-    Column("playcount", types.Integer, nullable=False)
-)
-
-songs_table = Table("songs", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("mbid", types.Unicode(36), index=True, unique=True),
-    Column("title", types.Unicode(255), index=True),
-    Column("length", types.Integer),
-    Column("albumid", types.Integer, ForeignKey("albums.id"), nullable=False, index=True),
-    Column("tracknumber", types.Integer, default=0)
-)
-
-albums_table = Table("albums", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("mbid", types.Unicode(36), index=True),
-    Column("artist", types.Unicode(255), index=True),
-    Column("artistsort", types.Unicode(255)),
-    Column("mbartistid", types.Unicode(36), index=True),
-    Column("asin", types.Unicode(10)),
-    Column("title", types.Unicode(255), index=True),
-    Column("year", types.Integer, index=True),
-    Column("totaltracks", types.Integer, default=0)
-)
-
-playlists_table = Table("playlists", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("ownerid", types.Integer, ForeignKey("users.id"), nullable=False, index=True),
-    Column("name", types.Unicode(255))
-)
-
-playlistsongs_table= Table("playlistsongs", metadata,
-    Column("id", types.Integer, primary_key=True),
-    Column("playlistid", types.Integer, ForeignKey("playlists.id"), nullable=False, index=True),
-    Column("songindex", types.Integer),
-    Column("songid", types.Integer, ForeignKey("songs.id"), nullable=False)
-)
-
-artists = select([albums_table.c.id,albums_table.c.artist, albums_table.c.artistsort, albums_table.c.mbartistid], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
+artists = select([
+    albums_table.c.id,
+    albums_table.c.artist, 
+    albums_table.c.artistsort, 
+    albums_table.c.mbartistid
+    ], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
 
 """
 Classes that represent above tables. You can add abstractions here

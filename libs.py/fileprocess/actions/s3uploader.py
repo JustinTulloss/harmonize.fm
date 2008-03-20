@@ -10,19 +10,31 @@ log = logging.getLogger(__name__)
 READCHUNK = 1024 *128 #128k at a time, i think that's fair
 
 class S3Uploader(BaseAction):
+    """
+    This class uploads the file to S3. It's kind of aware of the fact that
+    it's at the end of the upload pipeline since it always cleans up, but
+    I'm really ok with that for now.
+    """
     def process(self, file):
+        assert file.has_key('sha') and file.has_key('fname')
         if config['S3.upload'] == 'false':
-            os.remove(file['fname'])
             log.warn("Removed %s because S3.upload flag is set to false", 
                 file['fname']
             )
+            self.cleanup(file)
             return file
 
         conn = S3.AWSAuthConnection(
             config['S3.accesskey'], 
             config['S3.secret']
         )
-        fo = open(file['fname'],'rb')
+        try:
+            fo = open(file['fname'],'rb')
+        except IOError, e:
+            file['msg'] = "An error occurred while committing file"
+            file['na'] = fileprocess.na.TRYAGAIN
+            self.cleanup(file)
+            return False
 
         data = ''
         readbytes = READCHUNK
@@ -40,10 +52,13 @@ class S3Uploader(BaseAction):
                 config['S3.music_bucket'], 
                 file['sha']
             ])
-            log.info("%s successfully uploaded to S3", file['title'])
+            log.info("%s successfully uploaded to S3", 
+                file.get('title', 'Unknown Song'))
+            self.cleanup(file)
+            return file
         else:
             log.error(response.message)
-            fileprocess.UploadStatus("Could not save uploaded file", fileprocess.na.TRYAGAIN, file)
+            file['msg'] = "Could not save file"
+            file['na'] = fileprocess.na.TRYAGAIN
+            self.cleanup(file)
             return False
-
-        return file

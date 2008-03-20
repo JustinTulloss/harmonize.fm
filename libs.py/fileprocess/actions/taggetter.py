@@ -23,9 +23,9 @@ class TagGetter(BaseAction):
             audio = MP3(file['fname'], ID3=EasyID3)
         except HeaderNotFoundError:
             log.info("A non-mp3 file was uploaded")
-            os.remove(file['fname'])
-            fileprocess.UploadStatus("File is not an MP3 file", 
-                fileprocess.na.FAILURE, file)
+            file['msg'] = "File was not an MP3"
+            file['na'] = fileprocess.na.FAILURE
+            self.cleanup(file)
             return False
 
         file.update(audio)
