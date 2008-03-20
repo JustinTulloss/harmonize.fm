@@ -11,6 +11,7 @@ def login(callback):
 	if thread_started == False:
 		thread.start_new_thread(wait_login, (callback,))
 		thread_started = True
+
 	webbrowser.open('http://localhost:2985/desktop_login')
 
 session_key = None
@@ -27,6 +28,9 @@ class LoginServer(BaseHTTPRequestHandler):
 	def error(self):
 		self.send_response(404)
 		self.end_headers()
+	
+	def log_message(format, *args):
+		pass
 
 	def do_GET(self):
 		global session_key

@@ -6,11 +6,12 @@ import time
 #UPLOAD_PATH = '/Users/justin/Music/Feist'
 
 def get_default_path():
-	paths = {'posix':os.getenv('HOME'),
-		'nt':r'C:\\',
-		'mac':path.join(os.getenv('HOME'), 'Music')}
+	#Have to wrap paths in lambda's so they don't get executed on windows
+	paths = {'posix':(lambda: os.getenv('HOME')),
+		'nt':(lambda: os.getenv('USERPROFILE')),
+		'mac':(lambda: path.join(os.getenv('HOME'), 'Music'))}
 	
-	return paths[os.name]
+	return paths[os.name]()
 
 def get_music_files(dir):
 	music_files = []
@@ -36,7 +37,7 @@ def upload_file(file, session_key):
 		file_contents = fd.read()
 		fd.close()
 	except IOError, e:
-		sys.stderr.write('Unable to read file %s, skipping.\n' % file)
+		#sys.stderr.write('Unable to read file %s, skipping.\n' % file)
 		return
 
 	file_sha = hashlib.sha1(file_contents).hexdigest()
