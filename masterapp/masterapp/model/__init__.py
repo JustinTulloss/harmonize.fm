@@ -9,10 +9,25 @@ Session = scoped_session(sessionmaker(
                         transactional=True, 
                         bind=config['pylons.g'].sa_engine))
 
-metadata = MetaData()
+metadata = MetaData(bind=Session.bind)
 
+files_table = Table("files", metadata, autoload=True)
+owners_table = Table("owners", metadata, autoload=True)
+users_table = Table("users", metadata, autoload=True)
+songstats_table = Table("songstats", metadata, autoload=True)
+songs_table = Table("songs", metadata, autoload=True)
+albums_table = Table("albums", metadata,autoload=True)
+playlists_table = Table("playlists", metadata, autoload=True)
+playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
+blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
+blockedartists_table = Table("blockedartists", metadata, autoload=True)
 
-artists = select([albums_table.c.id,albums_table.c.artist, albums_table.c.artistsort, albums_table.c.mbartistid], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
+artists = select([
+    albums_table.c.id,
+    albums_table.c.artist, 
+    albums_table.c.artistsort, 
+    albums_table.c.mbartistid
+    ], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
 
 """
 Classes that represent above tables. You can add abstractions here

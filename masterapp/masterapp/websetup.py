@@ -13,10 +13,6 @@ def setup_config(command, filename, section, vars):
     conf = appconfig('config:' + filename)
     load_environment(conf.global_conf, conf.local_conf)
 
-    from masterapp import model
-
-    log.info("Creating tables")
-    model.metadata.create_all(bind=config['pylons.g'].sa_engine)
     if config['populate_model'] == 'true':
         log.info("Populating data")
         import masterapp.lib.populate_model as populate_model
