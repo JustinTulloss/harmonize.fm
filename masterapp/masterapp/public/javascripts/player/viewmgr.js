@@ -51,13 +51,14 @@ function ViewManager(crumb, objects)
     function init_top_menu()
     {
         topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
-        var homebtn = new Ext.Toolbar.Button({text:'Home', cls:'menuitem'});
-        var artistbtn= new Ext.Toolbar.Button({text:'Artists', cls:'menuitem'});
-        var albumbtn= new Ext.Toolbar.Button({text:'Albums', cls:'menuitem'});
-        var songsbtn= new Ext.Toolbar.Button({text:'Songs', cls:'menuitem'});
-        var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
-        var playlistsbtn= new Ext.Toolbar.Button({text:'Playlists', cls:'menuitem'});
-        var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
+        var leftspc = new Ext.Toolbar.Fill();
+        var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
+        var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
+        var albumbtn= new Ext.Toolbar.Button({text:'albums', cls:'menuitem'});
+        var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
+        var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
+        var playlistsbtn= new Ext.Toolbar.Button({text:'playlists', cls:'menuitem'});
+        var settingsbtn= new Ext.Toolbar.Button({text:'settings', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
         artistbtn.on('click', function() {bread_crumb.go('artist')});
         albumbtn.on('click', function() {bread_crumb.go('album')});
@@ -68,6 +69,7 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
+            leftspc,
             homebtn,
             artistbtn,
             albumbtn,
