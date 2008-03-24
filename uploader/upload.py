@@ -55,7 +55,7 @@ def upload_file(file, session_key, callback):
 				connection.getresponse().read()
 			uploaded = True
 		except Exception, e:
-			callback('Error connecting to server, will try again in a minute')
+			callback('Error connecting to server, will try again')
 			time.sleep(60) #This is a little safer than inside the exception
 
 def upload_files(song_list, session_key, callback):
