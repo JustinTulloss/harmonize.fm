@@ -51,6 +51,9 @@ function ViewManager(crumb, objects)
     function init_top_menu()
     {
         topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
+        var srchfld = new Ext.form.TextField({
+            emptyText: "Search..."
+        });
         var leftspc = new Ext.Toolbar.Fill();
         var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
         var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
@@ -69,6 +72,7 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
+            srchfld,
             leftspc,
             homebtn,
             artistbtn,

@@ -64,88 +64,14 @@ var typeinfo = {
     artist:{
         next:'album', 
         display:'Artists',
-        cm: new Ext.grid.ColumnModel([
-            { 
-                id:'add',
-                header: 'Add',
-                renderer: render.enqColumn,
-                sortable: false,
-            },{
-                id:'auto',
-                header: "Artist",
-                dataIndex: 'artist'
-            },{
-                id: 'like',
-                header: "Liked",
-                renderer: render.starColumn,
-                sortable: true,
-                dataIndex: 'recs'
-            },{
-                id:'num_albums',
-                header: "Total Albums",
-                dataIndex: 'totalalbums',
-            },{
-                id:'num_tracks',
-                header: "Total Tracks",
-                dataIndex: 'totaltracks',
-            },{
-                id:'artistplaytime',
-                header: "Total Time",
-                dataIndex: 'artistlength',
-            },{
-                id:'recommend',
-                header: 'Recommend',
-                renderer: render.recColumn,
-                dataIndex: 'artist'
-            }
-        ])
+        gridclass: ArtistGrid
     }, 
     album:{
         next:'song', 
         qry:'albumid', 
         display:'Albums',
         nodeclass: AlbumQueueNode,
-        cm: new Ext.grid.ColumnModel([
-            { 
-                id:'add',
-                header: 'Add',
-                renderer: render.enqColumn,
-                sortable: false
-            },{
-                id:'auto',
-                header: "Album",
-                dataIndex: 'album'
-            },{
-                id: 'like',
-                header: "Liked",
-                renderer: render.starColumn,
-                sortable: true,
-                width:'20px',
-                dataIndex: 'recs'
-            },{
-                id: 'artist',
-                header: "Artist",
-                dataIndex: 'artist'
-            },{
-                id: 'year',
-                header: "Year",
-                dataIndex: 'year'
-            },{
-                id:'album_playtime',
-                header: "Total Time",
-                renderer: render.lengthColumn,
-                dataIndex: 'albumlength',
-            },{
-                id:'num_tracks',
-                header: "Total Tracks",
-                dataIndex: 'totaltracks',
-            },{
-                id:'recommend',
-                header: 'Recommend',
-                renderer: render.recColumn,
-                dataIndex: 'albumid'
-            }
-        ])
+        gridclass: AlbumGrid,
     }, 
     playlist:{
         next:'playlistsong', 
@@ -176,46 +102,7 @@ var typeinfo = {
         next:'play', 
         display:'Songs',
         nodeclass: SongQueueNode,
-        cm: new Ext.grid.ColumnModel([
-            {  
-                id: 'add',
-                header: 'Add',
-                renderer: render.enqColumn,
-                width: 25,
-                sortable: false
-            },{
-                id: 'tracknumber', 
-                header: "#",
-                width: '20px',
-                dataIndex: 'tracknumber'
-            },{
-                id: 'auto', 
-                header: "Title",
-                dataIndex: 'title'
-            },{
-                id: 'like',
-                header: "Liked",
-                renderer: render.starColumn,
-                sortable: true,
-                width:'20px',
-                dataIndex: 'recs'
-            },{
-                id: 'artist',
-                header: 'Artist',
-                sortable: true,
-                dataIndex: 'artist'
-            },{
-                id: 'album',
-                header: 'Album',
-                sortable: true,
-                dataIndex: 'album'
-            },{
-                id:'length',
-                header: "Length",
-                renderer: render.lengthColumn,
-                dataIndex: 'length'
-            }
-        ])
+        gridclass: SongGrid,
     },
     playlistsong:{
         next:'play', 
@@ -253,9 +140,6 @@ var typeinfo = {
 };
 
 //seems like there should be a way to set this above....
-typeinfo.song.cm.defaultSortable = true;
-typeinfo.album.cm.defaultSortable = true;
-typeinfo.artist.cm.defaultSortable = true;
 typeinfo.friend.cm.defaultSortable = true;
 typeinfo.playlist.cm.defaultSortable = true;
 

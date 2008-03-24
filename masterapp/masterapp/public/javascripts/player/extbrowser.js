@@ -5,23 +5,18 @@
  *   > Yeah, that totally worked. This is the primary grid for the app now --JMT
  */
 
-function Browser(fields)
+function Browser()
 {
     this.addEvents({
-        newgrid : true,
-        newgridleaf : true,
-        newgridbranch : true,
-        enqueue : true
+        newgrid: true
     });
 
-    this.actions={
-        addtoqueue: function(records) {this.fireEvent('enqueue', records)}
-    };
-        
     /***** public functions ****/
     this.load = load;
     function load(crumb, params)
     {
+        /* TODO:Replace this with logic that specifies fields that are more specific
+         * to the metadata type */
         if(crumb.ds==null) {
             crumb.ds = new Ext.data.JsonStore({
                 url:'metadata',
@@ -39,30 +34,37 @@ function Browser(fields)
         crumb.ds.load({params:params});
 
         if (crumb.panel == null) {
-            crumb.panel = new Ext.grid.GridPanel({
+            crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds,
-                cm: typeinfo[crumb.type].cm,
-                selModel: new Ext.grid.RowSelectionModel(),
-                enableColLock:false,
-                enableDragDrop: true,
-                loadMask: true,
-                autoExpandColumn: 'auto',
-                trackMouseOver: false
             });
+
             crumb.panel.on('render', function(grid) {
-                grid.browser = this;
-                grid.getView().mainBody.on('mousedown', this.onMouseDown, grid);
+                grid.getView().mainBody.on('mousedown', grid.onMouseDown, grid);
             }, this);
 
             this.fireEvent('newgrid', crumb);
-            if (typeinfo[crumb.type].next == 'play')
-                this.fireEvent('newgridleaf', crumb);
-            else
-                this.fireEvent('newgridbranch', crumb);
         }
     }
+}
 
-    /* this is called in the scope of the grid */
+Ext.extend(Browser, Ext.util.Observable);
+
+function BaseGrid(config)
+{
+    config.selModel=new Ext.grid.RowSelectionModel();
+    config.enableColLock=false;
+    config.enableDragDrop=true;
+    config.loadMask=true;
+    config.trackMouseOver=false;
+
+    this.addEvents({
+        enqueue : true
+    });
+
+    this.actions={
+        addtoqueue: function(records) {this.fireEvent('enqueue', records)}
+    };
+
     this.onMouseDown = onMouseDown;
     function onMouseDown(e, div)
     {
@@ -71,29 +73,192 @@ function Browser(fields)
             if (Ext.get(div).hasClass(action)) {
                 e.stopEvent(); /* Keep this row from getting selected */
                 var records = this.getSelectionModel().getSelections();
-                this.browser.actions[action].call(this.browser, records);
+                this.actions[action].call(this, records);
             }
         }
     }
 
-    this.recommend = recommend;
-    function recommend(type, id)
+    /* Override this to get correct per-type behavior */
+    this.search = search;
+    function search(text) { return true; }
+
+    BaseGrid.superclass.constructor.call(this, config);
+
+}
+Ext.extend(BaseGrid, Ext.grid.GridPanel);
+
+function SongGrid(config)
+{
+    this.addEvents({
+        newgridleaf : true,
+    });
+
+    config.cm = new Ext.grid.ColumnModel([
+        {  
+            id: 'add',
+            header: 'Add',
+            renderer: render.enqColumn,
+            width: 25,
+            sortable: false
+        },{
+            id: 'tracknumber', 
+            header: "#",
+            width: '20px',
+            dataIndex: 'tracknumber'
+        },{
+            id: 'title', 
+            header: "Title",
+            dataIndex: 'title'
+        },{
+            id: 'like',
+            header: "Liked",
+            renderer: render.starColumn,
+            sortable: true,
+            width:'20px',
+            dataIndex: 'recs'
+        },{
+            id: 'artist',
+            header: 'Artist',
+            sortable: true,
+            dataIndex: 'artist'
+        },{
+            id: 'album',
+            header: 'Album',
+            sortable: true,
+            dataIndex: 'album'
+        },{
+            id:'length',
+            header: "Length",
+            renderer: render.lengthColumn,
+            dataIndex: 'length'
+        }
+    ]);
+    config.cm.defaultSortable = true;
+    config.autoExpandColumn='title';
+
+    SongGrid.superclass.constructor.call(this, config);
+
+    this.search = search;
+    function search(text)
     {
-        var connect = new Ext.data.Connection({
-            url:'/player/add_rec',
-        });
-        connect.request({
-            params:{'id':id,
-                    'type':type}
-        });            
-        
-    }    
-    this.changeColModel = changeColModel;
-    function changeColModel(type)
-    {
-        this.grid.reconfigure(this.ds, typeinfo[type].cm);
-        this.grid.getView().fitColumns(true);
+        this.ds.filter('title', text, true, false);
+        return true;
     }
 }
+Ext.extend(SongGrid, BaseGrid);
 
-Ext.extend(Browser, Ext.util.Observable);
+function AlbumGrid(config)
+{
+    this.addEvents({
+        newgridbranch : true
+    });
+
+    config.cm = new Ext.grid.ColumnModel([
+        { 
+            id:'add',
+            header: 'Add',
+            renderer: render.enqColumn,
+            sortable: false
+        },{
+            id:'album',
+            header: "Album",
+            dataIndex: 'album'
+        },{
+            id: 'like',
+            header: "Liked",
+            renderer: render.starColumn,
+            sortable: true,
+            width:'20px',
+            dataIndex: 'recs'
+        },{
+            id: 'artist',
+            header: "Artist",
+            dataIndex: 'artist'
+        },{
+            id: 'year',
+            header: "Year",
+            dataIndex: 'year'
+        },{
+            id:'album_playtime',
+            header: "Total Time",
+            renderer: render.lengthColumn,
+            dataIndex: 'albumlength',
+        },{
+            id:'num_tracks',
+            header: "Total Tracks",
+            dataIndex: 'totaltracks',
+        },{
+            id:'recommend',
+            header: 'Recommend',
+            renderer: render.recColumn,
+            dataIndex: 'albumid'
+        }
+    ]);
+    config.cm.defaultSortable = true;
+    config.autoExpandColumn='album';
+
+    AlbumGrid.superclass.constructor.call(this, config);
+
+    this.search = search;
+    function search(text)
+    {
+        this.ds.filter('album', text, true, false);
+        return true;
+    }
+}
+Ext.extend(AlbumGrid, BaseGrid);
+
+function ArtistGrid(config)
+{
+    this.addEvents({
+        newgridbranch : true
+    });
+
+    config.cm = new Ext.grid.ColumnModel([
+        { 
+            id:'add',
+            header: 'Add',
+            renderer: render.enqColumn,
+            sortable: false,
+        },{
+            id:'artist',
+            header: "Artist",
+            dataIndex: 'artist'
+        },{
+            id: 'like',
+            header: "Liked",
+            renderer: render.starColumn,
+            sortable: true,
+            dataIndex: 'recs'
+        },{
+            id:'num_albums',
+            header: "Total Albums",
+            dataIndex: 'totalalbums',
+        },{
+            id:'num_tracks',
+            header: "Total Tracks",
+            dataIndex: 'totaltracks',
+        },{
+            id:'artistplaytime',
+            header: "Total Time",
+            dataIndex: 'artistlength',
+        },{
+            id:'recommend',
+            header: 'Recommend',
+            renderer: render.recColumn,
+            dataIndex: 'artist'
+        }
+    ]);
+    config.cm.defaultSortable = true;
+    config.autoExpandColumn='artist';
+
+    ArtistGrid.superclass.constructor.call(this, config);
+
+    this.search = search;
+    function search(text)
+    {
+        this.ds.filter('artist', text, true, false);
+        return true;
+    }
+}
+Ext.extend(ArtistGrid, BaseGrid);
