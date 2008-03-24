@@ -31,7 +31,7 @@ def get_music_files(dir):
 def is_music_file(file):
 	return file.endswith('.mp3')
 
-def upload_file(file, session_key):
+def upload_file(file, session_key, callback):
 	try:
 		fd = open(file)
 		file_contents = fd.read()
@@ -42,21 +42,28 @@ def upload_file(file, session_key):
 
 	file_sha = hashlib.sha1(file_contents).hexdigest()
 
-	connection = httplib.HTTPConnection('127.0.0.1', 2985)
-	url = '/uploads/' + file_sha + '?session_key=' + session_key
-	connection.request('GET', url)
+	uploaded = False
+	while not uploaded:
+		try:
+			connection = httplib.HTTPConnection('127.0.0.1', 2985)
+			url = '/uploads/' + file_sha + '?session_key=' + session_key
+			connection.request('GET', url)
 
-	if connection.getresponse().read() == '0':
-		connection.request('POST', url, file_contents, 
-			{'Content-Type':'audio/x-mpeg-3'})
-		connection.getresponse().read()
+			if connection.getresponse().read() == '0':
+				connection.request('POST', url, file_contents, 
+					{'Content-Type':'audio/x-mpeg-3'})
+				connection.getresponse().read()
+			uploaded = True
+		except Exception, e:
+			callback('Error connecting to server, will try again in a minute')
+			time.sleep(60) #This is a little safer than inside the exception
 
 def upload_files(song_list, session_key, callback):
 	songs_left = len(song_list)	
 	callback(songs_left)
 
 	for song in song_list:
-		upload_file(song, session_key)
+		upload_file(song, session_key, callback)
 		songs_left -= 1
 		callback(songs_left)
 	
