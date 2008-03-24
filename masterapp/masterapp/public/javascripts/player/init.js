@@ -38,6 +38,7 @@ function init()
     bread_crumb.on('newfilter', browser.load, browser);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
+    browser.on('newgrid', viewmgr.init_search, viewmgr);
     browser.on('newgrid', add_grid_listeners);
     browser.on('enqueue', playqueue.enqueue, playqueue);
 

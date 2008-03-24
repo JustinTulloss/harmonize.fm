@@ -69,7 +69,7 @@ function BaseGrid(config)
     function onMouseDown(e, div)
     {
         /* XXX: Does this loop scale to lots of actions? */
-        for (action in this.browser.actions) {
+        for (action in this.actions) {
             if (Ext.get(div).hasClass(action)) {
                 e.stopEvent(); /* Keep this row from getting selected */
                 var records = this.getSelectionModel().getSelections();
@@ -130,7 +130,7 @@ function SongGrid(config)
     this.search = search;
     function search(text)
     {
-        this.ds.filter('title', text, true, false);
+        this.getStore().filter('title', text, true, false);
         return true;
     }
 }
@@ -182,7 +182,7 @@ function AlbumGrid(config)
     this.search = search;
     function search(text)
     {
-        this.ds.filter('album', text, true, false);
+        this.getStore().filter('album', text, true, false);
         return true;
     }
 }
@@ -229,7 +229,7 @@ function ArtistGrid(config)
     this.search = search;
     function search(text)
     {
-        this.ds.filter('artist', text, true, false);
+        this.getStore().filter('artist', text, true, false);
         return true;
     }
 }

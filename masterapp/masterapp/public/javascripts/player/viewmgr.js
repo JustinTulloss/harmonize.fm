@@ -16,7 +16,6 @@
  */
 function ViewManager(crumb, objects)
 {
-    init_top_menu();
 
     homepanel = new Ext.Panel({
         title:"Home", 
@@ -48,10 +47,11 @@ function ViewManager(crumb, objects)
         }]
     });
 
+    this.init_top_menu = init_top_menu;
     function init_top_menu()
     {
         topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
-        var srchfld = new Ext.form.TextField({
+        this.srchfld = new Ext.form.TextField({
             emptyText: "Search..."
         });
         var leftspc = new Ext.Toolbar.Fill();
@@ -72,7 +72,7 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
-            srchfld,
+            this.srchfld,
             leftspc,
             homebtn,
             artistbtn,
@@ -84,6 +84,8 @@ function ViewManager(crumb, objects)
         );
     }
 
+    this.init_top_menu();
+
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {
@@ -93,6 +95,15 @@ function ViewManager(crumb, objects)
             }
             bigshow.getComponent('centerpanel').
                 getLayout().setActiveItem(crumb.panel.id);
+        }
+    }
+
+    this.init_search = init_search;
+    function init_search(crumb, params, e)
+    {
+        if (crumb.panel) {
+            this.srchfld.validator = 
+                function(text) { crumb.panel.search.call(crumb.panel, text)};
         }
     }
 
