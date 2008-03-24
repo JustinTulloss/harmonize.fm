@@ -152,3 +152,20 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend',
                   'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid'];
 
+stdcols = {
+    add: {  
+        id: 'add',
+        header: 'Add',
+        renderer: render.enqColumn,
+        width: 50,
+        sortable: false
+    },
+    like: {
+        id: 'like',
+        header: "Popular",
+        renderer: render.starColumn,
+        sortable: true,
+        width: 150,
+        dataIndex: 'recs'
+    }
+}

@@ -94,29 +94,18 @@ function SongGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel([
-        {  
-            id: 'add',
-            header: 'Add',
-            renderer: render.enqColumn,
-            width: 25,
-            sortable: false
-        },{
+        stdcols.add,
+        {
             id: 'tracknumber', 
             header: "#",
-            width: '20px',
+            width: 20,
             dataIndex: 'tracknumber'
         },{
             id: 'title', 
             header: "Title",
             dataIndex: 'title'
-        },{
-            id: 'like',
-            header: "Liked",
-            renderer: render.starColumn,
-            sortable: true,
-            width:'20px',
-            dataIndex: 'recs'
-        },{
+        }, stdcols.like,
+        {
             id: 'artist',
             header: 'Artist',
             sortable: true,
@@ -154,23 +143,14 @@ function AlbumGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel([
-        { 
-            id:'add',
-            header: 'Add',
-            renderer: render.enqColumn,
-            sortable: false
-        },{
+        stdcols.add,
+        {
             id:'album',
             header: "Album",
             dataIndex: 'album'
-        },{
-            id: 'like',
-            header: "Liked",
-            renderer: render.starColumn,
-            sortable: true,
-            width:'20px',
-            dataIndex: 'recs'
-        },{
+        },
+        stdcols.like,
+        {
             id: 'artist',
             header: "Artist",
             dataIndex: 'artist'
@@ -215,22 +195,14 @@ function ArtistGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel([
-        { 
-            id:'add',
-            header: 'Add',
-            renderer: render.enqColumn,
-            sortable: false,
-        },{
+        stdcols.add,
+        {
             id:'artist',
             header: "Artist",
             dataIndex: 'artist'
-        },{
-            id: 'like',
-            header: "Liked",
-            renderer: render.starColumn,
-            sortable: true,
-            dataIndex: 'recs'
-        },{
+        },
+        stdcols.like,
+        {
             id:'num_albums',
             header: "Total Albums",
             dataIndex: 'totalalbums',
@@ -262,3 +234,4 @@ function ArtistGrid(config)
     }
 }
 Ext.extend(ArtistGrid, BaseGrid);
+
