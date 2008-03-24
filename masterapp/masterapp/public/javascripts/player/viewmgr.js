@@ -16,7 +16,6 @@
  */
 function ViewManager(crumb, objects)
 {
-    init_top_menu();
 
     homepanel = new Ext.Panel({
         title:"Home", 
@@ -48,16 +47,21 @@ function ViewManager(crumb, objects)
         }]
     });
 
+    this.init_top_menu = init_top_menu;
     function init_top_menu()
     {
         topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
-        var homebtn = new Ext.Toolbar.Button({text:'Home', cls:'menuitem'});
-        var artistbtn= new Ext.Toolbar.Button({text:'Artists', cls:'menuitem'});
-        var albumbtn= new Ext.Toolbar.Button({text:'Albums', cls:'menuitem'});
-        var songsbtn= new Ext.Toolbar.Button({text:'Songs', cls:'menuitem'});
-        var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
-        var playlistsbtn= new Ext.Toolbar.Button({text:'Playlists', cls:'menuitem'});
-        var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
+        this.srchfld = new Ext.form.TextField({
+            emptyText: "Search..."
+        });
+        var leftspc = new Ext.Toolbar.Fill();
+        var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
+        var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
+        var albumbtn= new Ext.Toolbar.Button({text:'albums', cls:'menuitem'});
+        var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
+        var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
+        var playlistsbtn= new Ext.Toolbar.Button({text:'playlists', cls:'menuitem'});
+        var settingsbtn= new Ext.Toolbar.Button({text:'settings', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
         artistbtn.on('click', function() {bread_crumb.go('artist')});
         albumbtn.on('click', function() {bread_crumb.go('album')});
@@ -68,6 +72,8 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
+            this.srchfld,
+            leftspc,
             homebtn,
             artistbtn,
             albumbtn,
@@ -78,6 +84,8 @@ function ViewManager(crumb, objects)
         );
     }
 
+    this.init_top_menu();
+
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {
@@ -87,6 +95,15 @@ function ViewManager(crumb, objects)
             }
             bigshow.getComponent('centerpanel').
                 getLayout().setActiveItem(crumb.panel.id);
+        }
+    }
+
+    this.init_search = init_search;
+    function init_search(crumb, params, e)
+    {
+        if (crumb.panel) {
+            this.srchfld.validator = 
+                function(text) { crumb.panel.search.call(crumb.panel, text)};
         }
     }
 

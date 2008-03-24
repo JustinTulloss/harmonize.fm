@@ -3,6 +3,7 @@ syntax:glob
 *.swp
 *.pyc
 *.o
+*.dmg
 masterapp/masterapp.egg-info
 uploader/dist
 uploader/build

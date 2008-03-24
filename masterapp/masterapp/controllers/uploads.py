@@ -1,10 +1,12 @@
 # vim:expandtab:smarttab
+from __future__ import with_statement
 import logging
+from pylons import g
 import os
 from facebook.wsgi import facebook
 
 from masterapp.lib.base import *
-from fileprocess.fileprocess import file_queue
+from fileprocess.fileprocess import file_queue, na, msglock, msgs
 
 log = logging.getLogger(__name__)
 
@@ -31,6 +33,10 @@ class UploadsController(BaseController):
             dest_file.write(body.read(file_size%chunk_size))
 
             #finally, put the file in file_queue for processing
+            if msgs.get(session_key) == None:
+                with msglock:
+                    msgs[session_key] = []
+
             fdict = dict(fname=dest_path, fbsession=session_key) 
             file_queue.put(fdict)
             dest_file.close()
