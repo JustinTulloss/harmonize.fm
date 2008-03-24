@@ -166,7 +166,9 @@ class UploadView(WizardView):
 		del pool
 
 	def onSongsLeft(self, songs_left):
-		if songs_left != 0:
+		if type(songs_left) == str:
+			self.updateStatus(songs_left)
+		elif songs_left != 0:
 			self.updateStatus("%s songs remaining..." % songs_left)
 		else:
 			self.performSelectorOnMainThread_withObject_waitUntilDone_(
