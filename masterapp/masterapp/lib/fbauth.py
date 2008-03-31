@@ -17,7 +17,13 @@ def ensure_fb_session():
         session['user'] = Session.query(User).filter(
             User.fbid==facebook.uid).first()
         session['fbfriends']=facebook.friends.getAppUsers()
-        session['fbfriends'].append(facebook.uid)
+        # XXX: This conditional works around a bug where the getAppUsers call
+        #   returns a {} instead of [] when there are no friends. Should fix
+        #   in the library
+        if len(session['fbfriends']) > 0:
+            session['fbfriends'].append(facebook.uid)
+        else:
+            session['fbfriends'] = [facebook.uid]
         session.save()
         return
 
