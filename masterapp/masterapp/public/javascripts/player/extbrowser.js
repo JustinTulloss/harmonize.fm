@@ -15,8 +15,9 @@ function Browser()
     this.load = load;
     function load(crumb, params)
     {
-        /* TODO:Replace this with logic that specifies fields that are more specific
-         * to the metadata type */
+        /* TODO:Replace this with logic that specifies fields that are 
+         * more specific to the metadata type 
+         */
         if(crumb.ds==null) {
             crumb.ds = new Ext.data.JsonStore({
                 url:'metadata',
@@ -46,7 +47,6 @@ function Browser()
         }
     }
 }
-
 Ext.extend(Browser, Ext.util.Observable);
 
 function BaseGrid(config)
@@ -235,3 +235,75 @@ function ArtistGrid(config)
 }
 Ext.extend(ArtistGrid, BaseGrid);
 
+function PlaylistGrid(config)
+{
+    this.addEvents({
+        newgridbranch: true
+    });
+
+    config.cm = new Ext.grid.ColumnModel([
+        { 
+            id:'add',
+            header: 'Add',
+            renderer: render.enqColumn,
+            sortable: false,
+        },{
+            id:'name',
+            header: "Name",
+            dataIndex: 'name'
+        },{
+            id: 'numtracks',
+            header: '# Tracks',
+            dataIndex: 'numtracks'
+        },{
+            id:'length',
+            header: 'Length',
+            dataIndex: 'totallength'
+        }
+    ]);
+    config.cm.defaultSortable = true;
+    config.autoExpandColumn = 'name';
+
+    PlaylistGrid.superclass.constructor.call(this, config);
+}
+Ext.extend(PlaylistGrid, BaseGrid);
+
+function PlaylistSongGrid(config)
+{
+    //TODO: Add some Playlist specific columns
+    PlaylistSongGrid.superclass.constructor.call(this, config);
+}
+Ext.extend(PlaylistSongGrid, SongGrid);
+
+function FriendGrid(config)
+{
+    config.cm = new Ext.grid.ColumnModel([
+        { 
+            id:'add',
+            header: 'Add',
+            renderer: render.enqColumn,
+            sortable: false,
+        },{
+            id:'friend',
+            header: "Friend",
+            dataIndex: 'name'
+        },{
+            id:'numartists',
+            header: "# Artists",
+            dataIndex: 'numartists'
+        },{
+            id:'numalbums',
+            header: "# Albums",
+            dataIndex: 'numalbums'
+        },{
+            id:'likesartists',
+            header: "Likes",
+            dataIndex: 'likesartists'
+        }
+    ]);
+    config.cm.defaultSortable = true;
+    config.autoExpandColumn = 'friend';
+
+    FriendGrid.superclass.constructor.call(this, config);
+}
+Ext.extend(FriendGrid, BaseGrid);

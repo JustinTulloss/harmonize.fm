@@ -77,26 +77,7 @@ var typeinfo = {
         next:'playlistsong', 
         qry:'playlistid', 
         display:'Playlists',
-        cm: new Ext.grid.ColumnModel([
-            { 
-                id:'add',
-                header: 'Add',
-                renderer: render.enqColumn,
-                sortable: false,
-            },{
-                id:'auto',
-                header: "Name",
-                dataIndex: 'name'
-            },{
-                id: 'numtracks',
-                header: '# Tracks',
-                dataIndex: 'numtracks'
-            },{
-                id:'length',
-                header: 'Length',
-                dataIndex: 'totallength'
-            }
-        ])
+        gridclass: PlaylistGrid
     },
     song:{
         next:'play', 
@@ -106,45 +87,16 @@ var typeinfo = {
     },
     playlistsong:{
         next:'play', 
-        display:'Songs'
+        display:'Songs',
+        gridclass: PlaylistSongGrid
     },
     friend:{
         next:'artist', 
         qry:'fbid', 
         display:'Friends',
-        cm: new Ext.grid.ColumnModel([
-            { 
-                id:'add',
-                header: 'Add',
-                renderer: render.enqColumn,
-                sortable: false,
-            },{
-                id:'auto',
-                header: "Friend",
-                dataIndex: 'name'
-            },{
-                id:'numartists',
-                header: "# Artists",
-                dataIndex: 'numartists'
-            },{
-                id:'numalbums',
-                header: "# Albums",
-                dataIndex: 'numalbums'
-            },{
-                id:'likesartists',
-                header: "Likes",
-                dataIndex: 'likesartists'
-            }
-        ])
+        gridclass: FriendGrid
     }
 };
-
-//seems like there should be a way to set this above....
-typeinfo.friend.cm.defaultSortable = true;
-typeinfo.playlist.cm.defaultSortable = true;
-
-/* TODO: Add some playlistsong specific columns */
-typeinfo.playlistsong.cm = typeinfo.song.cm;
 
 var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
