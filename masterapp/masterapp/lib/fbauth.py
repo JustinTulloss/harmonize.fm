@@ -56,7 +56,6 @@ def filter_friends(qry):
     the files you can select from to files owned by any of your friends.
     It assumes you are joined to the Users table.
     """
-    #fbclause = sql.expression.or_()
     fbclause = or_()
     for friend in session['fbfriends']:
         fbclause.append(User.fbid==friend)

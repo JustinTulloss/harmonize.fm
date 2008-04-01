@@ -71,7 +71,7 @@ function BaseGrid(config)
         /* XXX: Does this loop scale to lots of actions? */
         for (action in this.actions) {
             if (Ext.get(div).hasClass(action)) {
-                e.stopEvent(); /* Keep this row from getting selected */
+                e.stopPropagation(); /* Keep this row from getting selected */
                 var records = this.getSelectionModel().getSelections();
                 this.actions[action].call(this, records);
             }
