@@ -4,6 +4,12 @@
  * licensing@extjs.com
  * 
  * http://extjs.com/license
+ *
+ * 
+ * MODIFIED: SGB [12.12.07]
+ * Added support for a new config option, remoteDataMethod,
+ * including getter and setter functions, and minor mods
+ * to the beforeExpand and expandRow functions
  */
 
 Ext.grid.RowExpander = function(config){
@@ -76,6 +82,17 @@ Ext.extend(Ext.grid.RowExpander, Ext.util.Observable, {
         }
         return content;
     },
+	// Setter and Getter methods for the remoteDataMethod property
+	setRemoteDataMethod : function (fn){
+		this.remoteDataMethod = fn;
+	},
+	
+	getRemoteDataMethod : function (record, index){
+		if(!this.remoteDataMethod){
+			return;
+		}
+			return this.remoteDataMethod.call(this,record,index);
+	},
 
     onMouseDown : function(e, t){
         if(t.className == 'x-grid3-row-expander'){
@@ -92,7 +109,12 @@ Ext.extend(Ext.grid.RowExpander, Ext.util.Observable, {
 
     beforeExpand : function(record, body, rowIndex){
         if(this.fireEvent('beforeexpand', this, record, body, rowIndex) !== false){
-            if(this.tpl && this.lazyRender){
+            // If remoteDataMethod is defined then we'll need a div, with a unique ID,
+            //  to place the content
+			if(this.remoteDataMethod){
+				this.tpl = new Ext.Template("<div id='remData" + rowIndex + "' class='rem-data-expand'><\div>");
+			}
+			if(this.tpl && this.lazyRender){
                 body.innerHTML = this.getBodyContent(record, rowIndex);
             }
             return true;
@@ -117,7 +139,10 @@ Ext.extend(Ext.grid.RowExpander, Ext.util.Observable, {
         if(this.beforeExpand(record, body, row.rowIndex)){
             this.state[record.id] = true;
             Ext.fly(row).replaceClass('x-grid3-row-collapsed', 'x-grid3-row-expanded');
-            this.fireEvent('expand', this, record, body, row.rowIndex);
+           	if(this.fireEvent('expand', this, record, body, row.rowIndex) !== false){
+				//  If the expand event is successful then get the remoteDataMethod
+				this.getRemoteDataMethod(record,row.rowIndex);
+			}
         }
     },
 

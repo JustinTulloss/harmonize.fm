@@ -144,9 +144,13 @@ function AlbumGrid(config)
     });
 
     var t_info = new Ext.Template(
-        '<div><b><h1>{album}</h1></b></div>'
+        '<div>Loading...</div>'
     )
-    var expander = new Ext.grid.RowExpander({tpl: t_info});
+
+    var expander = new Ext.grid.RowExpander({
+        tpl: t_info,
+        remoteDataMethod: load_details
+    });
 
     config.iconCls = 'icon-grid';
     config.plugins = expander;
@@ -193,6 +197,15 @@ function AlbumGrid(config)
     {
         this.getStore().filter('album', text, true, false);
         return true;
+    }
+    
+    function load_details(record, index)
+    {
+        var el = Ext.get("remData"+index);
+        el.load({
+            url: 'player/album_details',
+            params: {album:record.get('albumid')},
+        });
     }
 }
 Ext.extend(AlbumGrid, BaseGrid);
