@@ -32,6 +32,7 @@ function Browser()
             params.type = crumb.type;
         else
             params = {type:crumb.type};
+
         crumb.ds.load({params:params});
 
         if (crumb.panel == null) {
@@ -142,7 +143,15 @@ function AlbumGrid(config)
         newgridbranch : true
     });
 
+    var t_info = new Ext.Template(
+        '<div><b><h1>{album}</h1></b></div>'
+    )
+    var expander = new Ext.grid.RowExpander({tpl: t_info});
+
+    config.iconCls = 'icon-grid';
+    config.plugins = expander;
     config.cm = new Ext.grid.ColumnModel([
+        expander,
         stdcols.add,
         {
             id:'album',

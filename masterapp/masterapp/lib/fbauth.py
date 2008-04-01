@@ -25,7 +25,7 @@ def ensure_fb_session():
         else:
             session['fbfriends'] = [facebook.uid]
         session.save()
-        return
+        return True
 
     if not session.has_key('fbsession'):
         if facebook.check_session(request):
@@ -42,6 +42,7 @@ def ensure_fb_session():
             else:
                 session['fbfriends'] = [facebook.uid]
             session.save()
+            return True
         else:
             next = '%s' % (request.environ['PATH_INFO'])
             url = facebook.get_login_url(next=next, canvas=False)
@@ -49,6 +50,7 @@ def ensure_fb_session():
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
+        return True
 
 def filter_friends(qry):
     """

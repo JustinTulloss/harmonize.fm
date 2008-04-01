@@ -11,6 +11,7 @@
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
     ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
     ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
+    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/RowExpander.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('lib/helpers.js')}
     ${h.javascript_include_tag('player/errmgr.js')}
@@ -47,10 +48,4 @@
 
 <div id="home">
     <div id="mainlogo"><img src="/images/homelogo.png" /></div>
-    <div class="mainmenu">${h.link_to_function("Artists", "go('artist')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Albums", "go('album')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Songs", "go('song')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Friends", "go('friend')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Genres", "go('genre')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Settings", "go('setting')", Class="mainmenuitem")}</div>
 </div>
