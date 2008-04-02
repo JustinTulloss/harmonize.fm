@@ -215,7 +215,7 @@ def uploadPage(form, panel):
 		progressbar_updated = False
 
 		def update_progressbar(songs_left):
-			if not progressbar_updated
+			if not progressbar_updated:
 				progressbar.Maximum = songs_left
 				progressbar.Style = winforms.ProgressBarStyle.Blocks
 				progressbar_updated = True
