@@ -18,7 +18,7 @@ class AmazonCovers(BaseAction):
                 IdType='ASIN',
                 ResponseGroup='Images'
             )
-        except AWSException, e:
+        except ecs.AWSException, e:
             sleep(1)
             return file #just keep going, we don't need albumart
 
