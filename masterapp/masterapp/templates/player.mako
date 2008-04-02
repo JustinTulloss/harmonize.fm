@@ -44,7 +44,6 @@
     <div id="menu">
     </div>
     <div id="top">
-        <div id="breadcrumb"></div>
         <div id="controls">
             <div id="flash"></div>
             <img class="control mo" id="prevbutton" src = "/images/back.png" />
@@ -61,4 +60,8 @@
 
 <div id="home">
     <div id="mainlogo"><img src="/images/homelogo.png" /></div>
+</div>
+
+<div id="bccontent">
+    <div id="breadcrumb"></div>
 </div>

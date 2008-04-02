@@ -35,12 +35,6 @@
     margin-bottom: 0;
 }
 
-#breadcrumb {
-    float:right;
-    width:84%;
-    margin-top: 0px;
-}
-
 .topmenu {
     background: ${c.profile.top_bg};
     font-size: 9px;
