@@ -41,3 +41,8 @@ a.bc_link:hover {
 .bc {
     display:inline;
 }
+
+.searchfield {
+    position: absolute;
+    right: 30px;
+}

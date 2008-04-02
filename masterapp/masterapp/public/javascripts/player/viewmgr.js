@@ -28,13 +28,18 @@ function ViewManager(crumb, objects)
     if (crumb)
         crumb.panel = homepanel;
 
+    this.srchfld = new Ext.form.TextField({
+        emptyText: "Filter...",
+        cls: 'searchfield bc'
+    });
+
     var bcpanel = new Ext.Panel({
         title: "Breadcrumb",
-        height: 100,
+        height: 50,
         autocreate: true,
         anchor: '100%',
         header: false,
-        contentEl: 'bccontent'
+        items: [Ext.get('bccontent'), this.srchfld]
     });
 
     var gridstack = new Ext.Panel({
@@ -78,9 +83,6 @@ function ViewManager(crumb, objects)
     function init_top_menu()
     {
         topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'topmenu', height:18});
-        this.srchfld = new Ext.form.TextField({
-            emptyText: "Search..."
-        });
         var leftspc = new Ext.Toolbar.Fill();
         var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
         var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
@@ -99,7 +101,6 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
-            this.srchfld,
             leftspc,
             homebtn,
             artistbtn,
