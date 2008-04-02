@@ -8,13 +8,13 @@ log = logging.getLogger(__name__)
 
 class AmazonCovers(BaseAction):
     def process(self, file):
-        if not file.has_key('asin'):
+        if not file.has_key(u'asin'):
             return file
 
         ecs.setLicenseKey(config['S3.accesskey'])
         try:
             aitem = ecs.ItemLookup(
-                file['asin'], 
+                file[u'asin'], 
                 IdType='ASIN',
                 ResponseGroup='Images'
             )
@@ -28,4 +28,5 @@ class AmazonCovers(BaseAction):
         file[u'medart'] = images.MediumImage.URL
         file[u'largeart'] = images.LargeImage.URL
         sleep(1) #We're only allowed to make 1 request per second. Lame.
+        log.info("Found album art for %s", file.get('title'))
         return file
