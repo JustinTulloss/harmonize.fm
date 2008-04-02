@@ -6,6 +6,7 @@ configuration, but for now it's just a place to store constants.
 
 class Profile:
     border = "#6178A0"
+    top_bg = "#486BAA"
     queue_bg = "#A0B5DF"
     primary_txt = "#333"
     menu_txt = "#CCC"

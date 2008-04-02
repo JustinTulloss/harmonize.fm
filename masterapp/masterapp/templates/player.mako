@@ -1,11 +1,24 @@
 <%inherit file="base.mako" />
 
 <%def name="head_tags()">
-    ${h.stylesheet_link_tag('ext-all')}
+    ${h.stylesheet_link_tag('core')}
     ${h.stylesheet_link_tag('ext-ux-slidezone')}
+    ${h.stylesheet_link_tag('layout')}
+    ${h.stylesheet_link_tag('borders')}
+    ${h.stylesheet_link_tag('resizable')}
+    ${h.stylesheet_link_tag('grid')}
+    ${h.stylesheet_link_tag('tree')}
+    ${h.stylesheet_link_tag('dd')}
+    ${h.stylesheet_link_tag('borders')}
+    ${h.stylesheet_link_tag('panel')}
+    ${h.stylesheet_link_tag('toolbar')}
+    ${h.stylesheet_link_tag('button')}
+    ${h.stylesheet_link_tag('box')}
+    ${h.stylesheet_link_tag('form')}
     <title>Rubicon Web Player</title>
     <style type="text/css">
-    <%include file="player_css.mako" /> 
+    <%include file="player_css/player_css.mako" /> 
+    <%include file="player_css/topbar.mako" /> 
     </style>
 
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}

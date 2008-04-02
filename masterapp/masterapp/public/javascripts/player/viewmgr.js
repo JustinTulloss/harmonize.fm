@@ -33,7 +33,7 @@ function ViewManager(crumb, objects)
         layout: 'border',
         items: [{
             region: 'north',
-            height: 76,
+            height: 58,
             titlebar: false,
             contentEl: 'header'
         }, 
@@ -50,7 +50,7 @@ function ViewManager(crumb, objects)
     this.init_top_menu = init_top_menu;
     function init_top_menu()
     {
-        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
+        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'topmenu', height:18});
         this.srchfld = new Ext.form.TextField({
             emptyText: "Search..."
         });
