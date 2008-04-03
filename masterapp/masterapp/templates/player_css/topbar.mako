@@ -45,3 +45,9 @@
     color: #FFFFFF;
 }
 
+#logo {
+    position: absolute;
+    right: 50px;
+    bottom: -1pt;
+}
+

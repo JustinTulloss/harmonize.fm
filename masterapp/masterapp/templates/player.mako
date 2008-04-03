@@ -56,6 +56,9 @@
             <div id="timeline" tabindex="-1"></div>
         </div>
     </div>
+    <div id="logo">
+    	<img src="/images/whiterubicon.png" />
+    </div>
 </div>
 
 <div id="home">

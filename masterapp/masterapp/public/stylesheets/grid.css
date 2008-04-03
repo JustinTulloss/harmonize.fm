@@ -28,7 +28,6 @@
 	overflow:hidden;
 }
 .x-grid3-hd-row td, .x-grid3-row td, .x-grid3-summary-row td{
-	font:normal 11px arial, tahoma, helvetica, sans-serif;
     -moz-outline: none;
 	-moz-user-focus: normal;
 }
@@ -42,8 +41,8 @@
 .x-grid3-hd-row td {
     line-height:15px;
     vertical-align:middle;
-    border-left:1px solid #eee;
-    border-right:1px solid #d0d0d0;
+    /*border-left:1px solid #eee;
+    border-right:1px solid #d0d0d0;*/
 }
 
 .x-grid3-hd-row .x-grid3-marker-hd {
@@ -58,7 +57,7 @@
 	overflow:hidden;
 	-o-text-overflow: ellipsis;
 	text-overflow: ellipsis;
-    padding:3px 3px 3px 5px;
+    padding:2px 3px 8px 5px;
     white-space: nowrap;
 }
 
@@ -148,8 +147,11 @@
 
 /* header styles */
 .x-grid3-header{
-	background: #f9f9f9 url(../images/default/grid/grid3-hrow.gif) repeat-x 0 bottom;
+	background: #334466 url(/images/grid-title-bg.png) repeat-x 0 bottom;
 	cursor:default;
+    text-align: center;
+    color: #FFF;
+
     zoom:1;
     padding:1px 0 0 0;
 }
@@ -181,6 +183,7 @@
 	 width:10000px;
 }
 
+/*
 td.x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open {
     border-left:1px solid #aaccf6;
     border-right:1px solid #aaccf6;
@@ -205,6 +208,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 	background-image: url(../images/default/grid/sort_desc.gif);
 	display: inline;
 }
+*/
 
 /* Header position fixes for IE strict mode */
 .ext-strict .ext-ie .x-grid3-header-inner{position:relative;}
@@ -215,6 +219,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 .x-grid3-body {
 	zoom:1;
 }
+
 .x-grid3-scroller {
 	overflow:auto;
     zoom:1;
@@ -225,7 +230,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 	padding: 3px 5px 3px 5px;
 	-moz-user-select: none;
 	-khtml-user-select: none;
-	color:black;
+	color:/*black;*/
 }
 .x-grid3-split {
 	background-image: url(../images/default/grid/grid-split.gif);
@@ -276,7 +281,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 /* Selection Styles */
 .x-grid3-row-selected {
 	background: #DFE8F6 !important;
-	border:1px dotted #a3bae9;
+	/*border:1px dotted #a3bae9;*/
 }
 
 .x-grid3-cell-selected{
@@ -313,7 +318,6 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 
 /* Grid Toolbars */
 .x-grid3-topbar, .x-grid3-bottombar{
-	font:normal 11px arial, tahoma, helvetica, sans-serif;
     overflow:hidden;
 	display:none;
 	zoom:1;
@@ -407,7 +411,7 @@ a.x-grid3-hd-btn:hover {
     background-position:4px 2px;
     background-repeat:no-repeat;
     background-color:transparent;
-	 background-image:url(../images/default/grid/row-expand-sprite.gif);
+	/*background-image:url(/images/row-expand-sprite.gif);*/
 }
 .x-grid3-row-collapsed .x-grid3-row-expander {
     background-position:4px 2px;
@@ -508,7 +512,6 @@ a.x-grid3-hd-btn:hover {
     background:transparent url(../images/default/grid/group-expand-sprite.gif) no-repeat 3px -47px;
     padding:4px 4px 4px 17px;
     color:#3764a0;
-    font:bold 11px tahoma, arial, helvetica, sans-serif;
 }
 .x-grid-group-collapsed .x-grid-group-hd div {
     background-position: 3px 3px;
@@ -535,5 +538,4 @@ a.x-grid3-hd-btn:hover {
 .x-grid-empty {
     padding:10px;
     color:gray;
-    font:normal 11px tahoma, arial, helvetica, sans-serif;
 }
