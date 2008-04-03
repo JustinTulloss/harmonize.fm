@@ -117,7 +117,7 @@ stdcols = {
         header: "Popular",
         renderer: render.starColumn,
         sortable: true,
-        width: 150,
+        width: 70,
         dataIndex: 'recs'
     }
 }

@@ -57,6 +57,7 @@ function BaseGrid(config)
     config.enableDragDrop=true;
     config.loadMask=true;
     config.trackMouseOver=false;
+    config.stripeRows = true;
 
     this.addEvents({
         enqueue : true
@@ -98,8 +99,8 @@ function SongGrid(config)
         stdcols.add,
         {
             id: 'tracknumber', 
-            header: "#",
-            width: 20,
+            header: "Track",
+            width: 30,
             dataIndex: 'tracknumber'
         },{
             id: 'title', 
@@ -110,16 +111,19 @@ function SongGrid(config)
             id: 'artist',
             header: 'Artist',
             sortable: true,
+            width: 200,
             dataIndex: 'artist'
         },{
             id: 'album',
             header: 'Album',
             sortable: true,
+            width: 200,
             dataIndex: 'album'
         },{
             id:'length',
             header: "Length",
             renderer: render.lengthColumn,
+            width: 60,
             dataIndex: 'length'
         }
     ]);

@@ -30,7 +30,7 @@ function ViewManager(crumb, objects)
 
     this.srchfld = new Ext.form.TextField({
         emptyText: "Filter...",
-        cls: 'searchfield bc'
+        cls: 'searchfield'
     });
 
     var bcpanel = new Ext.Panel({
