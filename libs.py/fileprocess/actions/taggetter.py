@@ -7,8 +7,6 @@ import fileprocess
 
 log = logging.getLogger(__name__)
 
-READCHUNK = 1024 * 10 #10 kb at a time, don't want to stall the system
-
 class TagGetter(BaseAction):
     """
     This class gets tags out of a file. It's takes the tags from the uploaded 
@@ -35,18 +33,6 @@ class TagGetter(BaseAction):
             file[k] = ','.join(file[k])
 
         audio.delete() #remove the ID3 tags, we don't care for them
-
-        # Hash the untagged file
-        f = open(file['fname'], 'rb')
-        s = hashlib.sha1()
-        readbytes = READCHUNK
-
-        while readbytes>0:
-            readstring = f.read(readbytes)
-            s.update(readstring)
-            readbytes = len(readstring)
-
-        file['sha']= s.hexdigest()
 
         log.debug("Tagged %s", file.get('title'))
         return file

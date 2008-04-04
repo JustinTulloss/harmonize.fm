@@ -4,7 +4,7 @@ import nose
 from nose.tools import *
 from mockfiles import mockfiles
 from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
-    S3Uploader, DBChecker, DBRecorder, AmazonCovers
+    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher
 import fileprocess
 
 from sqlalchemy import engine_from_config
@@ -21,7 +21,7 @@ from paste.deploy import appconfig
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
         super(TestBase, self).__init__(*args)
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.WARNING)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
                 '/../../masterapp/test.ini'
@@ -226,6 +226,31 @@ class TestActions(TestBase):
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
+
+    def testHasher(self):
+        h = Hasher()
+        h.cleanup_handler = Mock()
+        assert h is not None, "Hasher action not constructed"
+
+        # Test without a user sha
+        assert_raises(AssertionError, h.process, self.fdata['neupload'])
+
+        # Test an incorrect user sha
+        self.fdata['notmp3']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['notmp3']['fname'])
+        assert_false(h.process(self.fdata['notmp3']), 
+            "Hasher passed a broken file")
+        assert h.cleanup_handler.queue.put.called, \
+            "Hasher did not clean up broken file"
+        h.cleanup_handler.queue.put.reset()
+
+        # Test a correct user sha
+        self.fdata['goodfile']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
+        self.fdata['goodfile'].pop(u'sha')
+        nf = h.process(self.fdata['goodfile'])
+        assert nf['sha'] != None,\
+            "Hasher did not put sha in passed file"
 
 class TestDBActions(TestBase):
     """

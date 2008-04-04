@@ -58,6 +58,7 @@ class FileUploadThread(object):
             Mover(),
             FacebookAction(),
             TagGetter(),
+            Hasher(),
             DBChecker(),
             BrainzTagger(),
             AmazonCovers(),

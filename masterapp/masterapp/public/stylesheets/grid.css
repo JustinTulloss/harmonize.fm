@@ -149,7 +149,7 @@
 
 /* header styles */
 .x-grid3-header{
-	background: #FFF url(/images/grid-title-bg.png) repeat-x 0 bottom;
+	background: transparent url(/images/grid-title-bg.png) repeat-x 0 bottom;
 	cursor:default;
     text-align: center;
     color: #FFF;

@@ -101,7 +101,6 @@ class BrainzTagger(BaseAction):
         if self.artistcache.has_key(mbartistid):
             artist = self.artistcache[mbartistid]
         else:
-            artist = mbquery.getArtistById(mbartistid)
             artist=self.query_brainz(file,mbquery.getArtistById, mbartistid)
             if artist == False:
                 return False

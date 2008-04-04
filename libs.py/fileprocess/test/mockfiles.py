@@ -7,10 +7,12 @@ mockfiles = {
     'goodfile' : {
         u'fname': u'good.mp3',
         u'fbsession': u'08bd66d3ebc459d32391d0d2-1909354',
-        u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
+        u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
+        u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
     },
     'notmp3': {
-        u'fname': u'notafile.mp3'
+        u'fname': u'notafile.mp3',
+        u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
     },
     'nonexistenttags': {
         u'title': u'non-existent',

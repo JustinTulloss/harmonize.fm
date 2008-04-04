@@ -33,11 +33,11 @@ class UploadsController(BaseController):
             dest_file.write(body.read(file_size%chunk_size))
 
             #finally, put the file in file_queue for processing
-            if msgs.get(session_key) == None:
-                with msglock:
-                    msgs[session_key] = []
-
-            fdict = dict(fname=dest_path, fbsession=session_key) 
+            fdict = {
+                'fname': dest_path, 
+                'fbsession': session_key,
+                'usersha': id
+            }
             file_queue.put(fdict)
             dest_file.close()
 
