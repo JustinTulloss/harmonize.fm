@@ -17,15 +17,11 @@ class BrainzTagger(BaseAction):
     def process(self, file):
         mbquery = Query()
 
-        # The implementation of the MB Library sucks, so I can't access
-        # the filter in a normal way after I construct it. So I have to
-        # construct it very carefully. Dynamic my ass. These are exactly
-        # the types of things one should never see in Python --JMT
         filter = None
         if not file.has_key('title'):
             #TODO: Analyze and try to do a PUID match.
             log.info('Analysis needs to be done on %s',file.get('fname'))
-            file['msg'] = "File had not tags"
+            file['msg'] = "File had no tags"
             file['na'] = fileprocess.na.FAILURE
             self.cleanup(file)
             return False
@@ -41,6 +37,10 @@ class BrainzTagger(BaseAction):
             'releaseTitle': file.get('album')
         }
         result = []
+        # The implementation of the MB Library sucks, so I can't access
+        # the filter in a normal way after I construct it. So I have to
+        # construct it very carefully. Dynamic my ass. These are exactly
+        # the types of things one should never see in Python --JMT
         while len(result) == 0 and len(arglist)>0:
             fargs = {}
             for arg in arglist.pop():
@@ -60,9 +60,7 @@ class BrainzTagger(BaseAction):
             return False
 
         if len(result)>1:
-            for r in result:
-                if r.score < 80:
-                    result.remove(r)
+            result = self.weed(result, 80)
             if len(result) == 0:
                 log.info('Brainz match not adequate for %s',file.get('title'))
                 file['msg'] = "Could not find accurate tags for file"
@@ -70,12 +68,14 @@ class BrainzTagger(BaseAction):
                 self.cleanup(file)
                 return False
             if len(result)>1:
-                #TODO: Run a PUID analysis
-                log.info("Found multiple versions of %s", file.get('title'))
-                file['msg'] = "Too many versions of tags found"
-                file['na'] = fileprocess.na.FAILURE
-                self.cleanup(file)
-                return False
+                result = self.weed(result, 100)
+                if len(result) != 1:
+                    #TODO: Run a PUID analysis
+                    log.info("Found multiple versions of %s", file.get('title'))
+                    file['msg'] = "Too many versions of tags found"
+                    file['na'] = fileprocess.na.FAILURE
+                    self.cleanup(file)
+                    return False
 
         result = result[0]
 
@@ -129,6 +129,12 @@ class BrainzTagger(BaseAction):
         log.debug('%s successfully tagged by MusicBrainz', file.get('title'))
 
         return file
+
+    def weed(self, results, threshold):
+        for r in results:
+            if r.score < threshold:
+                results.remove(r)
+        return results
 
     def query_brainz(self, file, callable, *args, **kwargs):
         try:
