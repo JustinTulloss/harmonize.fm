@@ -12,6 +12,7 @@
     ${h.stylesheet_link_tag('borders')}
     ${h.stylesheet_link_tag('panel')}
     ${h.stylesheet_link_tag('toolbar')}
+    ${h.stylesheet_link_tag('menu')}
     ${h.stylesheet_link_tag('button')}
     ${h.stylesheet_link_tag('box')}
     ${h.stylesheet_link_tag('form')}

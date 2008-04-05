@@ -15,12 +15,15 @@ body, html {
 }
 
 .instruction {
-	background-color: ${c.profile.queue_bg};
     text-align: center;
     display: table-cell;
     vertical-align: middle;
     #position: relative; /*IE fixes*/
     #top: 50%;
+}
+
+.queue {
+	background-color: ${c.profile.queue_bg};
 }
 
 .control {

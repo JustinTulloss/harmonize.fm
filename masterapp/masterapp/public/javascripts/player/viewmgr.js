@@ -61,13 +61,6 @@ function ViewManager(crumb, objects)
     });
 
     var statusbar = new Ext.Toolbar({
-        /*
-        title: "Statusbar",
-        layout: 'fit',
-        autocreate: true,
-        header: false,
-        anchor: '100%',
-        */
         height: 25,
         cls: 'status'
     });

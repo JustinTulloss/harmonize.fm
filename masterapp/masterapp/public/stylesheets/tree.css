@@ -7,7 +7,7 @@
  */
 
 .x-tree .x-panel-body{
-    background-color:#fff;
+    /*background-color:#fff;*/
 }
 .ext-strict .ext-ie .x-tree .x-panel-bwrap{
     position:relative;
@@ -131,6 +131,7 @@ input.x-tree-node-cb {
 	color: black;
 	font: normal 11px arial, tahoma, helvetica, sans-serif;
 	white-space: nowrap;
+    list-style: none;
 }
 
 .x-tree-node-el {
@@ -150,7 +151,7 @@ input.x-tree-node-cb {
 }
 .x-tree-node a span, .x-dd-drag-ghost a span{
 	text-decoration:none;
-	color:black;
+	/*color:black;*/
 	padding:1px 3px 1px 2px;
 }
 .x-tree-node .x-tree-node-disabled a span{
@@ -168,10 +169,10 @@ input.x-tree-node-cb {
 	text-decoration:none;
 }
 .x-tree-node div.x-tree-drag-insert-below{
- 	 border-bottom:1px dotted #3366cc;
+ 	 border-bottom:1px solid #3366cc;
 }
 .x-tree-node div.x-tree-drag-insert-above{
-	 border-top:1px dotted #3366cc;
+	 border-top:1px solid #3366cc;
 }
 .x-tree-dd-underline .x-tree-node div.x-tree-drag-insert-below{
  	 border-bottom:0 none;

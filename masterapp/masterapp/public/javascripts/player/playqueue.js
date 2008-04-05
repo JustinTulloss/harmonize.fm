@@ -60,10 +60,11 @@ function PlayQueue()
         id: 'queuepanel',
         region: 'west',
         split: true,
-        width: '16%',
+        width: '20%',
         titlebar:false,
         collapsible: true,
         layout: 'card',
+        cls: 'queue',
         activeItem: 0,
         items: [this.inspanel, this.tree]
     });
