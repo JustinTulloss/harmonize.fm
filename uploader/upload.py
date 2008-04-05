@@ -35,12 +35,20 @@ def upload_file(file, session_key, callback):
 	try:
 		fd = open(file)
 		file_contents = fd.read()
+
+		header = file_contents[:3]
+		header_size = 0
+		if header == 'ID3':
+			for i in range(6, 10):
+				header_size = header_size<<8 + ord(file_contents[i])&127
+			header_size += 10
+		
 		fd.close()
 	except IOError, e:
 		#sys.stderr.write('Unable to read file %s, skipping.\n' % file)
 		return
 
-	file_sha = hashlib.sha1(file_contents).hexdigest()
+	file_sha = hashlib.sha1(file_contents[header_size:]).hexdigest()
 
 	uploaded = False
 	while not uploaded:
