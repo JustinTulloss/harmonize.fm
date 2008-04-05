@@ -48,5 +48,5 @@ class TagGetter(BaseAction):
 
         file['sha']= s.hexdigest()
 
-        log.debug("Tagged %s", file['title'])
+        log.debug("Tagged %s", file.get('title'))
         return file

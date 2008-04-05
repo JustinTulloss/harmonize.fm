@@ -27,8 +27,8 @@ function init()
 {
     bread_crumb = new BreadCrumb();
     player = new Player();
-    playqueue = new PlayQueue('queue', 'songlist', fields);
-    browser = new Browser(fields);
+    playqueue = new PlayQueue();
+    browser = new Browser();
     settingspanel = new SettingsPanel();
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
     errmgr = new ErrorManager();
@@ -38,9 +38,8 @@ function init()
     bread_crumb.on('newfilter', browser.load, browser);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
-    browser.on('newgridbranch', add_grid_listeners);
-    browser.on('newgridleaf', add_grid_leaf_listeners);
-    browser.on('enqueue', playqueue.enqueue, playqueue);
+    browser.on('newgrid', viewmgr.init_search, viewmgr);
+    browser.on('newgrid', add_grid_listeners);
 
     player.on('nextsong', playqueue.dequeue, playqueue);
     player.on('prevsong', playqueue.prev, playqueue);
@@ -53,12 +52,11 @@ function init()
 
 function add_grid_listeners(crumb, e)
 {
-    crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
-}
-
-function add_grid_leaf_listeners(crumb, e)
-{
-    crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
+    crumb.panel.on('enqueue', playqueue.enqueue, playqueue);
+    if (typeinfo[crumb.type].next == 'play')
+        crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
+    else
+        crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
 }
 
 function enqueue(recordid)

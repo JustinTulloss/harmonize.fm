@@ -1,5 +1,6 @@
 import webbrowser, cgi, thread, urlparse
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import config
 
 thread_started = False
 
@@ -12,7 +13,9 @@ def login(callback):
 		thread.start_new_thread(wait_login, (callback,))
 		thread_started = True
 
-	webbrowser.open('http://localhost:2985/desktop_login')
+	server_url = 'http://'+config.current['server_addr']+':'+ \
+			str(config.current['server_port'])+'/desktop_login'
+	webbrowser.open(server_url)
 
 session_key = None
 

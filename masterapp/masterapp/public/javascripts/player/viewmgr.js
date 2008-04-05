@@ -16,25 +16,56 @@
  */
 function ViewManager(crumb, objects)
 {
-    init_top_menu();
 
-    homepanel = new Ext.Panel({
-        title:"Home", 
-        fitToFrame:true, 
-        closable:true, 
-        autocreate:true, 
-        contentEl:'home', 
+    var homepanel = new Ext.Panel({
+        title: "Home", 
+        fitToFrame: true, 
+        autocreate: true, 
+        contentEl: 'home', 
         header: false
     });
 
     if (crumb)
         crumb.panel = homepanel;
 
+    this.srchfld = new Ext.form.TextField({
+        emptyText: "Filter...",
+        cls: 'searchfield'
+    });
+
+    var bcpanel = new Ext.Panel({
+        title: "Breadcrumb",
+        height: 50,
+        autocreate: true,
+        anchor: '100%',
+        header: false,
+        items: [Ext.get('bccontent'), this.srchfld]
+    });
+
+    var gridstack = new Ext.Panel({
+        title: "Grids",
+        fitToFrame: true,
+        layout: 'card',
+        autocreate: true,
+        anchor: '100% 100%',
+        header: false
+    });
+    this.gridstack = gridstack;
+
+    var browserpanel = new Ext.Panel({
+        title: "Browser",
+        fitToFrame: true,
+        autocreate: true,
+        layout: 'anchor',
+        header: false,
+        items: [bcpanel, gridstack]
+    });
+
     bigshow = new Ext.Viewport({
         layout: 'border',
         items: [{
             region: 'north',
-            height: 76,
+            height: 58,
             titlebar: false,
             contentEl: 'header'
         }, 
@@ -44,20 +75,22 @@ function ViewManager(crumb, objects)
             id: 'centerpanel',
             layout: 'card',
             activeItem: 0,
-            items: [homepanel]
+            items: [homepanel, browserpanel]
         }]
     });
 
+    this.init_top_menu = init_top_menu;
     function init_top_menu()
     {
-        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
-        var homebtn = new Ext.Toolbar.Button({text:'Home', cls:'menuitem'});
-        var artistbtn= new Ext.Toolbar.Button({text:'Artists', cls:'menuitem'});
-        var albumbtn= new Ext.Toolbar.Button({text:'Albums', cls:'menuitem'});
-        var songsbtn= new Ext.Toolbar.Button({text:'Songs', cls:'menuitem'});
-        var friendsbtn= new Ext.Toolbar.Button({text:'Friends', cls:'menuitem'});
-        var playlistsbtn= new Ext.Toolbar.Button({text:'Playlists', cls:'menuitem'});
-        var settingsbtn= new Ext.Toolbar.Button({text:'Settings', cls:'menuitem'});
+        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'topmenu', height:18});
+        var leftspc = new Ext.Toolbar.Fill();
+        var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
+        var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
+        var albumbtn= new Ext.Toolbar.Button({text:'albums', cls:'menuitem'});
+        var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
+        var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
+        var playlistsbtn= new Ext.Toolbar.Button({text:'playlists', cls:'menuitem'});
+        var settingsbtn= new Ext.Toolbar.Button({text:'settings', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
         artistbtn.on('click', function() {bread_crumb.go('artist')});
         albumbtn.on('click', function() {bread_crumb.go('album')});
@@ -68,6 +101,7 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
+            leftspc,
             homebtn,
             artistbtn,
             albumbtn,
@@ -78,15 +112,32 @@ function ViewManager(crumb, objects)
         );
     }
 
+    this.init_top_menu();
+
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {
         if (crumb.panel) {
-            if (!bigshow.getComponent('centerpanel').findById(crumb.panel.id)){
-                bigshow.getComponent('centerpanel').add(crumb.panel);
+            if (crumb.panel == homepanel) {
+                bigshow.getComponent('centerpanel').
+                    getLayout().setActiveItem(crumb.panel.id);
+                return;
             }
+            else if (!gridstack.findById(crumb.panel.id)){
+                gridstack.add(crumb.panel);
+            }
+            gridstack.getLayout().setActiveItem(crumb.panel.id);
             bigshow.getComponent('centerpanel').
-                getLayout().setActiveItem(crumb.panel.id);
+                getLayout().setActiveItem(browserpanel.id);
+        }
+    }
+
+    this.init_search = init_search;
+    function init_search(crumb, params, e)
+    {
+        if (crumb.panel) {
+            this.srchfld.validator = 
+                function(text) { crumb.panel.search.call(crumb.panel, text)};
         }
     }
 

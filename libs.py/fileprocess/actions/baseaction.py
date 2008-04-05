@@ -25,9 +25,9 @@ class BaseAction(object):
                 nextfile = self.process(nf)
             except Exception, e:
                 log.exception(e)
-                file['msg'] = "Upload had an unexpected failure"
-                file['na']  = fileprocess.na.TRYAGAIN
-                self.cleanup(file)
+                nf['msg'] = "Upload had an unexpected failure"
+                nf['na']  = fileprocess.na.TRYAGAIN
+                self.cleanup(nf)
                 nextfile=False
 
             if nextfile != False:
@@ -46,7 +46,7 @@ class BaseAction(object):
 
     def cleanup(self, file):
         if self.cleanup_handler != None:
-            self.cleanup_handler.put(file)
+            self.cleanup_handler.queue.put(file)
 
     def process(self, nf):
         """

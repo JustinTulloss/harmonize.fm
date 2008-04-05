@@ -1,6 +1,7 @@
 #A thread that allows us to process files
 from __future__ import with_statement
 import pylons
+from paste.registry import StackedObjectProxy
 import threading
 from Queue import Queue, Empty
 
@@ -9,6 +10,7 @@ from actions import *
 
 file_queue = Queue()
 msglock = threading.Lock()
+msgs = {}
 
 class NextAction(object):
     def __init__(self):
@@ -19,16 +21,18 @@ class NextAction(object):
 
 class UploadStatus(object):
     def __init__(self, message=None, nextaction=None, file=None):
-        assert file.has_key('session')
-        assert file['session'] is not None
+        assert file.has_key('fbsession')
 
         self.nextaction = nextaction
         self.message = message
         self.file = file
 
+        fb = file['fbsession']
         with msglock:
-            file['session'].get('uploadmsgs').append(self)
-            file['session'].save()
+            if msgs.has_key(fb):
+                msgs[file['fbsession']].append(self)
+            else: 
+                msgs[fb] = [self]
 
 na = NextAction()
 
@@ -56,6 +60,7 @@ class FileUploadThread(object):
             TagGetter(),
             DBChecker(),
             BrainzTagger(),
+            AmazonCovers(),
             DBRecorder(),
             S3Uploader()
         ]

@@ -212,10 +212,15 @@ def uploadPage(form, panel):
 		progressbar.Style = winforms.ProgressBarStyle.Marquee
 		panel.Controls.Add(progressbar)
 
+		progressbar_updated = False
+
 		def update_progressbar(songs_left):
-			if progressbar.Style == winforms.ProgressBarStyle.Marquee:
+			if not progressbar_updated:
 				progressbar.Maximum = songs_left
 				progressbar.Style = winforms.ProgressBarStyle.Blocks
+				progressbar_updated = True
+			elif type(songs_left) == str:
+				progressbar.Style = winforms.ProgressBarStyle.Marquee
 			else:
 				progressbar.Value = progressbar.Maximum - songs_left
 		return update_progressbar
@@ -232,11 +237,13 @@ def uploadPage(form, panel):
 
 		def callback(songs_left):
 			def updateSongs():
-				if songs_left != 0:
+				if type(songs_left) == str:
+					textbox.Text = songs_left
+				elif songs_left != 0:
 					textbox.Text = '%s songs remaining' % songs_left
 				else:
 					textbox.Text = 'Upload complete!'
-				progress_updater(songs_left)
+				#progress_updater(songs_left)
 
 			delegate = winforms.MethodInvoker(updateSongs)
 			form.Invoke(delegate)

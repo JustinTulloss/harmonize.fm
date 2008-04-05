@@ -1,6 +1,6 @@
 all: devel
 
-FILES=Rubicon.py MainMenu.nib setup.py fb.py dir_browser.py upload.py itunes.py
+FILES=Rubicon_osx.py MainMenu.nib setup.py fb.py dir_browser.py upload.py itunes.py
 
 devel: $(FILES)
 	python setup.py py2app -A

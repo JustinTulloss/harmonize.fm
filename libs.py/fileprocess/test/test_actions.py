@@ -4,7 +4,7 @@ import nose
 from nose.tools import *
 from mockfiles import mockfiles
 from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
-    S3Uploader, DBChecker, DBRecorder
+    S3Uploader, DBChecker, DBRecorder, AmazonCovers
 import fileprocess
 
 from sqlalchemy import engine_from_config
@@ -59,7 +59,7 @@ class TestActions(TestBase):
         assert_raises(Exception, m.process, self.fdata['empty'])
         assert_false(m.process(self.fdata['neupload']),
             "Did not remove nonexistent file from queue")
-        assert m.cleanup_handler.put.called, "Cleanup not called on empty file"
+        assert m.cleanup_handler.queue.put.called, "Cleanup not called on empty file"
         m.cleanup_handler.reset()
 
         # Test good file
@@ -96,7 +96,7 @@ class TestActions(TestBase):
         # Test a song not in the brainz database
         of = self.fdata['nonexistenttags'].copy()
         assert_false(b.process(self.fdata['nonexistenttags']))
-        assert b.cleanup_handler.put.called, \
+        assert b.cleanup_handler.queue.put.called, \
             "Cleanup not called on nonexistent tags"
         b.cleanup_handler.reset()
 
@@ -120,7 +120,7 @@ class TestActions(TestBase):
 
         # Test a song for which there are multiple brainz matches
         assert_false(b.process(self.fdata['multipleversions']))
-        assert b.cleanup_handler.put.called, \
+        assert b.cleanup_handler.queue.put.called, \
             "Cleanup not called on multipleversions"
         b.cleanup_handler.reset()
 
@@ -133,7 +133,7 @@ class TestActions(TestBase):
             b.process(file)
 
         assert_false(query(self.fdata['goodtags']))
-        assert b.cleanup_handler.put.called, \
+        assert b.cleanup_handler.queue.put.called, \
             "Cleanup not called on multipleversions"
         b.cleanup_handler.reset()
 
@@ -145,8 +145,8 @@ class TestActions(TestBase):
         self.fdata['goodfile']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
         nf = c.process(self.fdata['goodfile'])
-        assert self.fdata['goodfile']['session'].save.called, \
-            "Cleanup did not update session"
+        assert len(fileprocess.msgs)>0, \
+            "Cleanup did not update messages"
         assert_false(os.path.exists(self.fdata['goodfile']['fname']),
             "Cleanup did not remove file")
 
@@ -157,7 +157,7 @@ class TestActions(TestBase):
         
         # Test bad facebook session
         assert_false(f.process(self.fdata['badfbsession']))
-        assert f.cleanup_handler.put.called,\
+        assert f.cleanup_handler.queue.put.called,\
             "Did not properly cleanup after facebook failed"
         assert self.fdata['badfbsession']['na'] == fileprocess.na.AUTHENTICATE,\
             "Facebook Action did not request reauthentication"
@@ -197,23 +197,35 @@ class TestActions(TestBase):
 
         upload(self.fdata['goodfile'])
         assert putfxn.called, "S3 did not upload file"
-        assert s.cleanup_handler.put.called, \
+        assert s.cleanup_handler.queue.put.called, \
             "S3 did not clean up local file"
-        s.cleanup_handler.put.reset()
+        s.cleanup_handler.queue.put.reset()
 
         # Test for when S3 returns an error
         putfxn.return_value.message = '500 Server Error'
         upload(self.fdata['goodfile'])
-        assert s.cleanup_handler.put.called, \
+        assert s.cleanup_handler.queue.put.called, \
             "S3 did not clean up local file"
-        s.cleanup_handler.put.reset()
+        s.cleanup_handler.queue.put.reset()
 
         
         # Test the development no-op code
         config['S3.upload'] = False
         nf = s.process(self.fdata['goodfile'])
-        assert s.cleanup_handler.put.called, \
+        assert s.cleanup_handler.queue.put.called, \
             "S3 did not clean up local file when not uploading"
+
+    def testAmazonCovers(self):
+        a = AmazonCovers()
+        a.cleanup_handler = Mock()
+        assert a is not None, "AmazonCovers Action not constructed"
+
+        nf = a.process(self.fdata['goodfile'])
+        assert not nf.has_key('swatch')
+
+        nf = a.process(self.fdata['dbrec'])
+        assert nf.has_key('swatch')
+        assert nf['swatch'] != None and nf['swatch'] != ''
 
 class TestDBActions(TestBase):
     """
@@ -224,19 +236,23 @@ class TestDBActions(TestBase):
         super(TestDBActions, self).__init__(*args)
         config['pylons.g'] = Mock()
         config['pylons.g'].sa_engine = engine_from_config(config,
-            prefix = 'sqlalchemy.default.'
+            prefix = 'sqlalchemy.reflect.'
         )
+        self.memengine = engine_from_config(config,
+            prefix = 'sqlalchemy.default.')
         from masterapp import model
         self.model = model
+        model.metadata.bind = self.memengine
+        model.Session.configure(bind=self.memengine)
 
     def setUp(self):
         super(TestDBActions, self).setUp()
         self.model.Session.remove()
-        self.model.metadata.create_all(self.model.Session.bind)
+        self.model.metadata.create_all()
 
     def tearDown(self):
         super(TestDBActions, self).tearDown()
-        self.model.metadata.drop_all(self.model.Session.bind)
+        self.model.metadata.drop_all()
 
     def testDBChecker(self):
         c = DBChecker()
@@ -265,9 +281,9 @@ class TestDBActions(TestBase):
         # Test a file this client has already uploaded
         assert_false(c.process(self.fdata['dbrec']),
             "File insertion should have failed as it was already uploaded")
-        assert c.cleanup_handler.put.called,\
+        assert c.cleanup_handler.queue.put.called,\
             "Did not call cleanup on identical upload"
-        c.cleanup_handler.put.reset()
+        c.cleanup_handler.queue.put.reset()
         assert self.fdata['dbrec']['na'] == fileprocess.na.NOTHING,\
             "Improperly called identical upload a failure"
 
