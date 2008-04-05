@@ -124,6 +124,9 @@ function PlayQueue()
             this.played.push(this.playing.record);
             this.playing = null;
         }
+        else
+            this.panel.getLayout().setActiveItem(1);
+
         new PlayingQueueNode({
             record: record,
             queue: this
@@ -225,7 +228,6 @@ function PlayQueue()
     this.tree.on('movenode', this.reorder, this);
     this.tree.on('checkchange', this.remove, this);
     this.tree.on('beforemovenode', this.stopreorder, this);
-
 }
 
 /* Make it so we can fire events */
