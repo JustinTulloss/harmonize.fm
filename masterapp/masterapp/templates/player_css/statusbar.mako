@@ -3,7 +3,6 @@
     font-weight: bold;
     color: ${c.profile.status_txt};
     text-align: center;
-    height: 100%;
     padding-top: 4px;
 }
 

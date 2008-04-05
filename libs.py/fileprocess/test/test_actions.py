@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 import unittest
 import logging
 import nose
@@ -337,6 +338,8 @@ class TestDBActions(TestBase):
         assert nf['dbowner'] and nf['dbfile'] and nf['dbsong'] and nf['dbalbum']
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect clean record insertion")
+        assert nf['dbsong'].title == u'Save Öur City',\
+            "DB messed up unicode characters"
         nf.pop('dbowner')
         nf.pop('dbfile')
         nf.pop('dbsong')

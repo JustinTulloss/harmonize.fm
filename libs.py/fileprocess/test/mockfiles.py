@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 mockfiles = {
     'empty' : {},
     'neupload' : {
@@ -48,7 +49,7 @@ mockfiles = {
         u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
         u'album': u'Broken Bride', 
         u'mbalbumid': u'defeb27b-ac1d-4d65-a97a-0c45fa4f9710', 
-        u'title': u'Save Our City', 
+        u'title': u'Save Öur City', 
         u'asin': u'B000092ZYX', 
         u'artist': u'Ludo', 
         u'mbartistid': u'46cf71f5-7583-4834-b843-1f221a41860d', 

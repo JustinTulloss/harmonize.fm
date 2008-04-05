@@ -19,19 +19,13 @@ function PlayQueue()
         stop : true
     });
 
-    var npt = new Ext.Template(
-        '<div name="np">',
-            '<span id="np-title">{title}</span>',
-            '<span id="np-info">{info}</span>',
-        '</div>');
-
-
     var instructions = new Ext.Template(
-            '<div id="instruction" >',
-                    'Drag here to add songs',
-                    '<br>-OR-<br>',
-                    'Hit the <img class="middle" src="/images/enqueue.png" /> button',
-            '</div>');
+        '<div id="instruction" >',
+                'Drag here to add songs',
+                '<br>-OR-<br>',
+                'Hit the <img class="middle" src="/images/enqueue.png" /> button',
+        '</div>');
+    instructions = instructions.compile();
 
     this.played = new Array(); /* Just an array of all the played treenodes */
     this.playing = null;
@@ -54,8 +48,8 @@ function PlayQueue()
         title:"Instructions", 
         closable:false, 
         autocreate:true,
+        layout: 'fit',
         border: false,
-        autoHeight: true,
         hideBorders: true,
         header: false,
         cls: 'instruction',
