@@ -56,18 +56,19 @@ function ViewManager(crumb, objects)
         fitToFrame: true,
         layout: 'card',
         autocreate: true,
-        anchor: '0 -80',
+        anchor: '0 -85',
         header: false,
     });
 
-    var statusbar = new Ext.Panel({
+    var statusbar = new Ext.Toolbar({
+        /*
         title: "Statusbar",
         layout: 'fit',
         autocreate: true,
-        height: 20,
         header: false,
         anchor: '100%',
-        html: '<span>Welcome!</span>',
+        */
+        height: 25,
         cls: 'status'
     });
 
@@ -77,7 +78,7 @@ function ViewManager(crumb, objects)
         autocreate: true,
         layout: 'anchor',
         header: false,
-        items: [bcpanel, gridstack, statusbar],
+        items: [bcpanel, gridstack],
     });
 
     bigshow = new Ext.Viewport({
@@ -94,9 +95,13 @@ function ViewManager(crumb, objects)
             id: 'centerpanel',
             layout: 'card',
             activeItem: 0,
-            items: [homepanel, browserpanel]
+            items: [homepanel, browserpanel],
+            bbar: statusbar
         }]
     });
+    var username='';
+
+    set_status(null);
 
     this.init_top_menu = init_top_menu;
     function init_top_menu()
@@ -171,6 +176,9 @@ function ViewManager(crumb, objects)
     this.set_status = set_status;
     function set_status(text)
     {
+        if (text == null)
+            text = '<a class="logout" href="/player/logout">logout</a>';
+
         var el= statusbar.getEl();
         t_status.overwrite(el, {name: username, status: text});
     }

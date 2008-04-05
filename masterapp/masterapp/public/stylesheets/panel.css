@@ -29,10 +29,10 @@
 }
 
 .x-panel-bbar .x-toolbar {
-    border:1px solid #99bbe8;
+    /*border:1px solid #99bbe8;*/
     border-top:0 none;
     overflow:hidden;
-    padding:2px;
+    /*padding:2px;*/
 }
 
 .x-panel-tbar .x-toolbar {

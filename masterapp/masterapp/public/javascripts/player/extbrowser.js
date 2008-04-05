@@ -154,12 +154,7 @@ function AlbumGrid(config)
         newgridbranch : true
     });
 
-    var t_info = new Ext.Template(
-        '<div>Loading...</div>'
-    )
-
     var expander = new Ext.grid.RowExpander({
-        tpl: t_info,
         remoteDataMethod: load_details,
         scope: this
     });
