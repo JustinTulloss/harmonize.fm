@@ -17,23 +17,55 @@
 function ViewManager(crumb, objects)
 {
 
-    homepanel = new Ext.Panel({
-        title:"Home", 
-        fitToFrame:true, 
-        closable:true, 
-        autocreate:true, 
-        contentEl:'home', 
+    var homepanel = new Ext.Panel({
+        title: "Home", 
+        fitToFrame: true, 
+        autocreate: true, 
+        contentEl: 'home', 
         header: false
     });
 
     if (crumb)
         crumb.panel = homepanel;
 
+    this.srchfld = new Ext.form.TextField({
+        emptyText: "Filter...",
+        cls: 'searchfield'
+    });
+
+    var bcpanel = new Ext.Panel({
+        title: "Breadcrumb",
+        height: 50,
+        autocreate: true,
+        anchor: '100%',
+        header: false,
+        items: [Ext.get('bccontent'), this.srchfld]
+    });
+
+    var gridstack = new Ext.Panel({
+        title: "Grids",
+        fitToFrame: true,
+        layout: 'card',
+        autocreate: true,
+        anchor: '100% 100%',
+        header: false
+    });
+    this.gridstack = gridstack;
+
+    var browserpanel = new Ext.Panel({
+        title: "Browser",
+        fitToFrame: true,
+        autocreate: true,
+        layout: 'anchor',
+        header: false,
+        items: [bcpanel, gridstack]
+    });
+
     bigshow = new Ext.Viewport({
         layout: 'border',
         items: [{
             region: 'north',
-            height: 76,
+            height: 58,
             titlebar: false,
             contentEl: 'header'
         }, 
@@ -43,17 +75,14 @@ function ViewManager(crumb, objects)
             id: 'centerpanel',
             layout: 'card',
             activeItem: 0,
-            items: [homepanel]
+            items: [homepanel, browserpanel]
         }]
     });
 
     this.init_top_menu = init_top_menu;
     function init_top_menu()
     {
-        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'menu', height:18});
-        this.srchfld = new Ext.form.TextField({
-            emptyText: "Search..."
-        });
+        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'topmenu', height:18});
         var leftspc = new Ext.Toolbar.Fill();
         var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
         var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
@@ -72,7 +101,6 @@ function ViewManager(crumb, objects)
 
 
         topmenu.add(
-            this.srchfld,
             leftspc,
             homebtn,
             artistbtn,
@@ -90,11 +118,17 @@ function ViewManager(crumb, objects)
     function set_panel(crumb, params, e)
     {
         if (crumb.panel) {
-            if (!bigshow.getComponent('centerpanel').findById(crumb.panel.id)){
-                bigshow.getComponent('centerpanel').add(crumb.panel);
+            if (crumb.panel == homepanel) {
+                bigshow.getComponent('centerpanel').
+                    getLayout().setActiveItem(crumb.panel.id);
+                return;
             }
+            else if (!gridstack.findById(crumb.panel.id)){
+                gridstack.add(crumb.panel);
+            }
+            gridstack.getLayout().setActiveItem(crumb.panel.id);
             bigshow.getComponent('centerpanel').
-                getLayout().setActiveItem(crumb.panel.id);
+                getLayout().setActiveItem(browserpanel.id);
         }
     }
 

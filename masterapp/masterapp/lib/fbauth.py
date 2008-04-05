@@ -17,9 +17,15 @@ def ensure_fb_session():
         session['user'] = Session.query(User).filter(
             User.fbid==facebook.uid).first()
         session['fbfriends']=facebook.friends.getAppUsers()
-        session['fbfriends'].append(facebook.uid)
+        # XXX: This conditional works around a bug where the getAppUsers call
+        #   returns a {} instead of [] when there are no friends. Should fix
+        #   in the library
+        if len(session['fbfriends']) > 0:
+            session['fbfriends'].append(facebook.uid)
+        else:
+            session['fbfriends'] = [facebook.uid]
         session.save()
-        return
+        return True
 
     if not session.has_key('fbsession'):
         if facebook.check_session(request):
@@ -28,8 +34,15 @@ def ensure_fb_session():
             session['user'] = Session.query(User).filter(
                 User.fbid==facebook.uid).first()
             session['fbfriends']=facebook.friends.getAppUsers()
-            session['fbfriends'].append(facebook.uid)
+            # XXX: This conditional works around a bug where the getAppUsers 
+            #   returns a {} instead of [] when there are no friends. Should fix
+            #   in the library
+            if len(session['fbfriends']) > 0:
+                session['fbfriends'].append(facebook.uid)
+            else:
+                session['fbfriends'] = [facebook.uid]
             session.save()
+            return True
         else:
             next = '%s' % (request.environ['PATH_INFO'])
             url = facebook.get_login_url(next=next, canvas=False)
@@ -37,6 +50,7 @@ def ensure_fb_session():
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
+        return True
 
 def filter_friends(qry):
     """
@@ -44,7 +58,6 @@ def filter_friends(qry):
     the files you can select from to files owned by any of your friends.
     It assumes you are joined to the Users table.
     """
-    #fbclause = sql.expression.or_()
     fbclause = or_()
     for friend in session['fbfriends']:
         fbclause.append(User.fbid==friend)

@@ -1,16 +1,30 @@
 <%inherit file="base.mako" />
 
 <%def name="head_tags()">
-    ${h.stylesheet_link_tag('ext-all')}
+    ${h.stylesheet_link_tag('core')}
     ${h.stylesheet_link_tag('ext-ux-slidezone')}
+    ${h.stylesheet_link_tag('layout')}
+    ${h.stylesheet_link_tag('borders')}
+    ${h.stylesheet_link_tag('resizable')}
+    ${h.stylesheet_link_tag('grid')}
+    ${h.stylesheet_link_tag('tree')}
+    ${h.stylesheet_link_tag('dd')}
+    ${h.stylesheet_link_tag('borders')}
+    ${h.stylesheet_link_tag('panel')}
+    ${h.stylesheet_link_tag('toolbar')}
+    ${h.stylesheet_link_tag('button')}
+    ${h.stylesheet_link_tag('box')}
+    ${h.stylesheet_link_tag('form')}
     <title>Rubicon Web Player</title>
     <style type="text/css">
-    <%include file="player_css.mako" /> 
+    <%include file="player_css/player_css.mako" /> 
+    <%include file="player_css/topbar.mako" /> 
     </style>
 
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
     ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
     ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
+    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/RowExpander.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('lib/helpers.js')}
     ${h.javascript_include_tag('player/errmgr.js')}
@@ -30,7 +44,6 @@
     <div id="menu">
     </div>
     <div id="top">
-        <div id="breadcrumb"></div>
         <div id="controls">
             <div id="flash"></div>
             <img class="control mo" id="prevbutton" src = "/images/back.png" />
@@ -43,14 +56,15 @@
             <div id="timeline" tabindex="-1"></div>
         </div>
     </div>
+    <div id="logo">
+    	<img src="/images/whiterubicon.png" />
+    </div>
 </div>
 
 <div id="home">
     <div id="mainlogo"><img src="/images/homelogo.png" /></div>
-    <div class="mainmenu">${h.link_to_function("Artists", "go('artist')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Albums", "go('album')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Songs", "go('song')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Friends", "go('friend')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Genres", "go('genre')", Class="mainmenuitem")}</div>
-    <div class="mainmenu">${h.link_to_function("Settings", "go('setting')", Class="mainmenuitem")}</div>
+</div>
+
+<div id="bccontent">
+    <div id="breadcrumb"></div>
 </div>

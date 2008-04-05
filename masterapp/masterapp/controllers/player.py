@@ -6,7 +6,7 @@ import S3
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends
 from masterapp.lib.profile import Profile
-from masterapp.model import Session, User, File
+from masterapp.model import Session, User, File, Album
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -60,6 +60,10 @@ class PlayerController(BaseController):
         session['playing'] = None
         session.save()
         return 'false'
+
+    def album_details(self):
+        c.album = Session.query(Album).get(request.params.get('album'))
+        return render('/album_details.mako')
 
     @jsonify
     def get_checked_friends(self):
