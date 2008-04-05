@@ -19,6 +19,7 @@
     <style type="text/css">
     <%include file="player_css/player_css.mako" /> 
     <%include file="player_css/topbar.mako" /> 
+    <%include file="player_css/statusbar.mako" /> 
     </style>
 
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}

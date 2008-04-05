@@ -25,6 +25,14 @@ function ViewManager(crumb, objects)
         header: false
     });
 
+    t_status = new Ext.Template(
+        '<div name="status">',
+            '<span class="uname">Welcome, {name:trim}</span>',
+            '<span class="cstatus">{status}</span>',
+        '</div>'
+    );
+    t_status = t_status.compile();
+
     if (crumb)
         crumb.panel = homepanel;
 
@@ -35,10 +43,11 @@ function ViewManager(crumb, objects)
 
     var bcpanel = new Ext.Panel({
         title: "Breadcrumb",
-        height: 50,
+        height: 60,
         autocreate: true,
         anchor: '100%',
         header: false,
+        layout: 'fit',
         items: [Ext.get('bccontent'), this.srchfld]
     });
 
@@ -47,10 +56,20 @@ function ViewManager(crumb, objects)
         fitToFrame: true,
         layout: 'card',
         autocreate: true,
-        anchor: '100% 100%',
-        header: false
+        anchor: '0 -80',
+        header: false,
     });
-    this.gridstack = gridstack;
+
+    var statusbar = new Ext.Panel({
+        title: "Statusbar",
+        layout: 'fit',
+        autocreate: true,
+        height: 20,
+        header: false,
+        anchor: '100%',
+        html: '<span>Welcome!</span>',
+        cls: 'status'
+    });
 
     var browserpanel = new Ext.Panel({
         title: "Browser",
@@ -58,7 +77,7 @@ function ViewManager(crumb, objects)
         autocreate: true,
         layout: 'anchor',
         header: false,
-        items: [bcpanel, gridstack]
+        items: [bcpanel, gridstack, statusbar],
     });
 
     bigshow = new Ext.Viewport({
@@ -149,5 +168,18 @@ function ViewManager(crumb, objects)
             crumb.panel = newpanel;
     }
 
+    this.set_status = set_status;
+    function set_status(text)
+    {
+        var el= statusbar.getEl();
+        t_status.overwrite(el, {name: username, status: text});
+    }
 
+    Ext.Ajax.request({
+        url: 'player/username',
+        success: function(response){ 
+            username = response.responseText; 
+            set_status(null); 
+        },
+    });
 }

@@ -63,3 +63,6 @@ def filter_friends(qry):
         fbclause.append(User.fbid==friend)
     qry = qry.filter(fbclause)
     return qry
+
+def get_user_info():
+    return facebook.users.getInfo(session['fbuid'])[0]

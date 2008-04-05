@@ -88,10 +88,13 @@ Ext.extend(Ext.grid.RowExpander, Ext.util.Observable, {
 	},
 	
 	getRemoteDataMethod : function (record, index){
-		if(!this.remoteDataMethod){
+		if(!this.remoteDataMethod)
 			return;
-		}
-			return this.remoteDataMethod.call(this,record,index);
+
+        if(this.scope)
+		    return this.remoteDataMethod.call(this.scope,record,index);
+        
+        return this.remoteDataMethod.call(this, record, index);
 	},
 
     onMouseDown : function(e, t){
