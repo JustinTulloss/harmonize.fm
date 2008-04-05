@@ -2,6 +2,7 @@ import os, re, hashlib, httplib, sys
 import os.path as path
 from thread import start_new_thread
 import time
+import config
 
 #UPLOAD_PATH = '/Users/justin/Music/Feist'
 
@@ -45,7 +46,8 @@ def upload_file(file, session_key, callback):
 	uploaded = False
 	while not uploaded:
 		try:
-			connection = httplib.HTTPConnection('127.0.0.1', 2985)
+			connection = httplib.HTTPConnection(config.current['server_addr'],
+				config.current['server_port'])
 			url = '/uploads/' + file_sha + '?session_key=' + session_key
 			connection.request('GET', url)
 
