@@ -2,7 +2,7 @@ import os, re, hashlib, httplib, sys
 import os.path as path
 from thread import start_new_thread
 import time
-import config
+import config, tags
 
 #UPLOAD_PATH = '/Users/justin/Music/Feist'
 
@@ -32,24 +32,15 @@ def get_music_files(dir):
 def is_music_file(file):
 	return file.endswith('.mp3')
 
-def upload_file(file, session_key, callback):
+def upload_file(filename, session_key, callback):
 	try:
-		fd = open(file)
-		file_contents = fd.read()
-
-		header = file_contents[:3]
-		header_size = 0
-		if header == 'ID3':
-			for i in range(6, 10):
-				header_size = header_size<<8 + ord(file_contents[i])&127
-			header_size += 10
-		
-		fd.close()
+		file_contents = open(filename).read()
+		contents_wo_tags = tags.file_contents_without_tags(filename)
 	except IOError, e:
-		#sys.stderr.write('Unable to read file %s, skipping.\n' % file)
+		#sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
 		return
 
-	file_sha = hashlib.sha1(file_contents[header_size:]).hexdigest()
+	file_sha = hashlib.sha1(contents_wo_tags).hexdigest()
 
 	uploaded = False
 	while not uploaded:
