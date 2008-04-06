@@ -220,6 +220,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 /* Body Styles */
 .x-grid3-body {
 	zoom:1;
+    border-bottom: 1px solid #EEE;
 }
 
 .x-grid3-scroller {
