@@ -20,11 +20,10 @@ function PlayQueue()
     });
 
     var instructions = new Ext.Template(
-        '<div id="instruction" >',
-                'Drag here to add songs',
-                '<br>-OR-<br>',
-                'Hit the <img class="middle" src="/images/enqueue.png" /> button',
-        '</div>');
+        'Drag here to add songs',
+        '<br>-OR-<br>',
+        'Hit the <img class="middle" src="/images/enqueue.png" /> button'
+    );
     instructions = instructions.compile();
 
     this.played = new Array(); /* Just an array of all the played treenodes */
@@ -52,8 +51,9 @@ function PlayQueue()
         border: false,
         hideBorders: true,
         header: false,
-        cls: 'instruction',
-        html: instructions.apply()
+        html: instructions.apply(),
+        bodyStyle:"text-align: center; display: table-cell; "+
+            "vertical-align: middle; #position: relative; #top: 50%;"
     });
 
     this.panel = new Ext.Panel({
