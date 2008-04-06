@@ -142,11 +142,13 @@
     font-size:1px;
     z-index:3;
     background-color:#BBBBBB;
+    border-right: 1px solid #999;
+    border-left: 1px solid #999;
 }
 
 .x-layout-split-h{
-    background-image:url(../images/default/s.gif);
-    background-position: left;
+    /*background-image:url(../images/default/s.gif);
+    background-position: left;*/
 }
 .x-layout-split-v{
     background-image:url(../images/default/s.gif);
