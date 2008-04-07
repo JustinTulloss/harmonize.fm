@@ -2,6 +2,7 @@ import cgi
 import os.path as path
 from urlparse import urlsplit
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import config
 
 class ClientHTTPServer(BaseHTTPRequestHandler):
 	requests = 0 #we want to say we have the file in question on odd requests
@@ -57,5 +58,6 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		self.handle_request()
 
 if __name__ == '__main__':
-	server = HTTPServer(('localhost', 2985), ClientHTTPServer)
+	server = HTTPServer(('', config.test_server['server_port']),
+						ClientHTTPServer)
 	server.serve_forever()
