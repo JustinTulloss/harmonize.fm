@@ -14,13 +14,8 @@ body, html {
     margin: 20px;
 }
 
-.instruction {
+.queue {
 	background-color: ${c.profile.queue_bg};
-    text-align: center;
-    display: table-cell;
-    vertical-align: middle;
-    #position: relative; /*IE fixes*/
-    #top: 50%;
 }
 
 .control {

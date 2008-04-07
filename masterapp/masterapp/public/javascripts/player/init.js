@@ -39,6 +39,7 @@ function init()
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgrid', viewmgr.init_search, viewmgr);
+    browser.on('chgstatus', viewmgr.set_status, viewmgr);
     browser.on('newgrid', add_grid_listeners);
 
     player.on('nextsong', playqueue.dequeue, playqueue);
@@ -53,6 +54,7 @@ function init()
 function add_grid_listeners(crumb, e)
 {
     crumb.panel.on('enqueue', playqueue.enqueue, playqueue);
+    crumb.panel.on('chgstatus', viewmgr.set_status, viewmgr);
     if (typeinfo[crumb.type].next == 'play')
         crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
     else

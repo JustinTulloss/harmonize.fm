@@ -19,19 +19,12 @@ function PlayQueue()
         stop : true
     });
 
-    var npt = new Ext.Template(
-        '<div name="np">',
-            '<span id="np-title">{title}</span>',
-            '<span id="np-info">{info}</span>',
-        '</div>');
-
-
     var instructions = new Ext.Template(
-            '<div id="instruction" >',
-                    'Drag here to add songs',
-                    '<br>-OR-<br>',
-                    'Hit the <img class="middle" src="/images/enqueue.png" /> button',
-            '</div>');
+        'Drag here to add songs',
+        '<br>-OR-<br>',
+        'Hit the <img class="middle" src="/images/enqueue.png" /> button'
+    );
+    instructions = instructions.compile();
 
     this.played = new Array(); /* Just an array of all the played treenodes */
     this.playing = null;
@@ -54,22 +47,24 @@ function PlayQueue()
         title:"Instructions", 
         closable:false, 
         autocreate:true,
+        layout: 'fit',
         border: false,
-        autoHeight: true,
         hideBorders: true,
         header: false,
-        cls: 'instruction',
-        html: instructions.apply()
+        html: instructions.apply(),
+        bodyStyle:"text-align: center; display: table-cell; "+
+            "vertical-align: middle; #position: relative; #top: 50%;"
     });
 
     this.panel = new Ext.Panel({
         id: 'queuepanel',
         region: 'west',
         split: true,
-        width: '16%',
+        width: '20%',
         titlebar:false,
         collapsible: true,
         layout: 'card',
+        cls: 'queue',
         activeItem: 0,
         items: [this.inspanel, this.tree]
     });
@@ -130,6 +125,9 @@ function PlayQueue()
             this.played.push(this.playing.record);
             this.playing = null;
         }
+        else
+            this.panel.getLayout().setActiveItem(1);
+
         new PlayingQueueNode({
             record: record,
             queue: this
@@ -231,7 +229,6 @@ function PlayQueue()
     this.tree.on('movenode', this.reorder, this);
     this.tree.on('checkchange', this.remove, this);
     this.tree.on('beforemovenode', this.stopreorder, this);
-
 }
 
 /* Make it so we can fire events */

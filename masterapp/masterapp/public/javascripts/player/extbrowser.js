@@ -8,7 +8,8 @@
 function Browser()
 {
     this.addEvents({
-        newgrid: true
+        newgrid: true,
+        chgstatus: true
     });
 
     /***** public functions ****/
@@ -33,7 +34,12 @@ function Browser()
         else
             params = {type:crumb.type};
 
-        crumb.ds.load({params:params});
+        crumb.ds.load({
+            params:params,
+            callback: function(){this.fireEvent('chgstatus', null)},
+            scope: this
+        });
+        this.fireEvent('chgstatus', 'Loading...');
 
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
@@ -60,7 +66,8 @@ function BaseGrid(config)
     config.stripeRows = true;
 
     this.addEvents({
-        enqueue : true
+        enqueue : true,
+        chgstatus: true
     });
 
     this.actions={
@@ -147,13 +154,9 @@ function AlbumGrid(config)
         newgridbranch : true
     });
 
-    var t_info = new Ext.Template(
-        '<div>Loading...</div>'
-    )
-
     var expander = new Ext.grid.RowExpander({
-        tpl: t_info,
-        remoteDataMethod: load_details
+        remoteDataMethod: load_details,
+        scope: this
     });
 
     config.iconCls = 'icon-grid';
@@ -208,8 +211,11 @@ function AlbumGrid(config)
         var el = Ext.get("remData"+index);
         el.load({
             url: 'player/album_details',
+            callback: function(){ this.fireEvent('chgstatus', null) },
+            scope: this,
             params: {album:record.get('albumid')},
         });
+        this.fireEvent('chgstatus', 'Loading...');
     }
 }
 Ext.extend(AlbumGrid, BaseGrid);
