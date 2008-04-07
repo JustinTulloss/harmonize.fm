@@ -14,10 +14,6 @@ body, html {
     margin: 20px;
 }
 
-.queue {
-	background-color: ${c.profile.queue_bg};
-}
-
 .control {
     vertical-align: middle;
     margin-top: 1em;

@@ -40,7 +40,7 @@
     -moz-user-select: none;
 }
 .x-grid3-hd-row td {
-    line-height:30px;
+    /*line-height:30px;*/
     vertical-align:middle;
     /*border-left:1px solid #eee;
     border-right:1px solid #d0d0d0;*/
@@ -149,7 +149,9 @@
 
 /* header styles */
 .x-grid3-header{
-	background: transparent url(/images/grid-title-bg.png) repeat-x 0 bottom;
+	/*background: transparent url(/images/grid-title-bg.png) repeat-x 0
+     * bottom;*/
+    background: #334466;
 	cursor:default;
     text-align: center;
     color: #FFF;
@@ -220,7 +222,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 /* Body Styles */
 .x-grid3-body {
 	zoom:1;
-    border-bottom: 1px solid #EEE;
+    border-bottom: 1px solid #999;
 }
 
 .x-grid3-scroller {

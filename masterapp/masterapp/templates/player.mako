@@ -19,6 +19,7 @@
     <title>Rubicon Web Player</title>
     <style type="text/css">
     <%include file="player_css/player_css.mako" /> 
+    <%include file="player_css/queue_css.mako" /> 
     <%include file="player_css/topbar.mako" /> 
     <%include file="player_css/statusbar.mako" /> 
     </style>
