@@ -34,7 +34,7 @@ def is_music_file(file):
 
 def upload_file(filename, session_key, callback):
 	try:
-		file_contents = open(filename).read()
+		file_contents = open(filename, 'rb').read()
 		contents_wo_tags = tags.file_contents_without_tags(filename)
 	except IOError, e:
 		#sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
@@ -51,11 +51,14 @@ def upload_file(filename, session_key, callback):
 			connection.request('GET', url)
 
 			if connection.getresponse().read() == '0':
+				sys.stderr.write('Uploading file with hash %s of size %s\n' %
+						(filename, len(file_contents)))
 				connection.request('POST', url, file_contents, 
 					{'Content-Type':'audio/x-mpeg-3'})
 				connection.getresponse().read()
 			uploaded = True
 		except Exception, e:
+		#	raise e #for debugging purposes
 			callback('Error connecting to server, will try again')
 			time.sleep(60) #This is a little safer than inside the exception
 
