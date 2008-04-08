@@ -23,6 +23,7 @@ function Player()
     var nextsong;
     var slider;
     var shuttle;
+    var progressbar;
 
     this.addEvents({
         nextsong: true,
@@ -117,7 +118,7 @@ function Player()
     this.init_playcontrols = init_playcontrols;
     function init_playcontrols()
     {
-        init_seekbar();
+        //init_seekbar();
         Ext.get('playbutton').on('click', playpause, this);
         Ext.get('nextbutton').on('click', nextclicked, this);
         Ext.get('prevbutton').on('click', prevclicked, this);
@@ -168,6 +169,13 @@ function Player()
                 this.options.player.nextclicked.call(this.options.player, this);
             }
         });
+
+        /* create progressbar */
+        progressbar = new Ext.ProgressBar({
+            renderTo: 'timeline',
+        });
+
+        /*finally play */
         soundManager.play(playingsong);
     }
 
@@ -175,8 +183,8 @@ function Player()
     function updatetime(sound)
     {
         var total = soundduration(sound);
-        Ext.get('time').update(format_time(sound.position));
-        Ext.get('time2').update('-'+format_time(total-sound.position));
+        //Ext.get('time').update(format_time(sound.position));
+        //Ext.get('time2').update('-'+format_time(total-sound.position));
         updateseekbar(sound.position/total);
     }
 
@@ -193,8 +201,8 @@ function Player()
 
     function updateseekbar(percentage)
     {
-        /* This actually needs to be percentage*totallength*/
-        shuttle.setPosition([percentage*100]);
+        var pb = progressbar;
+        progressbar.updateProgress(percentage);
     }
 
     function badsongurl(response, options)

@@ -9,6 +9,11 @@
 .x-tree .x-panel-body{
     /*background-color:#fff;*/
 }
+
+ul.x-tree-root-ct{
+    padding:0;
+}
+
 .ext-strict .ext-ie .x-tree .x-panel-bwrap{
     position:relative;
     overflow:hidden;
