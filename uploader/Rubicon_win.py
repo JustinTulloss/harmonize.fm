@@ -16,7 +16,7 @@ class Rubicon(winforms.Form):
 		self.Locked = True
 		formSize = Size(329, 332)
 		self.Size = formSize
-		self.MinimunSize = formSize
+		self.MinimumSize = formSize
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
 		self.Text = 'Rubicon Uploader'
 
@@ -95,6 +95,7 @@ def loginPage(form, panel):
 
 	if session_key == None:
 		textbox.Text = 'Please login to facebook to continue'
+		form.nextButton.Enabled = False
 
 		def callback(new_key):
 			def updateLoginPage():
@@ -137,6 +138,7 @@ def uploadSelectPage(form, panel):
 
 	if itunes.get_library_file() == None:
 		radioITunes.Enabled = False
+		radioFolder.Checked = True
 
 	if uploadMethod == 'itunes':
 		radioITunes.Checked = True
@@ -205,27 +207,26 @@ def uploadPage(form, panel):
 	textbox.Location = Point(0, 2)
 	panel.Controls.Add(textbox)
 
-	def make_progressbar():
-		progressbar = winforms.ProgressBar()
-		progressbar.Location = Point(3, 29)
-		progressbar.Size = Size(288, 23)
-		progressbar.Style = winforms.ProgressBarStyle.Marquee
-		panel.Controls.Add(progressbar)
+	class Progressbar(object):
+		def __init__(self):
+			self.progressbar = winforms.ProgressBar()
+			self.progressbar.Location = Point(3, 29)
+			self.progressbar.Size = Size(288, 23)
+			self.progressbar.Style = winforms.ProgressBarStyle.Marquee
+			panel.Controls.Add(self.progressbar)
 
-		progressbar_updated = False
+		def init(self, total_songs):
+			self.progressbar.Maximum = total_songs
+			self.progressbar.Style = winforms.ProgressBarStyle.Blocks
 
-		def update_progressbar(songs_left):
-			if not progressbar_updated:
-				progressbar.Maximum = songs_left
-				progressbar.Style = winforms.ProgressBarStyle.Blocks
-				progressbar_updated = True
-			elif type(songs_left) == str:
-				progressbar.Style = winforms.ProgressBarStyle.Marquee
-			else:
-				progressbar.Value = progressbar.Maximum - songs_left
-		return update_progressbar
+		def update(self, songs_left):
+			self.progressbar.Style = winforms.ProgressBarStyle.Blocks
+			self.progressbar.Value = self.progressbar.Maximum - songs_left
+
+		def spin(self):
+			self.progressbar.Style = winforms.ProgressBarStyle.Marquee
 	
-	progress_updater = make_progressbar()
+	progress_updater = Progressbar()
 
 	def uploader():
 		global uploadMethod, uploadFolder, session_key
@@ -235,18 +236,31 @@ def uploadPage(form, panel):
 		elif uploadMethod == 'folder':
 			tracks = upload.get_music_files(uploadFolder)
 
-		def callback(songs_left):
-			def updateSongs():
-				if type(songs_left) == str:
-					textbox.Text = songs_left
-				elif songs_left != 0:
-					textbox.Text = '%s songs remaining' % songs_left
-				else:
-					textbox.Text = 'Upload complete!'
-				#progress_updater(songs_left)
+		def main_thread_delegated(fn):
+			def wrapper(*args):
+				delegate = winforms.MethodInvoker(lambda: fn(*args))
+				form.Invoke(delegate)
 
-			delegate = winforms.MethodInvoker(updateSongs)
-			form.Invoke(delegate)
+			return wrapper
+
+
+		class Callback(object):
+			@main_thread_delegated
+			def init(self, msg, total_songs):
+				textbox.Text = msg
+				progress_updater.init(total_songs)
+
+			@main_thread_delegated
+			def update(self, msg, songs_left):
+				textbox.Text = msg
+				progress_updater.update(songs_left)
+
+			@main_thread_delegated
+			def error(self, msg):
+				textbox.Text = msg
+				progress_updater.spin()
+
+		callback = Callback()
 
 		upload.upload_files(tracks, session_key, callback)
 

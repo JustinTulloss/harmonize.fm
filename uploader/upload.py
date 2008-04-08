@@ -51,24 +51,22 @@ def upload_file(filename, session_key, callback):
 			connection.request('GET', url)
 
 			if connection.getresponse().read() == '0':
-				sys.stderr.write('Uploading file with hash %s of size %s\n' %
-						(filename, len(file_contents)))
 				connection.request('POST', url, file_contents, 
 					{'Content-Type':'audio/x-mpeg-3'})
 				connection.getresponse().read()
 			uploaded = True
 		except Exception, e:
 		#	raise e #for debugging purposes
-			callback('Error connecting to server, will try again')
+			callback.error('Error connecting to server, will try again')
 			time.sleep(60) #This is a little safer than inside the exception
 
 def upload_files(song_list, session_key, callback):
 	songs_left = len(song_list)	
-	callback(songs_left)
+	callback.init('%s songs remaining' % songs_left, songs_left)
 
 	for song in song_list:
 		upload_file(song, session_key, callback)
 		songs_left -= 1
-		callback(songs_left)
+		callback.update('%s songs remaining' % songs_left, songs_left)
 	
-	callback(0)
+	callback.update('Upload complete!', 0)
