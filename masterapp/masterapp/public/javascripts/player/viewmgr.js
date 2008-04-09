@@ -41,9 +41,10 @@ function ViewManager(crumb, objects)
         cls: 'searchfield'
     });
 
+    var bcheight = 60;
     var bcpanel = new Ext.Panel({
         title: "Breadcrumb",
-        height: 60,
+        height: bcheight,
         autocreate: true,
         anchor: '100%',
         header: false,
@@ -53,10 +54,9 @@ function ViewManager(crumb, objects)
 
     var gridstack = new Ext.Panel({
         title: "Grids",
-        fitToFrame: true,
         layout: 'card',
         autocreate: true,
-        anchor: '0 -60',
+        anchor: '0 -' + bcheight,
         header: false,
     });
 
@@ -67,7 +67,6 @@ function ViewManager(crumb, objects)
 
     var browserpanel = new Ext.Panel({
         title: "Browser",
-        fitToFrame: true,
         autocreate: true,
         layout: 'anchor',
         header: false,
@@ -78,7 +77,12 @@ function ViewManager(crumb, objects)
         layout: 'border',
         items: [{
             region: 'north',
-            height: 58,
+            height: 65,
+            border: false,
+            bodyBorder: false,
+            fitToFrame: true,
+            layout: 'fit',
+            height: 'auto',
             titlebar: false,
             contentEl: 'header'
         }, 

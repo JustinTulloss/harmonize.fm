@@ -14,13 +14,6 @@ body, html {
     margin: 20px;
 }
 
-.control {
-    vertical-align: middle;
-    margin-top: 1em;
-    margin-left: 1em;
-    margin-right: 1em;
-}
-
 a.bc_link {
     color:${c.profile.dark_txt};
 }
