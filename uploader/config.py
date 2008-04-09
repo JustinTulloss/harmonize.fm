@@ -6,4 +6,4 @@ staging = dict(server_addr='stage.rubiconmusicplayer.com', server_port=80)
 
 test_server = dict(server_addr='rubiconmusicplayer.com', server_port=3425)
 
-current = local_test
+current = staging
