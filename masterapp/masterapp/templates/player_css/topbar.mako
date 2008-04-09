@@ -9,32 +9,6 @@
     width: 16%;
 }
 
-#status {
-    font-size: 9px;
-    width: 16%;
-}
-
-#time {
-    float: left;
-    margin-left: 1em;
-    margin-bottom: 0;
-}
-
-#timeline {
-    position: relative;
-    width: 113px;
-    height: 13px;
-	margin: 0 auto;
-	background-position: center center;
-    background-repeat: no-repeat;*/
-}
-
-#time2 {
-    float: right;
-    margin-right: 1em;
-    margin-bottom: 0;
-}
-
 .topmenu {
     background: ${c.profile.top_bg};
     font-size: 9px;

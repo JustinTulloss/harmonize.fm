@@ -102,7 +102,8 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'tracknumber', 'totaltracks', 'totalalbums','recs', 
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend',
-                  'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid'];
+                  'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid',
+                  'swatch'];
 
 stdcols = {
     add: {  

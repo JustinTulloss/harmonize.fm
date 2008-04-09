@@ -4,7 +4,7 @@
  *
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
  *  Updated 03/08/08 (r162) to not suck --JMT
- *
+ *  Updated 04/08/08 (r548b875ae2a9) to support custom Node UIs --JMT
  */
 
 function PlayQueue()
@@ -242,6 +242,9 @@ Ext.extend(PlayQueue, Ext.util.Observable);
 function QueueNode(config)
 {
     this.config = config;
+    if (this.config.uiProvider == null)
+        this.config.uiProvider = QueueNodeUI;
+
     QueueNode.superclass.constructor.call(this, this.config);
     /* Prototype for QueueNodes, meant to be extended */
     this.record = config.record;
@@ -266,6 +269,7 @@ function QueueNode(config)
     this.dequeue = function() {return true;};
     this.update_text = function () {};
 }
+Ext.extend(QueueNode, Ext.tree.TreeNode);
 
 function SongQueueNode(config)
 {
@@ -286,22 +290,28 @@ function SongQueueNode(config)
         });
     }
 }
+Ext.extend(SongQueueNode, QueueNode);
 
 function PlayingQueueNode(config)
 {
-    config.text = config.record.get('title');
+    //config.text = config.record.get('title');
+    config.title = config.record.get('title');
+    config.artist = config.record.get('artist');
+    config.album = config.record.get('album');
+    config.swatch = config.record.get('swatch');
     config.leaf = true;
     config.checked = null;
     config.draggable = false;
     config.allowDrop = false;
     config.allowDrag = false;
-    config.cls = 'nowplaying';
+    config.uiProvider = PlayingNodeUI;
     config.index = 0;
 
     SongQueueNode.superclass.constructor.call(this, config);
     this.queue.playing = this;
     this.queue.fireEvent('playsong', this.record);
 }
+Ext.extend(PlayingQueueNode, QueueNode);
 
 function AlbumQueueNode(config)
 {
@@ -404,14 +414,11 @@ function AlbumQueueNode(config)
 
     this.on('expand', on_expand, this);
 }
+Ext.extend(AlbumQueueNode, QueueNode);
 
 function ArtistQueueNode(queue, name, record)
 {
     ArtistQueueNode.superclass.constructor.call(this, queue, record);
 }
-
-Ext.extend(QueueNode, Ext.tree.TreeNode);
-Ext.extend(SongQueueNode, QueueNode);
-Ext.extend(PlayingQueueNode, QueueNode);
-Ext.extend(AlbumQueueNode, QueueNode);
 Ext.extend(ArtistQueueNode, QueueNode);
+
