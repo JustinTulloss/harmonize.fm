@@ -24,6 +24,12 @@
     padding-left: 1em;
 }
 
+.qn-cb{
+    position: absolute;
+    right: 1em;
+    visibility: hidden;
+}
+
 #status {
     font-size: 9px;
 }

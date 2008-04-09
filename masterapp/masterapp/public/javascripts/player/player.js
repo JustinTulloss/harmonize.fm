@@ -179,7 +179,6 @@ function Player()
         soundManager.play(playingsong);
     }
 
-    /*note that "this" is the sound below. Might change that.*/
     function updatetime(sound)
     {
         var total = soundduration(sound);
@@ -201,7 +200,6 @@ function Player()
 
     function updateseekbar(percentage)
     {
-        var pb = progressbar;
         progressbar.updateProgress(percentage);
     }
 
