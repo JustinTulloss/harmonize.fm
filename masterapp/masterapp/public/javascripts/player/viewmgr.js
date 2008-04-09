@@ -56,7 +56,7 @@ function ViewManager(crumb, objects)
         fitToFrame: true,
         layout: 'card',
         autocreate: true,
-        anchor: '0 -85',
+        anchor: '0 -60',
         header: false,
     });
 
