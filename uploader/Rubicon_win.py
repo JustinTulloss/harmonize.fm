@@ -139,6 +139,7 @@ def uploadSelectPage(form, panel):
 	if itunes.get_library_file() == None:
 		radioITunes.Enabled = False
 		radioFolder.Checked = True
+		uploadMethod = 'folder'
 
 	if uploadMethod == 'itunes':
 		radioITunes.Checked = True
