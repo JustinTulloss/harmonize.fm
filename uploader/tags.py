@@ -2,14 +2,17 @@ import mutagen.id3 as id3
 import tempfile, os
 
 def file_contents_without_tags(filename):
-	nil, temp_path = tempfile.mkstemp()
-	fd = open(temp_path, 'w+b')
-	fd.write(open(filename).read())
-	fd.flush()
+	fd, temp_path = tempfile.mkstemp()
+	file_obj = open(temp_path, 'w+b')
+	file_obj.write(open(filename, 'rb').read())
+	file_obj.flush()
 
 	id3.delete(temp_path)
 	
-	fd.seek(0)
-	file_contents =  fd.read()
+	file_obj.seek(0)
+	file_contents =  file_obj.read()
+	file_obj.close()
+	
+	os.close(fd)
 	os.remove(temp_path)
 	return file_contents
