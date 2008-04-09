@@ -6,7 +6,7 @@ import os
 from facebook.wsgi import facebook
 
 from masterapp.lib.base import *
-from fileprocess.fileprocess import file_queue, na, msglock, msgs
+from fileprocess.fileprocess import file_queue, na, msgs
 
 log = logging.getLogger(__name__)
 
