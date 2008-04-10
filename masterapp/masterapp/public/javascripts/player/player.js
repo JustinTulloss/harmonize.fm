@@ -172,7 +172,7 @@ function Player()
 
         /* create progressbar */
         progressbar = new Ext.ProgressBar({
-            renderTo: 'timeline',
+            renderTo: 'timeline'
         });
 
         /*finally play */

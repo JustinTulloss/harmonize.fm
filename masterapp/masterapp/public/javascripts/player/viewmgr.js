@@ -57,7 +57,7 @@ function ViewManager(crumb, objects)
         layout: 'card',
         autocreate: true,
         anchor: '0 -' + bcheight,
-        header: false,
+        header: false
     });
 
     var statusbar = new Ext.Toolbar({
@@ -70,7 +70,7 @@ function ViewManager(crumb, objects)
         autocreate: true,
         layout: 'anchor',
         header: false,
-        items: [bcpanel, gridstack],
+        items: [bcpanel, gridstack]
     });
 
     bigshow = new Ext.Viewport({
@@ -185,6 +185,6 @@ function ViewManager(crumb, objects)
         success: function(response){ 
             username = response.responseText; 
             set_status(null); 
-        },
+        }
     });
 }

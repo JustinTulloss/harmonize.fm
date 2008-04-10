@@ -26,6 +26,7 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var buf = [
             '<li class="x-tree-node">',
+            '<div class="np-label">Now Playing</div>',
             '<div ext:tree-node-id="',n.id,'" class="np-node x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
                 '<div class="np-swatch">',
                     a.swatch ? ('<img src="' + a.swatch + '" />') : '',
@@ -47,7 +48,7 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         }
         this.elNode = this.wrap.childNodes[0];
     },
-    updateExpandIcon : Ext.emptyFn,
+    updateExpandIcon : Ext.emptyFn
 });
 
 QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
@@ -147,6 +148,6 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         this.removeClass('x-tree-node-over');
         if (this.checkbox)
             Ext.DomHelper.applyStyles(this.checkbox, "visibility: hidden");
-    },
+    }
     
 });

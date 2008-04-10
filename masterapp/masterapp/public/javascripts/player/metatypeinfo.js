@@ -71,7 +71,7 @@ var typeinfo = {
         qry:'albumid', 
         display:'Albums',
         nodeclass: AlbumQueueNode,
-        gridclass: AlbumGrid,
+        gridclass: AlbumGrid
     }, 
     playlist:{
         next:'playlistsong', 
@@ -83,7 +83,7 @@ var typeinfo = {
         next:'play', 
         display:'Songs',
         nodeclass: SongQueueNode,
-        gridclass: SongGrid,
+        gridclass: SongGrid
     },
     playlistsong:{
         next:'play', 
