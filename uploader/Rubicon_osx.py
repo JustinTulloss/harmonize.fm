@@ -159,10 +159,10 @@ class UploadView(WizardView):
 			self.progress.startAnimation_(self)
 		
 	def uploadSongs(self):
-		global uploadInfo, session_key
+		global uploadInfo
 		pool = NSAutoreleasePool.alloc().init()
 		tracks = uploadInfo.getTracks()
-		upload.upload_files(tracks, session_key, self)
+		upload.upload_files(tracks, self)
 		del pool
 
 	def uploadComplete(self, msg):
