@@ -44,6 +44,11 @@ class EasyID3(DictMixin, Metadata):
         "version": "TIT3",
         "artist": "TPE1",
         "tracknumber": "TRCK",
+        "asin": "TXXX:ASIN",
+        "mbartistid": "TXXX:MusicBrainz Artist Id",
+        "mbalbumartistid": "TXXX:MusicBrainz Album Artist Id",
+        "mbalbumid": "TXXX:MusicBrainz Album Id",
+        "mbtrackid": "UFID:http://musicbrainz.org",
         }
     """Valid keys for EasyID3 instances."""
 
@@ -75,6 +80,15 @@ class EasyID3(DictMixin, Metadata):
 
     def __TDRC_set(self, frame, value):
         self.__id3.add(mutagen.id3.TDRC(encoding=3, text=value))
+
+    def __UFID_get(self, frame):
+        return frame.data
+
+    def __UFID_set(self, frame, value):
+        self.__id3.add(mutagen.id3.UFID(
+            owner = 'http://musicbrainz.org',
+            data = value)
+        )
 
     def __text_get(self, frame):
         return list(frame)
@@ -126,6 +140,7 @@ class EasyID3(DictMixin, Metadata):
     __mungers = {
         "TCON": (__TCON_get, __TCON_set),
         "TDRC": (__TDRC_get, __TDRC_set),
+        "UFID:http://musicbrainz.org": (__UFID_get, __UFID_set),
         }
 
     __default = (__text_get, __text_set)
