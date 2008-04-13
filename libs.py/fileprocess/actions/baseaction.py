@@ -26,7 +26,7 @@ class BaseAction(object):
             except Exception, e:
                 log.exception(e)
                 nf['msg'] = "Upload had an unexpected failure"
-                nf['na']  = fileprocess.na.TRYAGAIN
+                nf['na']  = fileprocess.na.FAILURE
                 self.cleanup(nf)
                 nextfile=False
 

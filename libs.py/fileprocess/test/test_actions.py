@@ -22,7 +22,7 @@ from paste.deploy import appconfig
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
         super(TestBase, self).__init__(*args)
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.DEBUG)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
                 '/../../masterapp/test.ini'
@@ -105,6 +105,7 @@ class TestActions(TestBase):
         nf = b.process(self.fdata['goodtags'])
         assert nf, "Brainz failed to process properly tagged song"
         assert nf.has_key('asin'), "Brainz did not fill in new tags"
+        assert nf['album'] == u'Crash', "Brainz messed up the correct tags"
 
         # Test a song that is improperly tagged but should be corrected
         nf = b.process(self.fdata['badtags'])
@@ -137,6 +138,11 @@ class TestActions(TestBase):
         assert b.cleanup_handler.queue.put.called, \
             "Cleanup not called on multipleversions"
         b.cleanup_handler.reset()
+
+        # Test a tricky album to make sure our technique doesn't suck
+        nf = b.process(self.fdata['amnesiac'])
+        assert nf['album'] == 'Amnesiac', \
+            "Album was "+nf['album'] + " instead of Amnesiac"
 
     def testCleanup(self):
         c = Cleanup()

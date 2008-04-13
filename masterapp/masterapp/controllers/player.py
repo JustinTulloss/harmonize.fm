@@ -47,7 +47,9 @@ class PlayerController(BaseController):
             for owner in file.owners:
                 if not g.usedfiles.has_key((file.id, owner.id)):
                     qsgen = S3.QueryStringAuthGenerator(
-                        config['S3.accesskey'], config['S3.secret']
+                        config['S3.accesskey'], config['S3.secret'],
+                        server = 'rubiconmusicplayer.com',
+                        is_secure = False
                     )
                     qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
                     

@@ -416,13 +416,13 @@ class LabelFilter(IFilter):
 class ReleaseFilter(IFilter):
 	"""A filter for the release collection."""
 
-	def __init__(self, title=None, discId=None, releaseTypes=None,
-			artistName=None, artistId=None, limit=None,
+	def __init__(self, title=None, discid=None, releasetypes=None,
+			artist=None, artistid=None, asin=None, count=None, limit=None,
 			offset=None, query=None):
 		"""Constructor.
 
 		If C{discId} or C{artistId} are set, only releases matching
-		those IDs are returned. The C{releaseTypes} parameter allows
+		those IDs are returned. The C{releasetypes} parameter allows
 		to limit the types of the releases returned. You can set it to
 		C{(Release.TYPE_ALBUM, Release.TYPE_OFFICIAL)}, for example,
 		to only get officially released albums. Note that those values
@@ -443,7 +443,7 @@ class ReleaseFilter(IFilter):
 
 		@param title: a unicode string containing the release's title
 		@param discId: a unicode string containing the DiscID
-		@param releaseTypes: a sequence of release type URIs
+		@param releasetypes: a sequence of release type URIs
 		@param artistName: a unicode string containing the artist's name
 		@param artistId: a unicode string containing the artist's ID
 		@param limit: the maximum number of releases to return
@@ -452,18 +452,20 @@ class ReleaseFilter(IFilter):
 
 		@see: the constants in L{musicbrainz2.model.Release}
 		"""
-		if releaseTypes is None or len(releaseTypes) == 0:
-			releaseTypesStr = None
+		if releasetypes is None or len(releasetypes) == 0:
+			releasetypesStr = None
 		else:
-			tmp = [ mbutils.extractFragment(x) for x in releaseTypes ]
-			releaseTypesStr = ' '.join(tmp)
+			tmp = [ mbutils.extractFragment(x) for x in releasetypes ]
+			releasetypesStr = ' '.join(tmp)
 
 		self._params = [
 			('title', title),
-			('discid', discId),
-			('releasetypes', releaseTypesStr),
-			('artist', artistName),
-			('artistid', artistId),
+			('discid', discid),
+			('releasetypes', releasetypesStr),
+			('artist', artist),
+			('artistid', artistid),
+            ('asin', asin),
+            ('count', count),
 			('limit', limit),
 			('offset', offset),
 			('query', query),

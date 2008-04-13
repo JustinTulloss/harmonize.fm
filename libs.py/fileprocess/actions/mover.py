@@ -32,7 +32,7 @@ class Mover(BaseAction):
             frm = file['fname']
         if not os.path.exists(frm):
             file['msg'] = "An Error occurred while processing file"
-            file['na'] = fileprocess.na.TRYAGAIN
+            file['na'] = fileprocess.na.FAILURE
             self.cleanup(file)
             return False
         move(frm, to)

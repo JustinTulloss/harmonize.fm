@@ -25,6 +25,13 @@ mockfiles = {
         u'album': u'Crash',
         u'artist': u'Dave Matthews Band'
     },
+    'amnesiac': {
+        u'title': u'Life in a Glass House',
+        u'album': u'Amnesiac',
+        u'artist': u'Radiohead',
+        u'tracknumber': 11,
+        u'duration': 275025,
+    },
     'badtags': {
         u'title': u'Suburban Perfume',
         u'album': u'nihgt at the rit',
