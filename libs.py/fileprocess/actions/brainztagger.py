@@ -200,7 +200,6 @@ class BrainzTagger(BaseAction):
 
         return False
     
-    # TODO: This still sucks. Make it more like Picard's
     def _find_track(self, file):
         mbquery = Query()
         arglist = [
@@ -236,28 +235,28 @@ class BrainzTagger(BaseAction):
             self.cleanup(file)
             return False
 
-        if len(result)>1:
-            result = self._weed(result, 80)
-            if len(result) == 0:
-                log.info('Brainz match not adequate for %s',file.get('title'))
-                file['msg'] = "Could not find accurate tags for file"
-                file['na'] = fileprocess.na.FAILURE
-                self.cleanup(file)
-                return False
-            if len(result)>1:
-                result = self._weed(result, 100)
-                if len(result) != 1:
-                    #TODO: Run a PUID analysis
-                    log.info("Found multiple versions of %s", file.get('title'))
-                    file['msg'] = "Too many versions of tags found"
-                    file['na'] = fileprocess.na.FAILURE
-                    self.cleanup(file)
-                    return False
+        trackl = []
+        trackd = {}
+        for track in result:
+            trackd[track.track.id] = track
+            trackl.append({
+                'id': track.track.id,
+                'title': track.track.title,
+                'album': track.track.releases[0].title,
+                'artist': track.track.artist.name,
+                'tracknumber': track.track.releases[0].getTracksOffset()+1,
+                'totaltracks': track.track.releases[0].tracksCount
+            })
 
-        return result[0]
+        result = self._match_file_to_track(file, trackl)
+        if result:
+            return trackd[result['id']]
+        else:
+            self.cleanup(file)
+            return False
 
     """
-    The below function was stolen from picard, with slight modifications
+    The below functions were stolen from picard, with slight modifications
 
      Picard, the next-generation MusicBrainz tagger
      Copyright (C) 2004 Robert Kaye
@@ -316,21 +315,40 @@ class BrainzTagger(BaseAction):
 
     def _match_file_to_release(self, file, release):
         """Match files on tracks on this album, based on metadata similarity."""
-        matches = []
+        trackl = []
+        trackd = {}
         for track in release.tracks:
-            if file.get('mbtrackid') == track.id:
+            trackd[track.id] = track
+            trackl.append({
+                'id': track.id,
+                'title': track.title,
+                'album': release.title,
+                'artist': release.artist.name,
+                'duration': track.duration,
+                'tracknumber': release.tracks.index(track) + 1,
+                'totaltracks': len(release.tracks)
+            })
+            
+        result = self._match_file_to_track(file, trackl)
+        if result:
+            result = trackd[result['id']]
+        return result
+
+    def _match_file_to_track(self, file, tracks):
+        matches = []
+        for track in tracks:
+            if file.get('mbtrackid') == track['id']:
                 matches.append((2.0, track))
                 break
-            track.album = release.title
-            track.totaltracks = len(release.tracks)
-            track.tracknumber = release.tracks.index(track)+1
             sim = self._compare_meta(file, track)
             matches.append((sim, track))
+
         if len(matches) <= 0:
             return False
 
         matches.sort(reverse=True)
         log.debug('Track matches: %r', matches)
+
         if matches[0][0] > config.get('brainz.track_threshold', .5):
             return matches[0][1]
         return False
@@ -339,14 +357,14 @@ class BrainzTagger(BaseAction):
         parts = []
         total = 0
 
-        if file.get('duration') and track.duration:
-            score = 1.0 - min(abs(file['duration'] - track.duration), 30000) / 30000.0
+        if file.get('duration') and track.get('duration'):
+            score = 1.0 - min(abs(file['duration'] - track['duration']), 30000) / 30000.0
             parts.append((score, 8))
             total += 8
 
         for name, weight in self.__weights:
             a = file.get(name)
-            b = getattr(track, name)
+            b = track.get(name)
             if a and b:
                 if name in ('tracknumber', 'totaltracks'):
                     score = 1.0 - abs(cmp(a, b))

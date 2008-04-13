@@ -121,10 +121,9 @@ class TestActions(TestBase):
             "Brainz did not fill in missing album"
 
         # Test a song for which there are multiple brainz matches
-        assert_false(b.process(self.fdata['multipleversions']))
-        assert b.cleanup_handler.queue.put.called, \
-            "Cleanup not called on multipleversions"
-        b.cleanup_handler.reset()
+        nf = b.process(self.fdata['multipleversions'])
+        assert nf.has_key('album'),\
+            "Brainz did not decide on a tag for multiversioned song"
 
         # Test a broken response from musicbrainz (which happens a lot)
         import musicbrainz2.webservice
@@ -136,7 +135,7 @@ class TestActions(TestBase):
 
         assert_false(query(self.fdata['goodtags']))
         assert b.cleanup_handler.queue.put.called, \
-            "Cleanup not called on multipleversions"
+            "Cleanup not called on web service error"
         b.cleanup_handler.reset()
 
         # Test a tricky album to make sure our technique doesn't suck
