@@ -18,8 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import re
-from picard.util import unaccent, strip_non_alnum
-from picard.util.astrcmp import astrcmp
+from util import unaccent, strip_non_alnum, astrcmp
 
 
 _split_re = re.compile("\W", re.UNICODE)

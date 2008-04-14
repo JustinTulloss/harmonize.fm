@@ -130,7 +130,7 @@ class BrainzTagger(BaseAction):
         if len(track.releases) > 0:
             file[u'tracknumber'] = track.releases[0].getTracksOffset()+1
         else: 
-            file[u'tracknumber'] = album.tracks.index(track)
+            file[u'tracknumber'] = album.tracks.index(track) + 1
         file[u'totaltracks'] = len(album.tracks)
 
         # The musicbrainz ids are urls. I just keep the actual id part

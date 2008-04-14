@@ -22,8 +22,11 @@ import os.path
 import re
 import sys
 import unicodedata
-from PyQt4 import QtCore
 
+if sys.platform == 'darwin':
+    from darwin.astrcmp import astrcmp
+elif sys.platform == 'linux2':
+    from linux2.astrcmp import astrcmp
 
 def needs_read_lock(func):
     """Adds a read lock around ``func``.
@@ -53,45 +56,6 @@ def needs_write_lock(func):
     locked.__doc__ = func.__doc__
     locked.__name__ = func.__name__
     return locked
-
-
-class LockableObject(QtCore.QObject):
-    """Read/write lockable object."""
-
-    def __init__(self):
-        QtCore.QObject.__init__(self)
-        self.__lock = QtCore.QReadWriteLock()
-
-    def lock_for_read(self):
-        """Lock the object for read operations."""
-        self.__lock.lockForRead()
-
-    def lock_for_write(self):
-        """Lock the object for write operations."""
-        self.__lock.lockForWrite()
-
-    def unlock(self):
-        """Unlock the object."""
-        self.__lock.unlock()
-
-
-class LockableDict(dict):
-
-    def __init__(self):
-        self.__lock = QtCore.QReadWriteLock()
-
-    def lock_for_read(self):
-        """Lock the object for read operations."""
-        self.__lock.lockForRead()
-
-    def lock_for_write(self):
-        """Lock the object for write operations."""
-        self.__lock.lockForWrite()
-
-    def unlock(self):
-        """Unlock the object."""
-        self.__lock.unlock()
-
 
 _io_encoding = sys.getfilesystemencoding() 
 
