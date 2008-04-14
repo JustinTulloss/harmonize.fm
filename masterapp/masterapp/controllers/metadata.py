@@ -71,7 +71,6 @@ class MetadataController(BaseController):
     def songs(self):
         qry = Session.query(Song).join('album').\
             reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
-        qry = filter_friends(qry)
 
         if not request.params.get('artist') == None:
             qry = qry.filter(Album.artist == request.params.get('artist'))
@@ -79,6 +78,8 @@ class MetadataController(BaseController):
             qry = qry.filter(Album.albumid== request.params.get('album'))
         if not request.params.get('friend') == None:
             qry = qry.filter(User.id == request.params.get('friend'))
+        else:
+            qry = filter_friends(qry)
         if not request.params.get('playlist') == None:
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
@@ -89,12 +90,13 @@ class MetadataController(BaseController):
     @jsonify
     def albums(self):
         qry = Session.query(Album).join(['songs', 'files', 'owners', 'user'])
-        qry = filter_friends(qry)
 
         if not request.params.get('artist') == None:
             qry = qry.filter(Album.artist == request.params.get('artist'))
         if not request.params.get('friend') == None:
-            qry = qry.filter(User.id == request.params.get('friend'))
+            qry = qry.filter(User.fbid == request.params.get('friend'))
+        else:
+            qry = filter_friends(qry)
         qry = qry.order_by([Album.artistsort, Album.album])
         results = qry.all()
         return self._build_json(results)
