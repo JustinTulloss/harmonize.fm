@@ -45,6 +45,7 @@ class NextAction(object):
 
 class UploadStatus(object):
     def __init__(self, message=None, nextaction=None, file=None):
+		"""
         assert file.has_key('fbsession')
 
         self.nextaction = nextaction
@@ -52,6 +53,8 @@ class UploadStatus(object):
         self.file = file
 
         msgs.add(file['fbsession'], self)
+		"""
+		pass
 
 na = NextAction()
 
@@ -75,7 +78,6 @@ class FileUploadThread(object):
 
         self.handlers = [
             Mover(),
-            FacebookAction(),
             TagGetter(),
             Hasher(),
             DBChecker(),

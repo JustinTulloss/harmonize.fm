@@ -17,16 +17,16 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 	def GET_response(self):
 		global requests, fbsession
 		if requests % 2 == 0:
-			status = 200 #This means the file doesn't exist on the server
+			response = 'upload_file' 
 		else:
-			status = 201
+			response = 'file_uploaded'
 
 		if requests % 7 == 0:
 			print 'Changing session key'
 			fbsession += 1
 
 		requests += 1
-		return (status, '')
+		return response
 
 	def handle_request(self):
 		global fbsession
@@ -41,18 +41,18 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 		else:
 			session_key = None
 
+		status = 200
 		if request_path[:9] == '/uploads/' and self.request_body == None:
 			print 'Asking if file ', request_path[9:], 'has been uploaded'
-			(status, response) = self.GET_response()
+			response = self.GET_response()
 		elif request_path[:9] == '/uploads/' and self.request_body != None:
 			print 'Attempting to upload the file ', request_path[9:], \
 					'with file length: ', self.length
 			if session_key != fbsession:
 				print 'Session key invalid, need to reauth'
-				status = 450
+				response = 'reauthenticate'
 			else:
-				status = 200
-			response = None
+				response = 'file_uploaded'
 		elif request_path == '/desktop_login':
 			return self.redirect('http://localhost:8080/complete_login?session_key='+str(fbsession))
 		else:

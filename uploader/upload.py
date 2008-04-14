@@ -57,26 +57,28 @@ def upload_file(filename, callback):
 			url = '/uploads/' + file_sha + '?session_key='+fb.get_session_key()
 			connection.request('GET', url)
 
-			response = connection.getresponse()
+			response = connection.getresponse().read()
 
-			if response.status == 200:
+			if response == 'upload_file':
 				connection.request('POST', url, file_contents, 
 					{'Content-Type':'audio/x-mpeg-3'})
-				response = connection.getresponse()
-				response.read()
+				response = connection.getresponse().read()
 				
-				if response.status == 450:
+				if response == 'reauthenticate':
 					reauthenticate(callback)
 					#Going to retry request
-				elif response.status == 451:
+				elif response == 'retry':
 					pass #This will just retry
 				else:
 					uploaded = True
+			elif response == 'reauthenticate':
+				reauthenticate(callback)
 			else:
-				#Should be 201, but if it's somthing else just keep on truckin
+				#Should be file_uploaded, but if it's not just keep on truckin
 				uploaded = True 
 		except Exception, e:
-			import pdb; pdb.set_trace() #for debugging purposes
+			if config.current['debug']:
+				import pdb; pdb.set_trace()
 			callback.error('Error connecting to server, will try again')
 			time.sleep(60) #This is a little safer than inside the exception
 
