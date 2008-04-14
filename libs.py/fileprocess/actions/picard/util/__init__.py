@@ -27,6 +27,8 @@ if sys.platform == 'darwin':
     from darwin.astrcmp import astrcmp
 elif sys.platform == 'linux2':
     from linux2.astrcmp import astrcmp
+elif sys.platform == 'win32':
+    from win32.astrcmp import astrcmp
 
 def needs_read_lock(func):
     """Adds a read lock around ``func``.
