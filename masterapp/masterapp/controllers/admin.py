@@ -2,7 +2,10 @@
 import logging
 import S3
 from masterapp.lib.base import *
-from masterapp.model import Session, User, Song, Album
+from masterapp.model import Session, File, Song, Album
+from mako.template import Template
+from pylons import config
+
 log = logging.getLogger(__name__)
 
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
@@ -31,3 +34,17 @@ class AdminController(BaseController):
         Session.commit()
         redirect_to(action='rmentities')
         
+    def s3cleanup(self):
+        a = S3.AWSAuthConnection(config['S3.accesskey'], config['S3.secret'])
+        files = a.list_bucket(config['S3.music_bucket']).entries
+        for file in files:
+            db=Session.query(File).filter(File.sha==file.key).first()
+            if db:
+                files.remove(file)
+        removed =[]
+        for file in files:
+            removed.append(file.key)
+            if request.params.get('doit'):
+                a.delete(config['S3.music_bucket'], file.key)
+
+        return removed
