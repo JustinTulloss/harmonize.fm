@@ -77,7 +77,7 @@ class MetadataController(BaseController):
         if not request.params.get('album') == None:
             qry = qry.filter(Album.albumid== request.params.get('album'))
         if not request.params.get('friend') == None:
-            qry = qry.filter(User.id == request.params.get('friend'))
+            qry = qry.filter(User.fbid == request.params.get('friend'))
         else:
             qry = filter_friends(qry)
         if not request.params.get('playlist') == None:
