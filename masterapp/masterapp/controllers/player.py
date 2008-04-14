@@ -39,7 +39,6 @@ class PlayerController(BaseController):
 
         files= Session.query(File).\
             join(['owners', 'user']).filter(File.songid==int(id))
-        files = filter_friends(files)
         files = files.all()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
