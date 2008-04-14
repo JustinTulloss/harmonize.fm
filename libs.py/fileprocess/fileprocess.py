@@ -83,8 +83,8 @@ class FileUploadThread(object):
             DBChecker(),
             BrainzTagger(),
             AmazonCovers(),
-            DBRecorder(),
-            S3Uploader()
+            S3Uploader(),
+            DBRecorder()
         ]
 
         # Set up our chain of handlers

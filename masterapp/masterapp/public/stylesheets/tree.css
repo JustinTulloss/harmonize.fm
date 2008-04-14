@@ -132,6 +132,11 @@ input.x-tree-node-cb {
     line-height:0;
     zoom:1;
 }
+
+ul.x-tree-node-ct{
+    padding: 0;
+}
+
 .x-tree-node{
 	color: black;
 	font: normal 11px arial, tahoma, helvetica, sans-serif;
@@ -196,8 +201,13 @@ input.x-tree-node-cb {
 	 border:1px dotted gray;
 }
 .x-tree-node .x-tree-node-over {
-	background-color: #eee;
+	/*background-color: #eee;*/
 }
+
+.x-tree-node input.x-tree-node-over {
+    visibility: visible;
+}
+
 .x-tree-node .x-tree-selected {
 	background-color: #d9e8fb;
 }

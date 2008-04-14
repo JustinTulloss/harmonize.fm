@@ -34,13 +34,6 @@ def ensure_fb_session():
             session['user'] = Session.query(User).filter(
                 User.fbid==facebook.uid).first()
             session['fbfriends']=facebook.friends.getAppUsers()
-            # XXX: This conditional works around a bug where the getAppUsers 
-            #   returns a {} instead of [] when there are no friends. Should fix
-            #   in the library
-            if len(session['fbfriends']) > 0:
-                session['fbfriends'].append(facebook.uid)
-            else:
-                session['fbfriends'] = [facebook.uid]
             session.save()
             return True
         else:
@@ -54,14 +47,17 @@ def ensure_fb_session():
 
 def filter_friends(qry):
     """
-    This function creates a giant SQL OR statement that restricts
-    the files you can select from to files owned by any of your friends.
-    It assumes you are joined to the Users table.
+    This function ensures that songs belong to you by default. If you are
+    browsing a friend's music store, ensure that the songs belong to them.
     """
-    fbclause = or_()
-    for friend in session['fbfriends']:
-        fbclause.append(User.fbid==friend)
-    #qry = qry.filter(fbclause) #XXX: Restore this to actually filter by friends
+    friend = request.params.get('friend')
+    if friend:
+        friend = int(friend)
+
+    if friend in session['fbfriends']:
+        qry = qry.filter(User.fbid == friend)
+    else:
+        qry = qry.filter(User.id == session['user'].id)
     return qry
 
 def get_user_info():

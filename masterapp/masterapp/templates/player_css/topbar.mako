@@ -1,5 +1,6 @@
-#top {
+#header {
 	width: 100%;
+    height: 60px;
     border: none;
     background: ${c.profile.top_bg};
 }
