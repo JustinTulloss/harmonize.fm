@@ -26,7 +26,11 @@ import unicodedata
 if sys.platform == 'darwin':
     from darwin.astrcmp import astrcmp
 elif sys.platform == 'linux2':
-    from linux2.astrcmp import astrcmp
+    import platform
+    if platform.architecture()[0] == '64bit':
+        from linux64.astrcmp import astrcmp
+    else:
+        from linux2.astrcmp import astrcmp
 elif sys.platform == 'win32':
     from win32.astrcmp import astrcmp
 
