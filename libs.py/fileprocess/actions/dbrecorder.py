@@ -1,5 +1,6 @@
 import logging
 import os
+import fileprocess
 from baseaction import BaseAction
 from sqlalchemy import and_
 
@@ -57,6 +58,10 @@ class DBRecorder(BaseAction):
 
         self.model.Session.commit() # Woot! Write baby, write!
         self.model.Session.remove()
+
+        file['msg'] = "File successfully uploaded"
+        file['na'] = fileprocess.na.NOTHING
+        self.cleanup(file)
         return file
 
     def create_song(self, file):
