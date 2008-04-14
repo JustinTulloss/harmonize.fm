@@ -229,7 +229,7 @@ def uploadPage(form, panel):
 	progress_updater = Progressbar()
 
 	def uploader():
-		global uploadMethod, uploadFolder, session_key
+		global uploadMethod, uploadFolder
 		if uploadMethod == 'itunes':
 			tracks = filter(upload.is_music_file,
 							itunes.ITunes().get_all_track_filenames())
@@ -262,7 +262,7 @@ def uploadPage(form, panel):
 
 		callback = Callback()
 
-		upload.upload_files(tracks, session_key, callback)
+		upload.upload_files(tracks, callback)
 
 	thread.start_new_thread(uploader, ())
 

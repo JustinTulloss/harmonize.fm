@@ -9,8 +9,32 @@ from Queue import Queue, Empty
 from actions import *
 
 file_queue = Queue()
-msglock = threading.Lock()
-msgs = {}
+
+class MsgQueue(object):
+    def __init__(self):
+        self.msglock = threading.Lock()
+        self.msgs = {}
+
+    def add(self, fbsession, upload_status):
+        """Adds the upload status to the queue for a given session key"""
+        with self.msglock:
+            if self.msgs.has_key(fbsession):
+                self.msgs[fbsession].append(upload_status)
+            else:
+                self.msgs[fbsession] = [upload_status]
+    
+    def get(self, fbsession):
+        """Returns a list of all messages for a given session key and removes
+           them from the queue."""
+        with self.msglock:
+            if self.msgs.has_key(fbsession):
+                res = self.msgs[fbsession]
+                del self.msgs[fbsession]
+                return res
+            else:
+                return []
+
+msgs = MsgQueue()
 
 class NextAction(object):
     def __init__(self):
@@ -21,18 +45,16 @@ class NextAction(object):
 
 class UploadStatus(object):
     def __init__(self, message=None, nextaction=None, file=None):
+		"""
         assert file.has_key('fbsession')
 
         self.nextaction = nextaction
         self.message = message
         self.file = file
 
-        fb = file['fbsession']
-        with msglock:
-            if msgs.has_key(fb):
-                msgs[file['fbsession']].append(self)
-            else: 
-                msgs[fb] = [self]
+        msgs.add(file['fbsession'], self)
+		"""
+		pass
 
 na = NextAction()
 
@@ -56,7 +78,6 @@ class FileUploadThread(object):
 
         self.handlers = [
             Mover(),
-            FacebookAction(),
             TagGetter(),
             Hasher(),
             DBChecker(),
