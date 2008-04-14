@@ -102,9 +102,10 @@ class MetadataController(BaseController):
     @jsonify
     def artists(self):
         qry = Session.query(Artist).join(['songs','files','owners', 'user'])
-        qry = filter_friends(qry)
         if not request.params.get('friend') == None:
-            qry = qry.filter(User.id == request.params.get('friend'))
+            qry = qry.filter(User.fbid == request.params.get('friend'))
+        else:
+            qry = filter_friends(qry)
         qry = qry.order_by(Artist.artistsort)
         results = qry.all()
         return self._build_json(results)
