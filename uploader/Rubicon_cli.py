@@ -31,7 +31,7 @@ class TextView(object):
         print msg
 
     def error(self, msg):
-        print "ERROR: "+msg
+        print "ERROR: " + msg
 
 if __name__ == '__main__':
     main()
