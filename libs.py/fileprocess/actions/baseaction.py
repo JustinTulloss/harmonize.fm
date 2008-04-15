@@ -15,8 +15,8 @@ class BaseAction(object):
         self.cleanup_handler = cleanup
         self._running = 1
         self._thread=threading.Thread(None, self._loop)
+        self._thread.setDaemon(True)
         self._thread.start()
-
     
     def _loop(self):
         while(self._running): #praying that reading this is atomic
