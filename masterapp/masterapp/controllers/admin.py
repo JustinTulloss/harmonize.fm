@@ -2,6 +2,7 @@
 import logging
 import S3
 from masterapp.lib.base import *
+from masterapp.lib.fbauth import ensure_fb_session
 from masterapp.model import Session, File, Song, Album
 from mako.template import Template
 from pylons import config
@@ -11,6 +12,13 @@ log = logging.getLogger(__name__)
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
 
 class AdminController(BaseController):
+
+    admin = [1908861,1909354]
+
+    def __before__(self):
+        ensure_fb_session()
+        if not session['user'].fbid in self.admin:
+            redirect_to('/')
 
     def index(self):
         return render('/admin.mako')
