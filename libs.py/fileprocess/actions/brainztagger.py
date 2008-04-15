@@ -178,7 +178,7 @@ class BrainzTagger(BaseAction):
         )
         mbquery = Query()
         releases = self._query_brainz(file, mbquery.getReleases, filter)
-        include = ReleaseIncludes(tracks=True, artist=True)
+        include = ReleaseIncludes(tracks=True, artist=True, releaseEvents=True)
         matches = []
         for release in releases:
             release = self._query_brainz(

@@ -22,7 +22,7 @@ from paste.deploy import appconfig
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
         super(TestBase, self).__init__(*args)
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.WARNING)
         config.update(
             appconfig( 'config://'+os.path.abspath(os.curdir)+\
                 '/../../masterapp/test.ini'
@@ -151,8 +151,6 @@ class TestActions(TestBase):
         self.fdata['goodfile']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
         nf = c.process(self.fdata['goodfile'])
-        assert len(fileprocess.msgs)>0, \
-            "Cleanup did not update messages"
         assert_false(os.path.exists(self.fdata['goodfile']['fname']),
             "Cleanup did not remove file")
 
@@ -213,13 +211,6 @@ class TestActions(TestBase):
         assert s.cleanup_handler.queue.put.called, \
             "S3 did not clean up local file"
         s.cleanup_handler.queue.put.reset()
-
-        
-        # Test the development no-op code
-        config['S3.upload'] = False
-        nf = s.process(self.fdata['goodfile'])
-        assert s.cleanup_handler.queue.put.called, \
-            "S3 did not clean up local file when not uploading"
 
     def testAmazonCovers(self):
         a = AmazonCovers()
@@ -298,34 +289,10 @@ class TestDBActions(TestBase):
         assert nf['dbuser'].fbid == self.fdata['dbrec']['fbid'], \
             "Failed to associate new user with fbid"
 
-        # Insert some records to indicate this file is owned
-        dbf = self.model.File()
-        dbf.sha = self.fdata['dbrec']['sha']
-        dbf.songid = 1
-        self.model.Session.save(dbf)
-
-        dbo = self.model.Owner()
-        dbo.user = nf['dbuser']
-        dbo.file = dbf
-        self.model.Session.save(dbo)
-        self.model.Session.commit()
-        
-        # Test a file this client has already uploaded
-        assert_false(c.process(self.fdata['dbrec']),
-            "File insertion should have failed as it was already uploaded")
-        assert c.cleanup_handler.queue.put.called,\
-            "Did not call cleanup on identical upload"
-        c.cleanup_handler.queue.put.reset()
-        assert self.fdata['dbrec']['na'] == fileprocess.na.NOTHING,\
-            "Improperly called identical upload a failure"
-
-        # Test a file that another client has already uploaded
-        self.fdata['dbrec']['fbid'] = 1908861 
-        assert_false(c.process(self.fdata['dbrec']),
-            "Already uploaded file by 1 user not recognized by another")
-        assert self.model.Session.query(self.model.Owner).filter(
-            self.model.Owner.id==self.fdata['dbrec']['dbuser'].id
-        ).all(), "New owner of old file not properly inserted"
+        """
+        We don't test anymore here since it is all tested with the record
+        creation stuff in dbrecorder
+        """
 
     def testDBRecorder(self):
         r = DBRecorder()
