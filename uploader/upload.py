@@ -5,8 +5,6 @@ import time
 import config, tags
 import fb
 
-#UPLOAD_PATH = '/Users/justin/Music/Feist'
-
 def get_default_path():
 	#Have to wrap paths in lambda's so they don't get executed on windows
 	paths = {'posix':(lambda: os.getenv('HOME')),
