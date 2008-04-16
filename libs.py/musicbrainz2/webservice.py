@@ -581,11 +581,11 @@ class ArtistIncludes(IIncludes):
 		assert len(releases) == 0 or len(vaReleases) == 0
 
 		self._includes = {
-			'aliases':		aliases,
-			'artist-rels':		artistRelations,
-			'release-rels':		releaseRelations,
-			'track-rels':		trackRelations,
-			'url-rels':		urlRelations,
+			'aliases':          aliases,
+			'artist-rels':      artistRelations,
+			'release-rels':     releaseRelations,
+			'track-rels':       trackRelations,
+			'url-rels':	        urlRelations,
 		}
 
 		for elem in releases:

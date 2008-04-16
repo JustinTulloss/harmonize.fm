@@ -129,7 +129,9 @@ class TestActions(TestBase):
         import musicbrainz2.webservice
         def getTracks(*args, **kwargs):
             raise musicbrainz2.webservice.WebServiceError("Testing Error")
+
         @patch(musicbrainz2.webservice.Query, 'getTracks', getTracks)
+        @patch(musicbrainz2.webservice.Query, 'getReleases', getTracks)
         def query(file):
             b.process(file)
 

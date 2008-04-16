@@ -9,7 +9,6 @@
 from __future__ import with_statement
 import logging
 import threading
-import pdb
 from baseaction import BaseAction
 import fileprocess
 import time
@@ -160,7 +159,6 @@ class BrainzTagger(BaseAction):
                 "There was a problem with MusicBrainz, bailing on %s: %s", 
                 args, e
             ) 
-            pdb.set_trace()
             file['msg'] = "Could not contact tagging service"
             file['na'] = fileprocess.na.TRYAGAIN
             self.cleanup(file)
@@ -187,6 +185,9 @@ class BrainzTagger(BaseAction):
         )
         mbquery = Query()
         releases = self._query_brainz(file, mbquery.getReleases, filter)
+        if releases == False:
+            return False
+
         include = ReleaseIncludes(tracks=True, artist=True, releaseEvents=True)
         matches = []
         for release in releases:
@@ -198,7 +199,6 @@ class BrainzTagger(BaseAction):
             )
             mtuple = (self._compare_to_release(file, release), release)
             matches.append(mtuple)
-        pdb.set_trace()
         if len(matches) <= 0:
             return False
 
@@ -206,7 +206,7 @@ class BrainzTagger(BaseAction):
         log.debug("Release Matches: %r", matches)
         
         if matches[0][0] > config.get('brainz.album_threshold', .8):
-            return release
+            return matches[0][1]
 
         return False
     
@@ -252,7 +252,6 @@ class BrainzTagger(BaseAction):
             self.cleanup(file)
             return False
 
-        pdb.set_trace()
         trackl = []
         trackd = {}
         for track in result:
@@ -322,7 +321,7 @@ class BrainzTagger(BaseAction):
         if a and b:
             total += similarity2(a, b) * 6.0 / 27.0
 
-        a = file['date']
+        a = file.get('date')
         b = self._year(release)
         if a and b:
             total += 1.0-abs(cmp(a, b)) * 4.0 / 27.0
