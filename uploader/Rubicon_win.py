@@ -192,7 +192,7 @@ def folderSelectPage(form, panel):
 		folderBrowser.SelectedPath = upload.get_default_path()
 		folderBrowser.ShowNewFolderButton = False
 		res = folderBrowser.ShowDialog()
-	
+
 		if res == winforms.DialogResult.OK:
 			uploadFolder = folderBrowser.SelectedPath
 			folderLabel.Text = uploadFolder

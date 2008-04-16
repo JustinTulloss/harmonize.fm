@@ -1,7 +1,8 @@
 import sys
 from distutils.core import setup
 
-r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py']
+r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py', 
+			 'config.py']
 
 if sys.platform == 'darwin':
 	import py2app
