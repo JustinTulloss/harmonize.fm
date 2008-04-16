@@ -9,6 +9,7 @@
 from __future__ import with_statement
 import logging
 import threading
+import pdb
 from baseaction import BaseAction
 import fileprocess
 import time
@@ -18,6 +19,7 @@ from musicbrainz2.webservice import (
     WebServiceError, 
     ReleaseFilter,
     ReleaseIncludes)
+from musicbrainz2 import model
 from pylons import config
 from picard.similarity import similarity2
 
@@ -35,12 +37,11 @@ class BrainzTagger(BaseAction):
     def __init__(self, *args):
         super(BrainzTagger, self).__init__(args)
 
-        self.cachelock = threading.Lock()
         # Keyed by musicbrainz ids
         self.artistcache = dict()
         self.albumcache = dict()
 
-        # Keyed by (album, artist, totaltracks)
+        # Keyed by tuple(album, artist, totaltracks)
         self.releasecache = dict()
 
         self.lastquery = 0 #time of last query
@@ -63,10 +64,9 @@ class BrainzTagger(BaseAction):
             cachekey = (
                 file['album'],
                 file['artist'],
-                self._totaltracks(file.get('tracknumber'))
+                self._totaltracks(file)
             )
-            with self.cachelock:
-                release = self.releasecache.get(cachekey)
+            release = self.releasecache.get(cachekey)
             if release:
                 mbtrack = self._match_file_to_release(file, release)
                 if mbtrack:
@@ -74,8 +74,7 @@ class BrainzTagger(BaseAction):
             else:
                 release = self._find_album(file, cachekey)
                 if release:
-                    with self.cachelock:
-                        self.releasecache[cachekey] = release
+                    self.releasecache[cachekey] = release
                     mbtrack = self._match_file_to_release(file, release)
                     if mbtrack != False:
                         return self._cash_out(file, mbtrack, release, release.artist)
@@ -91,28 +90,29 @@ class BrainzTagger(BaseAction):
         if self.albumcache.has_key(mbalbumid):
             album = self.albumcache[mbalbumid]
         else:
-            include = ReleaseIncludes(releaseEvents=True, tracks=True)
+            include = ReleaseIncludes(
+                releaseEvents=True,
+                tracks=True,
+                artist=True)
             album = self._query_brainz(
                 file,
                 mbquery.getReleaseById,
                 mbalbumid, 
-                include=include
+                include = include
             )
             if album == False:
                 return False
-            with self.cachelock:
-                self.albumcache[mbalbumid]= album
+            self.albumcache[mbalbumid]= album
 
         # Get info on the artist, cache it for future songs
         mbartistid = result.track.artist.id
         if self.artistcache.has_key(mbartistid):
             artist = self.artistcache[mbartistid]
         else:
-            artist=self._query_brainz(file,mbquery.getArtistById, mbartistid)
+            artist = self._query_brainz(file,mbquery.getArtistById, mbartistid)
             if artist == False:
                 return False
-            with self.cachelock:
-                self.artistcache[mbartistid] = artist
+            self.artistcache[mbartistid] = artist
 
         # Fill out the tags. Oh yeah.
         return self._cash_out(file, result.track, album, artist)
@@ -122,11 +122,10 @@ class BrainzTagger(BaseAction):
         file[u'artist'] = artist.name
         file[u'artistsort'] = artist.sortName
         file[u'album'] = album.title
-        file[u'length'] = track.duration #in milliseconds
-        try:
-            file[u'year'] = album.getEarliestReleaseDate().split('-')[0]
-        except:
-            pass
+        file[u'duration'] = track.duration #in milliseconds
+        year = self._year(album)
+        if year:
+            file[u'date'] = year
         if len(track.releases) > 0:
             file[u'tracknumber'] = track.releases[0].getTracksOffset()+1
         else: 
@@ -137,7 +136,7 @@ class BrainzTagger(BaseAction):
         file[u'mbtrackid'] = track.id.rsplit('/').pop()
         file[u'mbalbumid'] = album.id.rsplit('/').pop()
         file[u'mbartistid'] = artist.id.rsplit('/').pop()
-        file[u'asin'] = album.asin #probably a good thing to have ;)
+        file[u'asin'] = album.asin #probably a good thing to have
 
         log.debug('%s successfully tagged by MusicBrainz', track.title)
         return file
@@ -161,14 +160,24 @@ class BrainzTagger(BaseAction):
                 "There was a problem with MusicBrainz, bailing on %s: %s", 
                 args, e
             ) 
+            pdb.set_trace()
             file['msg'] = "Could not contact tagging service"
             file['na'] = fileprocess.na.TRYAGAIN
             self.cleanup(file)
             return False
 
-    def _totaltracks(self, tracknum):
-        if tracknum:
-            return str(tracknum).rpartition('/')[2]
+    def _totaltracks(self, file):
+        if file.get('totaltracks'):
+            return int(file.get('totaltracks'))
+        if file.get('tracknumber'):
+            if str(file.get('tracknumber')).find('/')>=0:
+                return int(str(file.get('tracknumber')).rpartition('/')[2])
+
+    def _year(self, release):
+        try:
+            return release.getEarliestReleaseDate().split('-')[0]
+        except:
+            return None
     
     def _find_album(self, file, cachekey):
         filter = ReleaseFilter(
@@ -189,6 +198,7 @@ class BrainzTagger(BaseAction):
             )
             mtuple = (self._compare_to_release(file, release), release)
             matches.append(mtuple)
+        pdb.set_trace()
         if len(matches) <= 0:
             return False
 
@@ -202,15 +212,22 @@ class BrainzTagger(BaseAction):
     
     def _find_track(self, file):
         mbquery = Query()
+
+        # This defines the order we'll do queries (params from bottom to top)
         arglist = [
-            ('title', 'releaseTitle'),
-            ('title', 'artistName'),
-            ('title', 'artistName', 'releaseTitle')
+            ('title', 'release'),
+            ('title', 'artist'),
+            ('title', 'artist', 'release'),
+            ('title', 'release', 'releasetype'),
+            ('title', 'artist',  'releasetype'),
+            ('title', 'artist', 'release', 'releasetype')
         ]
+        # This defines the value of the above parameters
         args = {
             'title': file.get('title'), 
-            'artistName': file.get('artist'),
-            'releaseTitle': file.get('album')
+            'artist': file.get('artist'),
+            'release': file.get('album'),
+            'releasetype': 'Album',
         }
         result = []
         # The implementation of the MB Library sucks, so I can't access
@@ -235,6 +252,7 @@ class BrainzTagger(BaseAction):
             self.cleanup(file)
             return False
 
+        pdb.set_trace()
         trackl = []
         trackd = {}
         for track in result:
@@ -244,8 +262,9 @@ class BrainzTagger(BaseAction):
                 'title': track.track.title,
                 'album': track.track.releases[0].title,
                 'artist': track.track.artist.name,
+                'duration': track.track.duration,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
-                'totaltracks': track.track.releases[0].tracksCount
+                'totaltracks': track.track.releases[0].tracksCount,
             })
 
         result = self._match_file_to_track(file, trackl)
@@ -286,22 +305,29 @@ class BrainzTagger(BaseAction):
           * title                = 12
           * artist name          = 6
           * number of tracks     = 5
+          * year of release      = 4
 
         TODO:
-          * use release events
           * prioritize official albums over compilations (optional?)
         """
         total = 0.0
 
         a = file['album']
         b = release.title
-        total += similarity2(a, b) * 17.0 / 23.0
+        if a and b:
+            total += similarity2(a, b) * 17.0 / 27.0
 
         a = file['artist']
         b = release.artist.name
-        total += similarity2(a, b) * 6.0 / 23.0
+        if a and b:
+            total += similarity2(a, b) * 6.0 / 27.0
 
-        a = self._totaltracks(file.get('tracknumber'))
+        a = file['date']
+        b = self._year(release)
+        if a and b:
+            total += 1.0-abs(cmp(a, b)) * 4.0 / 27.0
+
+        a = self._totaltracks(file)
         b = len(release.tracks)
         if a > b:
             score = 0.0
@@ -309,7 +335,7 @@ class BrainzTagger(BaseAction):
             score = 0.3
         else:
             score = 1.0
-        total += score * 5.0 / 23.0
+        total += score * 5.0 / 27.0
 
         return total
 
@@ -326,7 +352,8 @@ class BrainzTagger(BaseAction):
                 'artist': release.artist.name,
                 'duration': track.duration,
                 'tracknumber': release.tracks.index(track) + 1,
-                'totaltracks': len(release.tracks)
+                'totaltracks': len(release.tracks),
+                'date': self._year(release)
             })
             
         result = self._match_file_to_track(file, trackl)
@@ -354,22 +381,78 @@ class BrainzTagger(BaseAction):
         return False
 
     def _compare_meta(self, file, track):
+        """
+        Compare file metadata to a MusicBrainz track.
+
+        Weigths:
+          * title                = 13
+          * artist name          = 4
+          * release name         = 5
+          * length               = 10
+          * number of tracks     = 3
+          * release data         = 3
+          * track placement      = 5
+
+        """
+        total = 0.0
         parts = []
-        total = 0
 
-        if file.get('duration') and track.get('duration'):
-            score = 1.0 - min(abs(file['duration'] - track['duration']), 30000) / 30000.0
-            parts.append((score, 8))
-            total += 8
+        a = file.get('title')
+        b = track.get('title')
+        if a and b:
+            parts.append((similarity2(a, b), 13))
+            total += 13
 
-        for name, weight in self.__weights:
-            a = file.get(name)
-            b = track.get(name)
-            if a and b:
-                if name in ('tracknumber', 'totaltracks'):
-                    score = 1.0 - abs(cmp(a, b))
+        a = file.get('artist')
+        b = track.get('artist')
+        if a and b:
+            parts.append((similarity2(a, b), 4))
+            total += 4
+
+        a = file.get('album')
+        b = track.get('album')
+        if a and b:
+            parts.append((similarity2(a, b), 5))
+            total += 5
+
+        a = file.get('date')
+        b = track.get('date')
+        if a and b:
+            score = 1.0 - abs(cmp(a,b))
+            parts.append((score, 3))
+            total += 3
+
+        a = file.get('tracknumber')
+        b = track.get('tracknumber')
+        if a and b:
+            a = int(a)
+            b = int(b)
+            score = 1.0 - abs(cmp(a,b))
+            parts.append((score, 5))
+            total += 5
+
+        a = file.get('duration')
+        b = track.get('duration')
+        if a and b:
+            score = 1.0 - min(abs(a - b), 30000) / 30000.0
+            parts.append((score, 10))
+            total += 10
+
+        a = file.get('totaltracks')
+        b = track.get('totaltracks')
+        if a and b:
+            a = int(a)
+            b = int(b)
+            try:
+                if a > b:
+                    score = 0.0
+                elif a < b:
+                    score = 0.3
                 else:
-                    score = similarity2(a, b)
-                parts.append((score, weight))
-                total += weight
+                    score = 1.0
+                parts.append((score, 4))
+                total += 4
+            except ValueError:
+                pass
+
         return reduce(lambda x, y: x + y[0] * y[1] / total, parts, 0.0)

@@ -31,6 +31,7 @@ class TagGetter(BaseAction):
         # I join the lists here for ease of processing later.
         for k in audio.keys():
             file[k] = ','.join(file[k])
+        file['duration'] = int(audio.info.length*1000)
 
         audio.delete() #remove the ID3 tags, we don't care for them
 

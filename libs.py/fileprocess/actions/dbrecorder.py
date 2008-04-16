@@ -74,7 +74,7 @@ class DBRecorder(BaseAction):
     def create_song(self, file):
         song = self.model.Song()
         song.title = file.get('title')
-        song.length = file.get('length')
+        song.length = file.get('duration')
         song.tracknumber = file.get('tracknumber')
         song.mbid = file['mbtrackid']
         log.debug("Saving new song %s", song.title)
