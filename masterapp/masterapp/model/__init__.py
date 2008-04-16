@@ -100,15 +100,16 @@ classes that represent complicated queries
 """
 mapper(User, users_table)
 mapper(File, files_table, properties={
-    'song': relation(Song, backref='files')
+    'owners': relation(Owner, backref='file', cascade='all, delete-orphan')
 })
 mapper(Owner, owners_table, properties={
-    'file': relation(File, backref='owners'),
     'user': relation(User)
 })
-mapper(Song, songs_table)
+mapper(Song, songs_table, properties = {
+    'files': relation(File, backref='song', cascade='all, delete-orphan')
+})
 mapper(Album, albums_table, properties={  
-    'songs':relation(Song, backref='album'),
+    'songs':relation(Song, backref='album', cascade='all, delete-orphan'),
     'albumid': albums_table.c.id,
     'album':albums_table.c.title,
     #'albumlength': column_property(

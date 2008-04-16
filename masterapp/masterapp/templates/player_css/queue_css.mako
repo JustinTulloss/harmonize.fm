@@ -2,12 +2,21 @@
 	background-color: ${c.profile.queue_bg};
 }
 
+.np-label {
+    position: relative;
+    bottom: -1.2pt;
+    color: ${c.profile.top_bg};
+    font-size: 6pt;
+    margin-left: 2em;
+}
+
 .np-node {
     background-color: ${c.profile.np_bg};
-    border: 5px solid ${c.profile.top_bg};
+    border: 1px solid ${c.profile.top_bg};
     padding: 0.5em;
     overflow: hidden;
-    margin: 1em;
+    margin-left: 1em;
+    margin-right: 1em;
 }
 
 .np-swatch {
@@ -22,6 +31,12 @@
 .np-info {
     font-size: 8pt;
     padding-left: 1em;
+}
+
+.qn-cb{
+    position: absolute;
+    right: 1em;
+    visibility: hidden;
 }
 
 #status {

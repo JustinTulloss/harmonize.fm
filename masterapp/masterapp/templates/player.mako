@@ -45,16 +45,10 @@
 </%def>
 
 <div id="header">
-    <div id="menu">
-    </div>
-    <div id="top">
-        <div id="controls">
-            <div id="flash"></div>
-            <img class="control mo" id="prevbutton" src = "/images/back.png" />
-            <img class="control mo" id="playbutton" src = "/images/play.png" />
-            <img class="control mo" id="nextbutton" src = "/images/next.png" />
-        </div>
-    </div>
+    <div id="menu"></div>
+    <img class="" id="prevbutton" src = "/images/back.png" />
+    <img class="" id="playbutton" src = "/images/play.png" />
+    <img class="" id="nextbutton" src = "/images/next.png" />
     <div id="logo">
     	<img src="/images/whiterubicon.png" />
     </div>

@@ -2,24 +2,40 @@ import webbrowser, cgi, thread, urlparse
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import config
 
+server_url = 'http://'+config.current['server_addr']+':'+ \
+		str(config.current['server_port'])+'/desktop_login'
 thread_started = False
 
 def login(callback):
 	"""A non-blocking function that handles facebook login through a web
 	browser. callback should be a function that takes the session key as an
 	argument"""
-	global thread_started
+	global thread_started, server_url
 	if thread_started == False:
 		thread.start_new_thread(wait_login, (callback,))
 		thread_started = True
 
-	server_url = 'http://'+config.current['server_addr']+':'+ \
-			str(config.current['server_port'])+'/desktop_login'
 	webbrowser.open(server_url)
+
+def synchronous_login():
+	global session_key, server_url
+
+	session_key = None #This needs to be reset for reauthenticating uploader
+
+	server = HTTPServer(('localhost', 8080), LoginServer)
+	webbrowser.open(server_url)
+	while session_key == None:
+		server.handle_request()
+
+	return session_key
 
 session_key = None
 
-def wait_login(callback):
+def get_session_key():
+	global session_key
+	return session_key
+
+def wait_login(callback=None):
 	global session_key
 	server = HTTPServer(('localhost', 8080), LoginServer)
 	while session_key == None:

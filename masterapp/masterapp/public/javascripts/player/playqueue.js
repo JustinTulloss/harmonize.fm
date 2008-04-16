@@ -345,7 +345,7 @@ function AlbumQueueNode(config)
         if (this.songs_loaded) {
             this.queue.playing = new PlayingQueueNode({
                 record: this.firstChild.record,
-                queue: this.firstChild.queue,
+                queue: this.firstChild.queue
             });
             this.firstChild.remove();
 

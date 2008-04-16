@@ -159,25 +159,30 @@ class UploadView(WizardView):
 			self.progress.startAnimation_(self)
 		
 	def uploadSongs(self):
-		global uploadInfo, session_key
+		global uploadInfo
 		pool = NSAutoreleasePool.alloc().init()
 		tracks = uploadInfo.getTracks()
-		upload.upload_files(tracks, session_key, self.onSongsLeft)
+		upload.upload_files(tracks, self)
 		del pool
 
-	def onSongsLeft(self, songs_left):
-		if type(songs_left) == str:
-			self.updateStatus(songs_left)
-		elif songs_left != 0:
-			self.updateStatus("%s songs remaining..." % songs_left)
-		else:
-			self.performSelectorOnMainThread_withObject_waitUntilDone_(
-				self.uploadComplete, None, False)
-
-	def uploadComplete(self):
-		self.status.setStringValue_("Upload complete!")
+	def uploadComplete(self, msg):
+		self.status.setStringValue_(msg)
 		self.progress.stopAnimation_(self)
 		self.progress.setHidden_(True)
+
+#The remaining methods are callbacks from the uploader 
+	def init(self, msg, total_songs):
+		self.updateStatus(msg)
+	
+	def update(self, msg, songs_left):
+		if (songs_left == 0):
+			self.performSelectorOnMainThread_withObject_waitUntilDone_(
+				self.uploadComplete, msg, False)
+		else:
+			self.updateStatus(msg)
+	
+	def error(self, msg):
+		self.updateStatus(msg)
 		
 class FolderBrowserDelegate(NSObject):
 	paths = {}

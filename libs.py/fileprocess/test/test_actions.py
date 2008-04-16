@@ -105,6 +105,7 @@ class TestActions(TestBase):
         nf = b.process(self.fdata['goodtags'])
         assert nf, "Brainz failed to process properly tagged song"
         assert nf.has_key('asin'), "Brainz did not fill in new tags"
+        assert nf['album'] == u'Crash', "Brainz messed up the correct tags"
 
         # Test a song that is improperly tagged but should be corrected
         nf = b.process(self.fdata['badtags'])
@@ -120,23 +121,29 @@ class TestActions(TestBase):
             "Brainz did not fill in missing album"
 
         # Test a song for which there are multiple brainz matches
-        assert_false(b.process(self.fdata['multipleversions']))
-        assert b.cleanup_handler.queue.put.called, \
-            "Cleanup not called on multipleversions"
-        b.cleanup_handler.reset()
+        nf = b.process(self.fdata['multipleversions'])
+        assert nf.has_key('album'),\
+            "Brainz did not decide on a tag for multiversioned song"
 
         # Test a broken response from musicbrainz (which happens a lot)
         import musicbrainz2.webservice
         def getTracks(*args, **kwargs):
             raise musicbrainz2.webservice.WebServiceError("Testing Error")
+
         @patch(musicbrainz2.webservice.Query, 'getTracks', getTracks)
+        @patch(musicbrainz2.webservice.Query, 'getReleases', getTracks)
         def query(file):
             b.process(file)
 
         assert_false(query(self.fdata['goodtags']))
         assert b.cleanup_handler.queue.put.called, \
-            "Cleanup not called on multipleversions"
+            "Cleanup not called on web service error"
         b.cleanup_handler.reset()
+
+        # Test a tricky album to make sure our technique doesn't suck
+        nf = b.process(self.fdata['amnesiac'])
+        assert nf['album'] == 'Amnesiac', \
+            "Album was "+nf['album'] + " instead of Amnesiac"
 
     def testCleanup(self):
         c = Cleanup()
@@ -146,8 +153,6 @@ class TestActions(TestBase):
         self.fdata['goodfile']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
         nf = c.process(self.fdata['goodfile'])
-        assert len(fileprocess.msgs)>0, \
-            "Cleanup did not update messages"
         assert_false(os.path.exists(self.fdata['goodfile']['fname']),
             "Cleanup did not remove file")
 
@@ -209,13 +214,6 @@ class TestActions(TestBase):
             "S3 did not clean up local file"
         s.cleanup_handler.queue.put.reset()
 
-        
-        # Test the development no-op code
-        config['S3.upload'] = False
-        nf = s.process(self.fdata['goodfile'])
-        assert s.cleanup_handler.queue.put.called, \
-            "S3 did not clean up local file when not uploading"
-
     def testAmazonCovers(self):
         a = AmazonCovers()
         a.cleanup_handler = Mock()
@@ -227,6 +225,7 @@ class TestActions(TestBase):
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
+        assert len(a.covercache) > 0
 
     def testHasher(self):
         h = Hasher()
@@ -292,34 +291,10 @@ class TestDBActions(TestBase):
         assert nf['dbuser'].fbid == self.fdata['dbrec']['fbid'], \
             "Failed to associate new user with fbid"
 
-        # Insert some records to indicate this file is owned
-        dbf = self.model.File()
-        dbf.sha = self.fdata['dbrec']['sha']
-        dbf.songid = 1
-        self.model.Session.save(dbf)
-
-        dbo = self.model.Owner()
-        dbo.user = nf['dbuser']
-        dbo.file = dbf
-        self.model.Session.save(dbo)
-        self.model.Session.commit()
-        
-        # Test a file this client has already uploaded
-        assert_false(c.process(self.fdata['dbrec']),
-            "File insertion should have failed as it was already uploaded")
-        assert c.cleanup_handler.queue.put.called,\
-            "Did not call cleanup on identical upload"
-        c.cleanup_handler.queue.put.reset()
-        assert self.fdata['dbrec']['na'] == fileprocess.na.NOTHING,\
-            "Improperly called identical upload a failure"
-
-        # Test a file that another client has already uploaded
-        self.fdata['dbrec']['fbid'] = 1908861 
-        assert_false(c.process(self.fdata['dbrec']),
-            "Already uploaded file by 1 user not recognized by another")
-        assert self.model.Session.query(self.model.Owner).filter(
-            self.model.Owner.id==self.fdata['dbrec']['dbuser'].id
-        ).all(), "New owner of old file not properly inserted"
+        """
+        We don't test anymore here since it is all tested with the record
+        creation stuff in dbrecorder
+        """
 
     def testDBRecorder(self):
         r = DBRecorder()

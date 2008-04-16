@@ -39,15 +39,23 @@ class PlayerController(BaseController):
 
         files= Session.query(File).\
             join(['owners', 'user']).filter(File.songid==int(id))
-        files = filter_friends(files)
         files = files.all()
+        # XXX: Remove this to enable locking implemented below
+        qsgen = S3.QueryStringAuthGenerator(
+	    config['S3.accesskey'], config['S3.secret'],
+            is_secure = False
+        )
+        qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
+        return qsgen.get(config['S3.music_bucket'], files[0].sha)
+        
         # TODO: Think of a more efficient way of doing this. Perhaps the inuse
         # flag should be in the database?
         for file in files:
             for owner in file.owners:
                 if not g.usedfiles.has_key((file.id, owner.id)):
                     qsgen = S3.QueryStringAuthGenerator(
-                        config['S3.accesskey'], config['S3.secret']
+                        config['S3.accesskey'], config['S3.secret'],
+                        is_secure = False
                     )
                     qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
                     

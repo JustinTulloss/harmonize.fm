@@ -26,6 +26,7 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var buf = [
             '<li class="x-tree-node">',
+            '<div class="np-label">Now Playing</div>',
             '<div ext:tree-node-id="',n.id,'" class="np-node x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
                 '<div class="np-swatch">',
                     a.swatch ? ('<img src="' + a.swatch + '" />') : '',
@@ -47,7 +48,7 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         }
         this.elNode = this.wrap.childNodes[0];
     },
-    updateExpandIcon : Ext.emptyFn,
+    updateExpandIcon : Ext.emptyFn
 });
 
 QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
@@ -95,10 +96,11 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var href = a.href ? a.href : Ext.isGecko ? "" : "#";
         var buf = ['<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
-            '<span class="x-tree-node-indent">',this.indentMarkup,"</span>",
+            '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
+            '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
             '<a hidefocus="on" class="x-tree-node-anchor" href="',href,'" tabIndex="1" ',
-             a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '><span unselectable="on">',n.text,"</span></a>",
-            cb ? ('<input class="x-tree-node-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : ''
+            a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '><span unselectable="on">',n.text,"</span></a>",
+            cb ? ('<input class="x-tree-node-cb qn-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : ''
             ,"</div>",
             '<ul class="x-tree-node-ct" style="display:none;"></ul>',
             "</li>"].join('');
@@ -113,9 +115,11 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         this.elNode = this.wrap.childNodes[0];
         this.ctNode = this.wrap.childNodes[1];
         var cs = this.elNode.childNodes;
-        this.anchor = cs[1];
-        this.textNode = cs[1].firstChild;
-        var index = 2;
+        this.indentNode = cs[0];
+        this.ecNode = cs[1];
+        this.anchor = cs[2];
+        this.textNode = cs[2].firstChild;
+        var index = 3;
         if(cb){
             this.checkbox = cs[index];
             index++;
@@ -124,12 +128,26 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
     //private
     getDDHandles : function(){
-        return [this.elNode];
+        return [this.elNode, this.textNode];
     },
 
     // private
     getDDRepairXY : function(){
         return Ext.lib.Dom.getXY(this.elNode);
     },
-    updateExpandIcon : Ext.emptyFn, /* TODO: Fill this in for albums */
+    
+    //private
+    onOver : function(e){
+        this.addClass('x-tree-node-over');
+        if (this.checkbox)
+            Ext.DomHelper.applyStyles(this.checkbox, "visibility: visible");
+    },
+
+    //private
+    onOut : function(e){
+        this.removeClass('x-tree-node-over');
+        if (this.checkbox)
+            Ext.DomHelper.applyStyles(this.checkbox, "visibility: hidden");
+    }
+    
 });

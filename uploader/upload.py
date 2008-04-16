@@ -3,8 +3,7 @@ import os.path as path
 from thread import start_new_thread
 import time
 import config, tags
-
-#UPLOAD_PATH = '/Users/justin/Music/Feist'
+import fb
 
 def get_default_path():
 	#Have to wrap paths in lambda's so they don't get executed on windows
@@ -32,7 +31,13 @@ def get_music_files(dir):
 def is_music_file(file):
 	return file.endswith('.mp3')
 
-def upload_file(filename, session_key, callback):
+def reauthenticate(callback_obj):
+	callback_obj.error("facebook login expired\n\n"
+							+"Please log in again")
+	fb.synchronous_login()
+	callback_obj.error("Login complete, uploading will resume shortly")
+
+def upload_file(filename, callback):
 	try:
 		file_contents = open(filename, 'rb').read()
 		contents_wo_tags = tags.file_contents_without_tags(filename)
@@ -47,25 +52,40 @@ def upload_file(filename, session_key, callback):
 		try:
 			connection = httplib.HTTPConnection(config.current['server_addr'],
 				config.current['server_port'])
-			url = '/uploads/' + file_sha + '?session_key=' + session_key
+			url = '/uploads/' + file_sha + '?session_key='+fb.get_session_key()
 			connection.request('GET', url)
 
-			if connection.getresponse().read() == '0':
+			response = connection.getresponse().read()
+
+			if response == 'upload_file':
 				connection.request('POST', url, file_contents, 
 					{'Content-Type':'audio/x-mpeg-3'})
-				connection.getresponse().read()
-			uploaded = True
+				response = connection.getresponse().read()
+				
+				if response == 'reauthenticate':
+					reauthenticate(callback)
+					#Going to retry request
+				elif response == 'retry':
+					pass #This will just retry
+				else:
+					uploaded = True
+			elif response == 'reauthenticate':
+				reauthenticate(callback)
+			else:
+				#Should be file_uploaded, but if it's not just keep on truckin
+				uploaded = True 
 		except Exception, e:
-		#	raise e #for debugging purposes
+			if config.current['debug']:
+				import pdb; pdb.set_trace()
 			callback.error('Error connecting to server, will try again')
 			time.sleep(60) #This is a little safer than inside the exception
 
-def upload_files(song_list, session_key, callback):
+def upload_files(song_list, callback):
 	songs_left = len(song_list)	
 	callback.init('%s songs remaining' % songs_left, songs_left)
 
 	for song in song_list:
-		upload_file(song, session_key, callback)
+		upload_file(song, callback)
 		songs_left -= 1
 		callback.update('%s songs remaining' % songs_left, songs_left)
 	

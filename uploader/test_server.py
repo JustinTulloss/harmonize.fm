@@ -4,39 +4,63 @@ from urlparse import urlsplit
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import config
 
-class ClientHTTPServer(BaseHTTPRequestHandler):
-	requests = 0 #we want to say we have the file in question on odd requests
+fbsession = 1
+requests = 0
 
+class ClientHTTPServer(BaseHTTPRequestHandler):
 	def redirect(self, url):
 		print 'Redirecting to: ', url
 		self.send_response(307)
 		self.send_header('Location', url)
 		self.end_headers()
 
+	def GET_response(self):
+		global requests, fbsession
+		if requests % 2 == 0:
+			response = 'upload_file' 
+		else:
+			response = 'file_uploaded'
+
+		if requests % 7 == 0:
+			print 'Changing session key'
+			fbsession += 1
+
+		requests += 1
+		return response
+
 	def handle_request(self):
+		global fbsession
 		#split path into components 
 		split_url = urlsplit(self.path)
 		request_path = split_url.path
 		
 		#parse the query string
 		self.query = cgi.parse_qs(split_url.query)
+		if self.query.has_key('session_key'):
+			session_key = int(self.query['session_key'][0])
+		else:
+			session_key = None
 
+		status = 200
 		if request_path[:9] == '/uploads/' and self.request_body == None:
 			print 'Asking if file ', request_path[9:], 'has been uploaded'
-			response = str(self.requests % 2)
-			self.requests += 1
+			response = self.GET_response()
 		elif request_path[:9] == '/uploads/' and self.request_body != None:
 			print 'Attempting to upload the file ', request_path[9:], \
 					'with file length: ', self.length
-			response = None
+			if session_key != fbsession:
+				print 'Session key invalid, need to reauth'
+				response = 'reauthenticate'
+			else:
+				response = 'file_uploaded'
 		elif request_path == '/desktop_login':
-			return self.redirect('http://localhost:8080/complete_login?session_key=asdf')
+			return self.redirect('http://localhost:8080/complete_login?session_key='+str(fbsession))
 		else:
 			print 'Error: unkown request received'
 			response = None
-			
+			status = 404
 
-		self.send_response(200)
+		self.send_response(status)
 		self.end_headers()
 		if response != None:
 			self.wfile.write(response)

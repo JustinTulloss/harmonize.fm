@@ -46,19 +46,12 @@ class S3Uploader(BaseAction):
 
         response=conn.put(config['S3.music_bucket'], file['sha'], data)
         if (response.message == '200 OK'):
-            os.remove(file['fname'])
-            file['fname'] = '/'.join([
-                conn.server, 
-                config['S3.music_bucket'], 
-                file['sha']
-            ])
             log.info("%s successfully uploaded to S3", 
                 file.get('title', 'Unknown Song'))
-            self.cleanup(file)
             return file
         else:
             log.error(response.message)
             file['msg'] = "Could not save file"
-            file['na'] = fileprocess.na.TRYAGAIN
+            file['na'] = fileprocess.na.FAILURE
             self.cleanup(file)
             return False

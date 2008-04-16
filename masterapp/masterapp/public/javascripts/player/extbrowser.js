@@ -43,7 +43,7 @@ function Browser()
 
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
-                ds: crumb.ds,
+                ds: crumb.ds
             });
 
             crumb.panel.on('render', function(grid) {
@@ -99,7 +99,7 @@ Ext.extend(BaseGrid, Ext.grid.GridPanel);
 function SongGrid(config)
 {
     this.addEvents({
-        newgridleaf : true,
+        newgridleaf : true
     });
 
     config.cm = new Ext.grid.ColumnModel([
@@ -182,11 +182,11 @@ function AlbumGrid(config)
             id:'album_playtime',
             header: "Total Time",
             renderer: render.lengthColumn,
-            dataIndex: 'albumlength',
+            dataIndex: 'albumlength'
         },{
             id:'num_tracks',
             header: "Total Tracks",
-            dataIndex: 'totaltracks',
+            dataIndex: 'totaltracks'
         },{
             id:'recommend',
             header: 'Recommend',
@@ -213,7 +213,7 @@ function AlbumGrid(config)
             url: 'player/album_details',
             callback: function(){ this.fireEvent('chgstatus', null) },
             scope: this,
-            params: {album:record.get('albumid')},
+            params: {album:record.get('albumid')}
         });
         this.fireEvent('chgstatus', 'Loading...');
     }
@@ -237,15 +237,15 @@ function ArtistGrid(config)
         {
             id:'num_albums',
             header: "Total Albums",
-            dataIndex: 'totalalbums',
+            dataIndex: 'totalalbums'
         },{
             id:'num_tracks',
             header: "Total Tracks",
-            dataIndex: 'totaltracks',
+            dataIndex: 'totaltracks'
         },{
             id:'artistplaytime',
             header: "Total Time",
-            dataIndex: 'artistlength',
+            dataIndex: 'artistlength'
         },{
             id:'recommend',
             header: 'Recommend',
@@ -278,7 +278,7 @@ function PlaylistGrid(config)
             id:'add',
             header: 'Add',
             renderer: render.enqColumn,
-            sortable: false,
+            sortable: false
         },{
             id:'name',
             header: "Name",
@@ -314,7 +314,7 @@ function FriendGrid(config)
             id:'add',
             header: 'Add',
             renderer: render.enqColumn,
-            sortable: false,
+            sortable: false
         },{
             id:'friend',
             header: "Friend",

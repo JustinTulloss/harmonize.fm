@@ -416,13 +416,13 @@ class LabelFilter(IFilter):
 class ReleaseFilter(IFilter):
 	"""A filter for the release collection."""
 
-	def __init__(self, title=None, discId=None, releaseTypes=None,
-			artistName=None, artistId=None, limit=None,
+	def __init__(self, title=None, discid=None, releasetypes=None,
+			artist=None, artistid=None, asin=None, count=None, limit=None,
 			offset=None, query=None):
 		"""Constructor.
 
 		If C{discId} or C{artistId} are set, only releases matching
-		those IDs are returned. The C{releaseTypes} parameter allows
+		those IDs are returned. The C{releasetypes} parameter allows
 		to limit the types of the releases returned. You can set it to
 		C{(Release.TYPE_ALBUM, Release.TYPE_OFFICIAL)}, for example,
 		to only get officially released albums. Note that those values
@@ -443,7 +443,7 @@ class ReleaseFilter(IFilter):
 
 		@param title: a unicode string containing the release's title
 		@param discId: a unicode string containing the DiscID
-		@param releaseTypes: a sequence of release type URIs
+		@param releasetypes: a sequence of release type URIs
 		@param artistName: a unicode string containing the artist's name
 		@param artistId: a unicode string containing the artist's ID
 		@param limit: the maximum number of releases to return
@@ -452,18 +452,20 @@ class ReleaseFilter(IFilter):
 
 		@see: the constants in L{musicbrainz2.model.Release}
 		"""
-		if releaseTypes is None or len(releaseTypes) == 0:
-			releaseTypesStr = None
+		if releasetypes is None or len(releasetypes) == 0:
+			releasetypesStr = None
 		else:
-			tmp = [ mbutils.extractFragment(x) for x in releaseTypes ]
-			releaseTypesStr = ' '.join(tmp)
+			tmp = [ mbutils.extractFragment(x) for x in releasetypes ]
+			releasetypesStr = ' '.join(tmp)
 
 		self._params = [
 			('title', title),
-			('discid', discId),
-			('releasetypes', releaseTypesStr),
-			('artist', artistName),
-			('artistid', artistId),
+			('discid', discid),
+			('releasetypes', releasetypesStr),
+			('artist', artist),
+			('artistid', artistid),
+            ('asin', asin),
+            ('count', count),
 			('limit', limit),
 			('offset', offset),
 			('query', query),
@@ -479,8 +481,8 @@ class ReleaseFilter(IFilter):
 class TrackFilter(IFilter):
 	"""A filter for the track collection."""
 
-	def __init__(self, title=None, artistName=None, artistId=None,
-			releaseTitle=None, releaseId=None,
+	def __init__(self, title=None, artist=None, artistid=None,
+			release=None, releaseid=None, releasetype=None,
 			duration=None, puid=None, limit=None, offset=None,
 			query=None):
 		"""Constructor.
@@ -497,10 +499,10 @@ class TrackFilter(IFilter):
 		parameters except for C{limit} and C{offset}.
 
 		@param title: a unicode string containing the track's title
-		@param artistName: a unicode string containing the artist's name
-		@param artistId: a string containing the artist's ID
-		@param releaseTitle: a unicode string containing the release's title
-		@param releaseId: a string containing the release's title
+		@param artist: a unicode string containing the artist's name
+		@param artistid: a string containing the artist's ID
+		@param release: a unicode string containing the release's title
+		@param releaseid: a string containing the release's title
 		@param duration: the track's length in milliseconds
 		@param puid: a string containing a PUID
 		@param limit: the maximum number of releases to return
@@ -509,11 +511,12 @@ class TrackFilter(IFilter):
 		"""
 		self._params = [
 			('title', title),
-			('artist', artistName),
-			('artistid', artistId),
-			('release', releaseTitle),
-			('releaseid', releaseId),
+			('artist', artist),
+			('artistid', artistid),
+			('release', release),
+			('releaseid', releaseid),
 			('duration', duration),
+            ('releasetype', releasetype),
 			('puid', puid),
 			('limit', limit),
 			('offset', offset),
@@ -578,11 +581,11 @@ class ArtistIncludes(IIncludes):
 		assert len(releases) == 0 or len(vaReleases) == 0
 
 		self._includes = {
-			'aliases':		aliases,
-			'artist-rels':		artistRelations,
-			'release-rels':		releaseRelations,
-			'track-rels':		trackRelations,
-			'url-rels':		urlRelations,
+			'aliases':          aliases,
+			'artist-rels':      artistRelations,
+			'release-rels':     releaseRelations,
+			'track-rels':       trackRelations,
+			'url-rels':	        urlRelations,
 		}
 
 		for elem in releases:
@@ -628,7 +631,7 @@ class TrackIncludes(IIncludes):
 	"""A specification on how much data to return with a track."""
 	def __init__(self, artist=False, releases=False, puids=False,
 			artistRelations=False, releaseRelations=False,
-			trackRelations=False, urlRelations=False):
+			trackRelations=False, urlRelations=False, tags=False):
 		self._includes = {
 			'artist':		artist,
 			'releases':		releases,
@@ -637,6 +640,7 @@ class TrackIncludes(IIncludes):
 			'release-rels':		releaseRelations,
 			'track-rels':		trackRelations,
 			'url-rels':		urlRelations,
+            'tags':         tags
 		}
 
 	def createIncludeTags(self):

@@ -18,4 +18,4 @@ class Profile:
     sortoddrow_bg = "#FFDD9E"
     select = "#A0B5DF"
     queue_bg = oddrow_bg
-    np_bg = "#A5ABB8"
+    np_bg = "#A9B7D3"

@@ -1,5 +1,6 @@
 import logging
 import os
+import fileprocess
 from baseaction import BaseAction
 from sqlalchemy import and_
 
@@ -55,14 +56,25 @@ class DBRecorder(BaseAction):
         log.info('%s by %s successfully inserted into the database', 
             file.get('title'), file.get('artist'))
 
-        self.model.Session.commit() # Woot! Write baby, write!
-        self.model.Session.remove()
-        return file
+        try:
+            self.model.Session.commit() # Woot! Write baby, write!
+            file['msg'] = "File successfully uploaded"
+            file['na'] = fileprocess.na.NOTHING
+        except:
+            self.model.Session.rollback()
+            file['msg'] = "File could not be committed to database"
+            file['na'] = fileprocess.na.FAILURE
+        finally:
+            self.model.Session.remove()
+            self.cleanup(file)
+            return file
+
+
 
     def create_song(self, file):
         song = self.model.Song()
         song.title = file.get('title')
-        song.length = file.get('length')
+        song.length = file.get('duration')
         song.tracknumber = file.get('tracknumber')
         song.mbid = file['mbtrackid']
         log.debug("Saving new song %s", song.title)
