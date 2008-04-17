@@ -159,6 +159,7 @@ function BreadCrumb()
             value = typeinfo[crumb.type].display;
         else
             value = crumb.value;
+        crumb.el.un('click', this.jump_to)
         t_active_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
     }
 
