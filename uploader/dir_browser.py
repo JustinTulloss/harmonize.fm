@@ -11,6 +11,8 @@ def contains_dir(dir_path):
 		return False
 
 def get_dir_listing(request_dir):
-	return [dir for dir in os.listdir(request_dir) if \
+	ls = [dir for dir in os.listdir(request_dir) if \
 			path.isdir(path.join(request_dir, dir)) and dir[0] != '.' \
 			and os.access(path.join(request_dir, dir), os.R_OK)]
+	ls.sort()
+	return ls

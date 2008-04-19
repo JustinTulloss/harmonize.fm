@@ -32,15 +32,16 @@ def is_music_file(file):
 	return file.endswith('.mp3')
 
 def reauthenticate(callback_obj):
-	callback_obj.error("facebook login expired\n\n"
-							+"Please log in again")
+	callback_obj.error("facebook login expired, please log in again")
 	fb.synchronous_login()
 	callback_obj.error("Login complete, uploading will resume shortly")
 
 def upload_file(filename, callback):
 	try:
 		file_contents = open(filename, 'rb').read()
+		if file_contents == '': return
 		contents_wo_tags = tags.file_contents_without_tags(filename)
+		if contents_wo_tags == '': return
 	except IOError, e:
 		#sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
 		return

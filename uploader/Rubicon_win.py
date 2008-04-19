@@ -1,17 +1,20 @@
 import pythoncom
 pythoncom.CoInitialize()
 
-import fb, itunes, upload, thread
+import fb, itunes, upload, thread, dir_browser
 import clr
 import System
+import System.IO
 import System.Windows.Forms as winforms
-from System.Drawing import Size, Point
+from System.Drawing import Size, Point, Image
 from System import EventHandler
 
 class Rubicon(winforms.Form):
 	def __init__(self):
 		self.pagelist = [startPage, loginPage, uploadSelectPage, \
 			folderSelectPage, uploadPage]
+		#self.pagelist = [folderSelectPage]
+
 
 		self.Locked = True
 		formSize = Size(329, 332)
@@ -43,6 +46,9 @@ class Rubicon(winforms.Form):
 		self.panel = winforms.Panel()
 		self.panel.Location = Point(12, 12)
 		self.panel.Size = Size(297, 245)
+		self.panel.Anchor = \
+			winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
+			winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
 		self.Controls.Add(self.panel)
 
 		self.setPage(0)
@@ -170,34 +176,100 @@ def folderSelectPage(form, panel):
 	textbox = winforms.Label()
 	textbox.AutoSize = True
 	textbox.Location = Point(0, 2)
-	textbox.Text = 'Upload Folder'
+	textbox.Text = 'Upload Folder:'
 	panel.Controls.Add(textbox)
 
-	changeButton = winforms.Button()
-	changeButton.Location = Point(80, -1)
-	changeButton.Size = Size(52, 20)
-	changeButton.Text = 'Change'
-	panel.Controls.Add(changeButton)
-
 	folderLabel = winforms.Label()
-	folderLabel.Location = Point(3, 23)
-	folderLabel.AutoSize = True
-	folderLabel.Text = uploadFolder
+	folderLabel.Location = Point(77, 2)
+	folderLabel.Size = Size(216, 14)
+	folderLabel.AutoEllipsis = True
+	folderLabel.Anchor = \
+		winforms.AnchorStyles.Top | winforms.AnchorStyles.Left | \
+		winforms.AnchorStyles.Right
 	panel.Controls.Add(folderLabel)
 
-	def onChangeClick(sender, args):
+	tooltip = winforms.ToolTip(folderLabel)
+
+	imageList = winforms.ImageList()
+	imageList.Images.Add(Image.FromFile('folder.bmp'))
+	imageList.Images.Add(Image.FromFile('hd.bmp'))
+	imageList.Images.Add(Image.FromFile('cd.bmp'))
+
+	treeview = winforms.TreeView()
+	treeview.Location = Point(2, 20)
+	treeview.Size = Size(293, 224)
+	treeview.Anchor = \
+		winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
+		winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
+	treeview.ImageList = imageList
+	treeview.ImageIndex = 0
+	panel.Controls.Add(treeview)
+
+	def add_children(node):
+		if node.Nodes.Count != 0:
+			return
+		try:
+			children = dir_browser.get_dir_listing(node.FullPath + '\\')
+			for child in children:
+				node.Nodes.Add(child, child)
+		except WindowsError:
+			pass #This is an access denied error
+
+	def onBeforeExpand(sender, args):
+		node = args.Node
+
+		for childNode in node.Nodes:
+			add_children(childNode)
+
+	def onAfterSelect(sender, args):
 		global uploadFolder
 
-		folderBrowser = winforms.FolderBrowserDialog()
-		folderBrowser.SelectedPath = upload.get_default_path()
-		folderBrowser.ShowNewFolderButton = False
-		res = folderBrowser.ShowDialog()
+		add_children(args.Node)
+		uploadFolder = args.Node.FullPath
+		folderLabel.Text = args.Node.FullPath
+		tooltip.SetToolTip(folderLabel, args.Node.FullPath)
 
-		if res == winforms.DialogResult.OK:
-			uploadFolder = folderBrowser.SelectedPath
-			folderLabel.Text = uploadFolder
-	
-	changeButton.Click += EventHandler(onChangeClick)
+	treeview.BeforeExpand += EventHandler(onBeforeExpand)
+	treeview.AfterSelect += EventHandler(onAfterSelect)
+
+	for driveInfo in System.IO.DriveInfo.GetDrives():
+		if driveInfo.DriveType == System.IO.DriveType.NoRootDirectory or \
+				driveInfo.Name == 'A:\\':
+			continue
+		name = driveInfo.Name[:-1]
+		node = treeview.Nodes.Add(name, name)
+		if not (driveInfo.DriveType in 
+				[System.IO.DriveType.CDRom, System.IO.DriveType.Unknown]):
+			add_children(node)
+
+		if driveInfo.DriveType == System.IO.DriveType.Fixed:
+			node.ImageIndex = 1
+			node.SelectedImageIndex = 1
+		elif driveInfo.DriveType == System.IO.DriveType.CDRom:
+			node.ImageIndex = 2
+			node.SelectedImageIndex = 2
+
+	def getNode(path):
+		path_list = path.split('\\')
+		node = treeview
+		for next_node in path_list:
+			node = node.Nodes[node.Nodes.IndexOfKey(next_node)]
+			add_children(node)
+		
+		return node
+
+	treeview.SelectedNode = getNode(uploadFolder)
+	treeview.Focus()
+	"""
+	def expandToPath(path):
+		def expandToPath_aux(node, path_list):
+			next_node_name = path_list.pop(0)
+			next_node = node.Nodes[node.Nodes.IndexOfKey(next_node_name)]
+			if path_list == []:
+				treeview.SelectedNode = next_node
+			else:
+	"""
+		
 
 def uploadPage(form, panel):
 	form.prevButton.Enabled = False

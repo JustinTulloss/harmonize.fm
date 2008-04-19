@@ -17,8 +17,7 @@ elif sys.platform == 'win32':
 	import py2exe
 	setup(
 		name='Rubicon',
-		setup_requires=['py2exe'],
 		windows=['Rubicon_win.py'],
 		scripts=r_scripts,
-		data_files=['Python.Runtime.dll']
+		data_files=['Python.Runtime.dll', 'folder.bmp', 'hd.bmp', 'cd.bmp']
 	)
