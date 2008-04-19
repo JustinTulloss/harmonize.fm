@@ -30,6 +30,7 @@ mockfiles = {
         u'album': u'Amnesiac',
         u'artist': u'Radiohead',
         u'tracknumber': 11,
+        u'totaltracks': 11,
         u'duration': 275025,
     },
     'badtags': {
