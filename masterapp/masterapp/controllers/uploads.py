@@ -64,6 +64,7 @@ class UploadsController(BaseController):
         #first get session key
         fbid = self.get_fbid(request)
         if fbid == None:
+            request.environ['wsgi.input'].read(request.environ['CONTENT_LENGTH'])
             return 'reauthenticate'
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
