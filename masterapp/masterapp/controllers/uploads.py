@@ -59,29 +59,12 @@ class UploadsController(BaseController):
 
         return fbid
 
-    def read_postdata(dest_file=None):
-        """Reads the postdata into the file object or throws it away 
-           otherwise"""
-        chunk_size = 1024
-        file_size = int(request.environ["CONTENT_LENGTH"])
-        body = request.environ['wsgi.input']
-
-        for i in range(0, file_size/chunk_size):
-            data = body.read(chunk_size)
-            if dest_file != None:
-                dest_file.write(data)
-
-        data = body.read(file_size%chunk_size)
-        if dest_file != None:
-            dest_file.write(data)
-
-
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         #first get session key
         fbid = self.get_fbid(request)
         if fbid == None:
-            self.read_postdata()
+            request.environ['wsgi.input'].read(request.environ['CONTENT_LENGTH'])
             return 'reauthenticate'
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
@@ -91,8 +74,14 @@ class UploadsController(BaseController):
 
         if not os.path.exists(dest_path):
             dest_file = file(dest_path, 'w')
+            chunk_size = 1024
+            file_size = int(request.environ["CONTENT_LENGTH"])
+            body = request.environ['wsgi.input']
 
-            self.read_postdata(dest_file)
+            for i in range(0, file_size/chunk_size):
+                dest_file.write(body.read(chunk_size))
+ 
+            dest_file.write(body.read(file_size%chunk_size))
 
             #finally, put the file in file_queue for processing
             fdict = {
