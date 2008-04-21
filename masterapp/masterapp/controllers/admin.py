@@ -56,3 +56,22 @@ class AdminController(BaseController):
                 a.delete(config['S3.music_bucket'], file.key)
 
         return removed
+
+    def monitor(self):
+        queue_list = []
+        for handler in config['filepipeline'].handlers:
+            queue_list.append((handler.queue.qsize(), handler.queue.queue))
+
+        try:
+            fplog = open('/var/log/rubicon/filepipe' , 'r')
+            c.fplog = fplog.read()
+            fplog.close()
+
+            accesslog = open('/var/log/rubicon/access.log' , 'r')
+            c.accesslog = accesslog.read()
+            accesslog.close()
+        except:
+            pass
+
+        return render('/admin/monitor.mako')
+

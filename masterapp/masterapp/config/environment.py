@@ -45,4 +45,5 @@ def load_environment(global_conf, app_conf):
     #Starting extra processing threads here
     from fileprocess import FileUploadThread
     fuploader = FileUploadThread()
+    config['filepipeline'] = fuploader
 

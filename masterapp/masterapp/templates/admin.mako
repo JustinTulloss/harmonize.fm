@@ -8,6 +8,7 @@
     <h3>Rubicon Admin Interface</h3>
     <ul>
         <li><a href='admin/rmentities'>Clean Database</a></li>
-        <li><a href='admin/s3cleanup'> Clean S3</a></li>
+        <li><a href='admin/s3cleanup'>Clean S3</a></li>
+        <li><a href='admin/monitor'>Monitor Server Status</a></li>
     </ul>
 </%def>
