@@ -108,6 +108,7 @@ function SongGrid(config)
             id: 'tracknumber', 
             header: "Track",
             width: 30,
+            renderer: render.availColumn,
             dataIndex: 'tracknumber'
         },{
             id: 'title', 
@@ -185,8 +186,9 @@ function AlbumGrid(config)
             dataIndex: 'albumlength'
         },{
             id:'num_tracks',
-            header: "Total Tracks",
-            dataIndex: 'totaltracks'
+            header: "Tracks",
+            dataIndex: 'availsongs',
+            renderer: render.availColumn
         },{
             id:'recommend',
             header: 'Recommend',

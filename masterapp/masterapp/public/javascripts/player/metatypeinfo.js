@@ -32,6 +32,16 @@ var render = {
     },
 
 
+    availColumn: function (value, p, record)
+    {
+        ret = value;
+        total = record.get('totaltracks');
+        if (total)
+            ret = value + ' of ' + total;
+
+        return ret
+    },
+
     recColumn: function (value, p, record)
     {
         songid = record.get('songid');    
@@ -103,7 +113,7 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'albumlength', 'artistlength', 'numartists','numalbums',
                   'likesartists', 'exartists', 'numtracks', 'name', 'friend',
                   'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid',
-                  'swatch'];
+                  'swatch', 'availsongs'];
 
 stdcols = {
     add: {  

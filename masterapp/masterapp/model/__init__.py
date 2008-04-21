@@ -112,12 +112,18 @@ mapper(Album, albums_table, properties={
     'songs':relation(Song, backref='album', cascade='all, delete-orphan'),
     'albumid': albums_table.c.id,
     'album':albums_table.c.title,
-    #'albumlength': column_property(
-    #    select([func.sum(songs_table.c.length).label('albumlength')],
-    #        songs_table.c.albumid == albums_table.c.id,
-    #        group_by=songs_table.c.albumid 
-    #    ).correlate(albums_table).label('albumlength')
-    #)
+    'availsongs': column_property(
+        select([func.count(songs_table.c.id).label('availsongs')],
+            songs_table.c.albumid == albums_table.c.id,
+            group_by=songs_table.c.albumid 
+        ).correlate(albums_table).label('availsongs')
+    ),
+    'albumlength': column_property(
+        select([func.sum(songs_table.c.length).label('albumlength')],
+            songs_table.c.albumid == albums_table.c.id,
+            group_by=songs_table.c.albumid 
+        ).correlate(albums_table).label('albumlength')
+    )
 })
 mapper(Artist, artists, properties={
     'songs':relation(Song)
