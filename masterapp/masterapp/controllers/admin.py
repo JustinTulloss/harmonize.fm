@@ -65,10 +65,12 @@ class AdminController(BaseController):
         try:
             fplog = open('/var/log/rubicon/filepipe' , 'r')
             c.fplog = fplog.read()
+            c.fplog = c.fplog.replace('\n', '<br>')
             fplog.close()
 
             accesslog = open('/var/log/rubicon/access.log' , 'r')
             c.accesslog = accesslog.read()
+            c.accesslog = c.accesslog.replace('\n', '<br>')
             accesslog.close()
         except:
             pass
