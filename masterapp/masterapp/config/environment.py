@@ -1,14 +1,18 @@
 """Pylons environment configuration"""
 import os
 import sys
+import logging
 
 from pylons import config
+from subprocess import PIPE, Popen
 
 import masterapp.lib.app_globals as app_globals
 import masterapp.lib.helpers
 from masterapp.config.routing import make_map
 
 from sqlalchemy import engine_from_config
+
+log = logging.getLogger(__name__)
 
 def load_environment(global_conf, app_conf):
     """Configure the Pylons environment via the ``pylons.config``
@@ -46,4 +50,11 @@ def load_environment(global_conf, app_conf):
     from fileprocess import FileUploadThread
     fuploader = FileUploadThread()
     config['filepipeline'] = fuploader
+
+    # Print the version we're booting under
+    try:
+        hg = Popen(['hg', 'identify'], stdout = PIPE)
+        log.info('Current version: %s', hg.communicate()[0])
+    except:
+        pass
 
