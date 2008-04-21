@@ -10,6 +10,7 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from operator import itemgetter
 from functools import partial
+from decimal import Decimal
 
 log = logging.getLogger(__name__)
 
@@ -41,7 +42,10 @@ class MetadataController(BaseController):
     def _expand_row(self, sqlrow):
         expanded = {}
         for field in sqlrow.c.keys():
-            expanded[field] = getattr(sqlrow, field)
+            val = getattr(sqlrow, field)
+            if isinstance(val, Decimal):	
+                val = int(val)
+            expanded[field] = val
         return expanded
 
     @jsonify
