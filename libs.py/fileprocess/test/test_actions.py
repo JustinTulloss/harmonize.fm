@@ -133,6 +133,7 @@ class TestActions(TestBase):
         @patch(musicbrainz2.webservice.Query, 'getTracks', getTracks)
         @patch(musicbrainz2.webservice.Query, 'getReleases', getTracks)
         def query(file):
+            b.releasecache = {}
             b.process(file)
 
         assert_false(query(self.fdata['goodtags']))

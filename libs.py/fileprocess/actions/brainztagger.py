@@ -59,11 +59,11 @@ class BrainzTagger(BaseAction):
             return False
 
         # Query the album and then see if this track belongs
+        cachekey = None
         if (file.has_key('artist') and file.has_key('album')):
             cachekey = (
                 file['album'],
                 file['artist'],
-                self._totaltracks(file)
             )
             release = self.releasecache.get(cachekey)
             if release:
@@ -102,6 +102,7 @@ class BrainzTagger(BaseAction):
             if album == False:
                 return False
             self.albumcache[mbalbumid]= album
+            self.releasecache[(album.title, album.artist.name)] = album
 
         # Get info on the artist, cache it for future songs
         mbartistid = result.track.artist.id
@@ -183,7 +184,7 @@ class BrainzTagger(BaseAction):
         filter = ReleaseFilter(
             title = cachekey[0],
             artist = cachekey[1],
-            count = cachekey[2]
+            count = self._totaltracks(file)
         )
         mbquery = Query()
         releases = self._query_brainz(file, mbquery.getReleases, filter)
@@ -199,8 +200,13 @@ class BrainzTagger(BaseAction):
                 release.release.id, 
                 include
             )
-            mtuple = (self._compare_to_release(file, release), release)
-            matches.append(mtuple)
+            if self.releasecache.get((release.title, release.artist.name)):
+                # We've seen something off this album before, assume it's right
+                matches.append(1.0, release)
+                break
+            else:
+                mtuple = (self._compare_to_release(file, release), release)
+                matches.append(mtuple)
         if len(matches) <= 0:
             return False
 
@@ -301,12 +307,14 @@ class BrainzTagger(BaseAction):
     def _compare_to_release(self, file, release):
         """
         Compare cluster metadata to a MusicBrainz release.
-
+        
         Weigths:
           * title                = 12
           * artist name          = 6
           * number of tracks     = 5
           * year of release      = 4
+          * typs is album        = 3
+          * album is official    = 3
 
         TODO:
           * prioritize official albums over compilations (optional?)
@@ -316,17 +324,17 @@ class BrainzTagger(BaseAction):
         a = file['album']
         b = release.title
         if a and b:
-            total += similarity2(a, b) * 17.0 / 27.0
+            total += similarity2(a, b) * 17.0 / 33.0
 
         a = file['artist']
         b = release.artist.name
         if a and b:
-            total += similarity2(a, b) * 6.0 / 27.0
+            total += similarity2(a, b) * 6.0 / 33.0
 
         a = file.get('date')
         b = self._year(release)
         if a and b:
-            total += 1.0-abs(cmp(a, b)) * 4.0 / 27.0
+            total += 1.0-abs(cmp(a, b)) * 4.0 / 33.0
 
         a = self._totaltracks(file)
         b = len(release.tracks)
@@ -336,7 +344,13 @@ class BrainzTagger(BaseAction):
             score = 0.3
         else:
             score = 1.0
-        total += score * 5.0 / 27.0
+        total += score * 5.0 / 33.0
+
+        if release.TYPE_OFFICIAL in release.types:
+            total += 3.0/33.0
+
+        if release.TYPE_ALBUM in release.types:
+            total += 3.0/33.0
 
         return total
 
