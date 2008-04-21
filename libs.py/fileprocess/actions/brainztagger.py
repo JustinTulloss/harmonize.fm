@@ -125,6 +125,8 @@ class BrainzTagger(BaseAction):
         year = self._year(album)
         if year:
             file[u'date'] = year
+            file[u'year'] = year
+
         if len(track.releases) > 0:
             file[u'tracknumber'] = track.releases[0].getTracksOffset()+1
         else: 
