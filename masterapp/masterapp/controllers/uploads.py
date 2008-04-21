@@ -59,7 +59,7 @@ class UploadsController(BaseController):
 
         return fbid
 
-    def read_postdata(dest_file=None):
+    def read_postdata(self, dest_file=None):
         """Reads the postdata into the file object or throws it away 
            otherwise"""
         chunk_size = 1024
