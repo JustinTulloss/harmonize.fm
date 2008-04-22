@@ -401,7 +401,7 @@ class BrainzTagger(BaseAction):
         matches.sort(reverse=True)
         log.debug('Track matches: %r', matches)
 
-        if matches[0][0] > config.get('brainz.track_threshold', .5):
+        if matches[0][0] > config.get('brainz.track_threshold', .7):
             return matches[0][1]
         return False
 
@@ -410,7 +410,7 @@ class BrainzTagger(BaseAction):
         Compare file metadata to a MusicBrainz track.
 
         Weigths:
-          * title                = 13
+          * title                = 20
           * artist name          = 4
           * release name         = 5
           * length               = 10
@@ -427,8 +427,8 @@ class BrainzTagger(BaseAction):
         a = file.get('title')
         b = track.get('title')
         if a and b:
-            parts.append((similarity2(a, b), 13))
-            total += 13
+            parts.append((similarity2(a, b), 20))
+            total += 20
 
         a = file.get('artist')
         b = track.get('artist')
