@@ -16,6 +16,7 @@ from musicbrainz2.webservice import (
     Query, 
     TrackFilter, 
     WebServiceError, 
+    Release,
     ReleaseFilter,
     ReleaseIncludes)
 from musicbrainz2 import model
@@ -25,14 +26,6 @@ from picard.similarity import similarity2
 log = logging.getLogger(__name__)
 
 class BrainzTagger(BaseAction):
-    __weights = [
-        ('title', 22),
-        ('artist', 6),
-        ('album', 12),
-        ('tracknumber', 6),
-        ('totaltracks', 5),
-    ]
-
     def __init__(self, *args):
         super(BrainzTagger, self).__init__(args)
 
@@ -102,7 +95,7 @@ class BrainzTagger(BaseAction):
             if album == False:
                 return False
             self.albumcache[mbalbumid]= album
-            self.releasecache[(album.title, album.artist.name)] = album
+            self.releasecache[(file.get('album'), file.get('artist'))] = album
 
         # Get info on the artist, cache it for future songs
         mbartistid = result.track.artist.id
@@ -226,9 +219,6 @@ class BrainzTagger(BaseAction):
             ('title', 'release'),
             ('title', 'artist'),
             ('title', 'artist', 'release'),
-            ('title', 'release', 'releasetype'),
-            ('title', 'artist',  'releasetype'),
-            ('title', 'artist', 'release', 'releasetype')
         ]
         # This defines the value of the above parameters
         args = {
@@ -262,17 +252,36 @@ class BrainzTagger(BaseAction):
 
         trackl = []
         trackd = {}
+        track_queried = False
+        include = ReleaseIncludes(releaseEvents = True)
         for track in result:
             trackd[track.track.id] = track
+
+            if track.score < 95 and track_queried:
+                break
+
+            log.debug("Looking up %s with score %s", 
+                track.track.title,
+                track.score
+            )
+            release = self._query_brainz(
+                file, 
+                mbquery.getReleaseById, 
+                track.track.releases[0].id,
+                include = include
+            )
             trackl.append({
                 'id': track.track.id,
                 'title': track.track.title,
-                'album': track.track.releases[0].title,
+                'album': release.title,
                 'artist': track.track.artist.name,
                 'duration': track.track.duration,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
                 'totaltracks': track.track.releases[0].tracksCount,
+                'date': self._year(release),
+                'types': release.types,
             })
+            track_queried = True
 
         result = self._match_file_to_track(file, trackl)
         if result:
@@ -368,7 +377,8 @@ class BrainzTagger(BaseAction):
                 'duration': track.duration,
                 'tracknumber': release.tracks.index(track) + 1,
                 'totaltracks': len(release.tracks),
-                'date': self._year(release)
+                'date': self._year(release),
+                'types': release.types
             })
             
         result = self._match_file_to_track(file, trackl)
@@ -407,6 +417,8 @@ class BrainzTagger(BaseAction):
           * number of tracks     = 3
           * release data         = 3
           * track placement      = 5
+          * official release     = 5
+          * album release        = 3
 
         """
         total = 0.0
@@ -434,8 +446,8 @@ class BrainzTagger(BaseAction):
         b = track.get('date')
         if a and b:
             score = 1.0 - abs(cmp(a,b))
-            parts.append((score, 3))
-            total += 3
+            parts.append((score, 5))
+            total += 5
 
         a = file.get('tracknumber')
         b = track.get('tracknumber')
@@ -469,5 +481,14 @@ class BrainzTagger(BaseAction):
                 total += 4
             except ValueError:
                 pass
+
+        a = track.get('types')
+        b = Release()
+        if a:
+            if b.TYPE_OFFICIAL in a:
+                parts.append((1.0, 5))
+            if b.TYPE_ALBUM in a:
+                parts.append((1.0, 3))
+            total += 8
 
         return reduce(lambda x, y: x + y[0] * y[1] / total, parts, 0.0)
