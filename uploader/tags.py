@@ -7,7 +7,7 @@ def file_contents_without_tags(filename):
 	file_obj.write(open(filename, 'rb').read())
 	file_obj.flush()
 
-	#id3.delete(temp_path)
+	id3.delete(temp_path)
 	
 	file_obj.seek(0)
 	file_contents =  file_obj.read()
