@@ -1,7 +1,11 @@
 # vim:expandtab:smarttab
 import logging
 from masterapp.lib.base import *
-from masterapp.lib.fbauth import ensure_fb_session, filter_friends
+from masterapp.lib.fbauth import (
+    ensure_fb_session, 
+    filter_friends,
+    filter_any_friend
+)
 from sqlalchemy import sql, or_
 from masterapp.model import \
     Song, Album, Artist, Owner, File, Session, User, Playlist, PlaylistSong
@@ -78,12 +82,14 @@ class MetadataController(BaseController):
         qry = Session.query(Song).join('album').\
             reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
 
-        qry = filter_friends(qry)
 
         if request.params.get('artist'):
             qry = qry.filter(Album.artist == request.params.get('artist'))
         if request.params.get('album'):
+            qry = filter_any_friend(qry)
             qry = qry.filter(Album.albumid== request.params.get('album'))
+        else:
+            qry = filter_friends(qry)
         if request.params.get('playlist'):
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 

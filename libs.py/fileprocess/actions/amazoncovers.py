@@ -35,8 +35,14 @@ class AmazonCovers(BaseAction):
         return self.fill_file(file, images)
 
     def fill_file(self, file, images):
-        file[u'swatch'] = images.ImageSets.ImageSet.SwatchImage.URL
-        file[u'smallart'] = images.SmallImage.URL
-        file[u'medart'] = images.MediumImage.URL
-        file[u'largeart'] = images.LargeImage.URL
+        try:
+            if isinstance(images.ImageSets.ImageSet, list):
+                file[u'swatch'] = images.ImageSets.ImageSet[0].SwatchImage.URL
+            else:
+                file[u'swatch'] = images.ImageSets.ImageSet.SwatchImage.URL
+            file[u'smallart'] = images.SmallImage.URL
+            file[u'medart'] = images.MediumImage.URL
+            file[u'largeart'] = images.LargeImage.URL
+        except:
+            pass # album art doesn't matter
         return file

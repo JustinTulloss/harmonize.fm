@@ -60,5 +60,18 @@ def filter_friends(qry):
         qry = qry.filter(User.id == session['user'].id)
     return qry
 
+def filter_any_friend(qry):
+    """
+    This function creates a giant SQL OR statement that restricts
+    the files you can select from to files owned by any of your friends.
+    It assumes you are joined to the Users table.
+    """
+    fbclause = or_()
+    for friend in session['fbfriends']:
+        fbclause.append(User.fbid==friend)
+    fbclause.append(User.id == session['user'].id)
+    qry = qry.filter(fbclause)
+    return qry
+
 def get_user_info():
     return facebook.users.getInfo(session['fbuid'])[0]
