@@ -5,10 +5,69 @@
     background: ${c.profile.top_bg};
 }
 
-#controls {
-    text-align: center;
-    width: 16%;
+#playcontrols {
+    width: 149px;
+    height: 43px;
+    background: url('/images/controls.png');
+    margin: 0;
+    padding: 0;
+    position: relative;
+    left: 4%;
 }
+
+#playcontrols li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: absolute;
+    top: 0;
+}
+
+#playcontrols li, #playcontrols a {
+    height: 43px;
+    display: block;
+    outline: none;
+}
+
+#prevbutton {
+    left: 0;
+    width: 47px;
+}
+
+#playbutton {
+    left: 48px;
+    width: 55px;
+}
+
+#nextbutton {
+    left: 105px;
+    width: 47px;
+}
+
+#prevbutton a:hover {
+    background: transparent url('/images/controls.png') 0 -43px no-repeat;
+}
+
+#playbutton a:hover {
+    background: transparent url('/images/controls.png') -48px -43px no-repeat;
+}
+
+#nextbutton a:hover {
+    background: transparent url('/images/controls.png') -105px -43px no-repeat;
+}
+
+#prevbutton a:active {
+    background: transparent url('/images/controls.png') 0 -85px no-repeat;
+}
+
+#playbutton a:active {
+    background: transparent url('/images/controls.png') -48px -85px no-repeat;
+}
+
+#nextbutton a:active {
+    background: transparent url('/images/controls.png') -105px -85px no-repeat;
+}
+
 
 .topmenu {
     background: ${c.profile.top_bg};

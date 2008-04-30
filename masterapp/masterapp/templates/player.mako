@@ -46,9 +46,11 @@
 
 <div id="header">
     <div id="menu"></div>
-    <img class="" id="prevbutton" src = "/images/back.png" />
-    <img class="" id="playbutton" src = "/images/play.png" />
-    <img class="" id="nextbutton" src = "/images/next.png" />
+    <ul id="playcontrols">
+        <li id="prevbutton"><a href="#"></a></li>
+        <li id="playbutton"><a href="#"></a></li>
+        <li id="nextbutton"><a href="#"></a></li>
+    </ul>
     <div id="logo">
     	<img src="/images/whiterubicon.png" />
     </div>
