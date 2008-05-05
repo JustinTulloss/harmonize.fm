@@ -14,8 +14,15 @@ def ensure_fb_session():
         facebook.uid = 1909354
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
-        session['user'] = Session.query(User).filter(
+        user = Session.query(User).filter(
             User.fbid==facebook.uid).first()
+        if not user:
+            # First time visitor, set up an account for them
+            user = User(fbid = facebook.uid)
+            Session.save()
+            Session.commit()
+        session['user'] = user
+
         session['fbfriends']=facebook.friends.getAppUsers()
         # XXX: This conditional works around a bug where the getAppUsers call
         #   returns a {} instead of [] when there are no friends. Should fix
