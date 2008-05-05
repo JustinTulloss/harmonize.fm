@@ -110,7 +110,12 @@ mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan')
 })
 mapper(Album, albums_table, properties={  
-    'songs':relation(Song, backref='album', cascade='all, delete-orphan'),
+    'songs':relation(Song, 
+        backref = 'album', 
+        lazy = True,
+        cascade = 'all, delete-orphan',
+        order_by = songs_table.c.tracknumber
+    ),
     'albumid': albums_table.c.id,
     'album':albums_table.c.title,
     'availsongs': column_property(

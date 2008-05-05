@@ -20,6 +20,7 @@
     <style type="text/css">
     <%include file="player_css/player_css.mako" /> 
     <%include file="player_css/queue_css.mako" /> 
+    <%include file="player_css/album_details.mako" /> 
     <%include file="player_css/topbar.mako" /> 
     <%include file="player_css/statusbar.mako" /> 
     </style>

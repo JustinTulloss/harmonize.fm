@@ -5,7 +5,7 @@ configuration, but for now it's just a place to store constants.
 """
 
 class Profile:
-    border = "#6178A0"
+    border = "#999999"
     top_bg = "#334466"
     primary_txt = "#333"
     dark_txt = "#334466"

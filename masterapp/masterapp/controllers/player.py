@@ -74,6 +74,18 @@ class PlayerController(BaseController):
         c.album = Session.query(Album).get(request.params.get('album'))
         return render('/album_details.mako')
 
+    def recommend_to_fbfriend(self, id):
+        """
+        Recommends music to a friend based on their facebook id
+        """
+        # Set up the correct informatio to pass to the notification template
+        c.recommender = session['user'].fbid
+        c.recommendee = id
+        c.recommended = request.params.get('recommended')
+        c.playlink = request.params.get('playlink')
+        notification = render('/fbprofile/recnotif.mako')
+        facebook.notifications.send([id], notification)
+
     def username(self):
         return get_user_info()['name']
 
