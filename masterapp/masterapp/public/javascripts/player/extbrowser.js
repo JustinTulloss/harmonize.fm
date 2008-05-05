@@ -238,12 +238,13 @@ function ArtistGrid(config)
         stdcols.like,
         {
             id:'num_albums',
-            header: "Total Albums",
+            header: "Albums",
             dataIndex: 'totalalbums'
         },{
             id:'num_tracks',
-            header: "Total Tracks",
-            dataIndex: 'totaltracks'
+            header: "Songs",
+            dataIndex: 'availsongs',
+            renderer: render.availColumn
         },{
             id:'artistplaytime',
             header: "Total Time",

@@ -26,7 +26,8 @@ artists = select([
     albums_table.c.id,
     albums_table.c.artist, 
     albums_table.c.artistsort, 
-    albums_table.c.mbartistid
+    albums_table.c.mbartistid,
+    func.count(albums_table.c.id).label('totalalbums')
     ], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
 
 """
@@ -126,7 +127,14 @@ mapper(Album, albums_table, properties={
     )
 })
 mapper(Artist, artists, properties={
-    'songs':relation(Song)
+    'songs':relation(Song),
+    'availsongs': column_property(
+        select([func.count(songs_table.c.id).label('availsongs')],
+            songs_table.c.albumid == albums_table.c.id,
+            group_by = artists.c.mbartistid,
+            distinct=True
+        ).correlate(artists).label('availsongs')
+    ),
 })
 
 mapper(PlaylistSong, playlistsongs_table, inherits=Song)
