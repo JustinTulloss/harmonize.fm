@@ -103,7 +103,7 @@ function SongGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel([
-        stdcols.add,
+        stdcols.actions,
         {
             id: 'tracknumber', 
             header: "Track",
@@ -114,7 +114,7 @@ function SongGrid(config)
             id: 'title', 
             header: "Title",
             dataIndex: 'title'
-        }, stdcols.like,
+        }, 
         {
             id: 'artist',
             header: 'Artist',
@@ -164,13 +164,12 @@ function AlbumGrid(config)
     config.plugins = expander;
     config.cm = new Ext.grid.ColumnModel([
         expander,
-        stdcols.add,
+        stdcols.actions,
         {
             id:'album',
             header: "Album",
             dataIndex: 'album'
         },
-        stdcols.like,
         {
             id: 'artist',
             header: "Artist",
@@ -189,11 +188,6 @@ function AlbumGrid(config)
             header: "Tracks",
             dataIndex: 'availsongs',
             renderer: render.availColumn
-        },{
-            id:'recommend',
-            header: 'Recommend',
-            renderer: render.recColumn,
-            dataIndex: 'albumid'
         }
     ]);
     config.cm.defaultSortable = true;
@@ -229,13 +223,12 @@ function ArtistGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel([
-        stdcols.add,
+        stdcols.actions,
         {
             id:'artist',
             header: "Artist",
             dataIndex: 'artist'
         },
-        stdcols.like,
         {
             id:'num_albums',
             header: "Albums",
@@ -249,11 +242,6 @@ function ArtistGrid(config)
             id:'artistplaytime',
             header: "Total Time",
             dataIndex: 'artistlength'
-        },{
-            id:'recommend',
-            header: 'Recommend',
-            renderer: render.recColumn,
-            dataIndex: 'artist'
         }
     ]);
     config.cm.defaultSortable = true;

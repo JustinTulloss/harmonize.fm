@@ -1,10 +1,21 @@
 <div class = 'albumdetails'>
     % if c.album.smallart != None:
-        <div class='albumart'>
+        <span class='albumart'>
             <img src='${c.album.smallart}' />
-        </div>
+        </span>
     % endif
-    <div class = 'album'>${c.album.album}</div>
-    <div class = 'artist'>${c.album.artist}</div>
-    <div class = 'year'>${c.album.year}</div>
+    <span>
+    <% numsongs = len(c.album.songs) %>
+    % for col in xrange(0,3):
+        <span class=songcol>
+            % for cell in xrange(col*(numsongs-1)/3, (col+1)*(numsongs-1)/3):
+                <div class="albumsong">
+                    <% song = c.album.songs[cell] %>
+                    <span>${song.tracknumber}</span>
+                    <span>${song.title}</span>
+                </div>
+            %endfor
+        </span>
+    % endfor
+    </span>
 </div>

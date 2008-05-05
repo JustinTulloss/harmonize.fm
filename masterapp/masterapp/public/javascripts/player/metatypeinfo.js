@@ -116,19 +116,11 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'swatch', 'availsongs'];
 
 stdcols = {
-    add: {  
+    actions: {  
         id: 'add',
-        header: 'Add',
+        header: 'Actions',
         renderer: render.enqColumn,
-        width: 50,
+        width: 55,
         sortable: false
-    },
-    like: {
-        id: 'like',
-        header: "Popular",
-        renderer: render.starColumn,
-        sortable: true,
-        width: 70,
-        dataIndex: 'recs'
     }
 }
