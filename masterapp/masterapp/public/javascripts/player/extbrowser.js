@@ -107,7 +107,7 @@ function SongGrid(config)
         {
             id: 'tracknumber', 
             header: "Track",
-            width: 30,
+            width: 60,
             renderer: render.availColumn,
             dataIndex: 'tracknumber'
         },{
@@ -173,10 +173,12 @@ function AlbumGrid(config)
         {
             id: 'artist',
             header: "Artist",
+            width: 200,
             dataIndex: 'artist'
         },{
             id: 'year',
             header: "Year",
+            width: 50,
             dataIndex: 'year'
         },{
             id:'album_playtime',

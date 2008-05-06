@@ -7,12 +7,14 @@
 
 #playcontrols {
     width: 149px;
-    height: 43px;
+    height: 41px;
     background: url('/images/controls.png');
     margin: 0;
     padding: 0;
     position: relative;
     left: 4%;
+    top: -8px;
+    z-index: 30;
 }
 
 #playcontrols li {
@@ -24,7 +26,7 @@
 }
 
 #playcontrols li, #playcontrols a {
-    height: 43px;
+    height: 41px;
     display: block;
     outline: none;
 }
@@ -77,6 +79,10 @@
 .menuitem {
     font-size: 9px;
     color: #FFFFFF;
+}
+
+.menuitem:hover button {
+    color: ${c.profile.click};
 }
 
 #logo {
