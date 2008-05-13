@@ -59,6 +59,11 @@ class UploadsController(BaseController):
 
         return fbid
 
+    class PostException(Exception):
+        """An exception that means the content-length did not match the actual
+           amount of data read"""
+        pass
+
     def read_postdata(self, dest_file=None):
         """Reads the postdata into the file object or throws it away 
            otherwise"""
@@ -68,10 +73,14 @@ class UploadsController(BaseController):
 
         for i in range(0, file_size/chunk_size):
             data = body.read(chunk_size)
+            if len(data) != chunk_size:
+                raise self.PostException
             if dest_file != None:
                 dest_file.write(data)
 
         data = body.read(file_size%chunk_size)
+        if len(data) != file_size%chunk_size:
+            raise self.PostException
         if dest_file != None:
             dest_file.write(data)
 
@@ -81,7 +90,10 @@ class UploadsController(BaseController):
         #first get session key
         fbid = self.get_fbid(request)
         if fbid == None:
-            self.read_postdata()
+            try:
+                self.read_postdata()
+            except self.PostException:
+                pass
             return 'reauthenticate'
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
@@ -92,7 +104,11 @@ class UploadsController(BaseController):
         if not os.path.exists(dest_path):
             dest_file = file(dest_path, 'w')
 
-            self.read_postdata(dest_file)
+            try:
+                self.read_postdata(dest_file)
+            except self.PostException:
+                os.remove(dest_path)
+                return 'retry'
 
             #finally, put the file in file_queue for processing
             fdict = {
@@ -100,8 +116,13 @@ class UploadsController(BaseController):
                 'fbid': fbid,
                 'usersha': id
             }
-            file_queue.put(fdict)
             dest_file.close()
+            file_queue.put(fdict)
+        else:
+            try:
+                self.read_postdata()
+            except self.PostException:
+                pass
 
         return 'file_uploaded'
         

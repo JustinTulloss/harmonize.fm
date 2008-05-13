@@ -1,4 +1,4 @@
-import os, re, hashlib, httplib, sys
+import os, re, hashlib, httplib, sys, platform
 import os.path as path
 from thread import start_new_thread
 import time
@@ -6,12 +6,19 @@ import config, tags
 import fb
 
 def get_default_path():
+	def default_osx():
+		home_dir = os.getenv('HOME')
+		music_dir = path.join(home_dir, 'Music')
+		if path.exists(music_dir):
+			return music_dir
+		else: return home_dir
+			
 	#Have to wrap paths in lambda's so they don't get executed on windows
-	paths = {'posix':(lambda: os.getenv('HOME')),
-		'nt':(lambda: os.getenv('USERPROFILE')),
-		'mac':(lambda: path.join(os.getenv('HOME'), 'Music'))}
+	paths = {'Linux':(lambda: os.getenv('HOME')),
+		'Windows':(lambda: os.getenv('USERPROFILE')),
+		'Darwin':default_osx}
 	
-	return paths[os.name]()
+	return paths[platform.system()]()
 
 def get_music_files(dir):
 	music_files = []
@@ -78,8 +85,8 @@ def upload_file(filename, callback):
 		except Exception, e:
 			if config.current['debug']:
 				import pdb; pdb.set_trace()
-			callback.error('Error connecting to server, will try again')
-			time.sleep(60) #This is a little safer than inside the exception
+			callback.error('Error connecting to server, \nWill try again')
+			time.sleep(20) #This is a little safer than inside the exception
 
 def upload_files(song_list, callback):
 	songs_left = len(song_list)	

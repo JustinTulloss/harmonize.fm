@@ -1,23 +1,28 @@
 {
     IBClasses = (
-        {CLASS = Averager; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = FolderSelectView; LANGUAGE = ObjC; SUPERCLASS = WizardView; }, 
-        {CLASS = LoginView; LANGUAGE = ObjC; SUPERCLASS = WizardView; }, 
-        {CLASS = StartView; LANGUAGE = ObjC; SUPERCLASS = WizardView; }, 
+        {CLASS = NSLevelIndicator; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
+        {CLASS = NSSegmentedControl; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
         {
-            ACTIONS = {setUploadAll = id; setUploadiTunes = id; }; 
-            CLASS = UploadSelectView; 
+            ACTIONS = {
+                changeFolder = id; 
+                login = id; 
+                options = id; 
+                setUploadFolder = id; 
+                setUploadITunes = id; 
+            }; 
+            CLASS = RubiconController; 
             LANGUAGE = ObjC; 
-            SUPERCLASS = WizardView; 
-        }, 
-        {CLASS = UploadView; LANGUAGE = ObjC; SUPERCLASS = WizardView; }, 
-        {CLASS = WizardView; LANGUAGE = ObjC; SUPERCLASS = NSView; }, 
-        {
-            ACTIONS = {nextView = id; prevView = id; }; 
-            CLASS = WizardWindow; 
-            LANGUAGE = ObjC; 
-            SUPERCLASS = NSWindow; 
+            OUTLETS = {
+                loginView = NSView; 
+                mainWindow = NSWindow; 
+                progressbar = NSProgressIndicator; 
+                uploadFolderButton = NSButtonCell; 
+                uploadITunesButton = NSButtonCell; 
+                uploadOptions = NSWindow; 
+                uploadView = NSView; 
+            }; 
+            SUPERCLASS = NSObject; 
         }
     ); 
     IBVersion = 1; 
