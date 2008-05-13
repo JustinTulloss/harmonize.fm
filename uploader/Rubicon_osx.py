@@ -2,285 +2,131 @@ import objc, fb, itunes, thread, upload, os
 from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
-from dir_browser import contains_dir, get_dir_listing
 
-NibClassBuilder.extractClasses("MainMenu")
+NibClassBuilder.extractClasses('MainMenu')
 
-class WizardWindow(NSWindow):
-	viewMappings = {}
-	pageView = None
-	nextButton = None
-	prevButton = None
-	hasRun = False
+class RubiconController(NSObject):
+	uploadOptions = objc.ivar('uploadOptions')
+	uploadFolderButton = objc.ivar('uploadFolderButton')
+	uploadITunesButton = objc.ivar('uploadITunesButton')
+
+	loginView = objc.ivar('loginView')
+	uploadView = objc.ivar('uploadView')
+
+	mainWindow = objc.ivar('mainWindow')
+
+	uploadPath = objc.ivar('uploadPath')
+	uploadStatus = objc.ivar('uploadStatus')
+	
+	progressbar = objc.ivar('progressbar')
 
 	def awakeFromNib(self):
-		for view in self.contentView().subviews():
-			if type(view) == NSButton:
-				if view.title() == 'Next':
-					self.nextButton = view
-				elif view.title() == 'Previous':
-					self.prevButton = view
-			elif type(view) == NSView:
-				self.pageView = view
-
 		NSThread.detachNewThreadSelector_toTarget_withObject_(
 				self.dummy_fn, self, None)
-		self.setFirstView()
+
+		self.uploadPath = upload.get_default_path()
+
+		#Set up the default upload location
+		if itunes.get_library_file() != None:
+			self.uploadSrc = self.uploadITunes
+		else:
+			self.uploadSrc = self.uploadFolder
+			self.uploadITunesButton.setEnabled_(False)
+			self.uploadITunesButton.setState_(0)
+			self.uploadFolderButton.setState_(1)
+
+		#Set up the file chooser dialog
+		self.folderChooser = NSOpenPanel.openPanel()
+		self.folderChooser.setCanChooseFiles_(False)
+		self.folderChooser.setCanChooseDirectories_(True)
+
+		#Have the loginView display on startup
+		self.mainWindow.setContentView_(self.loginView)
 
 	def dummy_fn(self):
 		"""Called in order to put Cocoa in multithreaded mode"""
 		pass
 
-	def nextView_(self, sender):
-		self.setNewView(self.pageView.getNext())
+	def loginCallbackSync(self):
+		target = self
+		class Receiver(object):
+			def init(self, msg, total_songs):
+				target.performSelectorOnMainThread_withObject_waitUntilDone_(
+					target.upload_init, (msg, total_songs), False)
 
-	def prevView_(self, sender):
-		self.setNewView(self.pageView.getPrev())
+			def update(self, msg, songs_left):
+				target.performSelectorOnMainThread_withObject_waitUntilDone_(
+					target.upload_update, (msg, songs_left), False)
 
-	def setNewView(self, newViewType):
-		"""Replace the content of the content view"""
-		newView = self.viewMappings[newViewType]
-		frame = self.pageView.frame()
-		self.contentView().replaceSubview_with_(self.pageView, newView)
-		newView.setFrame_(frame)
-		if type(self.pageView) != NSView:
-			self.pageView.viewActive = False
-		self.pageView = newView
-		if newView.getNext() == None:
-			self.nextButton.setEnabled_(False)
-		else:
-			self.nextButton.setEnabled_(True)
+			def error(self, msg):
+				target.performSelectorOnMainThread_withObject_waitUntilDone_(
+					target.upload_error, msg, False)
+				
+		def uploadSongs():
+			pool = NSAutoreleasePool.alloc().init()
 
-		if newView.getPrev() == None:
-			self.prevButton.setEnabled_(False)
-		else:
-			self.prevButton.setEnabled_(True)
+			tracks = self.uploadSrc()
+			upload.upload_files(tracks, Receiver())
+			del pool
 
-		newView.viewActive = True
-		newView.viewSet()
-	
-	def registerView(self, viewClass, view):
-		if not self.viewMappings.has_key(viewClass):
-			self.viewMappings[viewClass] = view
-		else:
-			print 'Error: two instances of same view class'
-	
-	def setFirstView(self):
-		if not self.hasRun:
-			self.hasRun = True
-		else:
-			self.setNewView(StartView)
+		thread.start_new_thread(uploadSongs, ())
 
-	def enableNext_(self):
-		self.nextButton.setEnabled_(True)
+		self.mainWindow.setContentView_(self.uploadView)
+		self.progressbar.startAnimation_(self)
+		NSApp().activateIgnoringOtherApps_(True)
 
-	def enablePrev_(self):
-		self.prevButton.setEnabled_(False)
+	#Upload selections
+	def uploadITunes(self):
+		return filter(upload.is_music_file,
+						itunes.ITunes().get_all_track_filenames())
 
-def getWizard():
-	for window in NSApp().windows():
-		if type(window) == WizardWindow:
-			return window
+	def uploadFolder(self):
+		return upload.get_music_files(self.uploadPath)
 
-class WizardView(NSView):
-	viewActive = False
-
-	def awakeFromNib(self):
-		getWizard().registerView(type(self), self)
-
-	def getNext(self):
-		return None
-	
-	def getPrev(self):
-		return None
-
-	def viewSet(self):
-		"""Called when a view is loaded into the wizard"""
-		pass
-
-class StartView(WizardView):
-	"""The first page when the program opens"""
-	def awakeFromNib(self):
-		getWizard().registerView(type(self), self)
-		getWizard().setFirstView()
-
-	def getNext(self):
-		return LoginView
-
-session_key = None
-
-class LoginView(WizardView):
-	def callback(self, new_session_key):
-		global session_key
-		pool = NSAutoreleasePool.alloc().init()
-		session_key = new_session_key
-		textfield = self.subviews()[0]
-		textfield.performSelectorOnMainThread_withObject_waitUntilDone_(
-			textfield.setStringValue_, "Login complete", False)
-		getWizard().performSelectorOnMainThread_withObject_waitUntilDone_(
-			getWizard().enableNext_, None, False)
-		NSApp().performSelectorOnMainThread_withObject_waitUntilDone_(
-			NSApp().activateIgnoringOtherApps_, True, False)
-		del pool
-
-	def viewSet(self):
-		global session_key
-		if session_key == None:
-			fb.login(self.callback)
-
-	def getPrev(self):
-		return StartView
-
-	def getNext(self):
-		if session_key == None:
-			return None
-		else:
-			return UploadSelectView
-
-uploadInfo = None
-
-class UploadView(WizardView):
-	uploadThread = None
-	def awakeFromNib(self):
-		getWizard().registerView(type(self), self)
-		for view in self.subviews():
-			if type(view) == NSProgressIndicator:
-				self.progress = view
-			elif type(view) == NSTextField:
-				self.status = view
-
-	def updateStatus(self, new_status):
-		self.status.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self.status.setStringValue_, new_status, False)
-	
-	def viewSet(self):
-		if self.uploadThread == None:
-			thread.start_new_thread(self.uploadSongs, ())
-			self.progress.startAnimation_(self)
+	#Controller actions:
+	def changeFolder_(self, sender):
+		res = self.folderChooser.runModalForTypes_(None)
 		
-	def uploadSongs(self):
-		global uploadInfo
-		pool = NSAutoreleasePool.alloc().init()
-		tracks = uploadInfo.getTracks()
-		upload.upload_files(tracks, self)
-		del pool
+		if res == NSOKButton and len(self.folderChooser.filenames()) > 0:
+			self.uploadPath = self.folderChooser.filenames()[0]
 
-	def uploadComplete(self, msg):
-		self.status.setStringValue_(msg)
-		self.progress.stopAnimation_(self)
-		self.progress.setHidden_(True)
+	def login_(self, sender):
+		def callback(session_key):
+			pool = NSAutoreleasePool.alloc().init()
 
-#The remaining methods are callbacks from the uploader 
-	def init(self, msg, total_songs):
-		self.updateStatus(msg)
-	
-	def update(self, msg, songs_left):
-		if (songs_left == 0):
 			self.performSelectorOnMainThread_withObject_waitUntilDone_(
-				self.uploadComplete, msg, False)
-		else:
-			self.updateStatus(msg)
+				self.loginCallbackSync, None, False)
+
+			del pool
+
+		fb.login(callback)
+
+	def options_(self, sender):
+		self.uploadOptions.orderFront_(self)
+		self.uploadOptions.makeKeyWindow()
+
+	def setUploadFolder_(self, sender):
+		self.uploadSrc = self.uploadFolder
 	
-	def error(self, msg):
-		self.updateStatus(msg)
-		
-class FolderBrowserDelegate(NSObject):
-	paths = {}
-	selectedPath = None
+	def setUploadITunes_(self, sender):
+		self.uploadSrc = self.uploadITunes
 
-	def ensure_path(self, path):
-		if path == '':
-			path = '/'
-		if not self.paths.has_key(path):
-			self.paths[path] = get_dir_listing(path)
-
-		return self.paths[path]
-
-	def setFolderField(self, value):
-		global folderField
-		folderField.setStringValue_(value)
-		folderField.setToolTip_(value)
-		self.selectedPath = value
-
-	def browser_numberOfRowsInColumn_(self, browser, column):
-		path = browser.path()
-		self.setFolderField(path)
-		return len(self.ensure_path(path))
-
-	def browser_willDisplayCell_atRow_column_(self, browser,cell,row,column):
-		parentdir_path = os.path.join('/', browser.pathToColumn_(column))
-		dirname = self.ensure_path(parentdir_path)[row]
-		dirpath = os.path.join(parentdir_path, dirname)
-		cell.setStringValue_(dirname)
-
-		if contains_dir(dirpath):
-			cell.setLeaf_(False)
-		else:
-			cell.setLeaf_(True)
-
-folderField = None
-
-class FolderSelectView(WizardView):
-	def awakeFromNib(self):
-		global folderField
-		getWizard().registerView(type(self), self)
-		folderField = self.viewWithTag_(1)
-		self.browser = self.viewWithTag_(2)
-		self.delegate = FolderBrowserDelegate.alloc().init()
-		
-		self.browser.setTitled_(False)
-		self.browser.setDelegate_(self.delegate)
-
-	def viewSet(self):
-		"""This autoexpands the directory browser"""
-		i = 0
-		for component in upload.get_default_path().split('/')[1:]:
-			row = self.delegate.ensure_path(self.browser.path()).index(component)
-			self.browser.selectRow_inColumn_(row, i)
-			i += 1
-
-	def getPrev(self):
-		return UploadSelectView
-
-	def getNext(self):
-		global uploadInfo
-		if self.viewActive:
-			uploadInfo =  FolderUpload(self.delegate.selectedPath)
-
-		return UploadView
-
-
-class UploadSelectView(WizardView):
-	nextView = UploadView
+	#Upload status callbacks
+	def upload_error(self, msg):
+		self.uploadStatus = msg
+		self.progressbar.setIndeterminate_(True)
 	
-	def getNext(self):
-		global uploadInfo
-		if self.nextView == UploadView and uploadInfo == None:
-			uploadInfo = ITunesUpload()
-		return self.nextView
+	def upload_update(self, args):
+		msg, songs_left = args
+		self.uploadStatus = msg
+		self.progressbar.setIndeterminate_(False)
+		self.progressbar.setDoubleValue_(self.progressbar.maxValue()-songs_left)
 
-	def getPrev(self):
-		return LoginView
-	
-	def setUploadAll_(self):
-		self.nextView = FolderSelectView
-	
-	def setUploadiTunes_(self):
-		self.nextView = UploadView
+	def upload_init(self, args):
+		msg, total_songs = args
+		self.uploadStatus = msg
+		self.progressbar.setMaxValue_(total_songs)
+		self.progressbar.setIndeterminate_(False)
 
-class ITunesUpload(object):
-	"""Indicates that the upload action is set to upload iTunes music"""
-	def getTracks(self):
-		return filter(upload.is_music_file, 
-					itunes.ITunes().get_all_track_filenames())
-
-class FolderUpload(object):
-	"""Indicates that a directory will be uploaded"""
-	def __init__(self, path):
-		self.path = path
-
-	def getTracks(self):
-		return upload.get_music_files(self.path)
-
-if __name__ == "__main__":
-    AppHelper.runEventLoop()
+if __name__ == '__main__':
+	AppHelper.runEventLoop()
