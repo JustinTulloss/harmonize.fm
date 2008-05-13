@@ -29,48 +29,50 @@ class MetadataController(BaseController):
     def __init__(self):
         super(MetadataController, self).__init__()
         self.datahandlers = {
-            'artist':self.artists,
-            'album':self.albums,
-            'song':self.songs,
-            'friend':self.friends,
-            'playlist':self.playlists,
-            'playlistsong':self.playlistsongs
+            'artist': self.artists,
+            'album': self.albums,
+            'song': self.songs,
+            'friend': self.friends,
+            'playlist': self.playlists,
+            'playlistsong': self.playlistsongs
         }
 
 
     def __before__(self):
         ensure_fb_session()
 
-    # TODO: I don't want to think about it now, but these two functions would
-    # be cleaner if they were recursive. Do that.
-    def _expand_row(self, sqlrow):
+    def _dictionize_row(self, sqlrow):
         expanded = {}
         for field in sqlrow.c.keys():
             val = getattr(sqlrow, field)
-            if isinstance(val, Decimal):	
+            if isinstance(val, Decimal):#FIXME: The model should address this
                 val = int(val)
             expanded[field] = val
         return expanded
 
-    @jsonify
-    def _json_failure(self, error='A problem occurred requesting your data'):
-        return {'success':False, 'error':error, 'data':[]}
-
+    def _build_json_row(self, sqlrow):
+        if hasattr(sqlrow, '__iter__'):
+            expanded = {}
+            for rowpart in sqlrow:
+                expanded.update(self._build_json_row(rowpart))
+            return expanded
+        else:
+            return self._dictionize_row(sqlrow)
+        
     def _build_json(self, results):
         dtype = request.params.get('type')
         json = { "data": []}
+
         for row in results:
-            if type(row) == tuple: #Is this really dirty? it feels dirty
-                expanded = {}
-                for entity in row:
-                    expanded.update(self._expand_row(entity))
-                json['data'].append(expanded)
-            else:
-                json['data'].append(self._expand_row(row))
+            json['data'].append(self._build_json_row(row))
             json['data'][len(json['data'])-1]['type']=dtype
 
         json['success']=True
         return json
+
+    @jsonify
+    def _json_failure(self, error='A problem occurred requesting your data'):
+        return {'success':False, 'error':error, 'data':[]}
 
     def index(self):
         type = request.params.get('type')

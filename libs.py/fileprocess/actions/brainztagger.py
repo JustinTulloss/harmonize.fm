@@ -195,7 +195,7 @@ class BrainzTagger(BaseAction):
             )
             if self.releasecache.get((release.title, release.artist.name)):
                 # We've seen something off this album before, assume it's right
-                matches.append(1.0, release)
+                matches.append((1.0, release))
                 break
             else:
                 mtuple = (self._compare_to_release(file, release), release)
