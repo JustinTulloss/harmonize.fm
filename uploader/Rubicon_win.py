@@ -9,336 +9,277 @@ import System.Windows.Forms as winforms
 from System.Drawing import Size, Point, Image
 from System import EventHandler
 
-class Rubicon(winforms.Form):
+class MainWin(winforms.Form):
 	def __init__(self):
-		self.pagelist = [startPage, loginPage, uploadSelectPage, \
-			folderSelectPage, uploadPage]
-		#self.pagelist = [folderSelectPage]
-
-
-		self.Locked = True
-		formSize = Size(329, 332)
+		formSize = Size(173, 102)
 		self.Size = formSize
 		self.MinimumSize = formSize
+		self.MaximumSize = formSize
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
-		self.Text = 'Rubicon Uploader'
+		self.Text = 'Harmonize'
 
-		self.nextButton = winforms.Button()
-		self.nextButton.Anchor = \
-			winforms.AnchorStyles.Bottom | winforms.AnchorStyles.Right
-		self.nextButton.Location = Point(234, 263)
-		self.nextButton.Size = Size(75, 23)
-		self.nextButton.Text = 'Next'
-		self.nextButton.UseVisualStyleBackColor = True
-		self.nextButton.Click += EventHandler(self.nextPage);
-		self.Controls.Add(self.nextButton)
+		self.mainLabel = winforms.Label()
+		self.mainLabel.AutoSize = True
+		self.mainLabel.Location = Point(12, 9)
+		self.mainLabel.Text = 'Click Login to start uploading'
+		self.Controls.Add(self.mainLabel)
 
-		self.prevButton = winforms.Button()
-		self.prevButton.Anchor = \
-			winforms.AnchorStyles.Bottom | winforms.AnchorStyles.Right
-		self.prevButton.Location = Point(152, 263)
-		self.prevButton.Size = Size(75, 23)
-		self.prevButton.Text = 'Previous'
-		self.prevButton.UseVisualStyleBackColor = True
-		self.prevButton.Click += EventHandler(self.prevPage)
-		self.Controls.Add(self.prevButton)
+		loginButton = winforms.Button()
+		loginButton.Size = Size(65, 23)
+		loginButton.Location = Point(15, 26)
+		loginButton.Text = 'Login'
+		loginButton.Click += EventHandler(self.loginClicked)
+		self.Controls.Add(loginButton)
 
-		self.panel = winforms.Panel()
-		self.panel.Location = Point(12, 12)
-		self.panel.Size = Size(297, 245)
-		self.panel.Anchor = \
-			winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
-			winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
-		self.Controls.Add(self.panel)
+		def optionClicked(sender, args):
+			self.AddOwnedForm(self.optionWin)
+			self.optionWin.ShowDialog()
 
-		self.setPage(0)
+		self.optionsButton = winforms.Button()
+		self.optionsButton.Size = Size(65, 23)
+		self.optionsButton.Location = Point(86, 26)
+		self.optionsButton.Text = 'Options...'
+		self.optionsButton.Click += EventHandler(optionClicked)
+		self.Controls.Add(self.optionsButton)
 
-	def setPage(self, index):
-		self.panel.Controls.Clear()
-		
-		#index = self.pagelist.index(page)
-		if index == 0:
-			self.prevButton.Enabled = False
-		else:
-			self.prevButton.Enabled = True
+		self.optionWin = OptionWin()
 
-		if index+1 == len(self.pagelist):
-			self.nextButton.Enabled = False
-		else:
-			self.nextButton.Enabled = True
+	def loginClicked(self, sender, args):
+		def callback(session_key):
+			self.Invoke(winforms.MethodInvoker(self.startUploading))
 
-		self.pageNum = index
-		page = self.pagelist[index]
-		page(self, self.panel)
-
-	def nextPage(self, sender, args):
-		self.setPage(self.pageNum + 1)
-
-	def prevPage(self, sender, args):
-		self.setPage(self.pageNum - 1)
-
-	def run(self):
-		winforms.Application.EnableVisualStyles()
-		winforms.Application.Run(self)
-
-def startPage(form, panel):
-	textbox = winforms.Label()
-	textbox.AutoSize = True
-	textbox.Text = \
-		'Welcome to the Rubicon Uploader\n\nPress Next to login to facebook'
-	textbox.Location = Point(0, 2)
-	panel.Controls.Add(textbox)
-
-session_key = None
-
-def loginPage(form, panel):
-	global session_key
+		fb.login(callback)	
 	
-	textbox = winforms.Label()
-	textbox.AutoSize = True
-	textbox.Location = Point(0, 2)
-	panel.Controls.Add(textbox)
+	def startUploading(self):
+		self.Controls.Clear()
 
-	if session_key == None:
-		textbox.Text = 'Please login to facebook to continue'
-		form.nextButton.Enabled = False
+		self.mainLabel = winforms.Label()
+		self.mainLabel.Location = Point(12, 9)
+		self.mainLabel.AutoSize = True
+		self.mainLabel.Text = 'Upload starting...'
+		self.Controls.Add(self.mainLabel)
 
-		def callback(new_key):
-			def updateLoginPage():
-				global session_key
+		self.progressbar = winforms.ProgressBar()
+		self.Controls.Add(self.progressbar)
+		self.progressbar.Size = Size(133, 14)
+		self.progressbar.Location = Point(12, 42)
+		self.progressbar.Style = winforms.ProgressBarStyle.Marquee
 
-				textbox.Text = 'Login complete'
-				form.nextButton.Enabled = True
-				session_key = new_key
+		thread.start_new_thread(self.uploader, ())
 
-			delegate = winforms.MethodInvoker(updateLoginPage)
-			form.Invoke(delegate)
-
-		fb.login(callback)
-	else:
-		textbox.Text = 'Login complete'
-
-uploadMethod = None
-uploadFolder = upload.get_default_path()
-
-def uploadSelectPage(form, panel):
-	global uploadMethod
-
-	textbox = winforms.Label()
-	textbox.Text = 'Select how you want to upload'
-	textbox.AutoSize = True
-	textbox.Location = Point(0, 2)
-	panel.Controls.Add(textbox)
-
-	radioITunes = winforms.RadioButton()
-	radioITunes.AutoSize = True
-	radioITunes.Location = Point(4, 22)
-	radioITunes.Text = 'Upload All Music in iTunes'
-	panel.Controls.Add(radioITunes)
-	
-	radioFolder = winforms.RadioButton()
-	radioFolder.AutoSize = True
-	radioFolder.Location = Point(4, 45)
-	radioFolder.Text = 'Upload All Music in a Folder'
-	panel.Controls.Add(radioFolder)
-
-	if itunes.get_library_file() == None:
-		radioITunes.Enabled = False
-		radioFolder.Checked = True
-		uploadMethod = 'folder'
-
-	if uploadMethod == 'itunes':
-		radioITunes.Checked = True
-	elif uploadMethod  == 'folder':
-		radioFolder.Checked = True
-	else:
-		radioITunes.Checked = True
-		uploadMethod = 'itunes'
-
-	def checkedChanged(sender, args):
-		global uploadMethod
-		if radioITunes.Checked:
-			uploadMethod = 'itunes'
-		elif radioFolder.Checked:
-			uploadMethod = 'folder'
-
-	onCheckedChanged = EventHandler(checkedChanged)
-	radioITunes.CheckedChanged += onCheckedChanged
-	radioFolder.CheckedChanged += onCheckedChanged
-
-def folderSelectPage(form, panel):
-	global uploadMethod, uploadFolder
-
-	if uploadMethod == 'itunes':
-		form.nextPage(None, None)
-		return
-
-	textbox = winforms.Label()
-	textbox.AutoSize = True
-	textbox.Location = Point(0, 2)
-	textbox.Text = 'Upload Folder:'
-	panel.Controls.Add(textbox)
-
-	folderLabel = winforms.Label()
-	folderLabel.Location = Point(77, 2)
-	folderLabel.Size = Size(216, 14)
-	folderLabel.AutoEllipsis = True
-	folderLabel.Anchor = \
-		winforms.AnchorStyles.Top | winforms.AnchorStyles.Left | \
-		winforms.AnchorStyles.Right
-	panel.Controls.Add(folderLabel)
-
-	tooltip = winforms.ToolTip(folderLabel)
-
-	imageList = winforms.ImageList()
-	imageList.Images.Add(Image.FromFile('folder.bmp'))
-	imageList.Images.Add(Image.FromFile('hd.bmp'))
-	imageList.Images.Add(Image.FromFile('cd.bmp'))
-
-	treeview = winforms.TreeView()
-	treeview.Location = Point(2, 20)
-	treeview.Size = Size(293, 224)
-	treeview.Anchor = \
-		winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
-		winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
-	treeview.ImageList = imageList
-	treeview.ImageIndex = 0
-	panel.Controls.Add(treeview)
-
-	def add_children(node):
-		if node.Nodes.Count != 0:
-			return
-		try:
-			children = dir_browser.get_dir_listing(node.FullPath + '\\')
-			for child in children:
-				node.Nodes.Add(child, child)
-		except WindowsError:
-			pass #This is an access denied error
-
-	def onBeforeExpand(sender, args):
-		node = args.Node
-
-		for childNode in node.Nodes:
-			add_children(childNode)
-
-	def onAfterSelect(sender, args):
-		global uploadFolder
-
-		add_children(args.Node)
-		uploadFolder = args.Node.FullPath
-		folderLabel.Text = args.Node.FullPath
-		tooltip.SetToolTip(folderLabel, args.Node.FullPath)
-
-	treeview.BeforeExpand += EventHandler(onBeforeExpand)
-	treeview.AfterSelect += EventHandler(onAfterSelect)
-
-	for driveInfo in System.IO.DriveInfo.GetDrives():
-		if driveInfo.DriveType == System.IO.DriveType.NoRootDirectory or \
-				driveInfo.Name == 'A:\\':
-			continue
-		name = driveInfo.Name[:-1]
-		node = treeview.Nodes.Add(name, name)
-		if not (driveInfo.DriveType in 
-				[System.IO.DriveType.CDRom, System.IO.DriveType.Unknown]):
-			add_children(node)
-
-		if driveInfo.DriveType == System.IO.DriveType.Fixed:
-			node.ImageIndex = 1
-			node.SelectedImageIndex = 1
-		elif driveInfo.DriveType == System.IO.DriveType.CDRom:
-			node.ImageIndex = 2
-			node.SelectedImageIndex = 2
-
-	def getNode(path):
-		path_list = path.split('\\')
-		node = treeview
-		for next_node in path_list:
-			node = node.Nodes[node.Nodes.IndexOfKey(next_node)]
-			add_children(node)
-		
-		return node
-
-	treeview.SelectedNode = getNode(uploadFolder)
-	treeview.Focus()
-	"""
-	def expandToPath(path):
-		def expandToPath_aux(node, path_list):
-			next_node_name = path_list.pop(0)
-			next_node = node.Nodes[node.Nodes.IndexOfKey(next_node_name)]
-			if path_list == []:
-				treeview.SelectedNode = next_node
-			else:
-	"""
-		
-
-def uploadPage(form, panel):
-	form.prevButton.Enabled = False
-	
-	textbox = winforms.Label()
-	textbox.Text = 'Upload starting...'
-	textbox.AutoSize = True
-	textbox.Location = Point(0, 2)
-	panel.Controls.Add(textbox)
-
-	class Progressbar(object):
-		def __init__(self):
-			self.progressbar = winforms.ProgressBar()
-			self.progressbar.Location = Point(3, 29)
-			self.progressbar.Size = Size(288, 23)
-			self.progressbar.Style = winforms.ProgressBarStyle.Marquee
-			panel.Controls.Add(self.progressbar)
-
-		def init(self, total_songs):
-			self.progressbar.Maximum = total_songs
-			self.progressbar.Style = winforms.ProgressBarStyle.Blocks
-
-		def update(self, songs_left):
-			self.progressbar.Style = winforms.ProgressBarStyle.Blocks
-			self.progressbar.Value = self.progressbar.Maximum - songs_left
-
-		def spin(self):
-			self.progressbar.Style = winforms.ProgressBarStyle.Marquee
-	
-	progress_updater = Progressbar()
-
-	def uploader():
-		global uploadMethod, uploadFolder
-		if uploadMethod == 'itunes':
-			tracks = filter(upload.is_music_file,
-							itunes.ITunes().get_all_track_filenames())
-		elif uploadMethod == 'folder':
-			tracks = upload.get_music_files(uploadFolder)
+	def uploader(self):
+		tracks = self.optionWin.get_tracks()
 
 		def main_thread_delegated(fn):
 			def wrapper(*args):
 				delegate = winforms.MethodInvoker(lambda: fn(*args))
-				form.Invoke(delegate)
+				self.Invoke(delegate)
 
 			return wrapper
 
+		textbox = self.mainLabel
+		progressbar = self.progressbar
 
 		class Callback(object):
 			@main_thread_delegated
 			def init(self, msg, total_songs):
 				textbox.Text = msg
-				progress_updater.init(total_songs)
+				progressbar.Maximum = total_songs
+				progressbar.Style = winforms.ProgressBarStyle.Blocks
 
 			@main_thread_delegated
 			def update(self, msg, songs_left):
 				textbox.Text = msg
-				progress_updater.update(songs_left)
+				progressbar.Style = winforms.ProgressBarStyle.Blocks
+				progressbar.Value = progressbar.Maximum - songs_left
 
 			@main_thread_delegated
 			def error(self, msg):
 				textbox.Text = msg
-				progress_updater.spin()
+				progressbar.Style = winforms.ProgressBarStyle.Marquee
 
 		callback = Callback()
 
 		upload.upload_files(tracks, callback)
 
-	thread.start_new_thread(uploader, ())
+class OptionWin(winforms.Form):
+	def __init__(self):
+		formSize = Size(367, 184)
+		self.Size = formSize
+		self.MinimumSize = formSize
+		self.StartPosition = winforms.FormStartPosition.CenterScreen
+		self.Text = 'Options'
 
+		label = winforms.Label()
+		label.AutoSize = True
+		label.Location = Point(12, 9)
+		label.Text = 'Select where you would like to upload from'
+		self.Controls.Add(label)
+
+		self.radioITunes = winforms.RadioButton()
+		self.radioITunes.AutoSize = True
+		self.radioITunes.Location = Point(16, 27)
+		self.radioITunes.Text = 'iTunes'
+		self.Controls.Add(self.radioITunes)
+
+		self.radioFolder = winforms.RadioButton()
+		self.radioFolder.AutoSize = True
+		self.radioFolder.Location = Point(16, 51)
+		self.radioFolder.Text = 'Folder:'
+		self.Controls.Add(self.radioFolder)
+
+		self.uploadFolderBox = winforms.TextBox()
+		self.uploadFolderBox.Size = Size(247, 20)
+		self.uploadFolderBox.Location = Point(36, 74)
+		self.uploadFolderBox.Text = upload.get_default_path()
+		self.uploadFolderBox.ReadOnly = True
+		self.Controls.Add(self.uploadFolderBox)
+
+		def browseClicked(sender, args):
+			browser = FolderBrowserWin(self.selected_folder())
+			if browser.ShowDialog() == winforms.DialogResult.OK:
+				self.set_selected_folder(browser.uploadFolder)
+			browser.Dispose()
+
+		browseButton = winforms.Button()
+		browseButton.Size = Size(61, 23)
+		browseButton.Location = Point(287, 72)
+		browseButton.Text = 'Browse...'
+		browseButton.Click += EventHandler(browseClicked)
+		self.Controls.Add(browseButton)
+
+		def okClicked(sender, args):
+			self.Hide()
+			self.DialogResult = winforms.DialogResult.OK
+
+		okButton = winforms.Button()
+		okButton.Size = Size(61, 23)
+		okButton.Location = Point(287, 115)
+		okButton.Text = 'OK'
+		okButton.Click += EventHandler(okClicked)
+		self.Controls.Add(okButton)
+
+		if itunes.get_library_file() != None:
+			self.radioITunes.Checked = True
+		else:
+			self.radioITunes.Checked = False
+			self.radioITunes.Enabled = False
+			self.radioFolder.Checked = True
+
+	def get_tracks(self):
+		if self.radioITunes.Checked:
+			return filter(upload.is_music_file,
+							itunes.ITunes().get_all_track_filenames())
+		else:
+			return upload.get_music_files(self.selected_folder())
+
+	def selected_folder(self):
+		return self.uploadFolderBox.Text
+	
+	def set_selected_folder(self, value):
+		self.uploadFolderBox.Text = value
+		
+
+class FolderBrowserWin(winforms.Form):
+	def __init__(self, uploadFolder):
+		formSize = Size(367, 367)
+		self.Size = formSize
+		self.MinimumSize = formSize
+		self.StartPosition = winforms.FormStartPosition.CenterScreen
+		self.Text = 'Folder Select'
+
+		self.uploadFolder = uploadFolder
+
+		def okClicked(sender, args):
+			self.Hide()
+			self.DialogResult = winforms.DialogResult.OK
+
+		okButton = winforms.Button()
+		okButton.Size = Size(75, 23)
+		okButton.Location = Point(190, 298)
+		okButton.Text = 'OK'
+		okButton.Click += EventHandler(okClicked)
+		self.Controls.Add(okButton)
+
+		def cancelClicked(sender, args):
+			self.Hide()
+			self.DialogResult = winforms.DialogResult.Cancel
+
+		cancelButton = winforms.Button()
+		cancelButton.Size = Size(75, 23)
+		cancelButton.Location = Point(271, 298)
+		cancelButton.Text = 'Cancel'
+		cancelButton.Click += EventHandler(cancelClicked)
+		self.Controls.Add(cancelButton)
+
+		imageList = winforms.ImageList()
+		imageList.Images.Add(Image.FromFile('folder.bmp'))
+		imageList.Images.Add(Image.FromFile('hd.bmp'))
+		imageList.Images.Add(Image.FromFile('cd.bmp'))
+
+		treeview = winforms.TreeView()
+		treeview.Size = Size(334, 280)
+		treeview.Location = Point(13, 12)
+		treeview.Anchor = \
+			winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
+			winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
+		treeview.ImageList = imageList
+		treeview.ImageIndex = 0
+		self.Controls.Add(treeview)
+
+		def add_children(node):
+			if node.Nodes.Count != 0:
+				return
+			try:
+				children = dir_browser.get_dir_listing(node.FullPath + '\\')
+				for child in children:
+					node.Nodes.Add(child, child)
+			except WindowsError:
+				pass #This is an access denied error
+
+		def onBeforeExpand(sender, args):
+			node = args.Node
+
+			for childNode in node.Nodes:
+				add_children(childNode)
+
+		def onAfterSelect(sender, args):
+			add_children(args.Node)
+			self.uploadFolder = args.Node.FullPath
+
+		treeview.BeforeExpand += EventHandler(onBeforeExpand)
+		treeview.AfterSelect += EventHandler(onAfterSelect)
+
+		for driveInfo in System.IO.DriveInfo.GetDrives():
+			if driveInfo.DriveType == System.IO.DriveType.NoRootDirectory or \
+					driveInfo.Name == 'A:\\':
+				continue
+			name = driveInfo.Name[:-1]
+			node = treeview.Nodes.Add(name, name)
+			if not (driveInfo.DriveType in 
+					[System.IO.DriveType.CDRom, System.IO.DriveType.Unknown]):
+				add_children(node)
+
+			if driveInfo.DriveType == System.IO.DriveType.Fixed:
+				node.ImageIndex = 1
+				node.SelectedImageIndex = 1
+			elif driveInfo.DriveType == System.IO.DriveType.CDRom:
+				node.ImageIndex = 2
+				node.SelectedImageIndex = 2
+
+		def getNode(path):
+			path_list = path.split('\\')
+			node = treeview
+			for next_node in path_list:
+				node = node.Nodes[node.Nodes.IndexOfKey(next_node)]
+				add_children(node)
+			
+			return node
+
+		treeview.SelectedNode = getNode(self.uploadFolder)
+		treeview.Focus()
+
+winforms.Application.EnableVisualStyles()
 
 if __name__ == '__main__':
-	Rubicon().run()
+	winforms.Application.Run(MainWin())

@@ -12,10 +12,21 @@ def get_default_path():
 		if path.exists(music_dir):
 			return music_dir
 		else: return home_dir
+
+	def default_win():
+		home_path = os.getenv('USERPROFILE')
+		xp_music_path = path.join(home_path, 'My Documents', 'My Music')
+		vista_music_path = path.join(home_path, 'Documents', 'Music')
+		if path.exists(xp_music_path):
+			return xp_music_path
+		elif path.exists(vista_music_path):
+			return vista_music_path
+		else:
+			return home_path
 			
 	#Have to wrap paths in lambda's so they don't get executed on windows
 	paths = {'Linux':(lambda: os.getenv('HOME')),
-		'Windows':(lambda: os.getenv('USERPROFILE')),
+		'Windows':default_win,
 		'Darwin':default_osx}
 	
 	return paths[platform.system()]()

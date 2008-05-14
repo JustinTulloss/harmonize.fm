@@ -61,7 +61,7 @@ class UploadsController(BaseController):
                 return None
             except Exception:
                 retries -= 1
-                if retries == 0: return None
+                if retries == 0: raise
 
         return fbid
 
