@@ -50,7 +50,8 @@ class File(object):
         self.songid = songid
 
 class Song(object): 
-    def __init__(self, title=None, albumid=None, mbid=None, length=0, tracknumber=None):
+    def __init__(self, title=None, albumid=None, mbid=None, 
+            length=0, tracknumber=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid

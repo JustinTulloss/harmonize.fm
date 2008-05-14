@@ -84,7 +84,6 @@ class MetadataController(BaseController):
         qry = Session.query(Song).join('album').\
             reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
 
-
         if request.params.get('artist'):
             qry = qry.filter(Album.artist == request.params.get('artist'))
         if request.params.get('album'):
@@ -124,9 +123,7 @@ class MetadataController(BaseController):
         userStore = session['fbfriends']
         data=facebook.users.getInfo(userStore)
 
-        # TODO: Join this with the owners table and make sure they actually own
-        # files
-        qry = Session.query(User)
+        qry = Session.query(Owner).join(['user'])
         cond = or_()
         for friend in data:
             cond.append(User.fbid == friend['uid'])
@@ -135,8 +132,8 @@ class MetadataController(BaseController):
         results = qry.all()
 
         def _intersect(item):
-            if len(results)>0:
-                if results[0].fbid == item['uid']:
+            if len(results) > 0:
+                if results[0].user.fbid == item['uid']:
                     del results[0]
                     return True
                 else:
@@ -144,6 +141,11 @@ class MetadataController(BaseController):
             else:
                 return False
 
+        # This is a bit confusing. It looks at all the friends you have that own
+        # the app and then check to see if they have any songs. Those that do
+        # get passed through and their names are passed back. We do this because
+        # we have to fetch the name from facebook and the ownership information
+        # from our own database.
         data = sorted(data, key=itemgetter('uid'))
         data = filter(_intersect, data)
 

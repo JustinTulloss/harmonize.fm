@@ -2,6 +2,7 @@ import pdb
 from sqlalchemy import *
 from sqlalchemy.schema import DDL
 import migrate.changeset
+from migrate.changeset.exceptions import NotSupportedError
 from migrate import *
 
 metadata = MetaData(migrate_engine)
@@ -39,29 +40,30 @@ newcol1 = Column('artistid', Integer, ForeignKey("artists.id"), index = True)
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
+    """
     migrate.changeset.create_column(newcol, albums_table)
     migrate.changeset.create_column(newcol1, songs_table)
+    """
 
     artists_table.create()
 
+    conn = migrate_engine.connect()
     # Populate the table with our old data
-    artists = migrate_engine.execute(select([
-        albums_table.c.id,
+    artists = select([
         albums_table.c.artist, 
         albums_table.c.artistsort, 
         albums_table.c.mbartistid,
-        ], group_by=albums_table.c.mbartistid, distinct=True).alias('artists'))
+        ], group_by=albums_table.c.mbartistid, distinct=True)
+    
+    ins = "insert into artists (name, mbid, sort) %s" % artists;
+    conn.execute(ins)
 
-    for artist in artists:
-        ins = artists_table.insert(values = {
-            'name': artist.artist,
-            'mbid': artist.mbartistid,
-            'sort': artist.artistsort
-        })
-        result = migrate_engine.execute(ins)
+    #updater = "UPDATE albums SET artistid = artists.id FROM artists WHERE artists.mbid = albums.mbartistid"
+    updater = update(albums_table,
+        albums_table.c.mbartistid == artists_table.c.mbid)
+    conn.execute(updater)
 
-        id = result.last_inserted_ids()[0]
-        albums_table.update(albums_table.c.artistid).execute(artistid = id)
+    conn.close()
 
     # Drop the old data
     try:
@@ -73,8 +75,9 @@ def upgrade():
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
-    for col in newcols:
-        try:
-            migrate.changeset.drop_column(col, albums_table)
-        except NotSupportedError, e:
-            pass
+    try:
+        #artists_table.drop()
+        migrate.changeset.drop_column(newcol, albums_table)
+        migrate.changeset.drop_column(newcol1, songs_table)
+    except NotSupportedError, e:
+        pass
