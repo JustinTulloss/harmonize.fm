@@ -4,6 +4,7 @@ syntax:glob
 *.pyc
 *.o
 *.dmg
+*.orig
 masterapp/masterapp.egg-info
 masterapp/media
 uploader/dist
