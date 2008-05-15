@@ -1,4 +1,6 @@
-import mutagen.id3 as id3
+#import mutagen.id3 as id3
+from mutagen.mp3 import MP3
+from mutagen.mp4 import MP4
 import tempfile, os
 
 def file_contents_without_tags(filename):
@@ -7,7 +9,11 @@ def file_contents_without_tags(filename):
 	file_obj.write(open(filename, 'rb').read())
 	file_obj.flush()
 
-	id3.delete(temp_path)
+	if filename.endswith('.mp3'):
+		song = MP3(temp_path)
+	else:
+		song = MP4(temp_path)
+	song.delete()
 	
 	file_obj.seek(0)
 	file_contents =  file_obj.read()

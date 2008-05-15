@@ -45,7 +45,7 @@ def get_music_files(dir):
 	return music_files
 
 def is_music_file(file):
-	return file.endswith('.mp3')
+	return file.endswith('.mp3') or file.endswith('.m4a')
 
 def reauthenticate(callback_obj):
 	callback_obj.error("facebook login expired, please log in again")
