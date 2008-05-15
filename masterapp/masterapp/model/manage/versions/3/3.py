@@ -1,11 +1,15 @@
-import pdb
 from sqlalchemy import *
+from sqlalchemy.exceptions import OperationalError
 from sqlalchemy.schema import DDL
 import migrate.changeset
 from migrate.changeset.exceptions import NotSupportedError
 from migrate import *
 
 metadata = MetaData(migrate_engine)
+
+newcol = Column('artistid', Integer, ForeignKey("artists.id"), index = True)
+newcol1 = Column('artistid', Integer, ForeignKey("artists.id"), index = True)
+
 albums_table = Table("albums", metadata,
     Column("id", Integer, primary_key=True),
     Column("mbid", Unicode(36), index=True),
@@ -15,7 +19,8 @@ albums_table = Table("albums", metadata,
     Column("asin", Unicode(10)),
     Column("title", Unicode(255), index=True),
     Column("year", Integer, index=True),
-    Column("totaltracks", Integer, default=0)
+    Column("totaltracks", Integer, default=0),
+    newcol
 )
 
 songs_table = Table("songs", metadata,
@@ -34,33 +39,35 @@ artists_table = Table("artists", metadata,
     Column("sort", Unicode(255))
 )
 
-newcol = Column('artistid', Integer, ForeignKey("artists.id"), index = True)
-newcol1 = Column('artistid', Integer, ForeignKey("artists.id"), index = True)
 
 def upgrade():
     # Upgrade operations go here. Don't create your own engine; use the engine
     # named 'migrate_engine' imported from migrate.
-    """
-    migrate.changeset.create_column(newcol, albums_table)
-    migrate.changeset.create_column(newcol1, songs_table)
-    """
+    try:
+        migrate.changeset.create_column(newcol, albums_table)
+        migrate.changeset.create_column(newcol1, songs_table)
+    except OperationalError, e:
+        print "Couldn't create new columns, already created?"
 
     artists_table.create()
 
     conn = migrate_engine.connect()
+
     # Populate the table with our old data
     artists = select([
         albums_table.c.artist, 
-        albums_table.c.artistsort, 
         albums_table.c.mbartistid,
+        albums_table.c.artistsort, 
         ], group_by=albums_table.c.mbartistid, distinct=True)
     
     ins = "insert into artists (name, mbid, sort) %s" % artists;
     conn.execute(ins)
 
-    #updater = "UPDATE albums SET artistid = artists.id FROM artists WHERE artists.mbid = albums.mbartistid"
-    updater = update(albums_table,
-        albums_table.c.mbartistid == artists_table.c.mbid)
+    artistids = select(
+        [artists_table.c.id], 
+        artists_table.c.mbid == albums_table.c.mbartistid,
+    )
+    updater = albums_table.update(values = {albums_table.c.artistid: artistids})
     conn.execute(updater)
 
     conn.close()
@@ -71,13 +78,14 @@ def upgrade():
         migrate.changeset.drop_column("artistsort", albums_table)
         migrate.changeset.drop_column("mbartistid", albums_table)
     except NotSupportedError, e:
-        pass #eh, oh well
+        print "Couldn't drop old artist columns"
 
 def downgrade():
     # Operations to reverse the above upgrade go here.
     try:
-        #artists_table.drop()
+        pass
+        artists_table.drop()
         migrate.changeset.drop_column(newcol, albums_table)
         migrate.changeset.drop_column(newcol1, songs_table)
     except NotSupportedError, e:
-        pass
+        print "Couldn't drop everything"
