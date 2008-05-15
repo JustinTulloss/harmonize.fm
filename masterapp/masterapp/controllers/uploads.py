@@ -51,11 +51,17 @@ class UploadsController(BaseController):
             return None
         
         fb = self.get_fb()
-        try:
-            fb.session_key = session_key
-            fbid = fb.users.getLoggedInUser()
-        except FacebookError:
-            return None
+        retries = 1
+        while retries > 0:
+            try:
+                fb.session_key = session_key
+                fbid = fb.users.getLoggedInUser()
+                retries = 0 
+            except FacebookError:
+                return None
+            except Exception:
+                retries -= 1
+                if retries == 0: raise
 
         return fbid
 
@@ -102,7 +108,7 @@ class UploadsController(BaseController):
         dest_path = os.path.join(dest_dir, id)
 
         if not os.path.exists(dest_path):
-            dest_file = file(dest_path, 'w')
+            dest_file = file(dest_path, 'wb')
 
             try:
                 self.read_postdata(dest_file)
