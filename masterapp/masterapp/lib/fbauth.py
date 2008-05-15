@@ -8,10 +8,7 @@ from sqlalchemy import or_
 def ensure_fb_session():
     c.facebook = facebook
 
-    if 'paste.testing_variables' in request.environ:
-        #We're testing. Setup a permanent facebook session
-        facebook.session_key = '08bd66d3ebc459d32391d0d2-1909354'
-        facebook.uid = 1909354
+    def setup_user():
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
         user = Session.query(User).filter(
@@ -19,7 +16,7 @@ def ensure_fb_session():
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
-            Session.save()
+            Session.save(user)
             Session.commit()
         session['user'] = user
 
@@ -34,15 +31,15 @@ def ensure_fb_session():
         session.save()
         return True
 
+    if 'paste.testing_variables' in request.environ:
+        #We're testing. Setup a permanent facebook session
+        facebook.session_key = '08bd66d3ebc459d32391d0d2-1909354'
+        facebook.uid = 1909354
+        return setup_user()
+
     if not session.has_key('fbsession'):
         if facebook.check_session(request):
-            session['fbsession']=facebook.session_key
-            session['fbuid']=facebook.uid
-            session['user'] = Session.query(User).filter(
-                User.fbid==facebook.uid).first()
-            session['fbfriends']=facebook.friends.getAppUsers()
-            session.save()
-            return True
+            return setup_user()
         else:
             next = '%s' % (request.environ['PATH_INFO'])
             url = facebook.get_login_url(next=next, canvas=False)
@@ -51,6 +48,7 @@ def ensure_fb_session():
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
         return True
+
 
 def filter_friends(qry):
     """

@@ -37,7 +37,6 @@ class MetadataController(BaseController):
             'playlistsong': self.playlistsongs
         }
 
-
     def __before__(self):
         ensure_fb_session()
 
@@ -81,11 +80,12 @@ class MetadataController(BaseController):
 
     @jsonify
     def songs(self):
-        qry = Session.query(Song).join('album').\
+        qry = Session.query(Song).join('artist').\
+            reset_joinpoint().join('album').\
             reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
 
         if request.params.get('artist'):
-            qry = qry.filter(Album.artist == request.params.get('artist'))
+            qry = qry.filter(Artist.id == request.params.get('artist'))
         if request.params.get('album'):
             qry = filter_any_friend(qry)
             qry = qry.filter(Album.albumid== request.params.get('album'))
@@ -94,18 +94,20 @@ class MetadataController(BaseController):
         if request.params.get('playlist'):
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
-        qry = qry.order_by([Album.artistsort, Album.album, Song.tracknumber])
+        qry = qry.order_by([Artist.sort, Album.album, Song.tracknumber])
         results = qry.all()
         return self._build_json(results)
 
     @jsonify
     def albums(self):
-        qry = Session.query(Album).join(['songs', 'files', 'owners', 'user'])
+        qry = Session.query(Album).join('artist').\
+            reset_joinpoint().join(['songs', 'files', 'owners', 'user'])
+
         qry = filter_friends(qry)
 
         if request.params.get('artist'):
-            qry = qry.filter(Album.artist == request.params.get('artist'))
-        qry = qry.order_by([Album.artistsort, Album.album])
+            qry = qry.filter(Artist.id == request.params.get('artist'))
+        qry = qry.order_by([Artist.sort, Album.album])
         results = qry.all()
         return self._build_json(results)
         
@@ -113,7 +115,7 @@ class MetadataController(BaseController):
     def artists(self):
         qry = Session.query(Artist).join(['songs','files','owners', 'user'])
         qry = filter_friends(qry)
-        qry = qry.order_by(Artist.artistsort)
+        qry = qry.order_by(Artist.sort)
         results = qry.all()
         return self._build_json(results)
         
