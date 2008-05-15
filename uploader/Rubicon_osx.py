@@ -115,6 +115,7 @@ class RubiconController(NSObject):
 	def upload_error(self, msg):
 		self.uploadStatus = msg
 		self.progressbar.setIndeterminate_(True)
+		self.progressbar.startAnimation_(self)
 	
 	def upload_update(self, args):
 		msg, songs_left = args

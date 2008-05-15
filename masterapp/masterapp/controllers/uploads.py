@@ -152,3 +152,6 @@ class UploadsController(BaseController):
     def desktop_login(self):
         url = self.get_fb().get_login_url(canvas=False,next='/desktop_redirect')
         redirect_to(str(url))
+
+    def upload_ping(self):
+        return ''
