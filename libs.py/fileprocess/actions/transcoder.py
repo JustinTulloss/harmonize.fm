@@ -25,8 +25,7 @@ class Transcoder(BaseAction):
         else: return False
 
     def process(self, file):
-        assert file and len(file)>0 and \
-            file.has_key('fbid') and file.has_key('sha')
+        assert file and len(file)>0
 
         if file['filetype'] == 'mp3':
             return file
