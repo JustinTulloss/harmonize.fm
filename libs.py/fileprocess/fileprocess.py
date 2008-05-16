@@ -1,3 +1,4 @@
+# vim:expandtab:smarttab
 #A thread that allows us to process files
 from __future__ import with_statement
 import pylons
@@ -45,7 +46,7 @@ class NextAction(object):
 
 class UploadStatus(object):
     def __init__(self, message=None, nextaction=None, file=None):
-		"""
+        """
         assert file.has_key('fbsession')
 
         self.nextaction = nextaction
@@ -53,8 +54,8 @@ class UploadStatus(object):
         self.file = file
 
         msgs.add(file['fbsession'], self)
-		"""
-		pass
+        """
+        pass
 
 na = NextAction()
 
@@ -80,6 +81,7 @@ class FileUploadThread(object):
             Mover(),
             TagGetter(),
             Hasher(),
+            Transcoder(),
             DBChecker(),
             BrainzTagger(),
             AmazonCovers(),
@@ -89,7 +91,7 @@ class FileUploadThread(object):
 
         # Set up our chain of handlers
         for x in range(len(self.handlers)-1):
-            self.handlers[x].nextqueue = self.handlers[x+1].queue
+            self.handlers[x].nextaction = self.handlers[x+1]
             self.handlers[x].cleanup_handler = cleanup
 
         #GO GO GO!
