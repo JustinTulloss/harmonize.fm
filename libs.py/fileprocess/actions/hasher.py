@@ -30,7 +30,7 @@ class Hasher(BaseAction):
         file['sha']= s.hexdigest()
 
         if file['sha'] != file['usersha']:
-            log.info("The client's hash %s did not match ours %s, bailing" %
+            log.info("The client's hash %s did not match ours %s, bailing"%
 					 (file['usersha'], file['sha']))
             file['msg'] = "Hash mismatch"
             file['na'] = fileprocess.na.TRYAGAIN

@@ -1,8 +1,10 @@
+# vim:expandtab:smarttab
 import logging
 import hashlib, os
 import re, copy
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, HeaderNotFoundError
+from mutagen.mp4 import MP4, MP4StreamInfoError
 from baseaction import BaseAction
 import fileprocess
 
@@ -25,23 +27,30 @@ class TagGetter(BaseAction):
         """This is rediculously easy with easyid3"""
 
         try:
-            audio = MP3(file['fname'], ID3=EasyID3)
-        except HeaderNotFoundError:
-            log.info("A non-mp3 file was uploaded")
-            file['msg'] = "File was not an MP3"
-            file['na'] = fileprocess.na.FAILURE
-            self.cleanup(file)
-            return False
+        #some mp4s look like mp3s, do it in this order instead
+            audio = MP4(file['fname'])
+            update_mp4(audio, file)
 
-        file.update(audio)
-        # EasyID3 pulls every tag out as a list, which is kind of annoying.
-        # I join the lists here for ease of processing later.
-        for k in audio.keys():
-            file[k] = ','.join(file[k])
+            file['filetype'] = 'mp4'
+        except MP4StreamInfoError:
+            try:
+                audio = MP3(file['fname'], ID3=EasyID3)
+                file['filetype'] = 'mp3'
+
+                # EasyID3 pulls every tag out as a list, which is annoying
+                # I join the lists here for ease of processing later.
+                for key in audio.keys():
+                    file[key] = ','.join(audio[key])
+            except HeaderNotFoundError:
+                log.info("A non-mp3 file was uploaded")
+                file['msg'] = "File was not an MP3 or MP4"
+                file['na'] = fileprocess.na.FAILURE
+                self.cleanup(file)
+                return False
 
         # Extra tags that I can figure out
         tracknumber = file.get('tracknumber')
-        if tracknumber:
+        if type(tracknumber) in [str, unicode]:
             file['tracknumber'] = self.tracknum_strip.sub('', file['tracknumber'])
 
             tparts = self.ttrack_find.findall(file['tracknumber'])[0]
@@ -59,3 +68,30 @@ class TagGetter(BaseAction):
 
         log.debug("Tagged %s", file.get('title'))
         return file
+
+def update_mp4(mp4obj, tagobj):
+    """Extracts easyid3 tags from an MP4 object and puts them into tagobj"""
+    valid_keys = [
+        ('\xa9alb', 'album'),
+        ('\xa9wrt', 'composer'),
+        ('\xa9gen', 'genre'),
+        ('\xa9day', 'date'),
+        #no lyricist field
+        ('\xa9nam', 'title'),
+        #no version field
+        ('\xa9ART', 'artist'),
+        #('trkn', 'tracknumber')
+        #missing asin, mbalbumartistid, mbalbumid, mbtrackid
+    ]
+
+    for key, field_name in valid_keys:
+        if mp4obj.has_key(key):
+            tagobj[field_name] = ','.join(mp4obj[key])
+    
+    trkn = mp4obj['trkn'][0]
+    if type(trkn) == tuple and len(trkn) == 2:
+        tagobj['tracknumber'], tagobj['totaltracks'] = trkn
+    elif type(trkn) == unicode:
+        tagobj['tracknumber'] = trkn
+    else:
+        log.info('Unknown type of mp4 track number: %s' % trkn)
