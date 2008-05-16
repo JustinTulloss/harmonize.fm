@@ -295,10 +295,9 @@ Ext.extend(SongQueueNode, QueueNode);
 function PlayingQueueNode(config)
 {
     //config.text = config.record.get('title');
-    config.title = config.record.get('title');
-    config.artist = config.record.get('artist');
-    config.album = config.record.get('album');
-    config.swatch = config.record.get('swatch');
+    config.title = config.record.get('Song_title');
+    config.artist = config.record.get('Artist_name');
+    config.album = config.record.get('Album_title');
     config.leaf = true;
     config.checked = null;
     config.draggable = false;

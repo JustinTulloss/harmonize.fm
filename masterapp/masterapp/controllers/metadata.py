@@ -48,7 +48,13 @@ fields = {
         'Artist_numalbums',
     ],
     'playlist': [],
-    'friend': [],
+    'friend': [
+        'type',
+        'fbid',
+        'friend',
+        'name',
+        'uid',
+    ],
 }
 
 class MetadataController(BaseController):
