@@ -54,10 +54,10 @@ var BrowserColumns = {
         width: 200,
         dataIndex: 'Artist_name'
     },
-    'Artist_totalalbums': {
+    'Artist_numalbums': {
         id:'num_albums',
         header: "Albums",
-        dataIndex: 'Artist_totalalbums'
+        dataIndex: 'Artist_numalbums'
     },
     'Artist_availsongs': {
         id:'num_tracks',
@@ -133,7 +133,12 @@ var ColConfig = {
         BrowserColumns['Album_length'],
         BrowserColumns['Album_year']
     ],
-    artist: [],
+    artist: [
+        BrowserColumns['actions'], 
+        BrowserColumns['Artist_name'],
+        BrowserColumns['Artist_numalbums'],
+        BrowserColumns['Artist_availsongs']
+    ],
     playlist: [],
     friend: []
 };

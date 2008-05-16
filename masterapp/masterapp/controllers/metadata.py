@@ -39,7 +39,14 @@ fields = {
         'Album_year',
         'Artist_name',
     ],
-    'artist': [],
+    'artist': [
+        'type',
+        'Artist_id',
+        'Artist_name',
+        'Artist_sort',
+        'Artist_availsongs',
+        'Artist_numalbums',
+    ],
     'playlist': [],
     'friend': [],
 }

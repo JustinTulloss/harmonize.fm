@@ -105,12 +105,26 @@ mapper(Owner, owners_table, properties={
 })
 
 mapper(Artist, artists_table, properties={
+    'songs': relation(
+        Song, 
+        lazy = True, 
+        cascade = 'all, delete-orphan',
+        foreign_keys = [songs_table.c.artistid],
+        primaryjoin = artists_table.c.id == songs_table.c.artistid,
+    ),
     'availsongs': column_property(
         select([func.count(songs_table.c.id).label('availsongs')],
             songs_table.c.albumid == albums_table.c.id,
             group_by = artists_table.c.id,
             distinct=True
         ).correlate(artists_table).label('availsongs')
+    ),
+    'numalbums': column_property(
+        select([func.count(albums_table.c.artistid).label('numalbums')],
+            albums_table.c.artistid == artists_table.c.id,
+            group_by = artists_table.c.id,
+            distinct = True).correlate(artists_table).label('numalbums'),
+        deferred = True
     ),
 })
 
