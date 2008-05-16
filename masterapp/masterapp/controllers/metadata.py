@@ -50,10 +50,8 @@ fields = {
     'playlist': [],
     'friend': [
         'type',
-        'fbid',
-        'friend',
-        'name',
-        'uid',
+        'Friend_id',
+        'Friend_name',
     ],
 }
 
@@ -194,8 +192,8 @@ class MetadataController(BaseController):
         data = filter(_intersect, data)
 
         for row in data:
-            row['fbid']=row['uid']
-            row['friend'] = row['name']
+            row['Friend_id'] = row['uid']
+            row['Friend_name'] = row['name']
             row['type']=dtype
         return {'success':True, 'data':data}
 
