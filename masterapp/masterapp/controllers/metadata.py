@@ -81,11 +81,10 @@ class MetadataController(BaseController):
         prefix = sqlrow.__class__.__name__
         for field in sqlrow.c.keys():
             key = prefix + '_' + field
-            if key in fields[type]:
-                val = getattr(sqlrow, field)
-                if isinstance(val, Decimal):#FIXME: The model should address this
-                    val = int(val)
-                expanded[key] = val
+            val = getattr(sqlrow, field)
+            if isinstance(val, Decimal):#FIXME: The model should address this
+                val = int(val)
+            expanded[key] = val
         return expanded
 
     def _build_json_row(self, sqlrow, type):
