@@ -123,15 +123,12 @@ function AlbumGrid(config)
         newgridbranch : true
     });
 
-    var expander = new Ext.grid.RowExpander({
-        remoteDataMethod: load_details,
-        scope: this
-    });
 
-    ColConfig.album.unshift(expander);
-
+    exp = BrowserColumns.expander;
+    exp.scope = this;
+    exp.remoteDataMethod = load_details;
     config.iconCls = 'icon-grid';
-    config.plugins = expander;
+    config.plugins = exp;
     config.cm = new Ext.grid.ColumnModel(ColConfig.album);
     config.cm.defaultSortable = true;
     config.autoExpandColumn='album';

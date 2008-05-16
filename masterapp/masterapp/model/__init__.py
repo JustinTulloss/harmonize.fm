@@ -105,7 +105,6 @@ mapper(Owner, owners_table, properties={
 })
 
 mapper(Artist, artists_table, properties={
-    'artist': artists_table.c.name,
     'availsongs': column_property(
         select([func.count(songs_table.c.id).label('availsongs')],
             songs_table.c.albumid == albums_table.c.id,
@@ -158,6 +157,6 @@ mapper(PlaylistSong, playlistsongs_table, inherits=Song)
 
 mapper(Playlist, playlists_table, properties={
     'playlistid': playlists_table.c.id,
-    'owner':relation(User),
-    'songs':relation(PlaylistSong, backref='playlist')
+    'owner': relation(User),
+    'songs': relation(PlaylistSong, backref='playlist')
 })

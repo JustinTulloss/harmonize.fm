@@ -15,12 +15,12 @@ var BrowserColumns = {
         header: "Title",
         dataIndex: 'Song_title'
     }, 
-    'Artist_name': {
-        id: 'artist',
-        header: 'Artist',
-        sortable: true,
-        width: 200,
-        dataIndex: 'Artist_name'
+    'Song_length': {
+        id:'length',
+        header: "Length",
+        renderer: render.lengthColumn,
+        width: 60,
+        dataIndex: 'Song_length'
     },
     'Album_title': {
         id: 'album',
@@ -29,18 +29,11 @@ var BrowserColumns = {
         width: 200,
         dataIndex: 'Album_title'
     },
-    'Song_length': {
-        id:'length',
-        header: "Length",
-        renderer: render.lengthColumn,
-        width: 60,
-        dataIndex: 'Song_length'
-    },
     'Album_year': {
         id: 'year',
         header: "Year",
         width: 50,
-        dataIndex: 'year'
+        dataIndex: 'Album_year'
     },
     'Album_length': {
         id:'album_playtime',
@@ -51,8 +44,15 @@ var BrowserColumns = {
     'Album_availsongs': {
         id:'num_tracks',
         header: "Tracks",
-        dataIndex: 'availsongs',
+        dataIndex: 'Album_availsongs',
         renderer: render.availColumn
+    },
+    'Artist_name': {
+        id: 'artist',
+        header: 'Artist',
+        sortable: true,
+        width: 200,
+        dataIndex: 'Artist_name'
     },
     'Artist_totalalbums': {
         id:'num_albums',
@@ -111,7 +111,8 @@ var BrowserColumns = {
         renderer: render.enqColumn,
         width: 55,
         sortable: false
-    }
+    },
+    'expander': new Ext.grid.RowExpander()
 };
 
 var ColConfig = {
@@ -124,6 +125,7 @@ var ColConfig = {
         BrowserColumns['Song_length']
     ],
     album: [
+        BrowserColumns['expander'],
         BrowserColumns['actions'], 
         BrowserColumns['Album_title'], 
         BrowserColumns['Artist_name'], 

@@ -20,14 +20,24 @@ log = logging.getLogger(__name__)
 
 fields = {
     'song': [
+        'type',
+        'Song_id',
         'Song_tracknumber',
         'Song_title',
         'Song_length',
         'Album_title',
+        'Album_totaltracks',
         'Artist_name',
     ],
     'album': [
-        'Album_title'
+        'type',
+        'Album_id',
+        'Album_title',
+        'Album_totaltracks',
+        'Album_availsongs',
+        'Album_length',
+        'Album_year',
+        'Artist_name',
     ],
     'artist': [],
     'playlist': [],
@@ -106,7 +116,7 @@ class MetadataController(BaseController):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         if request.params.get('album'):
             qry = filter_any_friend(qry)
-            qry = qry.filter(Album.albumid== request.params.get('album'))
+            qry = qry.filter(Album.id== request.params.get('album'))
         else:
             qry = filter_friends(qry)
         if request.params.get('playlist'):

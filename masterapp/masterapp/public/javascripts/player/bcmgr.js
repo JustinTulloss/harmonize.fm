@@ -82,9 +82,9 @@ function BreadCrumb()
         var clickedinfo = typeinfo[clickedtype];
 
         /* Change the old crumb to show updated values */
-        bclist[current].value = row.get(clickedtype);
-        if (clickedinfo.qry)
-            bclist[current].qryvalue = row.get(clickedinfo.qry);
+        bclist[current].value = row.get(clickedinfo.lblindex);
+        if (clickedinfo.qryindex)
+            bclist[current].qryvalue = row.get(clickedinfo.qryindex);
         else
             bclist[current].qryvalue = row.get(clickedtype);
         
@@ -213,7 +213,7 @@ function BreadCrumb()
 
     function create_params(current_crumb)
     {
-        params = {};
+        var params = {};
         for(var i=0; i<current; i++) {
             if(bclist[i].qryvalue != null)
                 params[bclist[i].qrytype] = bclist[i].qryvalue;
