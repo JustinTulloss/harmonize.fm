@@ -24,7 +24,7 @@ function Browser()
                 url:'metadata',
                 root: 'data',
                 successProperty: 'success',
-                fields:fields
+                fields:global_config.fields[crumb.type]
             });
         }
 
@@ -102,39 +102,7 @@ function SongGrid(config)
         newgridleaf : true
     });
 
-    config.cm = new Ext.grid.ColumnModel([
-        stdcols.actions,
-        {
-            id: 'tracknumber', 
-            header: "Track",
-            width: 60,
-            renderer: render.availColumn,
-            dataIndex: 'tracknumber'
-        },{
-            id: 'title', 
-            header: "Title",
-            dataIndex: 'title'
-        }, 
-        {
-            id: 'artist',
-            header: 'Artist',
-            sortable: true,
-            width: 200,
-            dataIndex: 'artist'
-        },{
-            id: 'album',
-            header: 'Album',
-            sortable: true,
-            width: 200,
-            dataIndex: 'album'
-        },{
-            id:'length',
-            header: "Length",
-            renderer: render.lengthColumn,
-            width: 60,
-            dataIndex: 'length'
-        }
-    ]);
+    config.cm = new Ext.grid.ColumnModel(ColConfig.song);
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
 
@@ -160,38 +128,11 @@ function AlbumGrid(config)
         scope: this
     });
 
+    ColConfig.album.unshift(expander);
+
     config.iconCls = 'icon-grid';
     config.plugins = expander;
-    config.cm = new Ext.grid.ColumnModel([
-        expander,
-        stdcols.actions,
-        {
-            id:'album',
-            header: "Album",
-            dataIndex: 'album'
-        },
-        {
-            id: 'artist',
-            header: "Artist",
-            width: 200,
-            dataIndex: 'artist'
-        },{
-            id: 'year',
-            header: "Year",
-            width: 50,
-            dataIndex: 'year'
-        },{
-            id:'album_playtime',
-            header: "Total Time",
-            renderer: render.lengthColumn,
-            dataIndex: 'albumlength'
-        },{
-            id:'num_tracks',
-            header: "Tracks",
-            dataIndex: 'availsongs',
-            renderer: render.availColumn
-        }
-    ]);
+    config.cm = new Ext.grid.ColumnModel(ColConfig.album);
     config.cm.defaultSortable = true;
     config.autoExpandColumn='album';
 
@@ -224,28 +165,7 @@ function ArtistGrid(config)
         newgridbranch : true
     });
 
-    config.cm = new Ext.grid.ColumnModel([
-        stdcols.actions,
-        {
-            id:'artist',
-            header: "Artist",
-            dataIndex: 'artist'
-        },
-        {
-            id:'num_albums',
-            header: "Albums",
-            dataIndex: 'totalalbums'
-        },{
-            id:'num_tracks',
-            header: "Songs",
-            dataIndex: 'availsongs',
-            renderer: render.availColumn
-        },{
-            id:'artistplaytime',
-            header: "Total Time",
-            dataIndex: 'artistlength'
-        }
-    ]);
+    config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     config.autoExpandColumn='artist';
 
@@ -266,26 +186,7 @@ function PlaylistGrid(config)
         newgridbranch: true
     });
 
-    config.cm = new Ext.grid.ColumnModel([
-        { 
-            id:'add',
-            header: 'Add',
-            renderer: render.enqColumn,
-            sortable: false
-        },{
-            id:'name',
-            header: "Name",
-            dataIndex: 'name'
-        },{
-            id: 'numtracks',
-            header: '# Tracks',
-            dataIndex: 'numtracks'
-        },{
-            id:'length',
-            header: 'Length',
-            dataIndex: 'totallength'
-        }
-    ]);
+    config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
     config.autoExpandColumn = 'name';
 
@@ -302,30 +203,7 @@ Ext.extend(PlaylistSongGrid, SongGrid);
 
 function FriendGrid(config)
 {
-    config.cm = new Ext.grid.ColumnModel([
-        { 
-            id:'add',
-            header: 'Add',
-            renderer: render.enqColumn,
-            sortable: false
-        },{
-            id:'friend',
-            header: "Friend",
-            dataIndex: 'name'
-        },{
-            id:'numartists',
-            header: "# Artists",
-            dataIndex: 'numartists'
-        },{
-            id:'numalbums',
-            header: "# Albums",
-            dataIndex: 'numalbums'
-        },{
-            id:'likesartists',
-            header: "Likes",
-            dataIndex: 'likesartists'
-        }
-    ]);
+    config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
     config.autoExpandColumn = 'friend';
 

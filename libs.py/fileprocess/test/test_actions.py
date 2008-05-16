@@ -311,7 +311,13 @@ class TestDBActions(TestBase):
 
         # Test insertion of good record
         nf = r.process(self.fdata['dbrec'])
-        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong'] and nf['dbalbum']
+        assert (
+            nf['dbowner'] 
+            and nf['dbfile'] 
+            and nf['dbsong'] 
+            and nf['dbalbum']
+            and nf['dbartist']
+        )
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect clean record insertion")
         assert nf['dbsong'].title == u'Save Öur City',\
@@ -320,6 +326,7 @@ class TestDBActions(TestBase):
         nf.pop('dbfile')
         nf.pop('dbsong')
         nf.pop('dbalbum')
+        nf.pop('dbartist')
 
         # Test insertion of same record with different user and sha
         self.fdata['dbrec']['sha'] = '256f863d46e7a03cc4f05bab267e313d4b258e01'

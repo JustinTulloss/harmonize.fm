@@ -115,12 +115,3 @@ var fields = ['type', 'title', 'artist', 'album', 'year', 'genre',
                   'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid',
                   'swatch', 'availsongs'];
 
-stdcols = {
-    actions: {  
-        id: 'add',
-        header: 'Actions',
-        renderer: render.enqColumn,
-        width: 55,
-        sortable: false
-    }
-}

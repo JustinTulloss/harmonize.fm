@@ -1,5 +1,10 @@
 <%inherit file="base.mako" />
 
+<%!
+    # Importing simplejson at the module level
+    import simplejson
+%>
+
 <%def name="head_tags()">
     ${h.stylesheet_link_tag('core')}
     ${h.stylesheet_link_tag('ext-ux-slidezone')}
@@ -17,13 +22,21 @@
     ${h.stylesheet_link_tag('box')}
     ${h.stylesheet_link_tag('form')}
     <title>Rubicon Web Player</title>
+
     <style type="text/css">
-    <%include file="player_css/player_css.mako" /> 
-    <%include file="player_css/queue_css.mako" /> 
-    <%include file="player_css/album_details.mako" /> 
-    <%include file="player_css/topbar.mako" /> 
-    <%include file="player_css/statusbar.mako" /> 
+    <%include file="player_css/player_css.mako" />
+    <%include file="player_css/queue_css.mako" />
+    <%include file="player_css/album_details.mako" />
+    <%include file="player_css/topbar.mako" />
+    <%include file="player_css/statusbar.mako" />
     </style>
+
+    <script type="text/javascript">
+        var global_config = {
+            fullname: '${c.fullname}',
+            fields: ${simplejson.dumps(c.fields)}
+        };
+    </script>
 
     ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
     ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
@@ -41,6 +54,7 @@
     ${h.javascript_include_tag('player/player.js')}
     ${h.javascript_include_tag('player/auth.js')}
     ${h.javascript_include_tag('player/metatypeinfo.js')}
+    ${h.javascript_include_tag('player/columns.js')}
     ${h.javascript_include_tag('player/init.js')}
 
 </%def>

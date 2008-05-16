@@ -3,6 +3,7 @@ import logging
 import time
 
 import S3
+import masterapp.controllers.metadata
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
@@ -23,6 +24,8 @@ class PlayerController(BaseController):
 
     def index(self):
         c.profile = Profile()
+        c.fullname = self.username()
+        c.fields = masterapp.controllers.metadata.fields
         return render('/player.mako')
     
     def songurl(self, id):

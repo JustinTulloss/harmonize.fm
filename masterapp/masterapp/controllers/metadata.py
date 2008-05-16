@@ -18,6 +18,21 @@ from decimal import Decimal
 
 log = logging.getLogger(__name__)
 
+fields = {
+    'song': [
+        'Song_tracknumber',
+        'Song_title',
+        'Song_length',
+        'Album_title',
+        'Artist_name',
+    ],
+    'album': [
+        'Album_title'
+    ],
+    'artist': [],
+    'playlist': [],
+    'friend': [],
+}
 
 class MetadataController(BaseController):
     """
@@ -40,31 +55,33 @@ class MetadataController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def _dictionize_row(self, sqlrow):
+    def _dictionize_row(self, sqlrow, type):
         expanded = {}
+        prefix = sqlrow.__class__.__name__
         for field in sqlrow.c.keys():
-            val = getattr(sqlrow, field)
-            if isinstance(val, Decimal):#FIXME: The model should address this
-                val = int(val)
-            expanded[field] = val
+            key = prefix + '_' + field
+            if key in fields[type]:
+                val = getattr(sqlrow, field)
+                if isinstance(val, Decimal):#FIXME: The model should address this
+                    val = int(val)
+                expanded[key] = val
         return expanded
 
-    def _build_json_row(self, sqlrow):
+    def _build_json_row(self, sqlrow, type):
         if hasattr(sqlrow, '__iter__'):
             expanded = {}
             for rowpart in sqlrow:
-                expanded.update(self._build_json_row(rowpart))
+                expanded.update(self._build_json_row(rowpart, type))
             return expanded
         else:
-            return self._dictionize_row(sqlrow)
+            return self._dictionize_row(sqlrow, type)
         
-    def _build_json(self, results):
-        dtype = request.params.get('type')
+    def _build_json(self, results, type):
         json = { "data": []}
 
         for row in results:
-            json['data'].append(self._build_json_row(row))
-            json['data'][len(json['data'])-1]['type']=dtype
+            json['data'].append(self._build_json_row(row, type))
+            json['data'][len(json['data'])-1]['type']=type
 
         json['success']=True
         return json
@@ -82,7 +99,8 @@ class MetadataController(BaseController):
     def songs(self):
         qry = Session.query(Song).join('artist').\
             reset_joinpoint().join('album').\
-            reset_joinpoint().join(['files', 'owners', 'user']).add_entity(Album)
+            reset_joinpoint().join(['files', 'owners', 'user']).\
+            add_entity(Album).add_entity(Artist)
 
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
@@ -94,22 +112,23 @@ class MetadataController(BaseController):
         if request.params.get('playlist'):
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
-        qry = qry.order_by([Artist.sort, Album.album, Song.tracknumber])
+        qry = qry.order_by([Artist.sort, Album.title, Song.tracknumber])
         results = qry.all()
-        return self._build_json(results)
+        return self._build_json(results, 'song')
 
     @jsonify
     def albums(self):
         qry = Session.query(Album).join('artist').\
-            reset_joinpoint().join(['songs', 'files', 'owners', 'user'])
+            reset_joinpoint().join(['songs', 'files', 'owners', 'user']).\
+            add_entity(Artist)
 
         qry = filter_friends(qry)
 
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
-        qry = qry.order_by([Artist.sort, Album.album])
+        qry = qry.order_by([Artist.sort, Album.title])
         results = qry.all()
-        return self._build_json(results)
+        return self._build_json(results, 'album')
         
     @jsonify
     def artists(self):
@@ -117,7 +136,7 @@ class MetadataController(BaseController):
         qry = filter_friends(qry)
         qry = qry.order_by(Artist.sort)
         results = qry.all()
-        return self._build_json(results)
+        return self._build_json(results, 'artist')
         
     @jsonify
     def friends(self):
@@ -146,7 +165,7 @@ class MetadataController(BaseController):
         # This is a bit confusing. It looks at all the friends you have that own
         # the app and then check to see if they have any songs. Those that do
         # get passed through and their names are passed back. We do this because
-        # we have to fetch the name from facebook and the ownership information
+        # we fetch the name from facebook and the ownership information
         # from our own database.
         data = sorted(data, key=itemgetter('uid'))
         data = filter(_intersect, data)
@@ -163,7 +182,7 @@ class MetadataController(BaseController):
         qry = filter_friends(qry)
         qry = qry.order_by(Playlist.name)
         results = qry.all()
-        return self._build_json(results)
+        return self._build_json(results, 'playlist')
 
     @jsonify
     def playlistsongs(self):
@@ -174,5 +193,4 @@ class MetadataController(BaseController):
 
         qry = qry.order_by(PlaylistSong.songindex)
         results = qry.all()
-        return self._build_json(results)
-
+        return self._build_json(results, 'playlistsong')
