@@ -6,6 +6,7 @@ import os.path as path
 #from facebook.wsgi import facebook
 import facebook
 from facebook import FacebookError
+from urllib2 import URLError
 
 from masterapp.lib.base import *
 from fileprocess.fileprocess import file_queue, na, msgs
@@ -51,11 +52,20 @@ class UploadsController(BaseController):
             return None
         
         fb = self.get_fb()
-        try:
-            fb.session_key = session_key
-            fbid = fb.users.getLoggedInUser()
-        except FacebookError:
-            return None
+        retries = 2
+        while retries > 0:
+            try:
+                fb.session_key = session_key
+                fbid = fb.users.getLoggedInUser()
+                retries = 0 
+            except FacebookError:
+                return None
+            except URLError:
+                print 'getLoggedInUser error, retrying'
+                retries -= 1
+                if retries == 0: 
+                    print 'getLoggedInUser failed'
+                    return None
 
         return fbid
 
@@ -102,7 +112,7 @@ class UploadsController(BaseController):
         dest_path = os.path.join(dest_dir, id)
 
         if not os.path.exists(dest_path):
-            dest_file = file(dest_path, 'w')
+            dest_file = file(dest_path, 'wb')
 
             try:
                 self.read_postdata(dest_file)
@@ -152,3 +162,6 @@ class UploadsController(BaseController):
     def desktop_login(self):
         url = self.get_fb().get_login_url(canvas=False,next='/desktop_redirect')
         redirect_to(str(url))
+
+    def upload_ping(self):
+        return ''
