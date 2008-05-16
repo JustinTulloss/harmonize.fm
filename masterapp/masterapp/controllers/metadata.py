@@ -34,7 +34,7 @@ fields = {
         'Album_id',
         'Album_title',
         'Album_totaltracks',
-        'Album_availsongs',
+        'Album_havesongs',
         'Album_length',
         'Album_year',
         'Artist_name',
@@ -99,7 +99,6 @@ class MetadataController(BaseController):
         
     def _build_json(self, results, type):
         json = { "data": []}
-
         for row in results:
             json['data'].append(self._build_json_row(row, type))
             json['data'][len(json['data'])-1]['type']=type

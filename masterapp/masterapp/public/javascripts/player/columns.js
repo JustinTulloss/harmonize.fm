@@ -44,7 +44,7 @@ var BrowserColumns = {
     'Album_availsongs': {
         id:'num_tracks',
         header: "Tracks",
-        dataIndex: 'Album_availsongs',
+        dataIndex: 'Album_havesongs',
         renderer: render.availColumn
     },
     'Artist_name': {

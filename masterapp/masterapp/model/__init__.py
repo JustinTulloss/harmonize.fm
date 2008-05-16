@@ -114,9 +114,8 @@ mapper(Artist, artists_table, properties={
     ),
     'availsongs': column_property(
         select([func.count(songs_table.c.id).label('availsongs')],
-            songs_table.c.albumid == albums_table.c.id,
+            songs_table.c.artistid == artists_table.c.id,
             group_by = artists_table.c.id,
-            distinct=True
         ).correlate(artists_table).label('availsongs')
     ),
     'numalbums': column_property(
@@ -131,7 +130,7 @@ mapper(Artist, artists_table, properties={
 mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan'),
     'artist':relation(Artist, 
-        lazy = True,
+        lazy = False,
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
     ),
@@ -148,15 +147,15 @@ mapper(Album, albums_table, allow_column_override = True,
         order_by = songs_table.c.tracknumber
     ),
     'artist': relation(Artist,
-        lazy = True,
+        lazy = False,
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid
     ),
-    'availsongs': column_property(
-        select([func.count(songs_table.c.id).label('availsongs')],
+    'havesongs': column_property(
+        select([func.count(songs_table.c.id).label('havesongs')],
             songs_table.c.albumid == albums_table.c.id,
-            group_by=songs_table.c.albumid 
-        ).correlate(albums_table).label('availsongs')
+            group_by=songs_table.c.albumid
+        ).correlate(albums_table).label('havesongs')
     ),
     'length': column_property(
         select([func.sum(songs_table.c.length).label('length')],
