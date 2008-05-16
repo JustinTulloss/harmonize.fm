@@ -175,6 +175,11 @@ class MetadataController(BaseController):
         def _intersect(item):
             if len(results) > 0:
                 if results[0].user.fbid == item['uid']:
+                    item['Friend_name'] = item['name']
+                    item['type'] = dtype
+                    item['Friend_id'] = results[0].user.id
+                    del item['name']
+                    del item['uid']
                     del results[0]
                     return True
                 else:
@@ -189,11 +194,8 @@ class MetadataController(BaseController):
         # from our own database.
         data = sorted(data, key=itemgetter('uid'))
         data = filter(_intersect, data)
+        data = sorted(data, key=itemgetter('Friend_name'))
 
-        for row in data:
-            row['Friend_id'] = row['uid']
-            row['Friend_name'] = row['name']
-            row['type']=dtype
         return {'success':True, 'data':data}
 
     @jsonify

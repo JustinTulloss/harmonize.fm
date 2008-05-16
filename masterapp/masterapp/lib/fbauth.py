@@ -59,8 +59,9 @@ def filter_friends(qry):
     if friend:
         friend = int(friend)
 
-    if friend in session['fbfriends']:
-        qry = qry.filter(User.fbid == friend)
+    friend_fbid = Session.query(User).get(friend).fbid
+    if friend_fbid in session['fbfriends']:
+        qry = qry.filter(User.id == friend)
     else:
         qry = qry.filter(User.id == session['user'].id)
     return qry
