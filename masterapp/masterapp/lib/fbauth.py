@@ -56,10 +56,11 @@ def filter_friends(qry):
     browsing a friend's music store, ensure that the songs belong to them.
     """
     friend = request.params.get('friend')
+    friend_fbid = None
     if friend:
+        friend_fbid = Session.query(User).get(friend).fbid
         friend = int(friend)
 
-    friend_fbid = Session.query(User).get(friend).fbid
     if friend_fbid in session['fbfriends']:
         qry = qry.filter(User.id == friend)
     else:
