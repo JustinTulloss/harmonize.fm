@@ -107,7 +107,7 @@ var typeinfo = {
     },
     friend:{
         next:'artist', 
-        qryindex:'fbid', 
+        qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid
     }
