@@ -204,6 +204,7 @@ class BrainzTagger(BaseAction):
             return False
 
         matches.sort(reverse = True)
+
         log.debug("Release Matches: %r", matches)
         
         if matches[0][0] > config.get('brainz.album_threshold', .8):
@@ -323,11 +324,10 @@ class BrainzTagger(BaseAction):
           * artist name          = 6
           * number of tracks     = 5
           * year of release      = 4
-          * typs is album        = 3
+          * type is album        = 3
           * album is official    = 3
+          * num of release events= 2
 
-        TODO:
-          * prioritize official albums over compilations (optional?)
         """
         total = 0.0
 

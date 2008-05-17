@@ -14,7 +14,7 @@ class BaseAction(object):
         self.nextaction = nextaction
         self.cleanup_handler = cleanup
         self._running = 1
-        self._thread=threading.Thread(None, self._loop)
+        self._thread = threading.Thread(None, self._loop)
         self._thread.setDaemon(True)
         self._thread.start()
     
@@ -28,11 +28,10 @@ class BaseAction(object):
                 nf['msg'] = "Upload had an unexpected failure"
                 nf['na']  = fileprocess.na.FAILURE
                 self.cleanup(nf)
-                nextfile=False
+                nextfile = False
 
-            if nextfile != False:
-                if self.nextaction != None:
-                    self.nextaction.put(nextfile)
+            if nextfile and self.nextaction:
+                self.nextaction.put(nextfile)
     
     def stop(self):
         self._running = 0
@@ -51,7 +50,7 @@ class BaseAction(object):
     def put(self, nf):
         if self.can_skip(nf):
             if self.nextaction != None:
-                self.nextaction.put(nextfile)
+                self.nextaction.put(nf)
         else:
             self.queue.put(nf)
 

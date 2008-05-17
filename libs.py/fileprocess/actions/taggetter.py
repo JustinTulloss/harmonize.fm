@@ -57,7 +57,7 @@ class TagGetter(BaseAction):
             oldtracknum = copy.copy(file['tracknumber'])
             try:
                 file['tracknumber'] = int(tparts[0])
-                file['tracknumber'] = int(tparts[1])
+                file['totaltracks'] = int(tparts[1])
             except ValueError, e:
                 # Sometimes we don't have one of the values we were looking for
                 file['tracknumber'] = oldtracknum
