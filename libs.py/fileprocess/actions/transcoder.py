@@ -17,7 +17,8 @@ class Transcoder(BaseAction):
         super(Transcoder, self).__init__(**kwargs)
 
         self.enabled = os.system(
-                    'which faad >& /dev/null && which lame >& /dev/null') == 0
+                    'which faad 1> /dev/null 2> /dev/null'
+                    +'&& which lame 1> /dev/null 2> /dev/null') == 0
 
     def can_skip(self, new_file):
         if new_file['filetype'] == 'mp3':
