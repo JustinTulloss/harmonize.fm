@@ -121,17 +121,19 @@ class MetadataController(BaseController):
             reset_joinpoint().join(['files', 'owners', 'user']).\
             add_entity(Album).add_entity(Artist)
 
-        if request.params.get('artist'):
-            qry = qry.filter(Artist.id == request.params.get('artist'))
+        sort = [Artist.sort, Album.title, Song.tracknumber]
         if request.params.get('album'):
             qry = filter_any_friend(qry)
             qry = qry.filter(Album.id== request.params.get('album'))
+            sort = [Song.tracknumber]
+        elif request.params.get('artist'):
+            qry = qry.filter(Artist.id == request.params.get('artist'))
         else:
             qry = filter_friends(qry)
         if request.params.get('playlist'):
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
-        qry = qry.order_by([Artist.sort, Album.title, Song.tracknumber])
+        qry = qry.order_by(sort)
         results = qry.all()
         return self._build_json(results, 'song')
 
@@ -151,7 +153,7 @@ class MetadataController(BaseController):
         
     @jsonify
     def artists(self):
-        qry = Session.query(Artist).join(['songs','files','owners', 'user'])
+        qry = Session.query(Artist).join(['albums', 'songs','files','owners', 'user'])
         qry = filter_friends(qry)
         qry = qry.order_by(Artist.sort)
         results = qry.all()
