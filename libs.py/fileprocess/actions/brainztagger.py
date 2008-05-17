@@ -416,7 +416,7 @@ class BrainzTagger(BaseAction):
           * artist name          = 6
           * release name         = 8
           * length               = 10
-          * number of tracks     = 3
+          * number of tracks     = 4
           * track placement      = 5
           * official release     = 5
           * album release        = 3
@@ -425,6 +425,8 @@ class BrainzTagger(BaseAction):
         """
         total = 0.0
         parts = []
+
+        log.debug("Comparing %s and %s", file, track)
 
         a = file.get('title')
         b = track.get('title')

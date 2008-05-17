@@ -21,7 +21,7 @@ class TagGetter(BaseAction):
         super(TagGetter, self).__init__(**kwargs)
 
         self.tracknum_strip = re.compile('[^0-9/]')
-        self.ttrack_find = re.compile('([0-9])*/?([0-9])*')
+        self.ttrack_find = re.compile('([0-9]*)/?([0-9]*)')
 
     def process(self, file):
         """This is rediculously easy with easyid3"""
@@ -63,10 +63,12 @@ class TagGetter(BaseAction):
                 file['tracknumber'] = oldtracknum
 
         file['duration'] = int(audio.info.length*1000)
+        if file.get('date'):
+            file['date'] = file['date'].split('-')
 
         audio.delete() #remove the ID3 tags, we don't care for them
 
-        log.debug("Tagged %s", file.get('title'))
+        log.debug("Tagged %s: %s", file.get('title'), file)
         return file
 
 def update_mp4(mp4obj, tagobj):
