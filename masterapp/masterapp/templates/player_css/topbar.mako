@@ -120,7 +120,7 @@
 }
 
 #now-playing-progress {
-	width: 25%;
+	width: 0;
 	height: 100%;
 	background-color: #A9B7D3;
 	position: absolute;

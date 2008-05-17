@@ -15,6 +15,9 @@
 
 function Player()
 {
+	if (this == window) alert('new not called for Player()');
+	var that = this;
+
     // this.some player variables to save
     var position;
     var state = 0; //stopped, paused, or playing (0, 1, 2)
@@ -140,6 +143,13 @@ function Player()
             playnow: true,
             scope: this
         });
+		update_now_playing({
+			title : song.data.Song_title,
+			artist : song.data.Artist_name,
+			album : song.data.Album_title,
+			/*Song length is in milliseconds now,
+			  should I convert to seconds here or in the fn... */
+			length : song.data.Song_length})
     }
 
     this.stop = stop;
@@ -163,7 +173,9 @@ function Player()
             url:response.responseText,
             volume: volume,
             whileplaying: function(){
-                updatetime.call(this.options.player, this)
+				update_duration(this);
+                update_progress_bar(this.position);
+				//updatetime.call(this.options.player, this)
             },
             onfinish: function(){
                 this.options.player.nextclicked.call(this.options.player, this);
@@ -187,15 +199,6 @@ function Player()
         updateseekbar(sound.position/total);
     }
 
-    function soundduration(sound)
-    {
-        var total;
-        if (sound.bytesLoaded != sound.bytesTotal)
-            total = sound.durationEstimate;
-        else
-            total = sound.duration
-        return total;
-    }
 
 
     function updateseekbar(percentage)
@@ -215,5 +218,75 @@ function Player()
 
     /* Soundmanager default options */
     soundManager.defaultOptions.volume = 80;
+
+	var now_playing_title = document.getElementById('now-playing-title');
+	var now_playing_artist = document.getElementById('now-playing-artist');
+	/*Takes an object with the fields {title, artist, album, length} */
+	function update_now_playing(song_info) {
+		if (song_info.title)
+			now_playing_title.innerHTML = song_info.title;
+		else
+			now_playing_title.innerHTML = '&nbsp;';
+
+		var new_artist = '&nbsp;';
+		if (song_info.artist) {
+			new_artist = song_info.artist;
+			if (song_info.album)
+				new_artist += ' - ' + song_info.album;
+		}
+		else {
+			if (song_info.album)
+				new_artist = album;
+		}
+		now_playing_artist.innerHTML = new_artist;
+
+		if (song_info.length) 
+			reset_progress_bar(song_info.length);
+		else
+			reset_progress_bar(null);
+	}
+
+	var now_playing_time = document.getElementById('now-playing-time');
+	var now_playing_progress = document.getElementById('now-playing-progress');
+	function reset_progress_bar(new_song_length) {
+		reset_duration(new_song_length);
+		update_progress_bar(0);
+	}
+
+	function update_progress_bar(elapsed) {
+		duration = get_duration()
+		now_playing_time.innerHTML=
+				format_time(elapsed) + ' / ' + format_time(duration);
+		if (duration > 0) {
+			now_playing_progress.style.width = 
+					String(elapsed/duration*100, 10) + '%';
+		}
+		else
+			now_playing_progress.style.width = 0;
+	}
+
+	var song_length;
+	/*Should pass in null if length is not in tags*/
+	function reset_duration(tagged_length) {
+		song_length = tagged_length;
+	}
+
+    function update_duration(sound)
+    {
+        if (sound.bytesLoaded != sound.bytesTotal) {
+			if (song_length === null)
+				song_length = sound.durationEstimate;
+		}
+        else
+            song_length = sound.duration;
+    }
+
+	function get_duration() {
+		if (song_length === null)
+			return 0;
+		else
+			return song_length;
+	}
+
 }
 Ext.extend(Player, Ext.util.Observable);
