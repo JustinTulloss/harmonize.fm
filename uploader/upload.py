@@ -1,9 +1,7 @@
-import os, re, hashlib, httplib, sys, platform
+import os, re, hashlib, httplib, sys, platform, time
 import os.path as path
 from thread import start_new_thread
-import time
-import config, tags
-import fb
+import config, tags, rate_limit, fb
 
 def get_default_path():
 	def default_osx():
@@ -12,10 +10,21 @@ def get_default_path():
 		if path.exists(music_dir):
 			return music_dir
 		else: return home_dir
+
+	def default_win():
+		home_path = os.getenv('USERPROFILE')
+		xp_music_path = path.join(home_path, 'My Documents', 'My Music')
+		vista_music_path = path.join(home_path, 'Documents', 'Music')
+		if path.exists(xp_music_path):
+			return xp_music_path
+		elif path.exists(vista_music_path):
+			return vista_music_path
+		else:
+			return home_path
 			
 	#Have to wrap paths in lambda's so they don't get executed on windows
 	paths = {'Linux':(lambda: os.getenv('HOME')),
-		'Windows':(lambda: os.getenv('USERPROFILE')),
+		'Windows':default_win,
 		'Darwin':default_osx}
 	
 	return paths[platform.system()]()
@@ -36,7 +45,7 @@ def get_music_files(dir):
 	return music_files
 
 def is_music_file(file):
-	return file.endswith('.mp3')
+	return file.endswith('.mp3') or file.endswith('.m4a')
 
 def reauthenticate(callback_obj):
 	callback_obj.error("facebook login expired, please log in again")
@@ -92,9 +101,35 @@ def upload_files(song_list, callback):
 	songs_left = len(song_list)	
 	callback.init('%s songs remaining' % songs_left, songs_left)
 
+	#Initialize rate limiting algorithm
+	def start_rate_limit():
+		rate_limit.establish_baseline(config.current['server_addr'],
+									  config.current['server_port'])
+	retry_fn(start_rate_limit, callback)
+
+	def reset_rate_limit():
+		rate_limit.reestablish_baseline(config.current['server_addr'],
+										config.current['server_port'])
+
 	for song in song_list:
 		upload_file(song, callback)
 		songs_left -= 1
 		callback.update('%s songs remaining' % songs_left, songs_left)
+
+		if songs_left % 15 == 0:
+			retry_fn(reset_rate_limit, callback)
 	
 	callback.update('Upload complete!', 0)
+
+def retry_fn(fn, callback):
+	success = False
+	while not success:
+		try:
+			res = fn()
+			success = True
+		except Exception, e:
+			if config.current['debug']:
+				import pdb; pdb.set_trace()
+			callback.error('Error connecting to server, \nWill try again')
+			time.sleep(20)
+	return res

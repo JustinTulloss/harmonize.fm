@@ -132,11 +132,11 @@ function Player()
     function playsong (song)
     {
         Ext.Ajax.request({
-            url:'/player/songurl/'+song.get('id'),
+            url:'/player/songurl/'+song.get('Song_id'),
             success: loadsongurl,
             failure: badsongurl,
-            songid: song.get('id'),
-            songlength: song.get('length'),
+            songid: song.get('Song_id'),
+            songlength: song.get('Song_length'),
             playnow: true,
             scope: this
         });

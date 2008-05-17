@@ -48,6 +48,8 @@ class RubiconController(NSObject):
 		pass
 
 	def loginCallbackSync(self):
+		self.uploadOptions.close()
+
 		target = self
 		class Receiver(object):
 			def init(self, msg, total_songs):
@@ -102,8 +104,7 @@ class RubiconController(NSObject):
 		fb.login(callback)
 
 	def options_(self, sender):
-		self.uploadOptions.orderFront_(self)
-		self.uploadOptions.makeKeyWindow()
+		self.uploadOptions.makeKeyAndOrderFront_(self)
 
 	def setUploadFolder_(self, sender):
 		self.uploadSrc = self.uploadFolder
@@ -115,6 +116,7 @@ class RubiconController(NSObject):
 	def upload_error(self, msg):
 		self.uploadStatus = msg
 		self.progressbar.setIndeterminate_(True)
+		self.progressbar.startAnimation_(self)
 	
 	def upload_update(self, args):
 		msg, songs_left = args

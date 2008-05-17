@@ -2,6 +2,7 @@ from mover import Mover
 from facebookaction import FacebookAction
 from taggetter import TagGetter
 from hasher import Hasher
+from transcoder import Transcoder
 from dbchecker import DBChecker
 from brainztagger import BrainzTagger
 from amazoncovers import AmazonCovers
@@ -14,6 +15,7 @@ __all__=[
     'FacebookAction', 
     'TagGetter', 
     'Hasher',
+	'Transcoder',
     'DBChecker', 
     'BrainzTagger',
     'AmazonCovers',

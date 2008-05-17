@@ -12,7 +12,11 @@ setup(
     #author='',
     #author_email='',
     #url='',
-    install_requires=["Pylons>=0.9.6.1", "sqlalchemy>=0.4beta3"],
+    install_requires=[
+        "Pylons>=0.9.6.1", 
+        "sqlalchemy>=0.4.3",
+        "sqlalchemy-migrate>=0.4.4"
+    ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='nose.collector',
