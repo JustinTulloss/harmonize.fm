@@ -11,6 +11,9 @@ mockfiles = {
         u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
         u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
     },
+	'goodmp4' : {
+		u'fname': u'good.m4a'
+	},	
     'notmp3': {
         u'fname': u'notafile.mp3',
         u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
@@ -66,5 +69,34 @@ mockfiles = {
         u'artistsort': u'Ludo', 
         u'mbtrackid': u'1e8ee862-a4fe-4595-9a33-b6590bbbc13a', 
         u'tracknumber': 2
+    },
+    'abird': {
+        'album': u'The Mysterious Production of Eggs',
+        'artist': u'Andrew Bird',
+        'date': u'2005',
+        'duration': 68868,
+        'title': u'/=/=/',
+        'tracknumber': 12,
+        'totaltracks': 14,
+    },
+    'btles2': {
+        'album': u'The Beatles (The White Album)',
+        'artist': u'The Beatles',
+        'composer': u'John Lennon/Paul McCartney',
+        'date': u'1968',
+        'duration': 182076,
+        'genre': u'Rock',
+        'title': u'Cry Baby Cry',
+        'tracknumber': u'11'
+    },
+    'btles1': {
+        'album': u'The Beatles (The White Album)',
+        'artist': u'The Beatles',
+        'composer': u'John Lennon/Paul McCartney',
+        'date': u'1968',
+        'duration': 163513,
+        'genre': u'Rock',
+        'title': u'Back in the U.S.S.R.',
+        'tracknumber': u'1'
     }
 }

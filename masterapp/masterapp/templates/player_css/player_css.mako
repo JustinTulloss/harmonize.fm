@@ -32,13 +32,13 @@ a.bc_link:hover {
 
 .searchfield {
     position: absolute;
-    right: 30px;
+    right: 19px;
     top: 15px;
 }
 
 #bccontent {
     position: relative;
-    left: 20px;
-    top: 20px;
+    left: 19px;
+    top: 16px;
     display: inline;
 }

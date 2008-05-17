@@ -68,7 +68,7 @@ class BrainzTagger(BaseAction):
                 if release:
                     self.releasecache[cachekey] = release
                     mbtrack = self._match_file_to_release(file, release)
-                    if mbtrack != False:
+                    if mbtrack:
                         return self._cash_out(file, mbtrack, release, release.artist)
 
         # Could not match against an existing album, do a file analysis
@@ -204,6 +204,7 @@ class BrainzTagger(BaseAction):
             return False
 
         matches.sort(reverse = True)
+
         log.debug("Release Matches: %r", matches)
         
         if matches[0][0] > config.get('brainz.album_threshold', .8):
@@ -276,6 +277,7 @@ class BrainzTagger(BaseAction):
                 'album': release.title,
                 'artist': track.track.artist.name,
                 'duration': track.track.duration,
+                'releaseid': track.track.releases[0].id,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
                 'totaltracks': track.track.releases[0].tracksCount,
                 'date': self._year(release),
@@ -322,11 +324,10 @@ class BrainzTagger(BaseAction):
           * artist name          = 6
           * number of tracks     = 5
           * year of release      = 4
-          * typs is album        = 3
+          * type is album        = 3
           * album is official    = 3
+          * num of release events= 2
 
-        TODO:
-          * prioritize official albums over compilations (optional?)
         """
         total = 0.0
 
@@ -371,6 +372,7 @@ class BrainzTagger(BaseAction):
             trackd[track.id] = track
             trackl.append({
                 'id': track.id,
+                'releaseid': release.id,
                 'title': track.title,
                 'album': release.title,
                 'artist': release.artist.name,
@@ -401,7 +403,7 @@ class BrainzTagger(BaseAction):
         matches.sort(reverse=True)
         log.debug('Track matches: %r', matches)
 
-        if matches[0][0] > config.get('brainz.track_threshold', .7):
+        if matches[0][0] > config.get('brainz.track_threshold', .65):
             return matches[0][1]
         return False
 
@@ -409,20 +411,22 @@ class BrainzTagger(BaseAction):
         """
         Compare file metadata to a MusicBrainz track.
 
-        Weigths:
-          * title                = 20
-          * artist name          = 4
-          * release name         = 5
+        Weights:
+          * title                = 15 
+          * artist name          = 6
+          * release name         = 8
           * length               = 10
-          * number of tracks     = 3
-          * release data         = 3
+          * number of tracks     = 4
           * track placement      = 5
           * official release     = 5
           * album release        = 3
+          * cached release       = 4
 
         """
         total = 0.0
         parts = []
+
+        log.debug("Comparing %s and %s", file, track)
 
         a = file.get('title')
         b = track.get('title')
@@ -433,14 +437,14 @@ class BrainzTagger(BaseAction):
         a = file.get('artist')
         b = track.get('artist')
         if a and b:
-            parts.append((similarity2(a, b), 4))
-            total += 4
+            parts.append((similarity2(a, b), 6))
+            total += 6
 
         a = file.get('album')
         b = track.get('album')
         if a and b:
-            parts.append((similarity2(a, b), 5))
-            total += 5
+            parts.append((similarity2(a, b), 8))
+            total += 8
 
         a = file.get('date')
         b = track.get('date')
@@ -490,5 +494,13 @@ class BrainzTagger(BaseAction):
             if b.TYPE_ALBUM in a:
                 parts.append((1.0, 3))
             total += 8
+
+        a = self.releasecache.get((file.get('album'), file.get('artist')))
+        b = track.get('releaseid')
+        if a:
+            a = a.id
+            if a == b:
+                parts.append((1.0, 4))
+            total += 4
 
         return reduce(lambda x, y: x + y[0] * y[1] / total, parts, 0.0)
