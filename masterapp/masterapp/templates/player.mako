@@ -60,12 +60,20 @@
 </%def>
 
 <div id="header">
+	<div id="song-info-and-controls">
+		<div id="now-playing-title">Get Back</div>
+		<div id="now-playing-artist">The Beatles - Let it be... Naked</div>
+		<div id="now-playing-bar">
+			<div id="now-playing-progress"></div>
+			<div id="now-playing-time">1:22 / 2:33</div>
+		</div>
+		<ul id="playcontrols">
+			<li id="playbutton"><a href="#"></a></li>
+			<li id="prevbutton"><a href="#"></a></li>
+			<li id="nextbutton"><a href="#"></a></li>
+		</ul>
+	</div>
     <div id="menu"></div>
-    <ul id="playcontrols">
-        <li id="prevbutton"><a href="#"></a></li>
-        <li id="playbutton"><a href="#"></a></li>
-        <li id="nextbutton"><a href="#"></a></li>
-    </ul>
     <div id="logo">
     	<img src="/images/whiterubicon.png" />
     </div>
