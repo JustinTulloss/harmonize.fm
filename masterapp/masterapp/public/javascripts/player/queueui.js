@@ -26,11 +26,8 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var buf = [
             '<li class="x-tree-node">',
-            '<div class="np-label">Now Playing</div>',
-            '<div ext:tree-node-id="',n.id,'" class="np-node x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
-                '<div class="np-swatch">',
-                    a.swatch ? ('<img src="' + a.swatch + '" />') : '',
-                '</div>',
+            '<div class="np-label" unselectable="on">Now Playing</div>',
+            '<div ext:tree-node-id="',n.id,'" class="np-node x-tree-node-leaf x-unselectable ', a.cls,'">',
                 '<div class="np-title">', a.title, '</div>',
                 '<div class="np-info">', a.artist, '</div>',
                 '<div class="np-info">', a.album, '</div>',

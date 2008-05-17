@@ -9,7 +9,6 @@
 
 function PlayQueue()
 {
-    var fields = fields;
     var showingprev = false;
 
     this.addEvents({
@@ -273,7 +272,7 @@ Ext.extend(QueueNode, Ext.tree.TreeNode);
 
 function SongQueueNode(config)
 {
-    config.text = config.record.get('title');
+    config.text = config.record.get('Song_title');
     config.checked = false;
     config.leaf = true;
     config.draggable = true;
@@ -294,11 +293,9 @@ Ext.extend(SongQueueNode, QueueNode);
 
 function PlayingQueueNode(config)
 {
-    //config.text = config.record.get('title');
-    config.title = config.record.get('title');
-    config.artist = config.record.get('artist');
-    config.album = config.record.get('album');
-    config.swatch = config.record.get('swatch');
+    config.title = config.record.get('Song_title');
+    config.artist = config.record.get('Artist_name');
+    config.album = config.record.get('Album_title');
     config.leaf = true;
     config.checked = null;
     config.draggable = false;
@@ -316,8 +313,8 @@ Ext.extend(PlayingQueueNode, QueueNode);
 function AlbumQueueNode(config)
 {
     config.text = String.format('{0} ({1}/{1})', 
-        config.record.get('album'),
-        config.record.get('totaltracks')
+        config.record.get('Album_title'),
+        config.record.get('Album_totaltracks')
     );
     config.draggable = true;
     config.checked = false;
@@ -328,11 +325,11 @@ function AlbumQueueNode(config)
     this.songs = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
-        sortInfo: {field: 'tracknumber', direction: 'DESC'},
-        baseParams: {type:'song', album:config.record.get('albumid')},
+        sortInfo: {field: 'Song_tracknumber', direction: 'DESC'},
+        baseParams: {type:'song', album: config.record.get('Album_id')},
         successParameter: 'success',
         autoLoad: false,
-        fields: fields
+        fields: global_config.fields.song
     });
     this.songs_loaded = false;
 
@@ -367,9 +364,9 @@ function AlbumQueueNode(config)
     function update_text()
     {
         this.setText(String.format('{0} ({1}/{2})',
-            this.record.get('album'),
+            this.record.get('Album_title'),
             this.childNodes.length,
-            this.record.get('totaltracks')
+            this.record.get('Album_totaltracks')
         ));
         if (this.childNodes.length == 0) /* end of album */
             this.remove();

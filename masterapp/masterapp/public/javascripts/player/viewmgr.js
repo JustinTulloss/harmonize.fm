@@ -96,7 +96,7 @@ function ViewManager(crumb, objects)
             bbar: statusbar
         }]
     });
-    var username='';
+    var username=global_config.fullname;
 
     set_status(null);
 
@@ -179,12 +179,4 @@ function ViewManager(crumb, objects)
         var el= statusbar.getEl();
         t_status.overwrite(el, {name: username, status: text});
     }
-
-    Ext.Ajax.request({
-        url: 'player/username',
-        success: function(response){ 
-            username = response.responseText; 
-            set_status(null); 
-        }
-    });
 }

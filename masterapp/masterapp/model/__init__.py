@@ -11,24 +11,18 @@ Session = scoped_session(sessionmaker(
 
 metadata = MetaData(bind=Session.bind)
 
+# Reflect all the tables out of the database
 files_table = Table("files", metadata, autoload=True)
 owners_table = Table("owners", metadata, autoload=True)
 users_table = Table("users", metadata, autoload=True)
 songstats_table = Table("songstats", metadata, autoload=True)
 songs_table = Table("songs", metadata, autoload=True)
 albums_table = Table("albums", metadata,autoload=True)
+artists_table = Table("artists", metadata, autoload=True)
 playlists_table = Table("playlists", metadata, autoload=True)
 playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
 blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
 blockedartists_table = Table("blockedartists", metadata, autoload=True)
-
-artists = select([
-    albums_table.c.id,
-    albums_table.c.artist, 
-    albums_table.c.artistsort, 
-    albums_table.c.mbartistid,
-    func.count(albums_table.c.id).label('totalalbums')
-    ], group_by=albums_table.c.mbartistid, distinct=True).alias('artists')
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -50,7 +44,8 @@ class File(object):
         self.songid = songid
 
 class Song(object): 
-    def __init__(self, title=None, albumid=None, mbid=None, length=0, tracknumber=None):
+    def __init__(self, title=None, albumid=None, mbid=None, 
+            length=0, tracknumber=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
@@ -58,21 +53,21 @@ class Song(object):
         self.tracknumber =tracknumber
     
 class Album(object):
-    def __init__(self, title=None, mbid=None, artist=None, artistsort=None,
-        mbartistid=None, asin=None, year=None, totaltracks=0):
+    def __init__(self, title=None, mbid=None,
+            asin=None, year=None, totaltracks=0):
         self.title = title
-        self.artist = None
-        if artistsort != None:
-            self.artistsort = artistsort
-        else:
-            self.artistsort = artist
-        self.mbartistid = mbartistid
         self.asin = asin
         self.year = year
         self.totaltracks = totaltracks
 
 class Artist(object):
-    pass
+    def __init__(self, name=None, mbid=None, sort=None):
+        self.name = name
+        self.mbid = mbid
+        if sort:
+            self.sort = sort
+        else:
+            self.sort = name
 
 class Playlist(object):
     def __init__(self, name, ownerid, *songs):
@@ -100,52 +95,81 @@ The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
 """
 mapper(User, users_table)
+
 mapper(File, files_table, properties={
     'owners': relation(Owner, backref='file', cascade='all, delete-orphan')
 })
+
 mapper(Owner, owners_table, properties={
     'user': relation(User)
 })
-mapper(Song, songs_table, properties = {
-    'files': relation(File, backref='song', cascade='all, delete-orphan')
+
+mapper(Artist, artists_table, properties={
+    'songs': relation(
+        Song, 
+        lazy = True, 
+        cascade = 'all, delete-orphan',
+        foreign_keys = [songs_table.c.artistid],
+        primaryjoin = artists_table.c.id == songs_table.c.artistid,
+    ),
+    'availsongs': column_property(
+        select([func.count(songs_table.c.id).label('availsongs')],
+            songs_table.c.artistid == artists_table.c.id,
+            group_by = artists_table.c.id,
+        ).correlate(artists_table).label('availsongs')
+    ),
+    'numalbums': column_property(
+        select([func.count(albums_table.c.artistid).label('numalbums')],
+            albums_table.c.artistid == artists_table.c.id,
+            group_by = artists_table.c.id,
+            distinct = True).correlate(artists_table).label('numalbums'),
+        deferred = True
+    ),
 })
-mapper(Album, albums_table, properties={  
-    'songs':relation(Song, 
+
+mapper(Song, songs_table, properties = {
+    'files': relation(File, backref='song', cascade='all, delete-orphan'),
+    'artist':relation(Artist, 
+        lazy = False,
+        foreign_keys = [songs_table.c.artistid],
+        primaryjoin = artists_table.c.id == songs_table.c.artistid,
+    ),
+})
+
+
+mapper(Album, albums_table, allow_column_override = True, 
+    exclude_properties = ['artist', 'mbartistid', 'artistsort'],
+    properties={  
+    'songs': relation(Song, 
         backref = 'album', 
         lazy = True,
         cascade = 'all, delete-orphan',
         order_by = songs_table.c.tracknumber
     ),
-    'albumid': albums_table.c.id,
-    'album':albums_table.c.title,
-    'availsongs': column_property(
-        select([func.count(songs_table.c.id).label('availsongs')],
-            songs_table.c.albumid == albums_table.c.id,
-            group_by=songs_table.c.albumid 
-        ).correlate(albums_table).label('availsongs')
+    'artist': relation(Artist,
+        lazy = False,
+        foreign_keys = [albums_table.c.artistid],
+        primaryjoin = artists_table.c.id == albums_table.c.artistid
     ),
-    'albumlength': column_property(
-        select([func.sum(songs_table.c.length).label('albumlength')],
+    'havesongs': column_property(
+        select([func.count(songs_table.c.id).label('havesongs')],
+            songs_table.c.albumid == albums_table.c.id,
+            group_by=songs_table.c.albumid
+        ).correlate(albums_table).label('havesongs')
+    ),
+    'length': column_property(
+        select([func.sum(songs_table.c.length).label('length')],
             songs_table.c.albumid == albums_table.c.id,
             group_by=songs_table.c.albumid 
-        ).correlate(albums_table).label('albumlength')
+        ).correlate(albums_table).label('length')
     )
 })
-mapper(Artist, artists, properties={
-    'songs':relation(Song),
-    'availsongs': column_property(
-        select([func.count(songs_table.c.id).label('availsongs')],
-            songs_table.c.albumid == albums_table.c.id,
-            group_by = artists.c.mbartistid,
-            distinct=True
-        ).correlate(artists).label('availsongs')
-    ),
-})
+
 
 mapper(PlaylistSong, playlistsongs_table, inherits=Song)
 
 mapper(Playlist, playlists_table, properties={
     'playlistid': playlists_table.c.id,
-    'owner':relation(User),
-    'songs':relation(PlaylistSong, backref='playlist')
+    'owner': relation(User),
+    'songs': relation(PlaylistSong, backref='playlist')
 })

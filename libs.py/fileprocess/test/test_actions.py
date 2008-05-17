@@ -1,11 +1,12 @@
 # -*- coding: utf8 -*-
+# vim:expandtab:smarttab
 import unittest
 import logging
 import nose
 from nose.tools import *
 from mockfiles import mockfiles
 from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
-    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher
+    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher, Transcoder
 import fileprocess
 
 from sqlalchemy import engine_from_config
@@ -88,6 +89,17 @@ class TestActions(TestBase):
         assert nf['title'] == u'Happiness Is a Warm Gun', "Title is incorrect"
         assert nf.has_key('album'), "Did not tag album"
         assert nf.has_key('artist'), "Did not tag artist"
+        assert nf['filetype'] == 'mp3'
+
+        # Test an mp4 file
+        self.fdata['goodmp4']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['goodmp4']['fname'])
+        nf = t.process(self.fdata['goodmp4'])
+        assert nf.has_key('title'), "Did not tag title"
+        assert nf['title'] == u'The Bandit', "Title is incorrect"
+        assert nf.has_key('album'), "Did not tag album"
+        assert nf.has_key('artist'), "Did not tag artist"
+        assert nf['filetype'] == 'mp4'
     
     def testBrainz(self):
         b = BrainzTagger()
@@ -253,6 +265,21 @@ class TestActions(TestBase):
         assert nf['sha'] != None,\
             "Hasher did not put sha in passed file"
 
+    def testTranscoder(self):
+        t = Transcoder()
+        t.cleanup_handler = Mock()
+
+        assert t.enabled, \
+            'Transcoder not enabled, make sure lame and faad are installed'
+
+        origname = self.fdata['goodmp4']['fname']
+        self.fdata['goodmp4']['filetype'] = 'mp4'
+        self.fdata['goodmp4']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['goodmp4']['fname'])
+        nf = t.process(self.fdata['goodmp4'])
+        assert nf != None, 'Transcoding of mp4 file failed'
+        assert nf['fname'] != origname, 'File did not get transcoded'
+
 class TestDBActions(TestBase):
     """
     These actions need a database to back them. Since databases are painful
@@ -311,7 +338,13 @@ class TestDBActions(TestBase):
 
         # Test insertion of good record
         nf = r.process(self.fdata['dbrec'])
-        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong'] and nf['dbalbum']
+        assert (
+            nf['dbowner'] 
+            and nf['dbfile'] 
+            and nf['dbsong'] 
+            and nf['dbalbum']
+            and nf['dbartist']
+        )
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect clean record insertion")
         assert nf['dbsong'].title == u'Save Öur City',\
@@ -320,6 +353,7 @@ class TestDBActions(TestBase):
         nf.pop('dbfile')
         nf.pop('dbsong')
         nf.pop('dbalbum')
+        nf.pop('dbartist')
 
         # Test insertion of same record with different user and sha
         self.fdata['dbrec']['sha'] = '256f863d46e7a03cc4f05bab267e313d4b258e01'

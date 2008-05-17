@@ -35,7 +35,7 @@ var render = {
     availColumn: function (value, p, record)
     {
         ret = value;
-        total = record.get('totaltracks');
+        total = record.get('Album_totaltracks');
         if (total)
             ret = value + ' of ' + total;
 
@@ -44,9 +44,9 @@ var render = {
 
     recColumn: function (value, p, record)
     {
-        songid = record.get('songid');    
-        albumid = record.get('albumid');
-        artist = record.get('artist');
+        songid = record.get('Song_id');    
+        albumid = record.get('Album_id');
+        artist = record.get('Artist_name');
         if (songid != "")
         {
             type = 'song';
@@ -73,24 +73,29 @@ var typeinfo = {
     },
     artist:{
         next:'album', 
+        lblindex: 'Artist_name',
+        qryindex: 'Artist_id',
         display:'Artists',
         gridclass: ArtistGrid
     }, 
     album:{
         next:'song', 
-        qry:'albumid', 
+        lblindex: 'Album_title',
+        qryindex:'Album_id', 
         display:'Albums',
         nodeclass: AlbumQueueNode,
         gridclass: AlbumGrid
     }, 
     playlist:{
         next:'playlistsong', 
-        qry:'playlistid', 
+        lblindex: 'Playlist_name',
+        qryindex:'Playlist_id', 
         display:'Playlists',
         gridclass: PlaylistGrid
     },
     song:{
         next:'play', 
+        lblindex: 'Song_title',
         display:'Songs',
         nodeclass: SongQueueNode,
         gridclass: SongGrid
@@ -102,25 +107,9 @@ var typeinfo = {
     },
     friend:{
         next:'artist', 
-        qry:'fbid', 
+        qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid
     }
 };
 
-var fields = ['type', 'title', 'artist', 'album', 'year', 'genre', 
-                  'tracknumber', 'totaltracks', 'totalalbums','recs', 
-                  'albumlength', 'artistlength', 'numartists','numalbums',
-                  'likesartists', 'exartists', 'numtracks', 'name', 'friend',
-                  'songid', 'albumid', 'id', 'fbid', 'length', 'playlistid',
-                  'swatch', 'availsongs'];
-
-stdcols = {
-    actions: {  
-        id: 'add',
-        header: 'Actions',
-        renderer: render.enqColumn,
-        width: 55,
-        sortable: false
-    }
-}

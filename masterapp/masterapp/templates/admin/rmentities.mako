@@ -47,9 +47,9 @@
 
 <%def name="makealbumrow(album)">
     <tr>
-        <td>${h.rails.check_box(album.albumid)}</td>
-        <td>${album.album}</td>
-        <td>${album.artist}</td>
+        <td>${h.rails.check_box(album.id)}</td>
+        <td>${album.title}</td>
+        <td>${album.artist.name}</td>
     </tr>
 </%def>
 
@@ -58,7 +58,7 @@
         <td>${h.rails.check_box(song.id)}</td>
         <td>${song.tracknumber}</td>
         <td>${song.title}</td>
-        <td>${song.album.album}</td>
-        <td>${song.album.artist}</td>
+        <td>${song.album.title}</td>
+        <td>${song.artist.name}</td>
     </tr>
 </%def>

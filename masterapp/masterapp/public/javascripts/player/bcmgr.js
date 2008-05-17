@@ -87,8 +87,8 @@ function BreadCrumb()
 
         /* Change the old crumb to show updated values */
 //        bclist[current].value = row.get(clickedtype);
-        if (clickedinfo.qry)
-            bclist[current].qryvalue = row.get(clickedinfo.qry);
+        if (clickedinfo.qryindex)
+            bclist[current].qryvalue = row.get(clickedinfo.qryindex);
         else
             bclist[current].qryvalue = row.get(clickedtype);
         
@@ -96,7 +96,7 @@ function BreadCrumb()
         var newtype = typeinfo[clickedinfo.next]
         var newcrumb = new BcEntry(
             clickedinfo.next, 
-            row.get(clickedtype), 
+            row.get(clickedinfo.lblindex), 
             clickedinfo.next
         );
 
@@ -189,7 +189,7 @@ function BreadCrumb()
          */
         div.update('');
         for (var i=0; i<bclist.length; i++) {
-			var curr_bc = bclist[i];
+            var curr_bc = bclist[i];
             var newId = "bc_"+bclist[i].type;
             var newEl = null;
 
@@ -218,7 +218,7 @@ function BreadCrumb()
 
     function create_params(current_crumb)
     {
-        params = {};
+        var params = {};
         for(var i=0; i<current; i++) {
             if(bclist[i].qryvalue != null)
                 params[bclist[i].qrytype] = bclist[i].qryvalue;
