@@ -158,6 +158,25 @@ class TestActions(TestBase):
         assert nf['album'] == 'Amnesiac', \
             "Album was "+nf['album'] + " instead of Amnesiac"
 
+        # Now all the corner case tests. These are things that I've tweaked the
+        # values specifically so that they are tagged correctly. They're put in
+        # here so that future tweaking doesn't break them.
+
+        # Bad title, good everything else
+        b.releasecache = {}
+        nf = b.process(self.fdata['abird'])
+        assert nf['title'] == u'[image]', "Messed up Andrew Bird tagging"
+
+        # Messes up the releasecache by being on a different album from tags
+        b.releasecache = {}
+        nf = b.process(self.fdata['btles2'])
+        assert nf['album'] == u'The Beatles (disc 2)', "Cry baby not on disc 2"
+
+        nf = b.process(self.fdata['btles1'])
+        assert nf['album'] == u'The Beatles (disc 1)', "USSR not on disc 1"
+
+
+
     def testCleanup(self):
         c = Cleanup()
         assert c is not None, "Cleanup not constructed"
