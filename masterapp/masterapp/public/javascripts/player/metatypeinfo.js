@@ -76,6 +76,7 @@ var typeinfo = {
         lblindex: 'Artist_name',
         qryindex: 'Artist_id',
         display:'Artists',
+        nodeclass: ArtistQueueNode,
         gridclass: ArtistGrid
     }, 
     album:{

@@ -232,8 +232,6 @@ function PlayQueue()
     my.tree.on('movenode', reorder, my);
     my.tree.on('checkchange', remove, my);
 }
-
-/* Make it so we can fire events */
 Ext.extend(PlayQueue, Ext.util.Observable);
 
 /* A node for a queue. This mostly just builds the treenode, but it also
@@ -269,7 +267,7 @@ function QueueNode(config)
     else
         this.root.appendChild(this);
 
-    this.dequeue = function() {return true;};
+    this.dequeue = function() {return false;};
     this.update_text = function () {};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
@@ -409,9 +407,25 @@ function AlbumQueueNode(config)
 }
 Ext.extend(AlbumQueueNode, QueueNode);
 
-function ArtistQueueNode(queue, name, record)
+function ArtistQueueNode(config)
 {
-    ArtistQueueNode.superclass.constructor.call(this, queue, record);
+    var my = this;
+    my.queue = config.queue;
+
+    var albums = new Ext.data.JsonStore({
+        url: 'metadata',
+        root: 'data',
+        sortInfo: {field: 'Album_title', direction: 'DESC'},
+        baseParams: {type:'album', artist: config.record.get('Artist_id')},
+        successParameter: 'success',
+        autoLoad: true,
+        fields: global_config.fields.album
+    });
+    albums.on('load', loaded, this);
+
+    function loaded(store, records, options)
+    {
+        my.queue.enqueue(records);
+    }
 }
-Ext.extend(ArtistQueueNode, QueueNode);
 
