@@ -63,10 +63,13 @@ mockfiles = {
         u'title': u'Save Öur City', 
         u'asin': u'B000092ZYX', 
         u'artist': u'Ludo', 
+        u'albumartist': u'Ludo',
         u'mbartistid': u'46cf71f5-7583-4834-b843-1f221a41860d', 
+        u'mbalbumartistid': u'46cf71f5-7583-4834-b843-1f221a41860d', 
         u'totaltracks': 5, 
         u'length': 396506, 
         u'artistsort': u'Ludo', 
+        u'albumartistsort': u'Ludo', 
         u'mbtrackid': u'1e8ee862-a4fe-4595-9a33-b6590bbbc13a', 
         u'tracknumber': 2
     },
