@@ -67,11 +67,17 @@
 			<div id="now-playing-progress"></div>
 			<div id="now-playing-time"></div>
 		</div>
-		<ul id="playcontrols">
-			<li id="playbutton"><a href="#"></a></li>
-			<li id="prevbutton"><a href="#"></a></li>
-			<li id="nextbutton"><a href="#"></a></li>
-		</ul>
+		<div id="playcontrols">
+			<a href="#"><div id="playbutton">
+					<div id="play-img" class="play"></div>
+			</div></a>
+			<a href="#"><div id="prevbutton">
+				<div id="prev-img"></div>
+			</div></a>
+			<a href="#"><div id="nextbutton">
+				<div id="next-img"></div>
+			</div></a>
+		</div>
 	</div>
     <div id="menu"></div>
     <div id="logo">

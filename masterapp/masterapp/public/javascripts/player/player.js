@@ -80,10 +80,15 @@ function Player()
 
     function playpause(e)
     {
-        if (playingsong)
+        if (playingsong) {
             soundManager.togglePause(playingsong);
-        else
+			sound = soundManager.getSoundById(playingsong);
+			set_pause(!sound.paused);
+		}
+        else {
             this.fireEvent('nextsong', this.playsong);
+			set_pause(false);
+		}
     }
 
     this.nextclicked = nextclicked;
@@ -150,6 +155,8 @@ function Player()
 			/*Song length is in milliseconds now,
 			  should I convert to seconds here or in the fn... */
 			length : song.data.Song_length})
+
+		set_pause(true);
     }
 
     this.stop = stop;
@@ -159,6 +166,7 @@ function Player()
             soundManager.destroySound(playingsong);
             playingsong = null;
         }
+		set_pause(false);
     }
 
     function loadsongurl(response, options)
@@ -288,5 +296,12 @@ function Player()
 			return song_length;
 	}
 
+	var play_img = document.getElementById('play-img');
+	function set_pause(bool) {
+		if (bool) 
+			play_img.className = 'pause';
+		else
+			play_img.className = 'play';
+	}
 }
 Ext.extend(Player, Ext.util.Observable);

@@ -2,31 +2,79 @@
 */
 #header {
 	width: 100%;
-    height: 72px;
+    height: 74px;
     border: none;
     background: ${c.profile.top_bg};
 }
 
 #playcontrols {
-    width: 92px;
-    height: 18px;
-    background: url('/images/controls-new.png');
-    margin: 0;
-	margin-left: 2px;
-	margin-top: 2px;
-    padding: 0;
+    height: 24px;
+    /*background: url('/images/controls-new.png');
+    z-index: 30; */
     position: relative;
-    z-index: 30;
+    padding: 0;
+	margin-top: 1px;
+	margin-bottom: 0;
+	/*background-color: #A0ACC0;
+	border: solid white 1px;
+	*/
 }
 
-#playcontrols li {
+#play-img {
+	height: 18px;
+	width: 18px;
+}
+
+#next-img {
+	height: 18px;
+	width: 31px;
+    background: transparent url('/images/controls-new.png') -18px -18px no-repeat;
+}
+
+#prev-img {
+	height: 18px;
+	width: 31px;
+    background: transparent url('/images/controls-new.png') -18px 0 no-repeat;
+}
+
+.pause {
+    background: transparent url('/images/controls-new.png') 0 -18px no-repeat;
+}	
+
+.play {
+    background: transparent url('/images/controls-new.png') 0 0 no-repeat;
+}
+
+#playcontrols a {
     margin: 0;
     padding: 0;
-    list-style: none;
-    position: absolute;
-    top: 0;
+    height: 22px;
+	background-color: #A0ACC0;
 }
 
+#prevbutton {
+	height: 22px;
+	position: absolute;
+	left: 35px;
+	padding-top: 3px;
+}
+
+#nextbutton {
+	position:absolute;
+	left: 72px;
+	padding-top: 3px;
+	height: 22px;
+}
+
+#playbutton {
+	width: 18px;
+	height: 22px;
+	padding-top: 3px;
+	padding-left: 8px;
+	position: absolute;
+};
+
+/*
 #playcontrols li, #playcontrols a {
     height: 18px;
     display: block;
@@ -60,6 +108,7 @@
     background: transparent url('/images/controls-new.png') -63px -18px no-repeat;
 }
 
+*/
 /*
 #prevbutton a:active {
     background: transparent url('/images/controls.png') 0 -18px no-repeat;
@@ -96,20 +145,21 @@
 
 #song-info-and-controls{
 	width: 250px;
+	height: 74px;
 	float: left;
-	padding: 2px;
 	z-index: 30;
+	padding: 0;
 }
 
 #now-playing-title {
 	color: white;
 	font-size: 14px;
-	margin-left: 2px;
+	margin-left: 5px;
 }
 
 #now-playing-artist {
 	color: white;
-	margin-left: 2px;
+	margin-left: 5px;
 }
 
 #now-playing-bar {
@@ -117,6 +167,7 @@
 	background-color: white;
 	border: 1px black solid;
 	position: relative;
+	margin-left: 3px;
 }
 
 #now-playing-progress {
