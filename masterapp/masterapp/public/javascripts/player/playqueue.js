@@ -5,6 +5,7 @@
  *  Updated 11/6/07 (r43) to support ExtJS --JMT
  *  Updated 03/08/08 (r162) to not suck --JMT
  *  Updated 04/08/08 (r548b875ae2a9) to support custom Node UIs --JMT
+ *  Updated 05/17/08 to remove the now playing and tweak the UI --JMT
  */
 
 function PlayQueue()
@@ -26,7 +27,6 @@ function PlayQueue()
     instructions = instructions.compile();
 
     this.played = new Array(); /* Just an array of all the played treenodes */
-    this.playing = null;
     this.root = new Ext.tree.TreeNode({expanded:true});
     this.tree = new Ext.tree.TreePanel({
         root: this.root,
@@ -36,6 +36,8 @@ function PlayQueue()
         containerScroll: true,
         enableDD: true,
         ddGroup: 'GridDD',
+        hlDrop: false,
+        lines: false,
         dropConfig: {
             allowContainerDrop: true,
             ddGroup: 'GridDD'
@@ -86,7 +88,7 @@ function PlayQueue()
             this.dequeue();
     }
 
-    this.newnode = newnode
+    this.newnode = newnode;
     function newnode(config)
     {
         type = config.record.get('type');
@@ -98,13 +100,12 @@ function PlayQueue()
     function dequeue()
     {
         if (this.playing != null) {
-            this.playing.remove();
-            this.played.push(this.playing.record);
+            this.played.push(this.playing);
             this.playing = null;
         }
         node = this.root.firstChild;
         if (node) {
-            node.dequeue();
+            this.playing = node.dequeue();
         }
         else
             this.fireEvent('stop');
@@ -120,17 +121,14 @@ function PlayQueue()
     function playnow(record)
     {
         if (this.playing != null) {
-            this.playing.remove();
-            this.played.push(this.playing.record);
+            this.played.push(this.playing);
             this.playing = null;
         }
         else
             this.panel.getLayout().setActiveItem(1);
 
-        new PlayingQueueNode({
-            record: record,
-            queue: this
-        });
+        this.playing = record;
+        this.fireEvent('playsong', record);
     }
 
     this.prev = prev;
@@ -143,19 +141,14 @@ function PlayQueue()
 
         if (this.playing)
             this.newnode({
-                record: this.playing.record, 
+                record: this.playing, 
                 index: 0,
-                replace: true
+                replace: false
             });
 
         var record = this.played.pop();
-        if (record) {
-            this.playing = new PlayingQueueNode({
-                queue: this, 
-                record: record, 
-                replace: false
-            });
-        }
+        if (record)
+            this.playing = record;
         else {
             this.playing = null;
             this.fireEvent('stop');
@@ -186,6 +179,14 @@ function PlayQueue()
     function showprev()
     {
         showingprev = true;
+        if (this.playing) {
+            new PlayingQueueNode(config = {
+                record: this.playing,
+                queue: this,
+                index: 0
+            });
+            this.showingplaying = true;
+        }
         for (i = this.played.length-1; i>=this.played.length-5; i--) {
             if (this.played[i]) {
                 var newnode = this.newnode({
@@ -209,14 +210,11 @@ function PlayQueue()
             else
                 break;
         }
+        if (this.showingplaying) {
+            this.root.firstChild.remove();
+            this.showingplaying = false;
+        }
         showingprev = false;
-    }
-
-    this.stopreorder = stopreorder
-    function stopreorder(tree, node, oldParent, newParent, index)
-    {
-        if (index == 0)
-            return false;
     }
 
     this.dropped = dropped;
@@ -227,7 +225,6 @@ function PlayQueue()
 
     this.tree.on('movenode', this.reorder, this);
     this.tree.on('checkchange', this.remove, this);
-    this.tree.on('beforemovenode', this.stopreorder, this);
 }
 
 /* Make it so we can fire events */
@@ -245,6 +242,7 @@ function QueueNode(config)
         this.config.uiProvider = QueueNodeUI;
 
     QueueNode.superclass.constructor.call(this, this.config);
+
     /* Prototype for QueueNodes, meant to be extended */
     this.record = config.record;
     this.queue = config.queue;
@@ -278,15 +276,12 @@ function SongQueueNode(config)
     config.draggable = true;
 
     SongQueueNode.superclass.constructor.call(this, config);
-    this.dequeue = dequeue
+
+    this.dequeue = dequeue;
     function dequeue()
     {
-        //this.config.replace = true;
-        new PlayingQueueNode({
-            queue: this.queue,
-            record: this.record,
-            replace: true
-        });
+        this.remove();
+        return this.record;
     }
 }
 Ext.extend(SongQueueNode, QueueNode);
@@ -305,8 +300,6 @@ function PlayingQueueNode(config)
     config.index = 0;
 
     SongQueueNode.superclass.constructor.call(this, config);
-    this.queue.playing = this;
-    this.queue.fireEvent('playsong', this.record);
 }
 Ext.extend(PlayingQueueNode, QueueNode);
 
@@ -340,15 +333,12 @@ function AlbumQueueNode(config)
     {
         /* When an album is dequeued, just get its songs and queue them */
         if (this.songs_loaded) {
-            this.queue.playing = new PlayingQueueNode({
-                record: this.firstChild.record,
-                queue: this.firstChild.queue
-            });
+            record = this.firstChild.record;
             this.firstChild.remove();
 
             /* now that one of my songs is playing, update myself*/
             this.update_text();
-            return true;
+            return record;
         }
         else {
             this.songs.load({
@@ -356,7 +346,7 @@ function AlbumQueueNode(config)
                 scope: this,
                 play: true
             });
-            return false
+            return false;
         }
     }
 
