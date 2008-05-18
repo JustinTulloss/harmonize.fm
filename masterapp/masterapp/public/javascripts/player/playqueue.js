@@ -161,12 +161,15 @@ function PlayQueue()
     this.remove = remove;
     function remove(node, checked)
     {
-        if (checked) {
-            var p = node.parentNode;
-            node.remove();
-            if (p.update_text)
-                p.update_text();
-        }
+        var p = node.parentNode;
+        node.remove();
+        if (p.update_text)
+            p.update_text();
+        /* This is in here because things are weird. Not having it caused
+         * the page to reload. Yeah, weird. Something to do with replacing
+         * the checkbox with a link. All sorts of bad.
+         */
+        Ext.EventObject.stopEvent();
     }
 
     this.reorder = reorder;

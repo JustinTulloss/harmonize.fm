@@ -25,9 +25,24 @@ a.qn-text{
 .qn-delete {
     height: 15px;
     width: 15px;
+    visibility: hidden;
     position: absolute;
     right: 1em;
-    cursor: pointer;
+}
+
+.qn-delete a {
+    position: absolute;
+    height: 15px;
+    width: 15px;
+    background: url('/images/delete.png') no-repeat;
+}
+
+.qn-delete img {
+    border: none;
+}
+
+.qn-delete a:hover {
+    background: url('/images/delete.png') 0 -15px no-repeat;
 }
 
 #status {

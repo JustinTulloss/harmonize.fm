@@ -109,12 +109,16 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var cb = typeof a.checked == 'boolean';
 
         var href = a.href ? a.href : Ext.isGecko ? "" : "#";
+	var target = a.hrefTarget ? a.hrefTarget : "";
         var buf = ['<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
             '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
             '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
             '<a hidefocus="on" class="x-tree-node-anchor qn-text" href="',href,'" tabIndex="1" ',
-            a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '><span class="qn-text" unselectable="on">',n.text,"</span></a>",
-            '<span class="qn-delete"><img src="',this.emptyIcon,'" /></span>',
+            ' target="'+target+'">',
+	    '<span class="qn-text" unselectable="on">',n.text,"</span></a>",
+            '<span class="qn-delete">',
+	        '<a href="', href, '" target="',target,'" tabindex="1">',
+                    '<img src="', this.emptyIcon, '"/></a></span>',
             "</div>",
             '<ul class="x-tree-node-ct" style="display:none;"></ul>',
             "</li>"].join('');
@@ -139,6 +143,10 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var index = 3;
         if(cb){
             this.checkbox = cs[index];
+	    var cbel = Ext.get(this.checkbox);
+	    cbel.on('click', function() {
+                this.fireEvent('checkchange', this.node, true)
+            }, this);
             index++;
         }
     },
@@ -157,14 +165,14 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
     onOver : function(e){
         this.addClass('x-tree-node-over');
         if (this.checkbox)
-            Ext.DomHelper.applyStyles(this.checkbox, "background: black");
+            Ext.DomHelper.applyStyles(this.checkbox, "visibility: visible");
     },
 
     //private
     onOut : function(e){
         this.removeClass('x-tree-node-over');
         if (this.checkbox)
-            Ext.DomHelper.applyStyles(this.checkbox, "background: none");
+            Ext.DomHelper.applyStyles(this.checkbox, "visibility: hidden");
     }
     
 });
