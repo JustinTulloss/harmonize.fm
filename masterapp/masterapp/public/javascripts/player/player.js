@@ -225,7 +225,7 @@ function Player()
     }
 
     /* Soundmanager default options */
-    soundManager.defaultOptions.volume = 80;
+    soundManager.defaultOptions.volume = volume;
 
 	var now_playing_title = document.getElementById('now-playing-title');
 	var now_playing_artist = document.getElementById('now-playing-artist');
@@ -254,9 +254,11 @@ function Player()
 			reset_progress_bar(null);
 	}
 
+	var now_playing_bar = document.getElementById('now-playing-bar');
 	var now_playing_time = document.getElementById('now-playing-time');
 	var now_playing_progress = document.getElementById('now-playing-progress');
 	function reset_progress_bar(new_song_length) {
+		now_playing_bar.style.visibility = 'visible';
 		reset_duration(new_song_length);
 		update_progress_bar(0);
 	}
@@ -303,5 +305,24 @@ function Player()
 		else
 			play_img.className = 'play';
 	}
+
+	/*Volume slider*/
+	var volume_control = new Ext.Slider({
+		renderTo: 'volume',
+		width: 60,
+		minValue: 0,
+		maxValue: 100,
+		value: volume
+	});
+
+	function onVolumeChange(slider, value) {
+		if (Math.floor(value) != volume) {
+			volume = Math.floor(value);
+			if (playingsong)
+				soundManager.getSoundById(playingsong).setVolume(volume);
+		}
+	}
+
+	volume_control.on('change', onVolumeChange);
 }
 Ext.extend(Player, Ext.util.Observable);

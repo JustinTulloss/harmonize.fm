@@ -31,25 +31,32 @@
     background: transparent url('/images/controls-new.png') -18px -18px no-repeat;
 }
 
+#nextbutton:hover #next-img {
+    background: transparent url('/images/controls-new.png') -18px -54px no-repeat;
+}
+
 #prev-img {
 	height: 18px;
 	width: 31px;
     background: transparent url('/images/controls-new.png') -18px 0 no-repeat;
 }
 
+#prevbutton:hover #prev-img {
+    background: transparent url('/images/controls-new.png') -18px -36px no-repeat;
+}
+
 .pause {
     background: transparent url('/images/controls-new.png') 0 -18px no-repeat;
 }	
+#playbutton:hover .pause {
+    background: transparent url('/images/controls-new.png') 0px -54px no-repeat;
+}
 
 .play {
     background: transparent url('/images/controls-new.png') 0 0 no-repeat;
 }
-
-#playcontrols a {
-    margin: 0;
-    padding: 0;
-    height: 22px;
-	background-color: #A0ACC0;
+#playbutton:hover .play {
+    background: transparent url('/images/controls-new.png') 0px -36px no-repeat;
 }
 
 #prevbutton {
@@ -74,41 +81,9 @@
 	position: absolute;
 };
 
-/*
-#playcontrols li, #playcontrols a {
-    height: 18px;
-    display: block;
-    outline: none;
-}
 
-#prevbutton {
-    left: 28px;
-    width: 29px;
-}
 
-#playbutton {
-    left: 0px;
-    width: 22px;
-}
 
-#nextbutton {
-    left: 63px;
-    width: 29px;
-}
-
-#prevbutton a:hover {
-    background: transparent url('/images/controls-new.png') -28px -18px no-repeat;
-}
-
-#playbutton a:hover {
-    background: transparent url('/images/controls-new.png') 0px -18px no-repeat;
-}
-
-#nextbutton a:hover {
-    background: transparent url('/images/controls-new.png') -63px -18px no-repeat;
-}
-
-*/
 /*
 #prevbutton a:active {
     background: transparent url('/images/controls.png') 0 -18px no-repeat;
@@ -168,6 +143,7 @@
 	border: 1px black solid;
 	position: relative;
 	margin-left: 3px;
+	visibility: hidden;
 }
 
 #now-playing-progress {
@@ -183,3 +159,20 @@
 	margin-left: 2px;
 	position: absolute;
 }
+
+#volume {
+	position: absolute;
+	left: 125px;
+	top: 0px;
+	/*width: 60px;*/
+}
+
+
+/*
+#volume-button {
+	height: 6px;
+	width: 6px;
+	background-color: gray;
+	cursor: pointer;
+}
+*/

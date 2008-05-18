@@ -21,6 +21,7 @@
     ${h.stylesheet_link_tag('button')}
     ${h.stylesheet_link_tag('box')}
     ${h.stylesheet_link_tag('form')}
+    ${h.stylesheet_link_tag('slider')}
     <title>Rubicon Web Player</title>
 
     <style type="text/css">
@@ -38,10 +39,10 @@
         };
     </script>
 
-    ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/RowExpander.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/adapter/ext/ext-base.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/ext-all-debug.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/SlideZone.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/RowExpander.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('lib/helpers.js')}
     ${h.javascript_include_tag('player/errmgr.js')}
@@ -77,6 +78,7 @@
 			<a href="#"><div id="nextbutton">
 				<div id="next-img"></div>
 			</div></a>
+			<div id="volume"></div>
 		</div>
 	</div>
     <div id="menu"></div>
