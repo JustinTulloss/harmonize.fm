@@ -11,8 +11,9 @@
 function PlayQueue()
 {
     var showingprev = false;
+    var my = this;
 
-    this.addEvents({
+    my.addEvents({
         newsong : true,
         reordered : true,
         playsong: true,
@@ -26,10 +27,11 @@ function PlayQueue()
     );
     instructions = instructions.compile();
 
-    this.played = new Array(); /* Just an array of all the played treenodes */
-    this.root = new Ext.tree.TreeNode({expanded:true});
-    this.tree = new Ext.tree.TreePanel({
-        root: this.root,
+    my.played = new Array(); /* Just an array of all the played treenodes */
+    my.playing = null;
+    my.root = new Ext.tree.TreeNode({expanded:true});
+    my.tree = new Ext.tree.TreePanel({
+        root: my.root,
         rootVisible: false,
         layout: 'fit',
         autoScroll: true,
@@ -44,7 +46,7 @@ function PlayQueue()
         }
     });
 
-    this.inspanel = new Ext.Panel({
+    my.inspanel = new Ext.Panel({
         title:"Instructions", 
         closable:false, 
         autocreate:true,
@@ -57,7 +59,7 @@ function PlayQueue()
             "vertical-align: middle; #position: relative; #top: 50%;"
     });
 
-    this.panel = new Ext.Panel({
+    my.panel = new Ext.Panel({
         id: 'queuepanel',
         region: 'west',
         split: true,
@@ -67,133 +69,134 @@ function PlayQueue()
         layout: 'card',
         cls: 'queue',
         activeItem: 0,
-        items: [this.inspanel, this.tree]
+        items: [my.inspanel, my.tree]
     });
 
 
-    this.enqueue = enqueue;
+    my.enqueue = enqueue;
     function enqueue(records)
     {
-        var play = false;
-        if (this.root.childNodes.length == 0) {
-            play = true;
-            this.panel.getLayout().setActiveItem(1);
-        }
-
         for (i = 0; i < records.length; i++) {
-            this.newnode({record:records[i]});
+            my.newnode({record:records[i]});
         }
 
-        if(play)
-            this.dequeue();
+        if(my.playing == null) {
+            my.panel.getLayout().setActiveItem(1);
+            my.dequeue();
+        }
     }
 
-    this.newnode = newnode;
+    my.newnode = newnode;
     function newnode(config)
     {
         type = config.record.get('type');
-        config.queue = this;
+        config.queue = my;
         return new typeinfo[type].nodeclass(config);
     }
 
-    this.dequeue = dequeue;
+    my.dequeue = dequeue;
     function dequeue()
     {
-        if (this.playing != null) {
-            this.played.push(this.playing);
-            this.playing = null;
+        if (my.playing != null) {
+            my.played.push(my.playing);
+            my.playing = null;
         }
-        node = this.root.firstChild;
+        node = my.root.firstChild;
         if (node) {
-            this.playing = node.dequeue();
+            play(node.dequeue());
         }
         else
-            this.fireEvent('stop');
+            my.fireEvent('stop');
     }
 
-    this.playgridrow = playgridrow
+    my.playgridrow = playgridrow
     function playgridrow(grid, songindex, e)
     {
-        this.playnow(grid.store.getAt(songindex));
+        my.playnow(grid.store.getAt(songindex));
     }
 
-    this.playnow = playnow;
+    my.playnow = playnow;
     function playnow(record)
     {
-        if (this.playing != null) {
-            this.played.push(this.playing);
-            this.playing = null;
+        if (my.playing != null) {
+            my.played.push(my.playing);
+            my.playing = null;
         }
         else
-            this.panel.getLayout().setActiveItem(1);
+            my.panel.getLayout().setActiveItem(1);
 
-        this.playing = record;
-        this.fireEvent('playsong', record);
+        play(record);
     }
 
-    this.prev = prev;
+    function play(record)
+    {
+        if (record) {
+            my.playing = record;
+            my.fireEvent('playsong', record);
+        }
+    }
+
+    my.prev = prev;
     function prev()
     {
         if (showingprev) {
-            this.hideprev();
+            my.hideprev();
             show = true;
         }
 
-        if (this.playing)
-            this.newnode({
-                record: this.playing, 
+        if (my.playing)
+            my.newnode({
+                record: my.playing, 
                 index: 0,
                 replace: false
             });
 
-        var record = this.played.pop();
+        var record = my.played.pop();
         if (record)
-            this.playing = record;
+            play(record);
         else {
-            this.playing = null;
-            this.fireEvent('stop');
+            my.playing = null;
+            my.fireEvent('stop');
         }
 
         if (show)
-            this.showprev();
+            my.showprev();
     }
 
-    this.remove = remove;
     function remove(node, checked)
     {
         var p = node.parentNode;
         node.remove();
         if (p.update_text)
             p.update_text();
-        /* This is in here because things are weird. Not having it caused
+        /* my is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
          */
         Ext.EventObject.stopEvent();
     }
 
-    this.reorder = reorder;
     function reorder(tree, node, oldParent, newParent, index)
     {
-        this.fireEvent('reordered');
+        my.fireEvent('reordered');
     }
 
-    this.showprev = showprev
+    my.showprev = showprev;
     function showprev()
     {
         showingprev = true;
-        if (this.playing) {
+        if (my.playing) {
             new PlayingQueueNode(config = {
-                record: this.playing,
-                queue: this,
+                record: my.playing,
+                queue: my,
                 index: 0
             });
-            this.showingplaying = true;
+            my.showingplaying = true;
         }
-        for (i = this.played.length-1; i>=this.played.length-5; i--) {
-            if (this.played[i]) {
-                var newnode = this.newnode({
-                    record: this.played[i], 
+        for (i = my.played.length-1; i>=my.played.length-5; i--) {
+            if (my.played[i]) {
+                var newnode = my.newnode({
+                    record: my.played[i], 
                     disabled: true,
                     index:0
                 });
@@ -203,31 +206,31 @@ function PlayQueue()
         }
     }
 
-    this.hideprev = hideprev
+    my.hideprev = hideprev;
     function hideprev()
     {
-        for (i = this.played.length-1 ; i>=this.played.length-5; i--) {
-            if (this.played[i]) {
-                this.root.firstChild.remove();
+        for (i = my.played.length-1 ; i>=my.played.length-5; i--) {
+            if (my.played[i]) {
+                my.root.firstChild.remove();
             }
             else
                 break;
         }
-        if (this.showingplaying) {
-            this.root.firstChild.remove();
-            this.showingplaying = false;
+        if (my.showingplaying) {
+            my.root.firstChild.remove();
+            my.showingplaying = false;
         }
         showingprev = false;
     }
 
-    this.dropped = dropped;
+    my.dropped = dropped;
     function dropped(source, e, o)
     {
         alert(o);
     }
 
-    this.tree.on('movenode', this.reorder, this);
-    this.tree.on('checkchange', this.remove, this);
+    my.tree.on('movenode', reorder, my);
+    my.tree.on('checkchange', remove, my);
 }
 
 /* Make it so we can fire events */
