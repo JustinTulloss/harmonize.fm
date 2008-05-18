@@ -164,15 +164,5 @@
 	position: absolute;
 	left: 125px;
 	top: 0px;
-	/*width: 60px;*/
 }
 
-
-/*
-#volume-button {
-	height: 6px;
-	width: 6px;
-	background-color: gray;
-	cursor: pointer;
-}
-*/
