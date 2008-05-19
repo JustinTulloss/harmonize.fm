@@ -60,7 +60,8 @@ class DBRecorder(BaseAction):
             self.model.Session.commit() # Woot! Write baby, write!
             file['msg'] = "File successfully uploaded"
             file['na'] = fileprocess.na.NOTHING
-        except:
+        except Exception, e:
+            log.warn("Could not commit %s: %s", file['title'], e)
             self.model.Session.rollback()
             file['msg'] = "File could not be committed to database"
             file['na'] = fileprocess.na.FAILURE
@@ -93,7 +94,7 @@ class DBRecorder(BaseAction):
         )
         album = qry.first()
         if album == None:
-            album = self.create_album(file, artist)
+            album = self.create_album(file)
 
         song.album = album
         song.artist = artist
@@ -104,8 +105,14 @@ class DBRecorder(BaseAction):
 
         return song
 
-    def create_album(self, file, artist):
+    def create_album(self, file):
         album = self.model.Album()
+        qry = self.model.Session.query(self.model.Artist).filter(
+            self.model.Artist.mbid == file['mbalbumartistid']
+        )
+        artist = qry.first()
+        if artist == None:
+            artist = self.create_artist(file, albumartist=True)
         for key in file.keys():
             try:
                 setattr(album, key, file[key])
@@ -118,11 +125,16 @@ class DBRecorder(BaseAction):
         self.model.Session.save(album)
         return album
 
-    def create_artist(self, file):
+    def create_artist(self, file, albumartist = False):
         artist = self.model.Artist()
-        artist.name = file.get('artist')
-        artist.mbid = file.get('mbartistid')
-        artist.sort = file.get('artistsort')
+        if albumartist:
+            artist.mbid = file.get('mbalbumartistid')
+            artist.name = file.get('albumartist')
+            artist.sort = file.get('albumartistsort')
+        else:
+            artist.mbid = file.get('mbartistid')
+            artist.name = file.get('artist')
+            artist.sort = file.get('artistsort')
 
         log.debug("Saving new artist %s", artist.name)
         self.model.Session.save(artist)

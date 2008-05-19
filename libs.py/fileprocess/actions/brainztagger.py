@@ -62,14 +62,22 @@ class BrainzTagger(BaseAction):
             if release:
                 mbtrack = self._match_file_to_release(file, release)
                 if mbtrack:
-                    return self._cash_out(file, mbtrack, release, release.artist)
+                    if mbtrack.artist:
+                        artist = mbtrack.artist
+                    else:
+                        artist = release.artist
+                    return self._cash_out(file, mbtrack, release, artist)
             else:
                 release = self._find_album(file, cachekey)
                 if release:
                     self.releasecache[cachekey] = release
                     mbtrack = self._match_file_to_release(file, release)
                     if mbtrack:
-                        return self._cash_out(file, mbtrack, release, release.artist)
+                        if mbtrack.artist:
+                            artist = mbtrack.artist
+                        else:
+                            artist = release.artist
+                        return self._cash_out(file, mbtrack, release, artist)
 
         # Could not match against an existing album, do a file analysis
         result = self._find_track(file)
@@ -132,6 +140,16 @@ class BrainzTagger(BaseAction):
         file[u'mbalbumid'] = album.id.rsplit('/').pop()
         file[u'mbartistid'] = artist.id.rsplit('/').pop()
         file[u'asin'] = album.asin #probably a good thing to have
+
+        # Album artist stuff
+        try:
+            file[u'mbalbumartistid'] = album.artist.id.rsplit('/').pop()
+            file[u'albumartist'] = album.artist.name
+            file[u'albumartistsort'] = album.artist.sortName
+        except:
+            file[u'mbalbumartistid'] = file['mbartistid']
+            file[u'albumartist'] = file['artist']
+            file[u'albumartistsort'] = file['artistsort']
 
         log.debug('%s successfully tagged by MusicBrainz', track.title)
         return file

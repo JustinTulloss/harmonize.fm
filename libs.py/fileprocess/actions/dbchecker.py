@@ -50,7 +50,6 @@ class DBChecker(BaseAction):
         qry = model.Session.query(model.File).filter(
             model.File.sha==file['sha']
         )
-
         dbfile = qry.first()
         if dbfile is not None: #this file exists, create a owner and get out
             owner = model.Owner()

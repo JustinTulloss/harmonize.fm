@@ -309,7 +309,7 @@ function Player()
 	/*Volume slider*/
 	var volume_control = new Ext.Slider({
 		renderTo: 'volume',
-		width: 60,
+		width: 54,
 		minValue: 0,
 		maxValue: 100,
 		value: volume

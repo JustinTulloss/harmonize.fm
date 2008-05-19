@@ -112,6 +112,12 @@ mapper(Artist, artists_table, properties={
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
     ),
+    'albums': relation(
+        Album, 
+        lazy = True, 
+        foreign_keys = [albums_table.c.artistid],
+        primaryjoin = artists_table.c.id == albums_table.c.artistid,
+    ),
     'availsongs': column_property(
         select([func.count(songs_table.c.id).label('availsongs')],
             songs_table.c.artistid == artists_table.c.id,
