@@ -78,7 +78,9 @@
 			<a href="#"><div id="nextbutton">
 				<div id="next-img"></div>
 			</div></a>
+			<div id="no-volume"></div>
 			<div id="volume"></div>
+			<div id="full-volume"></div>
 		</div>
 	</div>
     <div id="menu"></div>

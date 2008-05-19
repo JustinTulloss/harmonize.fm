@@ -162,7 +162,26 @@
 
 #volume {
 	position: absolute;
-	left: 125px;
+	left: 132px;
 	top: 0px;
 }
+
+#no-volume {
+	position: absolute;
+	left: 118px;
+	top: 6px;
+    background: transparent url('/images/controls-new.png') -60px -21px no-repeat;
+	height: 14px;
+	width: 11px;
+}
+
+#full-volume {
+	position: absolute;
+	left: 193px;
+	top: 6px;
+    background: transparent url('/images/controls-new.png') -71px -21px no-repeat;
+	height: 14px;
+	width: 19px;
+}
+
 
