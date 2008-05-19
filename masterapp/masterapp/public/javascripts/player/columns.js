@@ -2,16 +2,24 @@
  * what to send to the client
  */
 
+var defaultWidths = {
+    'Album_title': 225,
+    'Artist_name': 175,
+    'Song_title': 400
+};
+
 var BrowserColumns = {
     'Song_tracknumber': {
         id: 'tracknumber', 
         header: "Track",
         width: 60,
+        fixed: true,
         renderer: render.availColumn,
         dataIndex: 'Song_tracknumber'
     },
     'Song_title': {
         id: 'title', 
+        width: defaultWidths.Song_title,
         header: "Title",
         dataIndex: 'Song_title'
     }, 
@@ -20,30 +28,36 @@ var BrowserColumns = {
         header: "Length",
         renderer: render.lengthColumn,
         width: 60,
+        fixed: true,
         dataIndex: 'Song_length'
     },
     'Album_title': {
         id: 'album',
         header: 'Album',
         sortable: true,
-        width: 200,
+        width: defaultWidths.Album_title,
         dataIndex: 'Album_title'
     },
     'Album_year': {
         id: 'year',
         header: "Year",
         width: 50,
+        fixed: true,
         dataIndex: 'Album_year'
     },
     'Album_length': {
         id:'album_playtime',
-        header: "Total Time",
+        header: "Length",
         renderer: render.lengthColumn,
+        fixed: true,
+        width: 65,
         dataIndex: 'Album_length'
     },
     'Album_availsongs': {
         id:'num_tracks',
         header: "Tracks",
+        width: 65,
+        fixed: true,
         dataIndex: 'Album_havesongs',
         renderer: render.availColumn
     },
@@ -51,17 +65,23 @@ var BrowserColumns = {
         id: 'artist',
         header: 'Artist',
         sortable: true,
-        width: 200,
+        width: defaultWidths.Artist_name,
         dataIndex: 'Artist_name'
     },
     'Artist_numalbums': {
         id:'num_albums',
+        width: 60,
+        fixed: true,
         header: "Albums",
+        css:'text-align: center;',
         dataIndex: 'Artist_numalbums'
     },
     'Artist_availsongs': {
         id:'num_tracks',
         header: "Songs",
+        width: 50,
+        fixed: true,
+        css:'text-align: center;',
         dataIndex: 'Artist_availsongs',
         renderer: render.availColumn
     },
@@ -92,11 +112,13 @@ var BrowserColumns = {
     },
     'Friend_numartists': {
         id:'numartists',
+        width: 60,
         header: "# Artists",
         dataIndex: 'Friend_numartists'
     },
     'Friend_numalbums': {
         id:'numalbums',
+        width: 60,
         header: "# Albums",
         dataIndex: 'Friend_numalbums'
     },
@@ -108,8 +130,10 @@ var BrowserColumns = {
     'actions': {  
         id: 'add',
         header: 'Actions',
+        css:'text-align: center;',
         renderer: render.enqColumn,
-        width: 55,
+        fixed: true,
+        width: 58,
         sortable: false
     },
     'expander': new Ext.grid.RowExpander()
@@ -120,8 +144,8 @@ var ColConfig = {
         BrowserColumns['actions'], 
         BrowserColumns['Song_tracknumber'], 
         BrowserColumns['Song_title'], 
-        BrowserColumns['Artist_name'], 
         BrowserColumns['Album_title'], 
+        BrowserColumns['Artist_name'], 
         BrowserColumns['Song_length']
     ],
     album: [
