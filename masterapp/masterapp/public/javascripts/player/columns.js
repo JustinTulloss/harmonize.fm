@@ -119,7 +119,8 @@ var BrowserColumns = {
     'Friend_numalbums': {
         id:'numalbums',
         width: 60,
-        header: "# Albums",
+        fixed: true,
+        header: "Albums",
         dataIndex: 'Friend_numalbums'
     },
     'Friend_likes': {
