@@ -109,7 +109,7 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var cb = typeof a.checked == 'boolean';
 
         var href = a.href ? a.href : Ext.isGecko ? "" : "#";
-	var target = a.hrefTarget ? a.hrefTarget : "";
+        var target = a.hrefTarget ? a.hrefTarget : "";
         var buf = ['<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
             '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
             '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
@@ -138,6 +138,10 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var cs = this.elNode.childNodes;
         this.indentNode = cs[0];
         this.ecNode = cs[1];
+        if (!this.node.leaf) {
+            el = Ext.get(this.ecNode);
+            el.addClass('x-tree-elbow-plus');
+        }
         this.anchor = cs[2];
         this.textNode = cs[2].firstChild;
         var index = 3;
