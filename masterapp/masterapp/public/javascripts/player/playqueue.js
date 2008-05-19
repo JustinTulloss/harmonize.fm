@@ -32,17 +32,19 @@ function PlayQueue()
     my.root = new Ext.tree.TreeNode({expanded:true});
     my.tree = new Ext.tree.TreePanel({
         root: my.root,
+        id: 'queuetree',
         rootVisible: false,
         layout: 'fit',
+        height: '100%',
         autoScroll: true,
         containerScroll: true,
         enableDD: true,
-        ddGroup: 'GridDD',
         hlDrop: false,
         lines: false,
         dropConfig: {
             allowContainerDrop: true,
-            ddGroup: 'GridDD'
+            onContainerDrop: paneldrop,
+            onContainerOver: function(source, e, data){return this.dropAllowed;}
         }
     });
 
@@ -73,11 +75,13 @@ function PlayQueue()
     });
 
 
+
     my.enqueue = enqueue;
     function enqueue(records)
     {
-        for (i = 0; i < records.length; i++) {
-            my.newnode({record:records[i]});
+        for (i = 0; i < (records.length); i++) {
+            var nn = newnode({record:records[i]});
+            my.root.appendChild(nn);
         }
 
         if(my.playing == null) {
@@ -86,7 +90,6 @@ function PlayQueue()
         }
     }
 
-    my.newnode = newnode;
     function newnode(config)
     {
         type = config.record.get('type');
@@ -144,12 +147,13 @@ function PlayQueue()
             show = true;
         }
 
-        if (my.playing)
-            my.newnode({
-                record: my.playing, 
-                index: 0,
-                replace: false
+        if (my.playing) {
+            nn = newnode({
+                queue: my,
+                record: my.playing
             });
+            my.root.insertBefore(nn, my.root.item(0));
+        }
 
         var record = my.played.pop();
         if (record)
@@ -169,7 +173,7 @@ function PlayQueue()
         node.remove();
         if (p.update_text)
             p.update_text();
-        /* my is in here because things are weird. Not having it caused
+        /* this is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
          */
@@ -186,20 +190,20 @@ function PlayQueue()
     {
         showingprev = true;
         if (my.playing) {
-            new PlayingQueueNode(config = {
+            nn = new PlayingQueueNode(config = {
                 record: my.playing,
                 queue: my,
-                index: 0
             });
+            my.root.insertBefore(nn, my.root.item(0));
             my.showingplaying = true;
         }
         for (i = my.played.length-1; i>=my.played.length-5; i--) {
             if (my.played[i]) {
-                var newnode = my.newnode({
+                var nn = newnode({
                     record: my.played[i], 
-                    disabled: true,
-                    index:0
+                    disabled: true
                 });
+                my.root.insertBefore(nn, my.root.item(0));
             }
             else
                 break;
@@ -223,12 +227,55 @@ function PlayQueue()
         showingprev = false;
     }
 
-    my.dropped = dropped;
-    function dropped(source, e, o)
+    function paneldrop(source, e, data)
     {
-        alert(o);
+        if (data.selections) {
+            for (var i = 0; i < data.selections.length; i++) {
+                var r = data.selections[i];
+                my.root.appendChild(newnode({
+                    record: r,
+                    queue: my
+                }));
+                if(my.playing == null) {
+                    my.panel.getLayout().setActiveItem(1);
+                    my.dequeue();
+                }
+            }
+        }
     }
 
+    function treedrop(e)
+    {
+        var nodes = [];
+        if (e.data.selections) {
+            for (var i=0; i < e.data.selections.length; i++) {
+                var row = e.data.selections[i];
+                nodes.push(newnode({
+                    record: row,
+                    queue: my
+                }));
+            }
+            e.dropNode = nodes;
+            e.cancel = false;
+        }
+    }
+
+    var dtarget;
+    my.inspanel.on('render', function() {
+        dtarget = new Ext.dd.DropTarget(my.panel.getEl(), {
+            notifyDrop: paneldrop,
+            ddGroup: 'TreeDD',
+        });
+    });
+    my.inspanel.on('hide', function() {
+        dtarget.isTarget = false;
+    });
+    my.panel.on('mouseup', function(){alert('wee'); return false;});
+    my.tree.on('bodyresize', function(){
+        if (my.tree.dropZone)
+            my.tree.dropZone.setPadding(0,0,my.tree.getInnerHeight(),0);
+    });
+    my.tree.on('beforenodedrop', treedrop, my);
     my.tree.on('movenode', reorder, my);
     my.tree.on('checkchange', remove, my);
 }
@@ -250,22 +297,6 @@ function QueueNode(config)
     /* Prototype for QueueNodes, meant to be extended */
     this.record = config.record;
     this.queue = config.queue;
-    this.root = config.root;
-    if(this.root == null)
-        this.root = this.queue.root;
-
-    if (config.index != null) {
-        if (config.replace)
-            this.queue.root.replaceChild(this, 
-                this.root.item(this.config.index)
-            );
-        else
-            this.root.insertBefore(this,
-                this.root.item(this.config.index)
-            );
-    }
-    else
-        this.root.appendChild(this);
 
     this.dequeue = function() {return false;};
     this.update_text = function () {};
@@ -394,12 +425,11 @@ function AlbumQueueNode(config)
     function queue_songs()
     {
         this.songs.each(function(record) {
-            newnode = new SongQueueNode({
+            var nn = new SongQueueNode({
                 queue: this.queue, 
                 record: record,
-                root: this,
-                index:0
             });
+            this.appendChild(nn);
         }, this);
     }
 

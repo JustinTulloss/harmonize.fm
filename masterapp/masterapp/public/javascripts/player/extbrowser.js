@@ -61,6 +61,7 @@ function BaseGrid(config)
     config.selModel=new Ext.grid.RowSelectionModel();
     config.enableColLock=false;
     config.enableDragDrop=true;
+    config.ddGroup = 'TreeDD';
     config.loadMask=true;
     config.trackMouseOver=false;
     config.stripeRows = true;
