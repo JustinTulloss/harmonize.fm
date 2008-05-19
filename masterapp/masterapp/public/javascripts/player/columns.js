@@ -165,7 +165,6 @@ var ColConfig = {
     ],
     playlist: [],
     friend: [
-        BrowserColumns['actions'], 
         BrowserColumns['Friend_name'],
         BrowserColumns['Friend_numalbums'],
         BrowserColumns['Friend_likes']
