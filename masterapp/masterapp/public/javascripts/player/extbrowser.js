@@ -31,13 +31,6 @@ function Browser()
         else
             params = {type:crumb.type};
 
-        crumb.ds.load({
-            params:params,
-            callback: function(){this.fireEvent('chgstatus', null)},
-            scope: this
-        });
-        this.fireEvent('chgstatus', 'Loading...');
-
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
@@ -49,6 +42,14 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+
+        crumb.ds.load({
+            params:params,
+            callback: function(){this.fireEvent('chgstatus', null)},
+            scope: this
+        });
+        this.fireEvent('chgstatus', 'Loading...');
+
     }
 }
 Ext.extend(Browser, Ext.util.Observable);
