@@ -81,4 +81,10 @@ def filter_any_friend(qry):
     return qry
 
 def get_user_info():
-    return facebook.users.getInfo(session['fbuid'])[0]
+    info = None
+    while not info:
+        try:
+            info = facebook.users.getInfo(session['fbuid'])[0]
+        except:
+            sleep(.1)
+    return info

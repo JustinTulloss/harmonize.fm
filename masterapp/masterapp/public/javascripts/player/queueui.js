@@ -26,12 +26,9 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var buf = [
             '<li class="x-tree-node">',
-            '<div class="np-label" unselectable="on">Now Playing</div>',
             '<div ext:tree-node-id="',n.id,'" class="np-node x-tree-node-leaf x-unselectable ', a.cls,'">',
+                '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
                 '<div class="np-title">', a.title, '</div>',
-                '<div class="np-info">', a.artist, '</div>',
-                '<div class="np-info">', a.album, '</div>',
-                '<div id=timeline tabindex="-1"></div>',
             "</div>",
             '<ul class="x-tree-node-ct" style="display:none;"></ul>',
             "</li>"
@@ -85,6 +82,26 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
     },
 
     // private
+    highlight : function(){
+        var tree = this.node.getOwnerTree();
+        Ext.fly(this.wrap).highlight(
+            tree.hlColor || "C3DAF9",
+            {endColor: tree.hlBaseColor}
+        );
+    },
+   
+    // private
+    onSelectedChange : function(state){
+        if(state){
+            this.focus();
+            //this.addClass("x-tree-selected");
+        }else{
+            //this.blur();
+            //this.removeClass("x-tree-selected");
+        }
+    },
+
+    // private
     renderElements : function(n, a, targetNode, bulkRender){
         // add some indent caching, this helps performance when rendering a large tree
         this.indentMarkup = n.parentNode ? n.parentNode.ui.getChildIndent() : '';
@@ -92,16 +109,23 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var cb = typeof a.checked == 'boolean';
 
         var href = a.href ? a.href : Ext.isGecko ? "" : "#";
+        var target = a.hrefTarget ? a.hrefTarget : "";
         var buf = ['<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
             '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
             '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
-            '<a hidefocus="on" class="x-tree-node-anchor" href="',href,'" tabIndex="1" ',
-            a.hrefTarget ? ' target="'+a.hrefTarget+'"' : "", '><span unselectable="on">',n.text,"</span></a>",
-            cb ? ('<input class="x-tree-node-cb qn-cb" type="checkbox" ' + (a.checked ? 'checked="checked" />' : '/>')) : ''
-            ,"</div>",
+            '<a hidefocus="on" class="x-tree-node-anchor qn-text" href="',href,'" tabIndex="1" ',
+            ' target="'+target+'">',
+	    '<span class="qn-text" unselectable="on">',n.text,"</span></a>",
+            '<span class="qn-delete">',
+	        '<a href="', href, '" target="',target,'" tabindex="1">',
+                    '<img src="', this.emptyIcon, '"/></a></span>',
+            "</div>",
             '<ul class="x-tree-node-ct" style="display:none;"></ul>',
             "</li>"].join('');
 
+        /*
+            '<span class="x-tree-node-anchor qn-text" unselectable="on">',n.text,"</span>",
+        */
         var nel;
         if(bulkRender !== true && n.nextSibling && (nel = n.nextSibling.ui.getEl())){
             this.wrap = Ext.DomHelper.insertHtml("beforeBegin", nel, buf);
@@ -114,11 +138,19 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var cs = this.elNode.childNodes;
         this.indentNode = cs[0];
         this.ecNode = cs[1];
+        if (!this.node.leaf) {
+            el = Ext.get(this.ecNode);
+            el.addClass('x-tree-elbow-plus');
+        }
         this.anchor = cs[2];
         this.textNode = cs[2].firstChild;
         var index = 3;
         if(cb){
             this.checkbox = cs[index];
+	    var cbel = Ext.get(this.checkbox);
+	    cbel.on('click', function() {
+                this.fireEvent('checkchange', this.node, true)
+            }, this);
             index++;
         }
     },

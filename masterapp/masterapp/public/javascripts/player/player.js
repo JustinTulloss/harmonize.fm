@@ -191,9 +191,11 @@ function Player()
         });
 
         /* create progressbar */
+        /*
         progressbar = new Ext.ProgressBar({
             renderTo: 'timeline'
         });
+        */
 
         /*finally play */
         soundManager.play(playingsong);

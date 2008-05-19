@@ -1,42 +1,48 @@
+/* vim:filetype=css
+ */
 .queue {
 	background-color: ${c.profile.queue_bg};
 }
 
-.np-label {
-    position: relative;
-    bottom: -1.2pt;
-    color: ${c.profile.top_bg};
-    font-size: 6pt;
-    margin-left: 2em;
+.dragging {
+    cursor: move;
 }
 
 .np-node {
-    background-color: ${c.profile.np_bg};
-    border: 1px solid ${c.profile.top_bg};
-    padding: 0.5em;
-    overflow: hidden;
-    margin-left: 1em;
-    margin-right: 1em;
-}
-
-.np-swatch {
-    float: right;
-}
-
-.np-title {
-    font-size: 10pt;
     font-weight: bold;
+    font-size: 9pt;
 }
 
-.np-info {
-    font-size: 8pt;
-    padding-left: 1em;
+a.qn-text{
+    cursor: default;
 }
 
-.qn-cb{
+.qn-text{
+    font-size: 9pt;
+    color: ${c.profile.primary_txt};
+}
+
+.qn-delete {
+    height: 15px;
+    width: 15px;
+    visibility: hidden;
     position: absolute;
     right: 1em;
-    visibility: hidden;
+}
+
+.qn-delete a {
+    position: absolute;
+    height: 15px;
+    width: 15px;
+    background: url('/images/delete.png') no-repeat;
+}
+
+.qn-delete img {
+    border: none;
+}
+
+.qn-delete a:hover {
+    background: url('/images/delete.png') 0 -15px no-repeat;
 }
 
 #status {
