@@ -543,6 +543,7 @@ a.x-grid3-hd-btn:hover {
 }
 
 .x-grid-empty {
+    text-align: center;
     padding:10px;
     color:gray;
 }

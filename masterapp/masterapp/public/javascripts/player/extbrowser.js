@@ -66,8 +66,8 @@ function BaseGrid(config)
     config.stripeRows = true;
     config.viewConfig = {
         forceFit: true,
-        emptyText: 'You have not uploaded any music yet.<br>'+
-            'Until you do, why not listen to your friends\' music?',
+        emptyText: 'There isn\'t any music here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
         deferEmptyText: true
     };
 
@@ -121,7 +121,7 @@ function SongGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('title', text, true, false);
+        this.getStore().filter('Song_title', text, true, false);
         return true;
     }
 }
@@ -152,7 +152,7 @@ function AlbumGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('album', text, true, false);
+        this.getStore().filter('Album_title', text, true, false);
         return true;
     }
     
@@ -185,7 +185,7 @@ function ArtistGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('artist', text, true, false);
+        this.getStore().filter('Artist_name', text, true, false);
         return true;
     }
 }
@@ -199,7 +199,6 @@ function PlaylistGrid(config)
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
-    //config.autoExpandColumn = 'name';
 
     PlaylistGrid.superclass.constructor.call(this, config);
 }
@@ -216,8 +215,14 @@ function FriendGrid(config)
 {
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
-    //config.autoExpandColumn = 'friend';
 
     FriendGrid.superclass.constructor.call(this, config);
+
+    this.search = search;
+    function search(text)
+    {
+        this.getStore().filter('Friend_name', text, true, false);
+        return true;
+    }
 }
 Ext.extend(FriendGrid, BaseGrid);
