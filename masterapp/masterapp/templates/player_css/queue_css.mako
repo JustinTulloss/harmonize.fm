@@ -27,7 +27,7 @@ a.qn-text{
     width: 15px;
     visibility: hidden;
     position: absolute;
-    right: 1em;
+    right: 1.4em;
 }
 
 .qn-delete a {
