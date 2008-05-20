@@ -55,9 +55,9 @@ def main():
     # Write out compressed JS
     outp = os.path.join(PREFIXES['js'], compressed_player_files.javascripts[0])
 
-	dir_name = os.path.dirname(outp)
-	if not os.path.exists(dir_name):
-		os.makedirs(dir_name)
+    dir_name = os.path.dirname(outp)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
 
     js = compress(concatenate(jsfiles), open(outp, 'wb'), 'js')
 
