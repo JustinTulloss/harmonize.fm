@@ -64,6 +64,28 @@ class LoginServer(BaseHTTPRequestHandler):
 		self.end_headers()
 		self.wfile.write(self.success_response)
 		
-	success_response = """<html><body><p>Login successful!</p>
-							<p>You can close this window.</p>
-							</body></html>"""
+	success_response = """<html>
+	<style type="text/css">
+		body {
+			font-family: "Lucida Sans Unicode","Lucida Grande","Lucida Sans","Lucida",sans-serif;
+		}
+		#main {
+			text-align: center;
+			width: 100%;
+			color: #334466;
+			padding-top: 10px;
+		}
+		h1 {
+			font-size: 34pt;
+			margin-top: 30px;
+		}
+	</style>
+<body>
+<div id="main">
+	<center>
+	<img src="http://stage.harmonize.fm/images/bigharmonized.png" />
+		<h1>Login successful!</h1>
+		<h2>You can close this window.</h2>
+	</center>
+</div>
+</body></html>"""
