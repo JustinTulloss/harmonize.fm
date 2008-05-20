@@ -91,12 +91,6 @@
 </div>
 
 <div id="home">
-    <div id="blog">
-        % for entry in c.entries:
-            ${format_entry(entry)}
-        % endfor
-    </div>
-    <div id="mainlogo"><img src="/images/bigharmonized2.png" /></div>
     <%
         href = None
         if c.platform == 'windows':
@@ -108,6 +102,12 @@
     <div id="downloadlink">
         <a href="${href}">Download the uploader</a>
     </div>
+    <div id="blog">
+        % for entry in c.entries:
+            ${format_entry(entry)}
+        % endfor
+    </div>
+    <div id="mainlogo"><img src="/images/bigharmonized2.png" /></div>
     % endif
 </div>
 
