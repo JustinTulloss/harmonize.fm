@@ -100,9 +100,9 @@
     <%
         href = None
         if c.platform == 'windows':
-            href = '/uploaders/setup.exe'
+            href = '/uploaders/Setup.exe'
         elif c.platform == 'mac':
-            href = '/uploaders/harmonize.dmg'
+            href = '/uploaders/Harmonize.dmg'
     %>
     % if href:
     <div id="downloadlink">
