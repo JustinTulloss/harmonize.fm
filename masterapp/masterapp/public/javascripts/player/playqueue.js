@@ -353,7 +353,7 @@ function AlbumQueueNode(config)
     this.songs = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
-        sortInfo: {field: 'Song_tracknumber', direction: 'DESC'},
+        sortInfo: {field: 'Song_tracknumber', direction: 'ASC'},
         baseParams: {
             type:'song', 
             album: config.record.get('Album_id'),
@@ -450,7 +450,7 @@ function ArtistQueueNode(config)
     var albums = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
-        sortInfo: {field: 'Album_title', direction: 'DESC'},
+        sortInfo: {field: 'Album_title', direction: 'ASC'},
         baseParams: {
             type:'album', 
             artist: config.record.get('Artist_id'), 

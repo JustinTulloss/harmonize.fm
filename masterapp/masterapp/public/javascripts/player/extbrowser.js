@@ -146,7 +146,6 @@ function AlbumGrid(config)
             config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
     }
     config.cm.defaultSortable = true;
-    //config.autoExpandColumn='album';
 
     AlbumGrid.superclass.constructor.call(this, config);
 
