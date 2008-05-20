@@ -112,6 +112,8 @@ function ViewManager(crumb, objects)
         var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
         var playlistsbtn= new Ext.Toolbar.Button({text:'playlists', cls:'menuitem'});
         var settingsbtn= new Ext.Toolbar.Button({text:'settings', cls:'menuitem'});
+		var feedbackbtn = 
+			new Ext.Toolbar.Button({text:'feedback', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
         artistbtn.on('click', function() {bread_crumb.go('artist')});
         albumbtn.on('click', function() {bread_crumb.go('album')});
@@ -119,6 +121,7 @@ function ViewManager(crumb, objects)
         friendsbtn.on('click', function() {bread_crumb.go('friend')});
         playlistsbtn.on('click', function() {bread_crumb.go('playlist')});
         settingsbtn.on('click', settingspanel.ShowSettings, settingspanel);
+		feedbackbtn.on('click', show_feedback_box);
 
 
         topmenu.add(
@@ -129,7 +132,8 @@ function ViewManager(crumb, objects)
             songsbtn,
             friendsbtn,
             playlistsbtn,
-            settingsbtn
+            settingsbtn,
+//			feedbackbtn
         );
     }
 
