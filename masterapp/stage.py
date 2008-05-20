@@ -40,6 +40,8 @@ sys.path.append('.')
 import compressor
 compressor.main()
 
+os.chdir('..')
+
 #Restart server
 arglist = [
     'paster', 

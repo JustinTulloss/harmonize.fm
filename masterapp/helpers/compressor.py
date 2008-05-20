@@ -54,7 +54,10 @@ def main():
 
     # Write out compressed JS
     outp = os.path.join(PREFIXES['js'], compressed_player_files.javascripts[0])
-    os.makedirs(os.path.dirname(outp))
+    try:
+        os.makedirs(os.path.dirname(outp))
+    except Exception, e:
+        print e
     js = compress(concatenate(jsfiles), open(outp, 'wb'), 'js')
 
     # Write out compressed CSS
@@ -63,7 +66,10 @@ def main():
         compressed_player_files.stylesheets[0]
     )
     outp = outp+'.css'
-    os.makedirs(os.path.dirname(outp))
+    try:
+        os.makedirs(os.path.dirname(outp))
+    except Exception, e:
+        print e
     css = compress(concatenate(cssfiles), open(outp, 'wb'), 'css')
 
 if __name__ == '__main__':
