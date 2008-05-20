@@ -125,7 +125,7 @@ a.menuitem {
 	padding: 5px;
 	width: 190px;
     font-size: 13px;
-	font-family: tahoma,verdana,helvetica;
+	font-family: tahoma,verdana,helvetica,sans-serif;
     color: #FFFFFF;
 	text-align:right;
 }
