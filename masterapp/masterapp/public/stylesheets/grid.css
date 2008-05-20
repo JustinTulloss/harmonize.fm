@@ -287,7 +287,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 
 /* Selection Styles */
 .x-grid3-row-selected {
-	background: #DFE8F6 !important;
+	background: #FFF4EA !important;
 	/*border:1px dotted #a3bae9;*/
 }
 
@@ -543,6 +543,7 @@ a.x-grid3-hd-btn:hover {
 }
 
 .x-grid-empty {
+    text-align: center;
     padding:10px;
     color:gray;
 }

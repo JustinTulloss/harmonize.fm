@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 fields = {
     'song': [
         'type',
+        'Friend_id',
         'Song_id',
         'Song_tracknumber',
         'Song_title',
@@ -31,6 +32,7 @@ fields = {
     ],
     'album': [
         'type',
+        'Friend_id',
         'Album_id',
         'Album_title',
         'Album_totaltracks',
@@ -41,6 +43,7 @@ fields = {
     ],
     'artist': [
         'type',
+        'Friend_id',
         'Artist_id',
         'Artist_name',
         'Artist_sort',
@@ -101,6 +104,7 @@ class MetadataController(BaseController):
         for row in results:
             json['data'].append(self._build_json_row(row, type))
             json['data'][len(json['data'])-1]['type']=type
+            json['data'][len(json['data'])-1]['Friend_id']=request.params.get('friend')
 
         json['success']=True
         return json

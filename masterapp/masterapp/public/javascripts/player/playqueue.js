@@ -353,8 +353,12 @@ function AlbumQueueNode(config)
     this.songs = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
-        sortInfo: {field: 'Song_tracknumber', direction: 'DESC'},
-        baseParams: {type:'song', album: config.record.get('Album_id')},
+        sortInfo: {field: 'Song_tracknumber', direction: 'ASC'},
+        baseParams: {
+            type:'song', 
+            album: config.record.get('Album_id'),
+            friend: config.record.get('Friend_id')
+        },
         successParameter: 'success',
         autoLoad: false,
         fields: global_config.fields.song
@@ -440,13 +444,18 @@ Ext.extend(AlbumQueueNode, QueueNode);
 function ArtistQueueNode(config)
 {
     var my = this;
-    my.queue = config.queue;
+    config.text = 'Loading...';
+    ArtistQueueNode.superclass.constructor.call(this, config);
 
     var albums = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
-        sortInfo: {field: 'Album_title', direction: 'DESC'},
-        baseParams: {type:'album', artist: config.record.get('Artist_id')},
+        sortInfo: {field: 'Album_title', direction: 'ASC'},
+        baseParams: {
+            type:'album', 
+            artist: config.record.get('Artist_id'), 
+            friend: config.record.get('Friend_id')
+        },
         successParameter: 'success',
         autoLoad: true,
         fields: global_config.fields.album
@@ -455,7 +464,20 @@ function ArtistQueueNode(config)
 
     function loaded(store, records, options)
     {
-        my.queue.enqueue(records);
+        if (records.length > 0) {
+            var record = records.pop();
+            var nn = new AlbumQueueNode({record: record, queue: my.queue});
+            my.queue.root.replaceChild(nn, my);
+            for (var i = 0; i < records.length; i++) {
+                var last = nn;
+                record = records[i];
+                nn = new AlbumQueueNode({record: record, queue: my.queue});
+                config.queue.root.insertBefore(nn, last);
+            }
+        }
+        else
+            my.remove();
     }
 }
+Ext.extend(ArtistQueueNode, QueueNode);
 

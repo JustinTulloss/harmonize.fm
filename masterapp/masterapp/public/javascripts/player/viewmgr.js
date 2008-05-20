@@ -37,11 +37,13 @@ function ViewManager(crumb, objects)
         crumb.panel = homepanel;
 
     this.srchfld = new Ext.form.TextField({
-        emptyText: "Filter...",
+        emptyText: "Search...",
+        enableKeyEvents: true,
         cls: 'searchfield'
     });
 
-    var bcheight = 60;
+
+    var bcheight = 50;
     var bcpanel = new Ext.Panel({
         title: "Breadcrumb",
         height: bcheight,
@@ -110,8 +112,7 @@ function ViewManager(crumb, objects)
         var albumbtn= new Ext.Toolbar.Button({text:'albums', cls:'menuitem'});
         var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
         var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
-        var playlistsbtn= new Ext.Toolbar.Button({text:'playlists', cls:'menuitem'});
-        var settingsbtn= new Ext.Toolbar.Button({text:'settings', cls:'menuitem'});
+
 		var feedbackbtn = 
 			new Ext.Toolbar.Button({text:'feedback', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
@@ -119,10 +120,7 @@ function ViewManager(crumb, objects)
         albumbtn.on('click', function() {bread_crumb.go('album')});
         songsbtn.on('click', function() {bread_crumb.go('song')});
         friendsbtn.on('click', function() {bread_crumb.go('friend')});
-        playlistsbtn.on('click', function() {bread_crumb.go('playlist')});
-        settingsbtn.on('click', settingspanel.ShowSettings, settingspanel);
 		feedbackbtn.on('click', show_feedback_box);
-
 
         topmenu.add(
             leftspc,
@@ -130,9 +128,7 @@ function ViewManager(crumb, objects)
             artistbtn,
             albumbtn,
             songsbtn,
-            friendsbtn,
-            playlistsbtn,
-            settingsbtn,
+            friendsbtn
 //			feedbackbtn
         );
     }
@@ -162,7 +158,10 @@ function ViewManager(crumb, objects)
     {
         if (crumb.panel) {
             this.srchfld.validator = 
-                function(text) { crumb.panel.search.call(crumb.panel, text)};
+                function(text) { return crumb.panel.search.call(crumb.panel, text)};
+            this.srchfld.on('blur', function(form){
+                crumb.panel.search.call(crumb.panel, form.getValue());
+            });
         }
     }
 

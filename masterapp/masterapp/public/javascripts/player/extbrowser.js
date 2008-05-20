@@ -16,9 +16,6 @@ function Browser()
     this.load = load;
     function load(crumb, params)
     {
-        /* TODO:Replace this with logic that specifies fields that are 
-         * more specific to the metadata type 
-         */
         if(crumb.ds==null) {
             crumb.ds = new Ext.data.JsonStore({
                 url:'metadata',
@@ -34,13 +31,6 @@ function Browser()
         else
             params = {type:crumb.type};
 
-        crumb.ds.load({
-            params:params,
-            callback: function(){this.fireEvent('chgstatus', null)},
-            scope: this
-        });
-        this.fireEvent('chgstatus', 'Loading...');
-
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
@@ -52,19 +42,35 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+
+        crumb.ds.load({
+            params:params,
+            callback: function(){this.fireEvent('chgstatus', null)},
+            scope: this
+        });
+        this.fireEvent('chgstatus', 'Loading...');
+
     }
 }
 Ext.extend(Browser, Ext.util.Observable);
 
 function BaseGrid(config)
 {
-    config.selModel=new Ext.grid.RowSelectionModel();
-    config.enableColLock=false;
-    config.enableDragDrop=true;
+    config.selModel = new Ext.grid.RowSelectionModel();
+    config.enableColLock = false;
+    config.enableColumnMove = false;
+    config.enableHdMenu = false;
+    config.enableDragDrop = true;
     config.ddGroup = 'TreeDD';
-    config.loadMask=true;
-    config.trackMouseOver=false;
+    config.loadMask = true;
+    config.trackMouseOver = false;
     config.stripeRows = true;
+    config.viewConfig = {
+        forceFit: true,
+        emptyText: 'There isn\'t any music here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
+        deferEmptyText: true
+    };
 
     this.addEvents({
         enqueue : true,
@@ -104,6 +110,10 @@ function SongGrid(config)
     });
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.song);
+    for (var i = 0; i < ColConfig.song.length; i++) {
+        if (defaultWidths[ColConfig.song[i].dataIndex])
+            config.cm.setColumnWidth(i, defaultWidths[ColConfig.song[i]]);
+    }
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
 
@@ -112,7 +122,7 @@ function SongGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('title', text, true, false);
+        this.getStore().filter('Song_title', text, true, false);
         return true;
     }
 }
@@ -131,15 +141,18 @@ function AlbumGrid(config)
     config.iconCls = 'icon-grid';
     config.plugins = exp;
     config.cm = new Ext.grid.ColumnModel(ColConfig.album);
+    for (var i = 0; i < ColConfig.album.length; i++) {
+        if (defaultWidths[ColConfig.album[i].dataIndex])
+            config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
+    }
     config.cm.defaultSortable = true;
-    config.autoExpandColumn='album';
 
     AlbumGrid.superclass.constructor.call(this, config);
 
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('album', text, true, false);
+        this.getStore().filter('Album_title', text, true, false);
         return true;
     }
     
@@ -150,7 +163,7 @@ function AlbumGrid(config)
             url: 'player/album_details',
             callback: function(){ this.fireEvent('chgstatus', null) },
             scope: this,
-            params: {album:record.get('albumid')}
+            params: {album:record.get('Album_id')}
         });
         this.fireEvent('chgstatus', 'Loading...');
     }
@@ -165,14 +178,14 @@ function ArtistGrid(config)
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
-    config.autoExpandColumn='artist';
+    //config.autoExpandColumn='artist';
 
     ArtistGrid.superclass.constructor.call(this, config);
 
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('artist', text, true, false);
+        this.getStore().filter('Artist_name', text, true, false);
         return true;
     }
 }
@@ -186,7 +199,6 @@ function PlaylistGrid(config)
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
-    config.autoExpandColumn = 'name';
 
     PlaylistGrid.superclass.constructor.call(this, config);
 }
@@ -203,8 +215,14 @@ function FriendGrid(config)
 {
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
-    config.autoExpandColumn = 'friend';
 
     FriendGrid.superclass.constructor.call(this, config);
+
+    this.search = search;
+    function search(text)
+    {
+        this.getStore().filter('Friend_name', text, true, false);
+        return true;
+    }
 }
 Ext.extend(FriendGrid, BaseGrid);

@@ -9,15 +9,10 @@
 
 #playcontrols {
     height: 24px;
-    /*background: url('/images/controls-new.png');
-    z-index: 30; */
     position: relative;
     padding: 0;
 	margin-top: 1px;
 	margin-bottom: 0;
-	/*background-color: #A0ACC0;
-	border: solid white 1px;
-	*/
 }
 
 #play-img {
@@ -115,11 +110,14 @@
 #logo {
     position: absolute;
     right: 50px;
-    bottom: -1pt;
+    bottom: 0px;
+}
+
+#logo img{
+    border: none;
 }
 
 #song-info-and-controls{
-	width: 250px;
 	height: 74px;
 	float: left;
 	z-index: 30;
@@ -138,9 +136,10 @@
 }
 
 #now-playing-bar {
+	width: 250px;
 	height: 12px;
 	background-color: white;
-	border: 1px black solid;
+	border: 1px white solid;
 	position: relative;
 	margin-left: 3px;
 	visibility: hidden;

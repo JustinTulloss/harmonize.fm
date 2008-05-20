@@ -24,16 +24,12 @@
     position: absolute;
     top: 0;
     left: 0;
-    border:1px solid #6593cf;
-    background: #c3daf9 url(../images/default/box/tb-blue.gif) repeat-x 0 -16px;
     padding:2px;
 }
 .ext-el-mask-msg div {
     padding:5px 10px 5px 10px;
     background: #eee;
-    border:1px solid #a3bad9;
-    color:#222;
-    font:normal 11px tahoma, arial, helvetica, sans-serif;
+    border:1px solid #334466;
     cursor:wait;
 }
 
@@ -54,7 +50,7 @@
 
 .x-mask-loading div {
     padding:5px 10px 5px 25px;
-    background: #fbfbfb url( '../images/default/grid/loading.gif' ) no-repeat 5px 5px;
+    background: #fff url( '/images/loading.gif' ) no-repeat 5px 5px;
     line-height: 16px;
 }
 /* class for hiding elements without using display:none */
@@ -263,7 +259,7 @@
 
 .loading-indicator {
     font-size: 11px;
-    background-image: url(../images/default/grid/loading.gif);
+    background-image: url(/images/loading.gif);
     background-repeat: no-repeat;
     background-position: left;
     padding-left: 20px;

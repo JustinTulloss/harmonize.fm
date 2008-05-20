@@ -23,6 +23,7 @@ playlists_table = Table("playlists", metadata, autoload=True)
 playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
 blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
 blockedartists_table = Table("blockedartists", metadata, autoload=True)
+blog_table = Table("blog", metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -90,6 +91,13 @@ class PlaylistSong(Song):
         self.playlistid = playlistid
         self.songindex = songindex
         self.songid = songid
+
+class BlogEntry(object):
+    def __init__(self, title=None, author=None, entry=None):
+        self.title = title
+        self.author = author
+        self.entry = entry
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -179,3 +187,5 @@ mapper(Playlist, playlists_table, properties={
     'owner': relation(User),
     'songs': relation(PlaylistSong, backref='playlist')
 })
+
+mapper(BlogEntry, blog_table)
