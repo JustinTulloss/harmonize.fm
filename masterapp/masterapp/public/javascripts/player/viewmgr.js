@@ -22,7 +22,8 @@ function ViewManager(crumb, objects)
         fitToFrame: true, 
         autocreate: true, 
         contentEl: 'home', 
-        header: false
+        header: false,
+		cls: 'homepanel'
     });
 
     t_status = new Ext.Template(
@@ -86,7 +87,8 @@ function ViewManager(crumb, objects)
             layout: 'fit',
             height: 'auto',
             titlebar: false,
-            contentEl: 'header'
+            contentEl: 'header',
+			id: 'top-panel'
         }, 
         objects.queue.panel,
         {
@@ -113,14 +115,11 @@ function ViewManager(crumb, objects)
         var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
         var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
 
-		var feedbackbtn = 
-			new Ext.Toolbar.Button({text:'feedback', cls:'menuitem'});
         homebtn.on('click', bread_crumb.go_home, bread_crumb);
         artistbtn.on('click', function() {bread_crumb.go('artist')});
         albumbtn.on('click', function() {bread_crumb.go('album')});
         songsbtn.on('click', function() {bread_crumb.go('song')});
         friendsbtn.on('click', function() {bread_crumb.go('friend')});
-		feedbackbtn.on('click', show_feedback_box);
 
         topmenu.add(
             leftspc,
@@ -128,8 +127,8 @@ function ViewManager(crumb, objects)
             artistbtn,
             albumbtn,
             songsbtn,
-            friendsbtn
-//			feedbackbtn
+            friendsbtn,
+			feedbackButton()
         );
     }
 

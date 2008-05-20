@@ -1,5 +1,9 @@
 /* vim:filetype=css
 */
+#top-panel {
+	z-index: 1;
+}
+
 #header {
 	width: 100%;
     height: 74px;
@@ -99,12 +103,31 @@
 }
 
 .menuitem {
-    font-size: 9px;
+    font-size: 13px;
+	font-family: tahoma,verdana,helvetica;
     color: #FFFFFF;
+	cursor: pointer;
 }
 
-.menuitem:hover button {
+a.menuitem {
+	text-decoration: underline;
+}
+
+.menuitem:hover, .menuitem:hover button {
     color: ${c.profile.click};
+}
+
+.feedbackActive {
+	background-color: #A0ACC0;
+}
+
+#feedbackBox {
+	padding: 5px;
+	width: 190px;
+    font-size: 13px;
+	font-family: tahoma,verdana,helvetica;
+    color: #FFFFFF;
+	text-align:right;
 }
 
 #logo {
@@ -120,7 +143,6 @@
 #song-info-and-controls{
 	height: 74px;
 	float: left;
-	z-index: 30;
 	padding: 0;
 }
 

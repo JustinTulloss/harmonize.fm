@@ -16,6 +16,7 @@ import pylons
 
 from mailer import mail
 import re
+import thread
 
 log = logging.getLogger(__name__)
 
@@ -121,20 +122,22 @@ class PlayerController(BaseController):
             return False
 
     def feedback(self):
+        if not request.params.has_key('email') or\
+                not request.params.has_key('feedback'):
+            return '0';
         user_email = request.params['email']
         user_feedback = request.params['feedback']
 
         if (self.email_regex.match(user_email) != None):
-            subject = 'Site feedback from %s' % user_feedback
+            subject = 'Site feedback from %s' % user_email
         else:
             subject = 'Site feedback'
         
-        raise Exception
-        try:
+        def sendmail():
             mail(config['smtp_server'], config['smtp_port'],
                 config['feedback_email'], config['feedback_password'],
                 config['feedback_email'], subject, user_feedback)
-            return '1'
-        except Exception:
-            return '0'
+
+        thread.start_new_thread(sendmail, ())
+        return '1'
 
