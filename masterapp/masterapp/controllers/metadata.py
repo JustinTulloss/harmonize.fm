@@ -169,7 +169,7 @@ class MetadataController(BaseController):
         userStore = session['fbfriends']
         data=facebook.users.getInfo(userStore)
 
-        qry = Session.query(Owner).join(['user'])
+        qry = Session.query(User).join(['owners'])
         cond = or_()
         for friend in data:
             cond.append(User.fbid == friend['uid'])
@@ -179,10 +179,10 @@ class MetadataController(BaseController):
 
         def _intersect(item):
             if len(results) > 0:
-                if results[0].user.fbid == item['uid']:
+                if results[0].fbid == item['uid']:
                     item['Friend_name'] = item['name']
                     item['type'] = dtype
-                    item['Friend_id'] = results[0].user.id
+                    item['Friend_id'] = results[0].id
                     del item['name']
                     del item['uid']
                     del results[0]

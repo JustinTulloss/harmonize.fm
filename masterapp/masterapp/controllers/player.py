@@ -4,6 +4,7 @@ import time
 
 import S3
 import masterapp.controllers.metadata
+from masterapp.config.include_files import player_files, compressed_player_files
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
@@ -35,6 +36,10 @@ class PlayerController(BaseController):
         c.fullname = self.username()
         c.fields = masterapp.controllers.metadata.fields
         c.entries = Session.query(BlogEntry).all()
+        if config.get('compressed') == 'true':
+            c.include_files = compressed_player_files
+        else:
+            c.include_files = player_files
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:

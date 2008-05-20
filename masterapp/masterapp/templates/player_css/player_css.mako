@@ -20,9 +20,7 @@ body, html {
 }
 
 #downloadlink {
-    position: absolute;
-    top: 20px;
-    right: 25px;
+    margin-left: 30px;
 }
 
 #downloadlink a {

@@ -109,7 +109,7 @@ mapper(File, files_table, properties={
 })
 
 mapper(Owner, owners_table, properties={
-    'user': relation(User)
+    'user': relation(User, backref='owners')
 })
 
 mapper(Artist, artists_table, properties={

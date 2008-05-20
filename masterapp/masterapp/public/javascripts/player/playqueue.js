@@ -468,6 +468,9 @@ function ArtistQueueNode(config)
             var record = records.pop();
             var nn = new AlbumQueueNode({record: record, queue: my.queue});
             my.queue.root.replaceChild(nn, my);
+            if (my.queue.playing == null)
+                my.queue.dequeue();
+
             for (var i = 0; i < records.length; i++) {
                 var last = nn;
                 record = records[i];
