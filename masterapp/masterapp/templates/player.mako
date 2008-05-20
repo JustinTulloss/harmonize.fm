@@ -96,6 +96,18 @@
         % endfor
     </div>
     <div id="mainlogo"><img src="/images/bigharmonized2.png" /></div>
+    <%
+        href = None
+        if c.platform == 'windows':
+            href = '/uploaders/setup.exe'
+        elif c.platform == 'mac':
+            href = '/uploaders/harmonize.dmg'
+    %>
+    % if href:
+    <div id="downloadlink">
+        <a href="${href}">Download the uploader</a>
+    </div>
+    % endif
 </div>
 
 <div id="bccontent">

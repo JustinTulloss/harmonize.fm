@@ -19,10 +19,25 @@ body, html {
     width: 80%;
 }
 
+#downloadlink {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+}
+
+#downloadlink a {
+    color: ${c.profile.dark_txt};
+    text-decoration: none;
+}
+
+#downloadlink a:hover {
+    color: ${c.profile.click}
+}
+
 .blogtitle {
     font-size: 16pt;
     font-weight: bold;
-    color: #334466;
+    color: ${c.profile.dark_txt};
 }
 
 .blogentry {

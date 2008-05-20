@@ -27,6 +27,10 @@ class PlayerController(BaseController):
         c.fullname = self.username()
         c.fields = masterapp.controllers.metadata.fields
         c.entries = Session.query(BlogEntry).all()
+        if 'Windows' in request.headers['User-Agent']:
+            c.platform = 'windows'
+        elif 'Macintosh' in request.headers['User-Agent']:
+            c.platform = 'mac'
         return render('/player.mako')
     
     def songurl(self, id):
