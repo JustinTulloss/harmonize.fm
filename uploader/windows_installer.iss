@@ -6,15 +6,15 @@
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{D263B192-EF2C-43E9-BD75-BB529F8345E6}
-AppName=Rubicon
-AppVerName=Rubicon Alpha
-AppPublisher=My Company, Inc.
-AppPublisherURL=http://www.example.com/
-AppSupportURL=http://www.example.com/
-AppUpdatesURL=http://www.example.com/
-DefaultDirName={pf}\Rubicon
+AppName=Harmonize.fm
+AppVerName=Harmonize Alpha
+AppPublisher=Harmonize, Inc.
+AppPublisherURL=http://harmonize.fm
+AppSupportURL=http://harmonize.fm
+AppUpdatesURL=http://harmonize.fm
+DefaultDirName={pf}\Harmonize
 DisableDirPage=yes
-DefaultGroupName=Rubicon
+DefaultGroupName=Harmonize
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
@@ -26,14 +26,14 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "C:\Documents and Settings\Brian\rubicon-local\uploader\dist\Rubicon_win.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\Brian\rubicon-local\uploader\dist\Harmonize.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents and Settings\Brian\rubicon-local\uploader\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\Rubicon"; Filename: "{app}\Rubicon_win.exe"
-Name: "{commondesktop}\Rubicon"; Filename: "{app}\Rubicon_win.exe"; Tasks: desktopicon
+Name: "{group}\Harmonize"; Filename: "{app}\Harmonize.exe"
+Name: "{commondesktop}\Rubicon"; Filename: "{app}\Harmonize.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\Rubicon_win.exe"; Description: "{cm:LaunchProgram,Rubicon}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Harmonize.exe"; Description: "{cm:LaunchProgram,Harmonize}"; Flags: nowait postinstall skipifsilent
 

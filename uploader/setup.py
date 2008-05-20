@@ -16,8 +16,8 @@ if sys.platform == 'darwin':
 elif sys.platform == 'win32':
 	import py2exe
 	setup(
-		name='Rubicon',
-		windows=['Rubicon_win.py'],
+		windows=[{'script':'Harmonize_win.py',
+				  'dest_base':'Harmonize'}],
 		scripts=r_scripts,
 		data_files=['Python.Runtime.dll', 'folder.bmp', 'hd.bmp', 'cd.bmp']
 	)
