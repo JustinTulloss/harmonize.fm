@@ -20,7 +20,7 @@ body, html {
 }
 
 #downloadlink {
-    margin-left: 30px;
+    margin-left: 37px;
 }
 
 #downloadlink a {
@@ -43,7 +43,7 @@ body, html {
 }
 
 .blogbyline{
-    margin-left: 5px;
+    margin-left: 10px;
 }
 
 .blogauthor{
@@ -52,7 +52,7 @@ body, html {
 
 .blogcontent {
     padding-top: 5px;
-    margin-left: 5px;
+    margin-left: 10px;
 }
 
 a.bc_link {
