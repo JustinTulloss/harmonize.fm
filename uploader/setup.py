@@ -7,9 +7,9 @@ r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py',
 if sys.platform == 'darwin':
 	import py2app
 	setup(
-		name='Rubicon',
+		name='Harmonize',
 		setup_requires=['py2app'],		
-		app=['Rubicon_osx.py'],
+		app=['Harmonize_osx.py'],
 		scripts=r_scripts,
 		data_files=['MainMenu.nib']
 	)

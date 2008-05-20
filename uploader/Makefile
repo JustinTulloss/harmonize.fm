@@ -1,15 +1,18 @@
 all: devel
 
-FILES=Rubicon_osx.py MainMenu.nib setup.py fb.py dir_browser.py upload.py itunes.py
+FILES=Harmonize_osx.py MainMenu.nib setup.py fb.py dir_browser.py upload.py itunes.py rate_limit.py
 
 devel: $(FILES)
 	python setup.py py2app -A
 
 release: $(FILES)
 	python setup.py py2app
-	./mkdmg dist Rubicon
-	mv dist.dmg Rubicon.dmg
+	./mkdmg dist Harmonize
+	mv dist.dmg Harmonize.dmg
+
+publish: release
+	scp Harmonize.dmg harmonize.fm:/var/www/sites/stage/masterapp/masterapp/public/uploaders
 
 clean:
 	rm -rf build dist
-	rm Rubicon.dmg
+	rm Harmonize.dmg
