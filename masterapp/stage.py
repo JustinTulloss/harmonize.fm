@@ -22,7 +22,10 @@ except Exception, e:
     print e
 
 #Change to staging directory
-os.chdir(STAGEPATH)
+try:
+    os.chdir(STAGEPATH)
+except Exception, e:
+    print e
 
 #Update repository
 subprocess.check_call([
@@ -30,6 +33,12 @@ subprocess.check_call([
     'pull',
     '-u'
 ])
+
+#Update compressed javascript
+os.chdir('helpers')
+sys.path.append('.')
+import compressor
+compressor.main()
 
 #Restart server
 arglist = [

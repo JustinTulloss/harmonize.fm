@@ -6,31 +6,7 @@
 %>
 
 <%def name="head_tags()">
-    ${h.stylesheet_link_tag('core')}
-    ${h.stylesheet_link_tag('ext-ux-slidezone')}
-    ${h.stylesheet_link_tag('layout')}
-    ${h.stylesheet_link_tag('borders')}
-    ${h.stylesheet_link_tag('resizable')}
-    ${h.stylesheet_link_tag('grid')}
-    ${h.stylesheet_link_tag('tree')}
-    ${h.stylesheet_link_tag('dd')}
-    ${h.stylesheet_link_tag('borders')}
-    ${h.stylesheet_link_tag('panel')}
-    ${h.stylesheet_link_tag('toolbar')}
-    ${h.stylesheet_link_tag('menu')}
-    ${h.stylesheet_link_tag('button')}
-    ${h.stylesheet_link_tag('box')}
-    ${h.stylesheet_link_tag('form')}
-    ${h.stylesheet_link_tag('slider')}
-    <title>harmonize.fm | Connect with your music.</title>
-
-    <style type="text/css">
-    <%include file="player_css/player_css.mako" />
-    <%include file="player_css/queue_css.mako" />
-    <%include file="player_css/album_details.mako" />
-    <%include file="player_css/topbar.mako" />
-    <%include file="player_css/statusbar.mako" />
-    </style>
+    <title>harmonize.fm | connect with your music</title>
 
     <script type="text/javascript">
         var global_config = {
@@ -39,26 +15,7 @@
         };
     </script>
 
-    ${h.javascript_include_tag('lib/ext-2.1/adapter/ext/ext-base.js')}
-    ${h.javascript_include_tag('lib/ext-2.1/ext-all-debug.js')}
-    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/SlideZone.js')}
-    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/RowExpander.js')}
-    ${h.javascript_include_tag('lib/soundmanager2.js')}
-    ${h.javascript_include_tag('lib/helpers.js')}
-    ${h.javascript_include_tag('player/errmgr.js')}
-    ${h.javascript_include_tag('player/viewmgr.js')}
-    ${h.javascript_include_tag('player/extbrowser.js')}
-    ${h.javascript_include_tag('player/bcmgr.js')}
-    ${h.javascript_include_tag('player/settingspanel.js')}
-    ${h.javascript_include_tag('player/queueui.js')}
-    ${h.javascript_include_tag('player/playqueue.js')}
-    ${h.javascript_include_tag('player/player.js')}
-    ${h.javascript_include_tag('player/auth.js')}
-    ${h.javascript_include_tag('player/metatypeinfo.js')}
-    ${h.javascript_include_tag('player/columns.js')}
-    ${h.javascript_include_tag('player/init.js')}
-    ${h.javascript_include_tag('player/feedback.js')}
-
+    ${parent.head_tags()}
 </%def>
 
 <div id="header">

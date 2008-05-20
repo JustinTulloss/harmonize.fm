@@ -16,6 +16,7 @@ def setup_config(command, filename, section, vars):
     conf = appconfig('config:' + filename)
     load_environment(conf.global_conf, conf.local_conf)
 
+    # Upgrade the database
     try:
         mg.version_control(config['migrate.url'], config['migrate.repo'])
     except DatabaseAlreadyControlledError:
@@ -27,6 +28,7 @@ def setup_config(command, filename, section, vars):
     if v != dbv:
         mg.upgrade(config['migrate.url'], config['migrate.repo'])
 
+    # Populate with fake data
     if config['populate_model'] == 'true':
         log.info("Populating data")
         import masterapp.lib.populate_model as populate_model
