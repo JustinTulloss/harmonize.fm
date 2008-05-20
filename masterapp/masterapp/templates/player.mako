@@ -21,6 +21,7 @@
     ${h.stylesheet_link_tag('button')}
     ${h.stylesheet_link_tag('box')}
     ${h.stylesheet_link_tag('form')}
+    ${h.stylesheet_link_tag('slider')}
     <title>Rubicon Web Player</title>
 
     <style type="text/css">
@@ -38,10 +39,10 @@
         };
     </script>
 
-    ${h.javascript_include_tag('lib/ext-2.0/adapter/ext/ext-base.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/ext-all-debug.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/SlideZone.js')}
-    ${h.javascript_include_tag('lib/ext-2.0/source/widgets/ux/RowExpander.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/adapter/ext/ext-base.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/ext-all-debug.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/SlideZone.js')}
+    ${h.javascript_include_tag('lib/ext-2.1/source/widgets/ux/RowExpander.js')}
     ${h.javascript_include_tag('lib/soundmanager2.js')}
     ${h.javascript_include_tag('lib/helpers.js')}
     ${h.javascript_include_tag('player/errmgr.js')}
@@ -60,12 +61,29 @@
 </%def>
 
 <div id="header">
+	<div id="song-info-and-controls">
+		<div id="now-playing-title">&nbsp;</div>
+		<div id="now-playing-artist">&nbsp;</div>
+		<div id="now-playing-bar">
+			<div id="now-playing-progress"></div>
+			<div id="now-playing-time"></div>
+		</div>
+		<div id="playcontrols">
+			<a href="#"><div id="playbutton">
+					<div id="play-img" class="play"></div>
+			</div></a>
+			<a href="#"><div id="prevbutton">
+				<div id="prev-img"></div>
+			</div></a>
+			<a href="#"><div id="nextbutton">
+				<div id="next-img"></div>
+			</div></a>
+			<div id="no-volume"></div>
+			<div id="volume"></div>
+			<div id="full-volume"></div>
+		</div>
+	</div>
     <div id="menu"></div>
-    <ul id="playcontrols">
-        <li id="prevbutton"><a href="#"></a></li>
-        <li id="playbutton"><a href="#"></a></li>
-        <li id="nextbutton"><a href="#"></a></li>
-    </ul>
     <div id="logo">
     	<img src="/images/whiterubicon.png" />
     </div>
