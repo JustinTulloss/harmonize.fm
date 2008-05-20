@@ -57,6 +57,7 @@
     ${h.javascript_include_tag('player/metatypeinfo.js')}
     ${h.javascript_include_tag('player/columns.js')}
     ${h.javascript_include_tag('player/init.js')}
+    ${h.javascript_include_tag('player/feedback.js')}
 
 </%def>
 

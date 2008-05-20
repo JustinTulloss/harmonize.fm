@@ -5,6 +5,7 @@ syntax:glob
 *.o
 *.dmg
 *.orig
+*/Thumbs.db
 masterapp/masterapp.egg-info
 masterapp/media
 uploader/dist

@@ -14,11 +14,18 @@ from facebook.wsgi import facebook
 from pylons import config
 import pylons
 
+from mailer import mail
+import re
+
 log = logging.getLogger(__name__)
 
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
 
 class PlayerController(BaseController):
+    def __init__(self):
+        BaseController.__init__(self)
+        self.email_regex = re.compile("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,6}$")
+
     def __before__(self):
         ensure_fb_session()
 
@@ -112,3 +119,22 @@ class PlayerController(BaseController):
             return True	
         else:
             return False
+
+    def feedback(self):
+        user_email = request.params['email']
+        user_feedback = request.params['feedback']
+
+        if (self.email_regex.match(user_email) != None):
+            subject = 'Site feedback from %s' % user_feedback
+        else:
+            subject = 'Site feedback'
+        
+        raise Exception
+        try:
+            mail(config['smtp_server'], config['smtp_port'],
+                config['feedback_email'], config['feedback_password'],
+                config['feedback_email'], subject, user_feedback)
+            return '1'
+        except Exception:
+            return '0'
+
