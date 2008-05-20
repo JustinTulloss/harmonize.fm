@@ -85,7 +85,7 @@
 	</div>
     <div id="menu"></div>
     <div id="logo">
-    	<img src="/images/whiterubicon.png" />
+    	<a href="/"><img src="/images/whiteharmonizefm.png" /></a>
     </div>
 </div>
 

@@ -115,7 +115,11 @@
 #logo {
     position: absolute;
     right: 50px;
-    bottom: -1pt;
+    bottom: 0px;
+}
+
+#logo img{
+    border: none;
 }
 
 #song-info-and-controls{
