@@ -126,7 +126,7 @@ class Pinger(object):
 				self.update_rate('fast')
 				if debug:
 					print 'pingtime is fast: %s / %s' % (pingtime*1000, self.baseline*1000)
-			elif error < .6:
+			elif error < .4:
 				self.update_rate('ok')
 				if debug:
 					print 'pingtime is ok: %s / %s' % (pingtime*1000, self.baseline*1000)
