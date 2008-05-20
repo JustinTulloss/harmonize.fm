@@ -29,6 +29,21 @@ except Exception, e:
 
 #Update repository
 subprocess.check_call([
+n:~$ ln -s /var/www/sites/stage/masterapp/stage.py .
+brian@rubicon:~$ ls
+1  2  stage.py
+brian@rubicon:~$ sudo python stage.py
+[sudo] password for brian:
+pulling from /var/www/sites/repo/main
+searching for changes
+adding changesets
+adding manifests
+adding file changes
+added 4 changesets with 6 changes to 5 files
+5 files updated, 0 files merged, 0 files removed, 0 files unresolved
+[Errno 17] File exists: '../masterapp/public/javascripts/compressed'
+[Errno 17] File exists: '../masterapp/public/stylesheets/compressed'
+Changing user to www-data:www-data (33:33)
     'hg',
     'pull',
     '-u'
@@ -59,4 +74,6 @@ else:
     arglist.append('--daemon')
 
 subprocess.check_call(arglist)
+
+os.system('/etc/init.d/lighttpd restart')
 
