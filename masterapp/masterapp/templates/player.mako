@@ -56,7 +56,7 @@
     <%
         href = None
         if c.platform == 'windows':
-            href = '/uploaders/Setup.exe'
+            href = '/uploaders/setup.exe'
         elif c.platform == 'mac':
             href = '/uploaders/Harmonize.dmg'
     %>
