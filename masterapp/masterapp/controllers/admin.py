@@ -3,7 +3,7 @@ import logging
 import S3
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
-from masterapp.model import Session, File, Song, Album
+from masterapp.model import Session, File, Song, Album, BlogEntry
 from mako.template import Template
 from pylons import config
 
@@ -77,3 +77,14 @@ class AdminController(BaseController):
 
         return render('/admin/monitor.mako')
 
+    def blog(self):
+        return render('/admin/blogentry.mako')
+
+    def postblog(self):
+        title = request.params.get('title')
+        author = request.params.get('author')
+        entry = request.params.get('entry')
+        b = BlogEntry(title=title, author=author, entry=entry)
+        Session.save(b)
+        Session.commit()
+        return 'Success!'

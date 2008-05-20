@@ -8,10 +8,38 @@ body, html {
 }
 
 #mainlogo {
-    width: 100%;
-    text-align: center;
-    vertical-align: middle;
-    margin: 20px;
+    position: absolute;
+    right: 15px;
+    bottom: 24px;
+}
+
+#blog {
+    margin-top: 5pt;
+    margin-left: 20pt;
+    width: 80%;
+}
+
+.blogtitle {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #334466;
+}
+
+.blogentry {
+    padding: 10px;
+}
+
+.blogbyline{
+    margin-left: 5px;
+}
+
+.blogauthor{
+    font-weight: bold;
+}
+
+.blogcontent {
+    padding-top: 5px;
+    margin-left: 5px;
 }
 
 a.bc_link {

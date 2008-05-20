@@ -8,7 +8,7 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.profile import Profile
-from masterapp.model import Session, User, File, Album
+from masterapp.model import Session, User, File, Album, BlogEntry
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -26,6 +26,7 @@ class PlayerController(BaseController):
         c.profile = Profile()
         c.fullname = self.username()
         c.fields = masterapp.controllers.metadata.fields
+        c.entries = Session.query(BlogEntry).all()
         return render('/player.mako')
     
     def songurl(self, id):
