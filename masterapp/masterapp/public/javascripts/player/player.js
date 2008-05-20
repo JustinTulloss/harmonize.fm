@@ -37,8 +37,8 @@ function Player()
     /* Soundmanager configuration */
     soundManager.url='/flash/soundmanager2.swf';
     //soundManager.debugMode = false;
-    soundManager.debugMode = true;
-    soundManager.useConsole = true;
+    soundManager.debugMode = false;
+    soundManager.useConsole = false;
     soundManager.consoleOnly = true;
 
     soundManager.onerror = function () {
