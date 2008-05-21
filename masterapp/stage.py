@@ -60,3 +60,5 @@ else:
 
 subprocess.check_call(arglist)
 
+os.system('/etc/init.d/lighttpd restart')
+
