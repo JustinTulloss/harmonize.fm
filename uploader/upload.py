@@ -26,6 +26,7 @@ def get_default_path():
 	#Have to wrap paths in lambda's so they don't get executed on windows
 	paths = {'Linux':(lambda: os.getenv('HOME')),
 		'Windows':default_win,
+		'Microsoft':default_win,
 		'Darwin':default_osx}
 	
 	return paths[platform.system()]()
