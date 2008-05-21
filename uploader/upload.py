@@ -13,12 +13,13 @@ def get_default_path():
 
 	def default_win():
 		home_path = os.getenv('USERPROFILE')
-		xp_music_path = path.join(home_path, 'My Documents', 'My Music')
-		vista_music_path = path.join(home_path, 'Documents', 'Music')
-		if path.exists(xp_music_path):
-			return xp_music_path
-		elif path.exists(vista_music_path):
-			return vista_music_path
+		if platform.uname()[2] == 'Vista':
+			music_path = path.join(home_path, 'Music')
+		else:
+			music_path = path.join(home_path, 'My Documents', 'My Music')
+
+		if path.exists(music_path):
+			return music_path
 		else:
 			return home_path
 			
