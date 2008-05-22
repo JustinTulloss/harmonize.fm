@@ -1,7 +1,7 @@
 # The mother of all file actions
 # Does all the ugly stuff, starts threads, defines queues, eats babies, etc.
 from Queue import *
-import fileprocess
+from .fileprocess import na
 import logging
 import threading
 import os
@@ -26,7 +26,7 @@ class BaseAction(object):
             except Exception, e:
                 log.exception(e)
                 nf['msg'] = "Upload had an unexpected failure"
-                nf['na']  = fileprocess.na.FAILURE
+                nf['na']  = na.FAILURE
                 self.cleanup(nf)
                 nextfile = False
 

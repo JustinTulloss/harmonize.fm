@@ -2,7 +2,7 @@ import logging
 from baseaction import BaseAction
 import ecs
 from time import sleep
-from pylons import config
+from configuration import config
 
 log = logging.getLogger(__name__)
 

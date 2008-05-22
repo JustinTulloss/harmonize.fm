@@ -12,7 +12,6 @@ import fileprocess
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
 
-import pymock
 import os, shutil, sys
 sys.path.append('..')
 from mock import Mock, patch, sentinel

@@ -3,7 +3,7 @@ import S3
 import os
 from baseaction import BaseAction
 import fileprocess
-from pylons import config
+from configuration import config
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class S3Uploader(BaseAction):
     """
     def process(self, file):
         assert file.has_key('sha') and file.has_key('fname')
-        if config['S3.upload'] == 'false':
+        if config['S3.upload'] == False:
             log.warn("Removed %s because S3.upload flag is set to false", 
                 file['fname']
             )

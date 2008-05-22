@@ -5,7 +5,8 @@ import logging
 import os
 import guid
 from baseaction import BaseAction
-import fileprocess
+from .fileprocess import na
+from configuration import config
 from shutil import move
 
 log = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ class Mover(BaseAction):
             frm = file['fname']
         if not os.path.exists(frm):
             file['msg'] = "An Error occurred while processing file"
-            file['na'] = fileprocess.na.FAILURE
+            file['na'] = na.FAILURE
             self.cleanup(file)
             return False
         move(frm, to)

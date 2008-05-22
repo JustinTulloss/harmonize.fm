@@ -1,9 +1,9 @@
 import logging
 import os
 from baseaction import BaseAction
-import fileprocess
-from pylons import config
+from .fileprocess import na
 from facebook import Facebook, FacebookError
+from configuration import config
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class FacebookAction(BaseAction):
                 log.info('%s is not a valid session, removing upload', 
                     file['fbsession'])
                 file['msg'] = "Facebook session not valid"
-                file['na'] = fileprocess.na.AUTHENTICATE
+                file['na'] = na.AUTHENTICATE
                 self.cleanup(file)
                 return False
 

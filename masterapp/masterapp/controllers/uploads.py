@@ -2,14 +2,15 @@
 import logging
 from pylons import g, Response
 import os
+import socket
 import os.path as path
-#from facebook.wsgi import facebook
 import facebook
 from facebook import FacebookError
 from urllib2 import URLError
 
 from masterapp.lib.base import *
-from fileprocess.fileprocess import file_queue, na, msgs
+import cPickle
+pickle = cPickle
 
 from masterapp import model
 
@@ -127,7 +128,14 @@ class UploadsController(BaseController):
                 'usersha': id
             }
             dest_file.close()
-            file_queue.put(fdict)
+            pfile = pickle.dumps(fdict)
+            fsock = socket.socket(
+                socket.AF_INET, socket.SOCK_STREAM
+            )
+            fsock.connect(('localhost', 48260))
+            fsock.send(pfile)
+            fsock.shutdown(socket.SHUT_RDWR)
+            fsock.close()
         else:
             try:
                 self.read_postdata()

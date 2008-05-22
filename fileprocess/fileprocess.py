@@ -1,21 +1,19 @@
 # vim:expandtab:smarttab
 #A thread that allows us to process files
-
 from __future__ import with_statement
+
+from configuration import *
 import sys
-sys.path.insert(0, '..')
-import pylons
+sys.path.insert(0, '../libs.py')
 import threading
 from Queue import Queue, Empty
 import socket
+import logging
 import cPickle
-from configuration import *
 pickle = cPickle
 
 #The different handlers
 from actions import *
-
-config = {}
 
 class MsgQueue(object):
     def __init__(self):
@@ -97,12 +95,13 @@ class FileUploadThread(object):
         ]
 
         # Set up our chain of handlers
-        for x in range(len(self.handlers)-1):
+        for x in xrange(len(self.handlers)-1):
             self.handlers[x].nextaction = self.handlers[x+1]
             self.handlers[x].cleanup_handler = cleanup
 
         # GO GO GO!
         self._thread = threading.Thread(None,self)
+        self._thread.setDaemon(True)
         self._thread.start()
 
     def process(self, file):
@@ -114,29 +113,42 @@ class FileUploadThread(object):
             self.handlers[0].queue.put(newfile)
 
 def main():
-    # Initialize the processing thread
-    fp = FileUploadThread()
-
     # Initialize the config
     global config
-    config = debug_config
+    lconfig = base_logging
     if '--production' in sys.argv:
         config.update(production_config)
+        lconfig.update(production_logging)
+    else:
+        config.update(dev_config)
+        lconfig.update(dev_logging)
+
+    # Initialize Logging
+    logging.basicConfig(**lconfig)
+    log = logging.getLogger(__name__)
+    handler = lconfig['handler'](*lconfig['handler_args'])
+    log.addHandler(handler)
+
+    # Initialize the processing thread
+    fp = FileUploadThread()
 
     # Initialize the file socket
     fsock = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM
     )
-    fsock.connect(('localhost', 48260))
+    port = 48260
+    fsock.bind(('localhost', port))
     fsock.listen(5)
+    log.info("Bound to %d, ready to process files", port)
     while True:
         pfile = ''
         csock, caddr = fsock.accept()
+        received = None
         while received != '':
             received = csock.recv(40)
             pfile = pfile + received
 
-        file_queue.put(pickle.loads(pfile))
+        fp.process(pickle.loads(pfile))
 
 if __name__ == '__main__':
     main()
