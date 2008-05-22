@@ -1,8 +1,11 @@
 import logging
 import os
-import fileprocess
+from mock import Mock
+from .fileprocess import na
 from baseaction import BaseAction
-from sqlalchemy import and_
+from sqlalchemy import and_, engine_from_config
+from pylons import config as pconfig
+from configuration import config
 
 log = logging.getLogger(__name__)
 
@@ -17,14 +20,20 @@ class DBRecorder(BaseAction):
     correct metadata in place.
     """
 
+    def __init__(self, *arg, **kwargs):
+        super(DBRecorder, self).__init__(*arg, **kwargs)
+        pconfig['pylons.g'] = Mock()
+        pconfig['pylons.g'].sa_engine = engine_from_config(config,
+            prefix = 'sqlalchemy.default.'
+        )
+        from masterapp import model
+        self.model = model
+
+
     def process(self, file):
         assert file.has_key('mbtrackid') and file.has_key('mbalbumid') \
             and file.has_key('dbuser') and file.has_key('mbartistid')
         
-        if hasattr(self, 'model') == False:
-            from masterapp import model
-            self.model = model
-
         #Insert a new song if it does not exist
         qry = self.model.Session.query(self.model.Song).filter(
             self.model.Song.mbid==file["mbtrackid"]
@@ -59,12 +68,12 @@ class DBRecorder(BaseAction):
         try:
             self.model.Session.commit() # Woot! Write baby, write!
             file['msg'] = "File successfully uploaded"
-            file['na'] = fileprocess.na.NOTHING
+            file['na'] = na.NOTHING
         except Exception, e:
             log.warn("Could not commit %s: %s", file['title'], e)
             self.model.Session.rollback()
             file['msg'] = "File could not be committed to database"
-            file['na'] = fileprocess.na.FAILURE
+            file['na'] = na.FAILURE
         finally:
             self.model.Session.remove()
             self.cleanup(file)

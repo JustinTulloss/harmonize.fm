@@ -35,7 +35,7 @@ class PlayerController(BaseController):
         c.profile = Profile()
         c.fullname = self.username()
         c.fields = masterapp.controllers.metadata.fields
-        c.entries = Session.query(BlogEntry).all()
+        c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
         else:

@@ -270,7 +270,6 @@ function PlayQueue()
     my.inspanel.on('hide', function() {
         dtarget.isTarget = false;
     });
-    my.panel.on('mouseup', function(){alert('wee'); return false;});
     my.tree.on('bodyresize', function(){
         if (my.tree.dropZone)
             my.tree.dropZone.setPadding(0,0,my.tree.getInnerHeight(),0);

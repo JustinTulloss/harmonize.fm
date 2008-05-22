@@ -46,11 +46,6 @@ def load_environment(global_conf, app_conf):
     config['pylons.g'].sa_engine = \
         engine_from_config(config, 'sqlalchemy.default.')
 
-    #Starting extra processing threads here
-    from fileprocess import FileUploadThread
-    fuploader = FileUploadThread()
-    config['filepipeline'] = fuploader
-
     # Print the version we're booting under
     try:
         hg = Popen(['hg', 'identify'], stdout = PIPE)

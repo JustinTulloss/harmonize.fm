@@ -1,4 +1,5 @@
 from pylons import config
+from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select
 from sqlalchemy.orm import mapper, relation, column_property
@@ -97,6 +98,7 @@ class BlogEntry(object):
         self.title = title
         self.author = author
         self.entry = entry
+        self.timestamp = datetime.now()
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the

@@ -10,7 +10,7 @@ from __future__ import with_statement
 import logging
 import threading
 from baseaction import BaseAction
-import fileprocess
+from .fileprocess import na
 import time
 from musicbrainz2.webservice import (
     Query, 
@@ -20,7 +20,7 @@ from musicbrainz2.webservice import (
     ReleaseFilter,
     ReleaseIncludes)
 from musicbrainz2 import model
-from pylons import config
+from configuration import config
 from picard.similarity import similarity2
 
 log = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class BrainzTagger(BaseAction):
             log.info('No title, analysis needs to be done on %s',
                 file.get('fname'))
             file['msg'] = "File does not have tags"
-            file['na'] = fileprocess.na.FAILURE
+            file['na'] = na.FAILURE
             self.cleanup(file)
             return False
 
@@ -174,7 +174,7 @@ class BrainzTagger(BaseAction):
                 args, e
             ) 
             file['msg'] = "Could not contact tagging service"
-            file['na'] = fileprocess.na.TRYAGAIN
+            file['na'] = na.TRYAGAIN
             self.cleanup(file)
             return False
 
@@ -265,7 +265,7 @@ class BrainzTagger(BaseAction):
             #Uh oh, nothing found. TODO:What now??
             log.info('Brainz match not found for %s',file.get('title'))
             file['msg'] = "No tags found for file"
-            file['na'] = fileprocess.na.FAILURE
+            file['na'] = na.FAILURE
             self.cleanup(file)
             return False
 

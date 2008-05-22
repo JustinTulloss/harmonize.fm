@@ -1,6 +1,8 @@
 # vim:expandtab:smarttab
 import logging
 import S3
+import socket
+import cPickle as pickle
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
 from masterapp.model import Session, File, Song, Album, BlogEntry
@@ -88,3 +90,16 @@ class AdminController(BaseController):
         Session.save(b)
         Session.commit()
         return 'Success!'
+
+    def monitor_pipeline(self):
+        msock = socket.socket()
+        msock.connect(('localhost', 48261))
+        msock.send('1') #Wakes up the monitor thread
+        received = None
+        msg = ''
+        while received != '':
+            received = msock.recv(512)
+            msg = msg+received
+
+        c.status = pickle.loads(msg)
+        return render('/admin/monitor_pipeline.mako')
