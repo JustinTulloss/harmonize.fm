@@ -14,6 +14,7 @@ pickle = cPickle
 
 #The different handlers
 from actions import *
+log = None
 
 class MsgQueue(object):
     def __init__(self):
@@ -119,17 +120,22 @@ def monitor(pipeline):
     msock.bind(('localhost', 48261))
 
     msock.listen(2)
+    log.info("Monitor thread started")
     while True:
-        csock, caddr = msock.accept()
-        csock.recv(1)
+        try:
+            csock, caddr = msock.accept()
+            csock.recv(1)
 
-        status = []
-        for handler in pipeline.handlers:
-            waiting = list(handler.queue.queue)
-            status.append((handler.__class__.__name__, waiting))
-        
-        csock.sendall(pickle.dumps(status))
-        csock.close()
+            status = []
+            for handler in pipeline.handlers:
+                waiting = list(handler.queue.queue)
+                status.append((handler.__class__.__name__, waiting))
+            
+            csock.sendall(pickle.dumps(status))
+            csock.close()
+        except Exception, e:
+            log.error("An exception occurred in the monitor: %s", e)
+            break
 
 def main():
     # Initialize the config
@@ -143,6 +149,7 @@ def main():
         lconfig.update(dev_logging)
 
     # Initialize Logging
+    global log
     logging.basicConfig(**lconfig)
     log = logging.getLogger(__name__)
     handler = lconfig['handler'](*lconfig['handler_args'])
