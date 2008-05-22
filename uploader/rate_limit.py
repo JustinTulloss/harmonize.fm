@@ -3,7 +3,7 @@ import httplib, time, thread, threading, math
 from httplib import HTTPConnection
 import logging, config
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger()
 
 def post(connection, url, contents):
