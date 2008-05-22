@@ -34,18 +34,6 @@ function Player()
         showprev: true
     });
 
-    /* Soundmanager configuration */
-    soundManager.url='/flash/soundmanager2.swf';
-    //soundManager.debugMode = false;
-    soundManager.debugMode = false;
-    soundManager.useConsole = false;
-    soundManager.consoleOnly = true;
-
-    soundManager.onerror = function () {
-        /* TODO: Tie into actual error handling mechanism */
-        alert ('An error occurred loading the soundmanager');
-    }
-
 	/* We don't have a seekbar right now
     function init_seekbar()
     {
@@ -225,9 +213,6 @@ function Player()
                 Perhaps somebody else is listening to it. \
                 Try again in a few minutes.");
     }
-
-    /* Soundmanager default options */
-    //soundManager.defaultOptions.volume = volume;
 
 	var now_playing_title = document.getElementById('now-playing-title');
 	var now_playing_artist = document.getElementById('now-playing-artist');
