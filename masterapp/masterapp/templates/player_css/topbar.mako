@@ -102,11 +102,18 @@
     font-size: 9px;
 }
 
+#menu {
+	z-index: 200;
+}
+
 .menuitem {
-    font-size: 13px;
-	font-family: tahoma,verdana,helvetica;
+    /*font-size: 13px; */
     color: #FFFFFF;
 	cursor: pointer;
+	border-width: 0;
+	background-color: transparent;
+	padding: 0;
+	margin: 0;
 }
 
 a.menuitem {
@@ -128,6 +135,12 @@ a.menuitem {
 	font-family: tahoma,verdana,helvetica,sans-serif;
     color: #FFFFFF;
 	text-align:right;
+}
+
+#feedbackContainer {
+	height: 21px;
+	vertical-align: middle;
+	z-index: 5000;
 }
 
 #logo {
