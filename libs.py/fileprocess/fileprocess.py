@@ -1,15 +1,16 @@
 # vim:expandtab:smarttab
 #A thread that allows us to process files
+
 from __future__ import with_statement
 import pylons
-from paste.registry import StackedObjectProxy
 import threading
 from Queue import Queue, Empty
+import socket
+import cPickle
+pickle = cPickle
 
-#The different handlers, eventually to be done elsewhere?
+#The different handlers
 from actions import *
-
-file_queue = Queue()
 
 class MsgQueue(object):
     def __init__(self):
@@ -74,6 +75,7 @@ class FileUploadThread(object):
         super(FileUploadThread, self).__init__()
         self._endqueue = Queue()
         self.running = 1
+        self._fqueue =  Queue()
 
         cleanup = Cleanup() # A Special thread for cleaning up errors
 
@@ -94,11 +96,36 @@ class FileUploadThread(object):
             self.handlers[x].nextaction = self.handlers[x+1]
             self.handlers[x].cleanup_handler = cleanup
 
-        #GO GO GO!
+        # GO GO GO!
         self._thread = threading.Thread(None,self)
         self._thread.start()
+
+    def process(self, file):
+        self._fqueue.put(file)
    
     def __call__(self):
         while(self.running):
-            newfile = file_queue.get()
+            newfile = self._fqueue.get()
             self.handlers[0].queue.put(newfile)
+
+def main():
+    # Initialize the processing thread
+    fp = FileUploadThread()
+
+    # Initialize the file socket
+    fsock = socket.socket(
+        socket.AF_INET, socket.SOCK_STREAM
+    )
+    fsock.connect(('localhost', 48260))
+    fsock.listen(5)
+    while True:
+        pfile = ''
+        csock, caddr = fsock.accept()
+        while received != '':
+            received = csock.recv(40)
+            pfile = pfile + received
+
+        file_queue.put(pickle.loads(pfile))
+
+if __name__ == '__main__':
+    main()
