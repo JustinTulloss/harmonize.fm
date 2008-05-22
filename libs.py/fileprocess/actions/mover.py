@@ -1,8 +1,7 @@
-#A simple file moving module that renames the file
-#to its sha1 name in the media directory
+# A simple file moving module that renames the file
+# to its sha1 name in the media directory
 
 import logging
-from pylons import config
 import os
 import guid
 from baseaction import BaseAction

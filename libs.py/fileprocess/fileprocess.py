@@ -2,15 +2,20 @@
 #A thread that allows us to process files
 
 from __future__ import with_statement
+import sys
+sys.path.insert(0, '..')
 import pylons
 import threading
 from Queue import Queue, Empty
 import socket
 import cPickle
+from configuration import *
 pickle = cPickle
 
 #The different handlers
 from actions import *
+
+config = {}
 
 class MsgQueue(object):
     def __init__(self):
@@ -111,6 +116,12 @@ class FileUploadThread(object):
 def main():
     # Initialize the processing thread
     fp = FileUploadThread()
+
+    # Initialize the config
+    global config
+    config = debug_config
+    if '--production' in sys.argv:
+        config.update(production_config)
 
     # Initialize the file socket
     fsock = socket.socket(
