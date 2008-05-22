@@ -77,7 +77,13 @@ def upload_file(filename, callback):
 			response = connection.getresponse().read()
 
 			if response == 'upload_file':
-				response = rate_limit.post(connection, url, file_contents).read()
+				if config.current['rate_limit']:
+					response = \
+						rate_limit.post(connection, url, file_contents).read()
+				else:
+					connection.request('POST', url, file_contents, 
+										{'Content-type':'audio/x-mpeg-3'})
+					response = connection.getresponse().read()
 				
 				if response == 'reauthenticate':
 					reauthenticate(callback)
