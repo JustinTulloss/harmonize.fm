@@ -112,6 +112,25 @@ class FileUploadThread(object):
             newfile = self._fqueue.get()
             self.handlers[0].queue.put(newfile)
 
+def monitor(pipeline):
+    msock = socket.socket(
+        socket.AF_INET, socket.SOCK_STREAM
+    )
+    msock.bind(('localhost', 48261))
+
+    msock.listen(2)
+    while True:
+        csock, caddr = msock.accept()
+        csock.recv(1)
+
+        status = []
+        for handler in pipeline.handlers:
+            waiting = list(handler.queue.queue)
+            status.append((handler.__class__.__name__, waiting))
+        
+        csock.sendall(pickle.dumps(status))
+        csock.close()
+
 def main():
     # Initialize the config
     global config
@@ -131,6 +150,11 @@ def main():
 
     # Initialize the processing thread
     fp = FileUploadThread()
+
+    # Initialize the monitoring thread
+    mthread = threading.Thread(None, monitor, args = [fp])
+    mthread.setDaemon(True)
+    mthread.start()
 
     # Initialize the file socket
     fsock = socket.socket(
