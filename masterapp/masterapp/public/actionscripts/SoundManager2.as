@@ -1,19 +1,25 @@
 /*
    SoundManager 2: Javascript Sound for the Web
-   --------------------------------------------
-   http://www.schillmania.com/projects/soundmanager2/
+   ----------------------------------------------
+   http://schillmania.com/projects/soundmanager2/
 
-   Copyright (c) 2007, Scott Schiller. All rights reserved.
+   Copyright (c) 2008, Scott Schiller. All rights reserved.
    Code licensed under the BSD License:
    http://www.schillmania.com/projects/soundmanager2/license.txt
 
-   V2.0b.20070415
+   V2.5b.20080505
 
    Compiling AS to Flash 8 SWF using MTASC (free compiler - http://www.mtasc.org/):
    mtasc -swf soundmanager2.swf -main -header 16:16:30 SoundManager2.as -version 8
 
    ActionScript Sound class reference (Macromedia):
    http://livedocs.macromedia.com/flash/8/main/wwhelp/wwhimpl/common/html/wwhelp.htm?context=LiveDocs_Parts&file=00002668.html
+
+   *** NOTE ON LOCAL FILE SYSTEM ACCESS ***
+
+   Flash security allows local OR network access, but not both
+   unless explicitly whitelisted/allowed by the flash player's
+   security settings.
 */
 
 import flash.external.ExternalInterface; // woo
@@ -29,19 +35,34 @@ class SoundManager2 {
   var baseJSObject = baseJSController+".sounds";
 
   // internal objects
-  var sounds = []; // indexed string array
-  var soundObjects = []; // associative Sound() object array
+  var sounds = [];            // indexed string array
+  var soundObjects = [];      // associative Sound() object array
   var timer = null;
   var timerInterval = 50;
   var pollingEnabled = false; // polling (timer) flag - disabled by default, enabled by JS->Flash call
+  var debugEnabled = true;    // Flash debug output enabled by default, disabled by JS call
 
   var writeDebug = function(s) {
+    if (!debugEnabled) return false;
     ExternalInterface.call(baseJSController+"['_writeDebug']","(Flash): "+s);
   }
 
-  var _externalInterfaceTest = function() {
-    writeDebug('_externalInterfaceTest()');
+  var _externalInterfaceTest = function(isFirstCall) {
+    if (isFirstCall) {
+      writeDebug('_externalInterfaceTest(): JS &lt;-&gt; Flash OK');
+      ExternalInterface.call(baseJSController+"._externalInterfaceOK");
+    } else {
+      writeDebug('Flash -&gt; JS OK');
+      var sandboxType = System.security['sandboxType'];
+      ExternalInterface.call(baseJSController+"._setSandboxType",sandboxType);
+    }
     return true; // to verify that a call from JS to here, works. (eg. JS receives "true", thus OK.)
+  }
+
+  var _disableDebug = function() {
+    // prevent future debug calls from Flash going to client (maybe improve performance)
+    writeDebug('_disableDebug()');
+    debugEnabled = false;
   }
 
   var checkProgress = function() {
@@ -103,6 +124,7 @@ class SoundManager2 {
 
   var registerOnComplete = function(sID) {
     soundObjects[sID].onSoundComplete = function() {
+      this.didJustBeforeFinish = false; // reset
       ExternalInterface.call(baseJSObject+"['"+sID+"']._onfinish");
     }
   }
@@ -116,7 +138,7 @@ class SoundManager2 {
   }
 
   var _load = function(sID,sURL,bStream,bAutoPlay) {
-    writeDebug('_load()');
+    // writeDebug('_load()');
     if (typeof bAutoPlay == 'undefined') bAutoPlay = false;
     // checkProgress();
     var s = soundObjects[sID];
@@ -127,16 +149,16 @@ class SoundManager2 {
     s.didJustBeforeFinish = false;
     if (bAutoPlay != true) {
       s.stop(); // prevent default auto-play behaviour
-      writeDebug('auto-play stopped');
+      // writeDebug('auto-play stopped');
     } else {
-      writeDebug('auto-play allowed');
+      // writeDebug('auto-play allowed');
     }
     registerOnComplete(sID);
   }
 
   var _unload = function(sID,sURL) {
     // effectively "stop" loading by loading a tiny MP3
-    writeDebug('_unload()');
+    // writeDebug('_unload()');
     var s = soundObjects[sID];
     s.onID3 = null;
     s.onLoad = null;
@@ -149,6 +171,7 @@ class SoundManager2 {
   var _createSound = function(sID,justBeforeFinishOffset) {
     soundObjects[sID] = new Sound();
     var s = soundObjects[sID];
+    s.setVolume(100);
     s.didJustBeforeFinish = false;
     s.sID = sID;
     s.paused = false;
@@ -182,17 +205,17 @@ class SoundManager2 {
   }
 
   var _pause = function(sID) {
-    writeDebug('_pause()');
+    // writeDebug('_pause()');
     var s = soundObjects[sID];
     if (!s.paused) {
       // reference current position, stop sound
       s.paused = true; 
       s.lastValues.position = s.position;
-      writeDebug('_pause(): position: '+s.lastValues.position);
+      // writeDebug('_pause(): position: '+s.lastValues.position);
       s.stop();
     } else {
       // resume playing from last position
-      writeDebug('resuming - playing at '+s.lastValues.position+', '+s.lastValues.nLoops+' times');
+      // writeDebug('resuming - playing at '+s.lastValues.position+', '+s.lastValues.nLoops+' times');
       s.paused = false;
       s.start(s.lastValues.position/1000,s.lastValues.nLoops);
     }
@@ -262,20 +285,41 @@ class SoundManager2 {
     oXML.load(sXmlUrl);
   }
 
-  ExternalInterface.addCallback('_load', this, _load);
-  ExternalInterface.addCallback('_unload', this, _unload);
-  ExternalInterface.addCallback('_stop', this, _stop);
-  ExternalInterface.addCallback('_start', this, _start);
-  ExternalInterface.addCallback('_pause', this, _pause);
-  ExternalInterface.addCallback('_setPosition', this, _setPosition);
-  ExternalInterface.addCallback('_setPan', this, _setPan);
-  ExternalInterface.addCallback('_setVolume', this, _setVolume);
-  ExternalInterface.addCallback('_setPolling', this, _setPolling);
-  ExternalInterface.addCallback('_externalInterfaceTest', this, _externalInterfaceTest);
-  ExternalInterface.addCallback('_loadFromXML', null, _loadFromXML);
-  ExternalInterface.addCallback('_createSound', this, _createSound);
+  var _init = function() {
+
+    // OK now stuff should be available
+
+    try {
+      ExternalInterface.addCallback('_load', this, _load);
+    } catch (error) {
+      // d'oh!
+    }
+
+    ExternalInterface.addCallback('_unload', this, _unload);
+    ExternalInterface.addCallback('_stop', this, _stop);
+    ExternalInterface.addCallback('_start', this, _start);
+    ExternalInterface.addCallback('_pause', this, _pause);
+    ExternalInterface.addCallback('_setPosition', this, _setPosition);
+    ExternalInterface.addCallback('_setPan', this, _setPan);
+    ExternalInterface.addCallback('_setVolume', this, _setVolume);
+    ExternalInterface.addCallback('_setPolling', this, _setPolling);
+    ExternalInterface.addCallback('_externalInterfaceTest', this, _externalInterfaceTest);
+    ExternalInterface.addCallback('_disableDebug', this, _disableDebug);
+    ExternalInterface.addCallback('_loadFromXML', null, _loadFromXML);
+    ExternalInterface.addCallback('_createSound', this, _createSound);
+    // try to talk to JS, do init etc.
+    _externalInterfaceTest(true);
 
   }
+
+  if (ExternalInterface.available) {
+    _init();
+  } else {
+    // d'oh!
+  }
+
+
+  } // SoundManager2()
 
   // entry point
   static function main(mc) {

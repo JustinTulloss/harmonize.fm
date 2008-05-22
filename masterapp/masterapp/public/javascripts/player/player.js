@@ -34,18 +34,7 @@ function Player()
         showprev: true
     });
 
-    /* Soundmanager configuration */
-    soundManager.url='/flash/soundmanager2.swf';
-    soundManager.debugMode = false;
-    soundManager.useConsole = false;
-    soundManager.consoleOnly = true;
-
-    soundManager.onerror = function () {
-        /* TODO: Tie into actual error handling mechanism */
-        alert ('An error occurred loading the soundmanager');
-    }
-
-
+	/* We don't have a seekbar right now
     function init_seekbar()
     {
         slider = new Ext.ux.SlideZone('timeline', {
@@ -68,6 +57,7 @@ function Player()
                 player.seek(this.value/100)
             });
     }
+	*/
 
     /* Event handlers */
     this.seek = seek;
@@ -183,7 +173,6 @@ function Player()
             whileplaying: function(){
 				update_duration(this);
                 update_progress_bar(this.position);
-				//updatetime.call(this.options.player, this)
             },
             onfinish: function(){
                 this.options.player.nextclicked.call(this.options.player, this);
@@ -197,7 +186,6 @@ function Player()
         });
         */
 
-        /*finally play */
         soundManager.play(playingsong);
     }
 
@@ -225,9 +213,6 @@ function Player()
                 Perhaps somebody else is listening to it. \
                 Try again in a few minutes.");
     }
-
-    /* Soundmanager default options */
-    soundManager.defaultOptions.volume = volume;
 
 	var now_playing_title = document.getElementById('now-playing-title');
 	var now_playing_artist = document.getElementById('now-playing-artist');

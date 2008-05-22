@@ -37,6 +37,7 @@ def compress(file, outfile, type):
     ], stdin = subprocess.PIPE, stdout = outfile)
 
     compressor.stdin.write(file.read())
+    compressor.wait()
     outfile.close()
 
 def main():
@@ -54,10 +55,11 @@ def main():
 
     # Write out compressed JS
     outp = os.path.join(PREFIXES['js'], compressed_player_files.javascripts[0])
-    try:
-        os.makedirs(os.path.dirname(outp))
-    except Exception, e:
-        print e
+
+    dir_name = os.path.dirname(outp)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+
     js = compress(concatenate(jsfiles), open(outp, 'wb'), 'js')
 
     # Write out compressed CSS

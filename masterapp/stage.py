@@ -8,48 +8,31 @@ staging debug mode (no daemon and with the debugger turned on)
 
 import subprocess
 import os, sys
+import time
 
 PIDPATH = '/var/log/rubicon/paster.pid'
 STAGEPATH = '/var/www/sites/stage/masterapp'
 
-#Kill old server
-try:
-    fpid = open(PIDPATH)
-    pid = fpid.read()
-
-    subprocess.check_call(['kill', pid])
-except Exception, e:
-    print e
+#ignore errors, means server isn't already running
+os.system('kill -9 `cat %s` 2> /dev/null' % (PIDPATH)) 
 
 #Change to staging directory
-try:
-    os.chdir(STAGEPATH)
-except Exception, e:
-    print e
+os.chdir(STAGEPATH)
 
 #Update repository
-subprocess.check_call([
-    'hg',
-    'pull',
-    '-u'
-])
+subprocess.check_call(['hg', 'pull', '-u'])
 
 #Update compressed javascript
-os.chdir('helpers')
-sys.path.append('.')
+sys.path.append('./helpers')
 import compressor
 compressor.main()
 
-os.chdir('..')
-
 #Restart server
 arglist = [
-    'paster', 
-    'serve', 
+    'paster', 'serve', 
     '--user=www-data',
     '--group=www-data',
-    '--pid-file',
-    PIDPATH
+    '--pid-file', PIDPATH
 ]
 
 if '-d' in sys.argv or '--debug' in sys.argv:
@@ -59,4 +42,7 @@ else:
     arglist.append('--daemon')
 
 subprocess.check_call(arglist)
+
+time.sleep(10)
+os.system('/etc/init.d/lighttpd restart')
 

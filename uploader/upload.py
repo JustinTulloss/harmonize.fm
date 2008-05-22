@@ -13,18 +13,20 @@ def get_default_path():
 
 	def default_win():
 		home_path = os.getenv('USERPROFILE')
-		xp_music_path = path.join(home_path, 'My Documents', 'My Music')
-		vista_music_path = path.join(home_path, 'Documents', 'Music')
-		if path.exists(xp_music_path):
-			return xp_music_path
-		elif path.exists(vista_music_path):
-			return vista_music_path
+		if platform.uname()[3].startswith('6'):
+			music_path = path.join(home_path, 'Music')
+		else:
+			music_path = path.join(home_path, 'My Documents', 'My Music')
+
+		if path.exists(music_path):
+			return music_path
 		else:
 			return home_path
 			
 	#Have to wrap paths in lambda's so they don't get executed on windows
 	paths = {'Linux':(lambda: os.getenv('HOME')),
 		'Windows':default_win,
+		'Microsoft':default_win,
 		'Darwin':default_osx}
 	
 	return paths[platform.system()]()
@@ -75,9 +77,7 @@ def upload_file(filename, callback):
 			response = connection.getresponse().read()
 
 			if response == 'upload_file':
-				connection.request('POST', url, file_contents, 
-					{'Content-Type':'audio/x-mpeg-3'})
-				response = connection.getresponse().read()
+				response = rate_limit.post(connection, url, file_contents).read()
 				
 				if response == 'reauthenticate':
 					reauthenticate(callback)
@@ -117,7 +117,8 @@ def upload_files(song_list, callback):
 		callback.update('%s songs remaining' % songs_left, songs_left)
 
 		if songs_left % 15 == 0:
-			retry_fn(reset_rate_limit, callback)
+			pass
+		#	retry_fn(reset_rate_limit, callback)
 	
 	callback.update('Upload complete!', 0)
 
