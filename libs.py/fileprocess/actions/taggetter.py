@@ -90,7 +90,7 @@ def update_mp4(mp4obj, tagobj):
         if mp4obj.has_key(key):
             tagobj[field_name] = ','.join(mp4obj[key])
     
-    if mp4obj.has_key('trkn') and len(mp4['trkn']) > 0:
+    if mp4obj.has_key('trkn') and len(mp4obj['trkn']) > 0:
         trkn = mp4obj['trkn'][0]
         if type(trkn) == tuple and len(trkn) == 2:
             tagobj['tracknumber'], tagobj['totaltracks'] = trkn

@@ -1,11 +1,13 @@
 import config, fb
 import httplib, time, thread, threading, math
 from httplib import HTTPConnection
+import logging, config
 
-debug = False
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
-def send_rate_limited(connection, url, contents):
-	global pinger, debug
+def post(connection, url, contents):
+	global pinger
 	#connection.set_debuglevel(1)
 	if pinger == None: raise Exception()
 
@@ -26,12 +28,11 @@ def send_rate_limited(connection, url, contents):
 		
 		elapsed = t2-t1
 		if elapsed < interval:
-			if debug: print 'Time taken: %s' % (elapsed)
+			logger.debug('Time taken: %s' % (elapsed))
 			time.sleep(interval-elapsed)
 		else:
-			if debug: print 'Interval exceeded, ran for %s seconds' % elapsed
+			logger.debug('Interval exceeded, ran for %s seconds' % elapsed)
 	
-	pinger.running = False
 	return connection.getresponse()
 
 def ping(connection):
@@ -67,48 +68,55 @@ def reestablish_baseline(addr, port):
 
 	pinger.reset(baseline)
 
+def shutdown():
+	global pinger
+	pinger.stop()
+
 class Pinger(object):
 	def __init__(self, baseline, addr, port):
+		logger.debug('pinger starting...')
 		self.baseline = baseline
-		self.lock = threading.Lock()
+		self.lock = thread.allocate_lock()
 		self.rate = 20
 		self.running = True
 		self.idleticks = 0
 		self.state = 'expand'
 		self.counter = 0
+		self.addr = addr
+		self.port = port
 		self.connection = httplib.HTTPConnection(addr, port)
 		ping(self.connection) #First ping always take longer
 
 		self.thread = thread.start_new_thread(self.loop, ())
 
-	def update_rate(self, status):
-		global debug
+	def stop(self):
+		self.running = False
 
+	def update_rate(self, status):
 		vals = {'fast': -2, 'ok': -1, 'slow': 1}
 		self.counter += vals[status]
 
 		if self.state == 'expand' and self.counter < -4:
 			self.rate += 10
 			self.counter = 0
-			if debug: print 'Increasing upload rate to %s' % self.rate
+			logger.debug('Increasing upload rate to %s' % self.rate)
 		elif self.counter > 4 and self.state == 'expand':
 			self.rate = int((self.rate/10)*.8)*10
 			self.state = 'maintain'
 			self.counter = 0
-			if debug:
-				print 'Going into maintain mode, final rate is %s' % self.rate
+			logger.debug('Going into maintain mode, final rate is %s' 
+							% self.rate)
 		elif self.counter > 4:
 			self.rate = max(10, self.rate-5)
 			self.counter = 0
-			if debug: print 'Whoa now, slowing down upload to %s' % self.rate
+			logger.debug('Whoa now, slowing down upload to %s' % self.rate)
 
 	def loop(self):
-		global debug
-
 		while self.running:
 			self.lock.acquire()
 			if self.idleticks == 0:
 				self.lock.release()
+				logger.debug('going to sleep...ZZZZ')
 				time.sleep(1)
 				continue
 			
@@ -117,23 +125,25 @@ class Pinger(object):
 
 			try:
 				pingtime = ping(self.connection)
-			except Exception:
+			except Exception, e:
+				logger.debug('exception caught, retrying')
+				self.connection = HTTPConnection(self.addr, self.port)
 				continue
 
 			self.lock.acquire()
 			error = (pingtime - self.baseline) / pingtime
 			if error < -.2:
 				self.update_rate('fast')
-				if debug:
-					print 'pingtime is fast: %s / %s' % (pingtime*1000, self.baseline*1000)
+				logger.debug('pingtime is fast: %s / %s' % 
+							(pingtime*1000, self.baseline*1000))
 			elif error < .4:
 				self.update_rate('ok')
-				if debug:
-					print 'pingtime is ok: %s / %s' % (pingtime*1000, self.baseline*1000)
+				logger.debug('pingtime is ok: %s / %s' % 
+							(pingtime*1000, self.baseline*1000))
 			else:
 				self.update_rate('slow')
-				if debug:
-					print 'pingtime is slow: %s / %s' % (pingtime*1000, self.baseline*1000)
+				logger.debug('pingtime is slow: %s / %s' % 
+							(pingtime*1000, self.baseline*1000))
 			self.lock.release()
 			time.sleep(.6)
 
@@ -163,7 +173,7 @@ def test_send(filename='02 Vacileo.mp3'):
 
 	connection.request('GET', url)
 	print 'GET response:', connection.getresponse().read()
-	response = send_rate_limited(connection, url, file_contents)
+	response = post(connection, url, file_contents)
 	print 'response:', response.read()
 
 if __name__ == '__main__':

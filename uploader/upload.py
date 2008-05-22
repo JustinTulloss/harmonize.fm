@@ -77,9 +77,7 @@ def upload_file(filename, callback):
 			response = connection.getresponse().read()
 
 			if response == 'upload_file':
-				connection.request('POST', url, file_contents, 
-					{'Content-Type':'audio/x-mpeg-3'})
-				response = connection.getresponse().read()
+				response = rate_limit.post(connection, url, file_contents).read()
 				
 				if response == 'reauthenticate':
 					reauthenticate(callback)
@@ -119,7 +117,8 @@ def upload_files(song_list, callback):
 		callback.update('%s songs remaining' % songs_left, songs_left)
 
 		if songs_left % 15 == 0:
-			retry_fn(reset_rate_limit, callback)
+			pass
+		#	retry_fn(reset_rate_limit, callback)
 	
 	callback.update('Upload complete!', 0)
 
