@@ -15,7 +15,9 @@ PIDPATH = '/var/log/rubicon/paster.pid'
 STAGEPATH = '/var/www/sites/stage/masterapp'
 
 proxy = xmlrpclib.ServerProxy('http://localhost:9001')
-proxy.supervisor.stopProcess('stage_server')
+if proxy.supervisor.getProcessInfo('stage_server')['statename'] == 'RUNNING':
+    proxy.supervisor.stopProcess('stage_server')
+    
 
 #Change to staging directory
 os.chdir(STAGEPATH)
@@ -24,7 +26,8 @@ os.chdir(STAGEPATH)
 subprocess.check_call(['hg', 'pull', '-u'])
 
 #Update compressed javascript
-os.chdir('helpers')
+os.chdir('./helpers')
+sys.path.append('.')
 import compressor
 compressor.main()
 os.chdir('..')
@@ -43,5 +46,5 @@ else:
     proxy.supervisor.startProcess('stage_server')
 
 # Restart lighty to ensure that the fastcgi connection is fresh
-os.system('/etc/init.d/lighttpd restart')
+#os.system('/etc/init.d/lighttpd restart')
 
