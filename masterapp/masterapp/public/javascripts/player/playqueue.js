@@ -339,8 +339,9 @@ Ext.extend(PlayingQueueNode, QueueNode);
 
 function AlbumQueueNode(config)
 {
-    config.text = String.format('{0} ({1}/{1})', 
+    config.text = String.format('{0} ({1}/{2})', 
         config.record.get('Album_title'),
+        config.record.get('Album_havesongs'),
         config.record.get('Album_totaltracks')
     );
     config.draggable = true;
