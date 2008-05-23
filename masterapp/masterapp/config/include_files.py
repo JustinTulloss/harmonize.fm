@@ -46,7 +46,7 @@ player_files = IncludeFiles(
         'player/queueui.js',
         'player/playqueue.js',
         'player/player.js',
-        'player/auth.js',
+        #'player/auth.js',
         'player/metatypeinfo.js',
         'player/columns.js',
         'player/init.js',

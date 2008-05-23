@@ -14,6 +14,10 @@
             fields: ${simplejson.dumps(c.fields)}
         };
 
+    </script>
+
+    ${parent.head_tags()}
+	<script type="text/javascript">
 		var soundManager = new SoundManager();
 		/* Soundmanager configuration */
 		soundManager.url='/flash/soundmanager2.swf';
@@ -24,9 +28,7 @@
 			/* TODO: Tie into actual error handling mechanism */
 			alert ('An error occurred loading the soundmanager');
 		}
-    </script>
-
-    ${parent.head_tags()}
+	</script>
 </%def>
 
 <div id="header">

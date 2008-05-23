@@ -26,13 +26,13 @@ function feedbackButton() {
 
 	function show_feedback_box() {
 		feedbackBox.dom.style.display = 'block';
-		feedbackButton.addClass('feedbackActive');
+		feedbackContainer.addClass('feedbackActive');
 		active = true;
 	}
 
 	function hide_feedback_box() {
 		feedbackBox.dom.style.display = 'none';
-		feedbackButton.removeClass('feedbackActive');
+		feedbackContainer.removeClass('feedbackActive');
 		active = false;
 	}
 
@@ -69,16 +69,11 @@ function feedbackButton() {
 	var feedbackContainer = Ext.get(document.createElement('div'));
 	feedbackContainer.dom.id = 'feedbackContainer';
 
-	var feedbackButton = Ext.get(document.createElement('div'));
-	//	new Ext.Button({text:'feedback', cls:'menuitem'});
-	
-	feedbackButton.dom.className = 'menuitem';
-	feedbackButton.dom.style.paddingLeft = '2px';
-	feedbackButton.dom.style.paddingRight = '4px';
-	feedbackButton.dom.innerHTML = 'feedback';
+	var feedbackButton = new Ext.Button({
+							text:'feedback', cls:'menuitem',
+							renderTo:feedbackContainer});
 	
 	feedbackButton.on('click', toggle_feedback_box);
-	feedbackContainer.appendChild(feedbackButton);
 
 	var positioningDiv = Ext.get(document.createElement('div'));
 	positioningDiv.dom.style.position = 'relative';
@@ -96,6 +91,7 @@ function feedbackButton() {
 	var form = Ext.get(document.createElement('form'));
 	var textarea = Ext.get(document.createElement('textarea'));
 	textarea.dom.style.width = '100%';
+	//textarea.dom.style.height = '80px';
 	textarea.dom.setAttribute('wrap', 'hard');
 	form.appendChild(textarea);
 
