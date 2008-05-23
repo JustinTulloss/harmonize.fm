@@ -88,8 +88,12 @@ class AdminController(BaseController):
         return 'Success!'
 
     def monitor_pipeline(self):
-        msock = socket.socket()
-        msock.connect(('localhost', 48261))
+        try:
+            msock = socket.socket()
+            msock.connect(('localhost', 48261))
+        except socket.error:
+            return "Could not connect to file pipeline"
+
         msock.send('1') #Wakes up the monitor thread
         received = None
         msg = ''
