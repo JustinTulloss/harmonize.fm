@@ -60,10 +60,6 @@ class AdminController(BaseController):
         return removed
 
     def monitor(self):
-        queue_list = []
-        for handler in config['filepipeline'].handlers:
-            queue_list.append((handler.queue.qsize(), handler.queue.queue))
-
         try:
             fplog = open('/var/log/rubicon/filepipe' , 'r')
             c.fplog = fplog.read()
