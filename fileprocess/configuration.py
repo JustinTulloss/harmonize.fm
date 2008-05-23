@@ -8,6 +8,7 @@ config = {
     'S3.accesskey': '17G635SNK33G1Y7NZ2R2',
     'S3.secret': 'PHDzFig4NYRJoKKW/FerfhojljL+sbNyYB9bEpHs',
     'S3.music_bucket': 'music.rubiconmusicplayer.com',
+    'S3.upload': True,
     'sqlalchemy.default.convert_unicode': True,
     'upload_dir': '../masterapp/tmp',
     'media_dir': '../masterapp/media',
@@ -20,6 +21,13 @@ config = {
 dev_config = {
     'S3.upload': False,
     'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
+}
+
+test_config = {
+    'sqlalchemy.default.url': 'sqlite:///:memory:',
+    'sqlalchemy.reflect.url': 'sqlite:///../masterapp/music.db',
+    'upload_dir': './test/testuploaddir',
+    'media_dir': './test/teststagingdir'
 }
 
 production_config = {

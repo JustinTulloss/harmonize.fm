@@ -28,30 +28,35 @@ class S3Uploader(BaseAction):
             config['S3.accesskey'], 
             config['S3.secret']
         )
-        try:
-            fo = open(file['fname'],'rb')
-        except IOError, e:
-            file['msg'] = "An error occurred while committing file"
-            file['na'] = fileprocess.na.TRYAGAIN
-            self.cleanup(file)
-            return False
 
-        data = ''
-        readbytes = READCHUNK
-        bytes = fo.read(readbytes)
-        while(len(bytes)>0):
-            data += bytes
+        def upload_file():
+            try:
+                fo = open(file['fname'],'rb')
+            except IOError, e:
+                file['msg'] = "An error occurred while committing file"
+                file['na'] = fileprocess.na.TRYAGAIN
+                self.cleanup(file)
+                return False
+
+            data = ''
+            readbytes = READCHUNK
             bytes = fo.read(readbytes)
-        fo.close()
+            while(len(bytes)>0):
+                data += bytes
+                bytes = fo.read(readbytes)
+            fo.close()
 
-        response=conn.put(config['S3.music_bucket'], file['sha'], data)
-        if (response.message == '200 OK'):
-            log.info("%s successfully uploaded to S3", 
-                file.get('title', 'Unknown Song'))
-            return file
-        else:
-            log.error(response.message)
-            file['msg'] = "Could not save file"
-            file['na'] = fileprocess.na.FAILURE
-            self.cleanup(file)
-            return False
+            response=conn.put(config['S3.music_bucket'], file['sha'], data)
+            return response
+
+        message = ''
+        while message != '200 OK':
+            response = upload_file()
+            if response:
+                message = response.message
+            else:
+                return False
+            
+        log.info("%s successfully uploaded to S3", 
+            file.get('title', 'Unknown Song'))
+        return file

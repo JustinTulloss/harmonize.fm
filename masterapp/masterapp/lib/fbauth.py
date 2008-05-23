@@ -24,10 +24,8 @@ def ensure_fb_session():
         # XXX: This conditional works around a bug where the getAppUsers call
         #   returns a {} instead of [] when there are no friends. Should fix
         #   in the library
-        if len(session['fbfriends']) > 0:
-            session['fbfriends'].append(facebook.uid)
-        else:
-            session['fbfriends'] = [facebook.uid]
+        if len(session['fbfriends']) == 0:
+            session['fbfriends'] = []
         session.save()
         return True
 

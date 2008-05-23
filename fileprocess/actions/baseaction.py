@@ -19,7 +19,7 @@ class BaseAction(object):
         self._thread.start()
     
     def _loop(self):
-        while(self._running): #praying that reading this is atomic
+        while(self._running):
             nf = self.queue.get()
             try:
                 nextfile = self.process(nf)

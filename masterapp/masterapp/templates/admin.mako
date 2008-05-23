@@ -10,5 +10,7 @@
         <li><a href='admin/rmentities'>Clean Database</a></li>
         <li><a href='admin/s3cleanup'>Clean S3</a></li>
         <li><a href='admin/monitor'>Monitor Server Status</a></li>
+        <li><a href='admin/blog'>Post Blog Entry</a></li>
+        <li><a href='admin/monitor_pipeline'>Monitor Pipeline</a></li>
     </ul>
 </%def>

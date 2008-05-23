@@ -13,23 +13,17 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import engine
 
 import os, shutil, sys
-sys.path.append('..')
+sys.path.append('libs.py')
 from mock import Mock, patch, sentinel
 
-from pylons import config, g
-from paste.deploy import appconfig
+from configuration import config, dev_config, test_config
 
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
         super(TestBase, self).__init__(*args)
         logging.basicConfig(level=logging.WARNING)
-        config.update(
-            appconfig( 'config://'+os.path.abspath(os.curdir)+\
-                '/../../masterapp/test.ini'
-            )
-        )
-        config['upload_dir']='./test/testuploaddir'
-        config['media_dir']='./test/teststagingdir'
+        config.update(dev_config)
+        config.update(test_config)
 
     def setUp(self):
         os.mkdir(config['media_dir'])

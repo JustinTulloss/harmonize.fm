@@ -60,10 +60,6 @@ class AdminController(BaseController):
         return removed
 
     def monitor(self):
-        queue_list = []
-        for handler in config['filepipeline'].handlers:
-            queue_list.append((handler.queue.qsize(), handler.queue.queue))
-
         try:
             fplog = open('/var/log/rubicon/filepipe' , 'r')
             c.fplog = fplog.read()
@@ -92,8 +88,12 @@ class AdminController(BaseController):
         return 'Success!'
 
     def monitor_pipeline(self):
-        msock = socket.socket()
-        msock.connect(('localhost', 48261))
+        try:
+            msock = socket.socket()
+            msock.connect(('localhost', 48261))
+        except socket.error:
+            return "Could not connect to file pipeline"
+
         msock.send('1') #Wakes up the monitor thread
         received = None
         msg = ''

@@ -37,7 +37,6 @@ def compress(file, outfile, type):
     ], stdin = subprocess.PIPE, stdout = outfile)
 
     compressor.stdin.write(file.read())
-    compressor.wait()
     outfile.close()
 
 def main():
