@@ -24,9 +24,10 @@ os.chdir(STAGEPATH)
 subprocess.check_call(['hg', 'pull', '-u'])
 
 #Update compressed javascript
-sys.path.append('./helpers')
+os.chdir('helpers')
 import compressor
 compressor.main()
+os.chdir('..')
 
 #Restart server
 if '-d' in sys.argv or '--debug' in sys.argv:
