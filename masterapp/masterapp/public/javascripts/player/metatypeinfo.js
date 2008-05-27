@@ -7,7 +7,7 @@
  */
 
 /* TODO: Move all the renderer stuff into its own file. */
-t_add_col = new Ext.Template('<img class="mo addtoqueue" src="/images/enqueue.png" />');
+t_add_col = new Ext.Template('<img class="mo addtoqueue" src="/images/enqueue.png" /><img class="spotlight" src="/images/spotlight.png" />');
 var render = {
 
     enqColumn: function (value, p, record)
