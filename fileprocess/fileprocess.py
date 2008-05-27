@@ -117,7 +117,7 @@ def monitor(pipeline):
     msock = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM
     )
-    msock.bind(('localhost', 48261))
+    msock.bind(('localhost', config['port']+1))
 
     msock.listen(2)
     log.info("Monitor thread started")
@@ -144,6 +144,10 @@ def main():
     if '--production' in sys.argv:
         config.update(production_config)
         lconfig.update(production_logging)
+    elif '--live' in sys.argv:
+        config.update(production_config)
+        config.update(live_config)
+        lconfig.update(production_logging)
     else:
         config.update(dev_config)
         lconfig.update(dev_logging)
@@ -167,7 +171,7 @@ def main():
     fsock = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM
     )
-    port = 48260
+    port = config['port']
     fsock.bind(('localhost', port))
     fsock.listen(5)
     log.info("Bound to %d, ready to process files", port)

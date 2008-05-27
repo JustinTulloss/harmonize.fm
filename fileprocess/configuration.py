@@ -5,6 +5,7 @@ import logging
 from logging import handlers
 
 config = {
+    'port': 48260,
     'S3.accesskey': '17G635SNK33G1Y7NZ2R2',
     'S3.secret': 'PHDzFig4NYRJoKKW/FerfhojljL+sbNyYB9bEpHs',
     'S3.music_bucket': 'music.rubiconmusicplayer.com',
@@ -35,6 +36,12 @@ production_config = {
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600
+}
+
+live_config = {
+    'port': 48262,
+    'sqlalchemy.default.url': \
+        'mysql://webappuser:gravelbits@localhost:3306/production',
 }
 
 base_logging = {
