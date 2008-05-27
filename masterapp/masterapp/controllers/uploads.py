@@ -132,7 +132,7 @@ class UploadsController(BaseController):
             fsock = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM
             )
-            port = config['pipeline_port']
+            port = int(config['pipeline_port'])
             fsock.connect(('localhost', port))
             fsock.send(pfile)
             fsock.shutdown(socket.SHUT_RDWR)
