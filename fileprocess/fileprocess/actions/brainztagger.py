@@ -20,7 +20,7 @@ from musicbrainz2.webservice import (
     ReleaseFilter,
     ReleaseIncludes)
 from musicbrainz2 import model
-from configuration import config
+from fileprocess.configuration import config
 from picard.similarity import similarity2
 
 log = logging.getLogger(__name__)

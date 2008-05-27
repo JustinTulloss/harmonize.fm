@@ -6,7 +6,7 @@ import os
 import guid
 from baseaction import BaseAction
 from ..processingthread import na
-from configuration import config
+from fileprocess.configuration import config
 from shutil import move
 
 log = logging.getLogger(__name__)

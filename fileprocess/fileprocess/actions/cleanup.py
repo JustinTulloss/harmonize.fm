@@ -1,7 +1,7 @@
 import logging
 from baseaction import BaseAction
 import os
-import fileprocess
+from ..processingthread import UploadStatus, na
 
 log = logging.getLogger(__name__)
 
@@ -12,9 +12,9 @@ class Cleanup(BaseAction):
     terminal action.
     """
     def process(self, file):
-        fileprocess.UploadStatus(
+        UploadStatus(
             file.get('msg', "File Successfully Uploaded"),
-            file.get('na', fileprocess.na.NOTHING),
+            file.get('na', na.NOTHING),
             file
         )
 

@@ -22,7 +22,7 @@ import os.path
 import re
 import sys
 import unicodedata
-import astrcmp
+from astrcmp import astrcmp
 
 def needs_read_lock(func):
     """Adds a read lock around ``func``.

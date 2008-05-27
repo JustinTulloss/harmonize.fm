@@ -1,7 +1,7 @@
 # vim:expandtab:smarttab
 import logging, os, fileprocess
 import os.path as path
-from configuration import config
+from fileprocess.configuration import config
 from baseaction import BaseAction
 import guid
 

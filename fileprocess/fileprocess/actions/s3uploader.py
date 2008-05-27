@@ -3,7 +3,7 @@ import S3
 import os
 from baseaction import BaseAction
 import fileprocess
-from configuration import config
+from fileprocess.configuration import config
 
 log = logging.getLogger(__name__)
 

@@ -6,8 +6,6 @@ import sys
 import threading
 from Queue import Queue, Empty
 
-#The different handlers
-from actions import *
 
 class MsgQueue(object):
     def __init__(self):
@@ -56,6 +54,9 @@ class UploadStatus(object):
         pass
 
 na = NextAction()
+
+#The different handlers
+from actions import *
 
 class FileUploadThread(object):
     """

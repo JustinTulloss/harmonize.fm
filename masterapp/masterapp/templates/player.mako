@@ -13,22 +13,22 @@
             fullname: '${c.fullname}',
             fields: ${simplejson.dumps(c.fields)}
         };
-
+		/*
+		function onSoundManagerLoad() {
+			// Soundmanager configuration
+			soundManager.url='/flash/soundmanager2.swf';
+			soundManager.debugMode = false;
+			soundManager.useConsole = false;
+			soundManager.consoleOnly = true;
+			soundManager.onerror = function () {
+				// TODO: Tie into actual error handling mechanism 
+				alert ('An error occurred loading the soundmanager');
+			}
+		}
+		*/
     </script>
 
     ${parent.head_tags()}
-	<script type="text/javascript">
-		var soundManager = new SoundManager();
-		/* Soundmanager configuration */
-		soundManager.url='/flash/soundmanager2.swf';
-		soundManager.debugMode = false;
-		soundManager.useConsole = false;
-		soundManager.consoleOnly = true;
-		soundManager.onerror = function () {
-			/* TODO: Tie into actual error handling mechanism */
-			alert ('An error occurred loading the soundmanager');
-		}
-	</script>
 </%def>
 
 <div id="header">

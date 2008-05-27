@@ -5,7 +5,7 @@ from baseaction import BaseAction
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
 from mock import Mock
-from configuration import config
+from fileprocess.configuration import config
 
 log = logging.getLogger(__name__)
 

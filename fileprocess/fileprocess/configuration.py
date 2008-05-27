@@ -2,6 +2,7 @@
 # knows python here
 
 import logging
+import os
 from logging import handlers
 
 config = {
@@ -35,7 +36,9 @@ production_config = {
     'S3.upload': True,
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
-    'sqlalchemy.default.pool_recycle': 3600
+    'sqlalchemy.default.pool_recycle': 3600,
+    'upload_dir': os.environ['UPLOADS'],
+    'media_dir': os.environ['MEDIA']
 }
 
 live_config = {
