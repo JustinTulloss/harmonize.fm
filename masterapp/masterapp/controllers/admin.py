@@ -90,7 +90,8 @@ class AdminController(BaseController):
     def monitor_pipeline(self):
         try:
             msock = socket.socket()
-            msock.connect(('localhost', 48261))
+            port = config['pipeline_port']+1
+            msock.connect(('localhost', port))
         except socket.error:
             return "Could not connect to file pipeline"
 
