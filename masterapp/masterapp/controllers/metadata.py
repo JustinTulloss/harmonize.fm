@@ -4,11 +4,27 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
     filter_friends,
+    filter_sql_friends,
     filter_any_friend
 )
 from sqlalchemy import sql, or_
-from masterapp.model import \
-    Song, Album, Artist, Owner, File, Session, User, Playlist, PlaylistSong
+from masterapp.model import (
+    Song,
+    Album, 
+    Artist, 
+    Owner, 
+    File, 
+    Session, 
+    User, 
+    Playlist, 
+    PlaylistSong,
+    albums_table,
+    artists_table,
+    songs_table,
+    files_table,
+    owners_table,
+    users_table
+)
 from pylons import config
 from facebook import FacebookError
 from facebook.wsgi import facebook
@@ -108,6 +124,12 @@ class MetadataController(BaseController):
 
         json['success']=True
         return json
+    
+    def _build_json_rproxy(self, results):
+        json = { "data": []}
+        for row in results:
+            json['data'].append(dict(row))
+        raise RuntimeError()
 
     @jsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
@@ -157,10 +179,26 @@ class MetadataController(BaseController):
         
     @jsonify
     def artists(self):
-        qry = Session.query(Artist).join(['albums', 'songs','files','owners', 'user'])
+        numalbums = Session.query(
+            Album.artistid, sql.func.count('*').label('numalbums')
+        ).group_by(Album.artistid).subquery()
+
+        qry = Session.query(Artist, numalbums.c.numalbums).join(
+            ['albums', 'songs','files','owners', 'user']
+        )
         qry = filter_friends(qry)
+        #qry = qry.add_column(qry.group_by('albums.artistid').count())
         qry = qry.order_by(Artist.sort)
         results = qry.all()
+        """
+        query = artists_table.join(albums_table, 
+            onclause=albums_table.c.artistid==artists_table.c.id
+        ).join(songs_table).join(files_table).join(owners_table).join(users_table)
+        query = filter_sql_friends(query)
+        query = query.order_by(artists_table.c.sort)
+        results = Session.execute(query).fetchall()
+        return self._build_json_rproxy(results)
+        """
         return self._build_json(results, 'artist')
         
     @jsonify

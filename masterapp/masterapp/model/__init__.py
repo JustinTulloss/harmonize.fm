@@ -2,7 +2,7 @@ from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select
-from sqlalchemy.orm import mapper, relation, column_property
+from sqlalchemy.orm import mapper, relation, column_property, deferred
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 Session = scoped_session(sessionmaker(
@@ -128,19 +128,12 @@ mapper(Artist, artists_table, properties={
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid,
     ),
-    'availsongs': column_property(
-        select([func.count(songs_table.c.id).label('availsongs')],
-            songs_table.c.artistid == artists_table.c.id,
-            group_by = artists_table.c.id,
-        ).correlate(artists_table).label('availsongs')
-    ),
     'numalbums': column_property(
         select([func.count(albums_table.c.artistid).label('numalbums')],
-            albums_table.c.artistid == artists_table.c.id,
-            group_by = artists_table.c.id,
-            distinct = True).correlate(artists_table).label('numalbums'),
-        deferred = True
-    ),
+            artists_table.c.id == albums_table.c.artistid,
+            group_by=artists_table.c.id
+        ).correlate(artists_table).label('numalbums')
+    )
 })
 
 mapper(Song, songs_table, properties = {
@@ -149,7 +142,7 @@ mapper(Song, songs_table, properties = {
         lazy = False,
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
-    ),
+    )
 })
 
 
