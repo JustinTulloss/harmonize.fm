@@ -10,7 +10,7 @@ from __future__ import with_statement
 import logging
 import threading
 from baseaction import BaseAction
-from .fileprocess import na
+from ..processingthread import na
 import time
 from musicbrainz2.webservice import (
     Query, 

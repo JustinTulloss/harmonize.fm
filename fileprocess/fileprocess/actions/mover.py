@@ -5,7 +5,7 @@ import logging
 import os
 import guid
 from baseaction import BaseAction
-from .fileprocess import na
+from ..processingthread import na
 from configuration import config
 from shutil import move
 

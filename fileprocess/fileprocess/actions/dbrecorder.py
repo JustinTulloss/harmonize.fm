@@ -1,7 +1,7 @@
 import logging
 import os
 from mock import Mock
-from .fileprocess import na
+from ..processingthread import na
 from baseaction import BaseAction
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig

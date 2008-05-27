@@ -1,7 +1,7 @@
 # The mother of all file actions
 # Does all the ugly stuff, starts threads, defines queues, eats babies, etc.
 from Queue import *
-from .fileprocess import na
+from ..processingthread import na
 import logging
 import threading
 import os

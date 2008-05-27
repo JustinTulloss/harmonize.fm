@@ -41,7 +41,7 @@ production_config = {
 live_config = {
     'port': 48262,
     'sqlalchemy.default.url': \
-        'mysql://webappuser:gravelbits@localhost:3306/production',
+        'mysql://webappuser:gravelbits@localhost:3306/harmonize',
 }
 
 base_logging = {
