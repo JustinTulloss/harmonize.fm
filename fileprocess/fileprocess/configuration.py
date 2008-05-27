@@ -37,8 +37,8 @@ production_config = {
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600,
-    'upload_dir': os.environ['UPLOADS'],
-    'media_dir': os.environ['MEDIA']
+    'upload_dir': os.environ.get('UPLOADS'),
+    'media_dir': os.environ.get('MEDIA')
 }
 
 live_config = {
