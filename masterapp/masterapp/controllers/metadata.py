@@ -31,11 +31,9 @@ from decimal import Decimal
 log = logging.getLogger(__name__)
 
 fields = {
-    'default': [
-        'type',
-        'Friend_id',
-    ],
     'song': [
+        'type',
+        'friend',
         'Song_id',
         'Song_tracknumber',
         'Song_title',
@@ -45,6 +43,8 @@ fields = {
         'Artist_name',
     ],
     'album': [
+        'type',
+        'friend',
         'Album_id',
         'Album_title',
         'Album_totaltracks',
@@ -54,12 +54,16 @@ fields = {
         'Artist_name',
     ],
     'artist': [
+        'type',
+        'friend',
         'Artist_id',
         'Artist_name',
         'Artist_sort',
     ],
     'playlist': [],
     'friend': [
+        'type',
+        'friend',
         'name',
     ],
 }
@@ -70,7 +74,7 @@ for k, v in fields.items():
     for column in v:
         try:
             klass, field = column.split('_')
-            cols.append(getattr(getattr(model, klass), field))
+            cols.append(getattr(getattr(model, klass), field).label(column))
         except:
             pass
     dbfields[k] = cols
@@ -96,9 +100,9 @@ class MetadataController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def filter_user(func):
-        def filtered(self, *args, **kwargs):
-            query = func(self, *args, **kwargs)
+    def _filter_user(func):
+        def filtered(self, *args):
+            query = func(self, *args)
             friendid = request.params.get('friend')
             if not friendid:
                 friendid = session['user'].id
@@ -106,9 +110,9 @@ class MetadataController(BaseController):
             return filter_user(query, friendid)
         return filtered
 
-    def build_json(func):
-        def builder(self, *args, **kwargs):
-            query = func(self, *args, **kwargs)
+    def _build_json(func):
+        def builder(self, *args):
+            query = func(self, *args)
             results = query.all()
             json = { "data": []}
             for row in results:
@@ -118,14 +122,14 @@ class MetadataController(BaseController):
                 json['data'].append(lrow)
                 json['data'][len(json['data'])-1]['type'] =\
                     request.params.get('type')
-                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
+                json['data'][len(json['data'])-1]['friend'] = self.friend
             json['success']=True
             return json
         return builder
 
     @jsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
-        return {'success':False, 'error':error, 'data':[]}
+        return {'success': False, 'error': error, 'data':[]}
 
     def index(self):
         type = request.params.get('type')
@@ -133,8 +137,8 @@ class MetadataController(BaseController):
         return handler()
 
     @jsonify
-    @build_json
-    @filter_user
+    @_build_json
+    @_filter_user
     def songs(self):
         qry = Session.query(*dbfields['song']).join(Song.artist).\
             reset_joinpoint().join(Album)
@@ -152,8 +156,8 @@ class MetadataController(BaseController):
         return qry
 
     @jsonify
-    @build_json
-    @filter_user
+    @_build_json
+    @_filter_user
     def albums(self):
         qry = Session.query(*dbfields['album']).join(Album.artist).\
             join(Album.songs).group_by(Album)
@@ -163,8 +167,8 @@ class MetadataController(BaseController):
         return qry
         
     @jsonify
-    @build_json
-    @filter_user
+    @_build_json
+    @_filter_user
     def artists(self):
         numalbums = Session.query(Album.artistid,
             sql.func.count('*').label('numalbums')
@@ -193,7 +197,7 @@ class MetadataController(BaseController):
             if len(results) > 0:
                 if results[0].fbid == item['uid']:
                     item['type'] = dtype
-                    item['Friend_id'] = results[0].id
+                    item['friend'] = results[0].id
                     del item['uid']
                     del results[0]
                     return True
@@ -209,13 +213,13 @@ class MetadataController(BaseController):
         # from our own database.
         data = sorted(data, key=itemgetter('uid'))
         data = filter(_intersect, data)
-        data = sorted(data, key=itemgetter('Friend_name'))
+        data = sorted(data, key=itemgetter('name'))
 
         return {'success':True, 'data':data}
 
     @jsonify
-    @build_json
-    @filter_user
+    @_build_json
+    @_filter_user
     def playlists(self):
         qry = Session.query(Playlist).join('owner')
         qry = filter_friends(qry)
@@ -224,8 +228,8 @@ class MetadataController(BaseController):
         return self._build_json(results, 'playlist')
 
     @jsonify
-    @build_json
-    @filter_user
+    @_build_json
+    @_filter_user
     def playlistsongs(self):
         qry = Session.query(PlaylistSong).join('playlist').reset_joinpoint(). \
             join('album').reset_joinpoint().join(['files', 'owners', 'user'])
