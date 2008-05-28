@@ -12,7 +12,7 @@ import time
 import xmlrpclib
 
 PIDPATH = '/var/log/rubicon/paster.pid'
-STAGEPATH = '/var/www/sites/stage/masterapp'
+STAGEPATH = os.path.join(os.environ['STAGING'], 'masterapp')
 
 proxy = xmlrpclib.ServerProxy('http://localhost:9001')
 if proxy.supervisor.getProcessInfo('stage_server')['statename'] == 'RUNNING':
