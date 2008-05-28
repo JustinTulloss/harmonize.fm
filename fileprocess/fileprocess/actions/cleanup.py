@@ -18,7 +18,5 @@ class Cleanup(BaseAction):
             file
         )
 
-        try:
+        if os.path.exists(file['fname']):
             os.remove(file['fname'])
-        except:
-            pass
