@@ -34,8 +34,8 @@ class PlayerController(BaseController):
     def index(self):
         c.profile = Profile()
         c.fullname = self.username()
-        c.fields = masterapp.controllers.metadata.fields
         c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
+        c.fields = masterapp.controllers.metadata.fields
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
         else:
