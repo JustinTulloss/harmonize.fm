@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 fields = {
     'song': [
         'type',
-        'friend',
+        'Friend_id',
         'Song_id',
         'Song_tracknumber',
         'Song_title',
@@ -44,7 +44,7 @@ fields = {
     ],
     'album': [
         'type',
-        'friend',
+        'Friend_id',
         'Album_id',
         'Album_title',
         'Album_totaltracks',
@@ -55,7 +55,7 @@ fields = {
     ],
     'artist': [
         'type',
-        'friend',
+        'Friend_id',
         'Artist_id',
         'Artist_name',
         'Artist_sort',
@@ -63,8 +63,8 @@ fields = {
     'playlist': [],
     'friend': [
         'type',
-        'friend',
-        'name',
+        'Friend_id',
+        'Friend_name',
     ],
 }
 
@@ -122,7 +122,7 @@ class MetadataController(BaseController):
                 json['data'].append(lrow)
                 json['data'][len(json['data'])-1]['type'] =\
                     request.params.get('type')
-                json['data'][len(json['data'])-1]['friend'] = self.friend
+                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
             json['success']=True
             return json
         return builder
@@ -197,8 +197,10 @@ class MetadataController(BaseController):
             if len(results) > 0:
                 if results[0].fbid == item['uid']:
                     item['type'] = dtype
-                    item['friend'] = results[0].id
+                    item['Friend_name'] = item['name']
+                    item['Friend_id'] = results[0].id
                     del item['uid']
+                    del item['name']
                     del results[0]
                     return True
                 else:
@@ -213,7 +215,7 @@ class MetadataController(BaseController):
         # from our own database.
         data = sorted(data, key=itemgetter('uid'))
         data = filter(_intersect, data)
-        data = sorted(data, key=itemgetter('name'))
+        data = sorted(data, key=itemgetter('Friend_name'))
 
         return {'success':True, 'data':data}
 
