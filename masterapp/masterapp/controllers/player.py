@@ -9,7 +9,7 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.profile import Profile
-from masterapp.model import Session, User, File, Album, BlogEntry
+from masterapp.model import Session, User, File, Album, BlogEntry, Spotlight
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -146,3 +146,16 @@ class PlayerController(BaseController):
         thread.start_new_thread(sendmail, ())
         return '1'
 
+    def spotlight_album(self, id):
+        if not request.params.has_key('comment'):
+            return '0'
+
+        albumid = id
+        comment = request.params['comment']
+        uid = session['user'].id
+
+        spotlight = Spotlight(uid, albumid, comment)
+        Session.save(spotlight)
+        Session.commit()
+        
+        return '1'

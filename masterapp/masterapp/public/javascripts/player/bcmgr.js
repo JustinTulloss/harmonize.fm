@@ -44,7 +44,7 @@ function BcEntry(type, value, qrytype, qryvalue)
 function BreadCrumb()
 {
 	if (this == window) alert('new not used!');
-	var that = this;
+	var my = this;
 
     var bclist = new Array(new BcEntry("home"));
     var current = 0;
@@ -131,28 +131,22 @@ function BreadCrumb()
         this.fireEvent('bcupdate', bclist[current]);
     }
 
-    this.jump_to = jump_to;
-    function jump_to(e)
-    {
+    function jump_to(e) {
         var el = e.getTarget(null, null, true);
-        var thelist = bclist;
-	    for (var i=0;i<bclist.length;i++) {
+	    for (var i=0; i<bclist.length; i++) {
             if (bclist[i].el.contains(el)) {
-                this.update_current_div(bclist[i], bclist[current]);
+                my.update_current_div(bclist[i], bclist[current]);
                 current = i;
                 params = create_params(bclist[current]);
-                this.fireEvent('bcupdate', bclist[current], params);
+                my.fireEvent('bcupdate', bclist[current], params);
             }
         }
-
     }
 
-    this.update_current_div = update_current_div;
-    function update_current_div(crumb, oldcrumb) {
+    this.update_current_div = function(crumb, oldcrumb) {
         this.setup_current_div(crumb);
         if (oldcrumb)
             this.setup_inactive_div(oldcrumb);
-
     }
 
     this.setup_current_div = setup_current_div;
@@ -163,7 +157,7 @@ function BreadCrumb()
             value = typeinfo[crumb.type].display;
         else
             value = crumb.value;
-        crumb.el.un('click', this.jump_to)
+        crumb.el.un('click', jump_to)
         t_active_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
     }
 
@@ -177,7 +171,7 @@ function BreadCrumb()
             else
                 value = crumb.value;
             t_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
-            crumb.el.on('click', this.jump_to, this);
+            crumb.el.on('click', jump_to);
         }
     }
 
@@ -199,11 +193,11 @@ function BreadCrumb()
                 value = bclist[i].value;
 
             if (current == i) {
-                newEl = t_active_crumb.append(div, {id:newId, name:value}, true);
+                newEl = t_active_crumb.append(div, {id:newId, name:value},true);
             }
             else {
                 newEl = t_crumb.append(div, {id:newId, name:value}, true);
-                newEl.on('click',this.jump_to, this);
+                newEl.on('click', jump_to);
             }
             bclist[i].el = newEl;
             bclist[i].id = newEl.id;

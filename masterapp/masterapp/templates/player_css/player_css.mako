@@ -83,3 +83,63 @@ a.bc_link:hover {
     top: 16px;
     display: inline;
 }
+
+#spot_bg {
+	position: absolute;
+	z-index: 1;
+	height: 100%;
+	width: 100%;
+	left: 0;
+	top: 0;
+}
+
+#spot_content {
+	margin-top: 10px;
+	padding: 10px;
+	background-color: white;
+	border: solid 2px ${c.profile.dark_txt};
+}
+
+#spot_content h1, #spot_content h2 {
+	margin-top: 0px;
+	margin-bottom: 10px;
+}
+
+#spot_content tr {
+	text-align: center;
+}
+
+#spot_form textarea {
+	height: 72px;
+	width: 230px;
+	margin: 0;
+	margin-left: 4px;
+}
+
+#spot_comment {
+	font-size: 12px;
+	line-height: 12px;
+}
+
+#spot_form {
+	text-align: right;
+	overflow:auto;
+}
+
+#spot_art {
+	float:left;
+}
+
+#spot_controls tr {
+	text-align: right;
+}
+
+td {
+	margin: 0;
+	padding: 0;
+}
+
+#spot_cancel {
+	margin-left: 4px;
+}
+

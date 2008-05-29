@@ -1,7 +1,15 @@
 /* vim:filetype=css
 */
 #top-panel {
-	z-index: 1;
+	z-index: 2;
+}
+
+#centerpanel {
+	z-index: 0;
+}
+
+#queuepanel {
+	z-index: 0;
 }
 
 #header {
@@ -135,12 +143,16 @@ a.menuitem {
 	font-family: tahoma,verdana,helvetica,sans-serif;
     color: #FFFFFF;
 	text-align:right;
+
+	position: fixed;
+	right: 2px;
+	display: none;
+	z-index: 1
 }
 
 #feedbackContainer {
 	height: 21px;
 	vertical-align: middle;
-	z-index: 5000;
 }
 
 #logo {

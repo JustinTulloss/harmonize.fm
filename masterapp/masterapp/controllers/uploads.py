@@ -32,8 +32,7 @@ class UploadsController(BaseController):
         #We already have the song, mark the user as having it
         user = model.Session.query(model.User).filter_by(fbid=fbid).first()
         if user == None:
-            user = model.User()
-            user.fbid = fbid
+            user = model.User(fbid)
             model.Session.save(user)
         
         new_owner = model.Owner()

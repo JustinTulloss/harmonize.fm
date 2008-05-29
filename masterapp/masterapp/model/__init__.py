@@ -25,6 +25,7 @@ playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
 blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
 blockedartists_table = Table("blockedartists", metadata, autoload=True)
 blog_table = Table("blog", metadata, autoload=True)
+spotlight_table = Table('spotlights', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -99,6 +100,13 @@ class BlogEntry(object):
         self.author = author
         self.entry = entry
         self.timestamp = datetime.now()
+
+class Spotlight(object):
+	def __init__(self, uid, albumid, comment=None):
+		self.uid = uid
+		self.albumid = albumid
+		self.comment = comment
+		self.timestamp = datetime.now()
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
@@ -191,3 +199,5 @@ mapper(Playlist, playlists_table, properties={
 })
 
 mapper(BlogEntry, blog_table)
+
+mapper(Spotlight, spotlight_table)

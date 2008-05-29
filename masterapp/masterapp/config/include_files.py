@@ -50,7 +50,8 @@ player_files = IncludeFiles(
         'player/metatypeinfo.js',
         'player/columns.js',
         'player/init.js',
-        'player/feedback.js'
+        'player/feedback.js',
+		'player/spotlight.js'
     ]
 )
 

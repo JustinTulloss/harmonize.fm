@@ -88,7 +88,8 @@ function ViewManager(crumb, objects)
             height: 'auto',
             titlebar: false,
             contentEl: 'header',
-			id: 'top-panel'
+			id: 'top-panel',
+			style: 'overflow: visible'
         }, 
         objects.queue.panel,
         {
@@ -157,7 +158,8 @@ function ViewManager(crumb, objects)
     {
         if (crumb.panel) {
             this.srchfld.validator = 
-                function(text) { return crumb.panel.search.call(crumb.panel, text)};
+                function(text) { 
+					return crumb.panel.search.call(crumb.panel, text)};
             this.srchfld.on('blur', function(form){
                 crumb.panel.search.call(crumb.panel, form.getValue());
             });

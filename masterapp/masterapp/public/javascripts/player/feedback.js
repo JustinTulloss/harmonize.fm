@@ -80,8 +80,6 @@ function feedbackButton() {
 
 	var feedbackBox = Ext.get(document.createElement('div'));
 	feedbackBox.dom.id = 'feedbackBox';
-	feedbackBox.dom.style.position = 'fixed';
-	feedbackBox.dom.style.right = '3px';
 	feedbackBox.dom.style.display = 'none';
 	Ext.get(feedbackBox).addClass('feedbackActive');
 

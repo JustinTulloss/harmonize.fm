@@ -1,3 +1,4 @@
+import time
 import pylons
 from facebook import FacebookError
 from facebook.wsgi import facebook
@@ -84,5 +85,5 @@ def get_user_info():
         try:
             info = facebook.users.getInfo(session['fbuid'])[0]
         except:
-            sleep(.1)
+            time.sleep(.1)
     return info

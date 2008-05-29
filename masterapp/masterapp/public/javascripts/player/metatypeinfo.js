@@ -7,13 +7,17 @@
  */
 
 /* TODO: Move all the renderer stuff into its own file. */
-t_add_col = new Ext.Template('<img class="mo addtoqueue" src="/images/enqueue.png" /><img class="spotlight" src="/images/spotlight.png" />');
+t_add_col = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" />');
+t_add_col_alb = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" /><img class="show_spotlight" src="/images/spotlight.png" />');
 var render = {
 
     enqColumn: function (value, p, record)
     {
         id = record.id;
-        return t_add_col.apply();
+		if (record.data.type === 'album')
+			return t_add_col_alb.apply();
+		else
+			return t_add_col.apply();
     },
 
     starColumn: function (value, p, record)
