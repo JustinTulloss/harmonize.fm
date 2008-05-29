@@ -4,7 +4,6 @@ import sys
 import logging
 
 from pylons import config
-from subprocess import PIPE, Popen
 
 import masterapp.lib.app_globals as app_globals
 import masterapp.lib.helpers
@@ -43,11 +42,3 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)
     config['pylons.g'].sa_engine = \
         engine_from_config(config, 'sqlalchemy.default.')
-
-    # Print the version we're booting under
-    try:
-        hg = Popen(['hg', 'identify'], stdout = PIPE)
-        log.info('Current version: %s', hg.communicate()[0])
-    except:
-        pass
-
