@@ -30,7 +30,7 @@ def create_production_env(root, repo):
     os.chdir(root)
     for package in to_fetch:
         os.system(package[1])
-        os.chdir(join(repo, package[0]))
+        os.chdir(join(root, package[0]))
         subprocess.check_call([
             python, 'setup.py', 'install'
         ])
@@ -41,6 +41,11 @@ def create_production_env(root, repo):
             python,
             'setup.py',
             'install'
+        ])
+        subprocess.check_call([
+            python,
+            'setup.py',
+            'clean'
         ])
 
 def configure(root, repo):
