@@ -5,7 +5,9 @@ This script is for deploying the staging server. It automatically updates the
 codebase and restarts paster in daemon mode. Optionally, pass it -d to go into
 staging debug mode (no daemon and with the debugger turned on)
 """
-import deploy
+import os, sys
+import subprocess
+from deploy import deploy
 
 REPOPATH = os.path.join(os.environ['REPOSITORY'], 'masterapp')
 

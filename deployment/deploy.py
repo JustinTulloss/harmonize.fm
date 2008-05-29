@@ -3,8 +3,10 @@ Utilites to deploy rubicon
 """
 import subprocess
 import os, sys
+import shutil
 import time
 import xmlrpclib
+from os.path import join
 
 # a list of packages to run "setup.py develop" on
 to_setup = [
@@ -24,22 +26,21 @@ def create_production_env(root):
     Installs all the software necessary to serve a production site.
     """
 
-    repo = os.environ['REPOSITORY']
     python = os.path.join(root, 'bin', 'python')
     os.chdir(root)
     for package in to_fetch:
         try:
             os.system(package[1])
-            os.chdir(join(repo, package[0]))
+            os.chdir(join(root, package[0]))
             subprocess.check_call([
                 python, 'setup.py', 'install'
             ])
         finally:
-            os.chdir(repo)
+            os.chdir(root)
             shutil.rmtree(package[0])
 
     for package in to_setup:
-        os.chdir(join(repo, package))
+        os.chdir(join(root, package))
         subprocess.check_call([
             python,
             'setup.py',
