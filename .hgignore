@@ -3,11 +3,13 @@ syntax:glob
 *.swp
 *.pyc
 *.o
+*.so
 *.dmg
 *.orig
 */Thumbs.db
 .DS_Store
-masterapp/masterapp.egg-info
+*.egg-info
 masterapp/media
-uploader/dist
-uploader/build
+masterapp/tmp
+*/dist/*
+*/build/*
