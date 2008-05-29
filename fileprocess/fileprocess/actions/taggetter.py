@@ -7,6 +7,7 @@ from mutagen.mp3 import MP3, HeaderNotFoundError
 from mutagen.mp4 import MP4, MP4StreamInfoError
 from baseaction import BaseAction
 import fileprocess
+from fileprocess.processingthread import na
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class TagGetter(BaseAction):
             except HeaderNotFoundError:
                 log.info("A non-mp3 file was uploaded")
                 file['msg'] = "File was not an MP3 or MP4"
-                file['na'] = fileprocess.na.FAILURE
+                file['na'] = na.FAILURE
                 self.cleanup(file)
                 return False
 

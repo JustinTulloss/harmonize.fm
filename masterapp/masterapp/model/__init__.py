@@ -63,11 +63,18 @@ class Song(object):
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
-            asin=None, year=None, totaltracks=0):
+            asin=None, year=None, totaltracks=0,
+            smallart=None, medart=None, largeart=None, swatch=None):
         self.title = title
         self.asin = asin
         self.year = year
         self.totaltracks = totaltracks
+
+        # Album art URLs
+        self.smallart = smallart
+        self.medart = medart
+        self.largeart = largeart
+        self.swatch = swatch
 
 class Artist(object):
     def __init__(self, name=None, mbid=None, sort=None):

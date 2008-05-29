@@ -6,6 +6,7 @@ from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
 from mock import Mock
 from fileprocess.configuration import config
+from fileprocess.processingthread import na
 
 log = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class DBChecker(BaseAction):
             log.debug('%s has already been uploaded by %s', 
                 file.get('fname'), file['fbid'])
             file['msg'] = "File has already been uploaded by user"
-            file['na'] = fileprocess.na.NOTHING
+            file['na'] = na.NOTHING
             self.cleanup(file)
             return False
 

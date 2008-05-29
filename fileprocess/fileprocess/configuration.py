@@ -27,7 +27,7 @@ dev_config = {
 
 test_config = {
     'sqlalchemy.default.url': 'sqlite:///:memory:',
-    'sqlalchemy.reflect.url': 'sqlite:///../masterapp/music.db',
+    'sqlalchemy.reflect.url': 'sqlite:///../../masterapp/music.db',
     'upload_dir': './test/testuploaddir',
     'media_dir': './test/teststagingdir'
 }

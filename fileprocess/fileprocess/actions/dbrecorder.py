@@ -42,15 +42,12 @@ class DBRecorder(BaseAction):
         if song == None:
             song = self.create_song(file)
 
-        file['dbsong'] = song
-
         # Create a new file associated with the song we found or created
         dbfile = self.model.File()
         dbfile.sha = file['sha']
         dbfile.song = song
         log.debug("New file %s added to files", file['sha'])
         self.model.Session.save(dbfile)
-        file['dbfile'] = dbfile
 
         # add the file to this user's library
         owner = self.model.Owner()
@@ -60,15 +57,20 @@ class DBRecorder(BaseAction):
         owner.file = dbfile
         log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
         self.model.Session.save(owner)
-        file['dbowner'] = owner
 
         log.info('%s by %s successfully inserted into the database', 
             file.get('title'), file.get('artist'))
 
         try:
             self.model.Session.commit() # Woot! Write baby, write!
-            file['msg'] = "File successfully uploaded"
-            file['na'] = na.NOTHING
+
+            # Put all the database ids in the file dict
+            file['dbfileid'] = dbfile.id
+            file['dbownerid'] = owner.id
+            file['dbsongid'] = song.id
+            file['dbalbumid'] = song.album.id
+            file['dbartistid'] = song.artist.id
+
         except Exception, e:
             log.warn("Could not commit %s: %s", file['title'], e)
             self.model.Session.rollback()
@@ -81,11 +83,12 @@ class DBRecorder(BaseAction):
 
 
     def create_song(self, file):
-        song = self.model.Song()
-        song.title = file.get('title')
-        song.length = file.get('duration')
-        song.tracknumber = file.get('tracknumber')
-        song.mbid = file['mbtrackid']
+        song = self.model.Song(
+            title = file.get('title'),
+            length = file.get('duration'),
+            tracknumber = file.get('tracknumber'),
+            mbid = file['mbtrackid']
+        )
         log.debug("Saving new song %s", song.title)
 
         # Insert a new artist if it does not exist
@@ -106,31 +109,31 @@ class DBRecorder(BaseAction):
 
         song.album = album
         song.artist = artist
-        self.model.Session.save(song)
-
-        file['dbalbum'] = album
-        file['dbartist'] = artist
+        self.model.Session.add(song)
 
         return song
 
     def create_album(self, file):
-        album = self.model.Album()
+        album = self.model.Album(
+            title = file.get('album'),
+            mbid = file.get('mbid'),
+            asin = file.get('asin'),
+            year = file.get('year'),
+            totaltracks = file.get('totaltracks'),
+            smallart = file.get('smallart'),
+            medart = file.get('medart'),
+            largeart = file.get('largeart'),
+            swatch = file.get('swatch')
+        )
         qry = self.model.Session.query(self.model.Artist).filter(
             self.model.Artist.mbid == file['mbalbumartistid']
         )
         artist = qry.first()
         if artist == None:
             artist = self.create_artist(file, albumartist=True)
-        for key in file.keys():
-            try:
-                setattr(album, key, file[key])
-            except:
-                pass #This just means the album table doesn't store that piece of info
-        album.title = file['album']
-        album.mbid = file['mbalbumid']
         album.artist = artist
         log.debug("Saving new album %s", album.title)
-        self.model.Session.save(album)
+        self.model.Session.add(album)
         return album
 
     def create_artist(self, file, albumartist = False):
@@ -145,5 +148,5 @@ class DBRecorder(BaseAction):
             artist.sort = file.get('artistsort')
 
         log.debug("Saving new artist %s", artist.name)
-        self.model.Session.save(artist)
+        self.model.Session.add(artist)
         return artist

@@ -2,6 +2,7 @@
 import logging, os, fileprocess
 import os.path as path
 from fileprocess.configuration import config
+from fileprocess.processingthread import na
 from baseaction import BaseAction
 import guid
 
@@ -35,7 +36,7 @@ class Transcoder(BaseAction):
             if not self.enabled:
                 log.info('mp4 file uploaded, but no transcoders available')
                 file['msg'] = 'No transcoder available'
-                file['na'] = fileprocess.na.FAILURE
+                file['na'] = na.FAILURE
                 self.cleanup(file)
                 return False
 
@@ -47,7 +48,7 @@ class Transcoder(BaseAction):
             if res != 0:
                 log.info('Error transcoding mp4 file')
                 file['msg'] = 'Transcoding error'
-                file['na'] = fileprocess.na.FAILURE
+                file['na'] = na.FAILURE
                 os.remove(new_fname)
                 self.cleanup(file)
                 return False
@@ -59,7 +60,7 @@ class Transcoder(BaseAction):
         else:
             log.info('Unknown filetype encountered')
             file['msg'] = 'Unknown file encoding'
-            file['na'] = fileprocess.na.FAILURE
+            file['na'] = na.FAILURE
             self.cleanup(file)
             return False
 
