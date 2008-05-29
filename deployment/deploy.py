@@ -21,7 +21,7 @@ to_fetch = [
     'svn checkout http://svn.sqlalchemy.org/sqlalchemy/trunk sqlalchemy')
 ]
 
-def create_production_env(root):
+def create_production_env(root, repo):
     """
     Installs all the software necessary to serve a production site.
     """
@@ -29,27 +29,34 @@ def create_production_env(root):
     python = os.path.join(root, 'bin', 'python')
     os.chdir(root)
     for package in to_fetch:
-        try:
-            os.system(package[1])
-            os.chdir(join(root, package[0]))
-            subprocess.check_call([
-                python, 'setup.py', 'install'
-            ])
-        finally:
-            os.chdir(root)
-            shutil.rmtree(package[0])
+        os.system(package[1])
+        os.chdir(join(repo, package[0]))
+        subprocess.check_call([
+            python, 'setup.py', 'install'
+        ])
 
     for package in to_setup:
-        os.chdir(join(root, package))
+        os.chdir(join(repo, package))
         subprocess.check_call([
             python,
             'setup.py',
             'install'
         ])
 
+def configure(root, repo):
+    configdir = os.path.join(root, 'config')
+    if not os.path.exists(configdir):
+        os.makedirs(configdir)
+    os.chdir(os.path.join(repo, 'masterapp'))
+    shutil.copy('development.ini', configdir)
+    shutil.copy('production.ini', configdir)
+    shutil.copy('live.ini', configdir)
+
 def deploy(env, debug=False):
+    repo = os.environ['REPOSITORY']
     root = os.environ[env]
-    create_production_env(root)
+    create_production_env(root, repo)
+    configure(root, repo)
 
     #Restart server
     if env == 'STAGING':
