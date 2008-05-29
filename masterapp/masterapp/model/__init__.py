@@ -1,14 +1,14 @@
 from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
-from sqlalchemy.sql import func, select
-from sqlalchemy.orm import mapper, relation, column_property
+from sqlalchemy.sql import func, select, join
+from sqlalchemy.orm import mapper, relation, column_property, deferred
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 Session = scoped_session(sessionmaker(
-                        autoflush=True,
-                        transactional=True, 
-                        bind=config['pylons.g'].sa_engine))
+                        autoflush = True,
+                        autocommit = False, 
+                        bind = config['pylons.g'].sa_engine))
 
 metadata = MetaData(bind=Session.bind)
 
@@ -34,6 +34,13 @@ Classes that represent above tables. You can add abstractions here
 class User(object):
     def __init__(self, fbid=None):
         self.fbid = fbid
+
+    def get_from_fbid(fbid, create=False):
+        """
+        Fetches a user by facebook id. Set create to true to create it if it
+        doesn't exist
+        """
+        pass
 
 class Owner(object):
     def __init__(self, uid=None, fid=None):
@@ -100,6 +107,15 @@ class BlogEntry(object):
         self.entry = entry
         self.timestamp = datetime.now()
 
+def filter_user(query, uid):
+    """
+    Filters out any result that does not belong to you. Assumes you're joined
+    with song. I don't want it to assume that, but I haven't figured out a way
+    to do that yet
+    """
+    query = query.join([File, Owner, User])
+    return query.filter(User.id == uid)
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -128,28 +144,14 @@ mapper(Artist, artists_table, properties={
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid,
     ),
-    'availsongs': column_property(
-        select([func.count(songs_table.c.id).label('availsongs')],
-            songs_table.c.artistid == artists_table.c.id,
-            group_by = artists_table.c.id,
-        ).correlate(artists_table).label('availsongs')
-    ),
-    'numalbums': column_property(
-        select([func.count(albums_table.c.artistid).label('numalbums')],
-            albums_table.c.artistid == artists_table.c.id,
-            group_by = artists_table.c.id,
-            distinct = True).correlate(artists_table).label('numalbums'),
-        deferred = True
-    ),
 })
-
 mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan'),
-    'artist':relation(Artist, 
+    'artist': relation(Artist, 
         lazy = False,
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
-    ),
+    )
 })
 
 

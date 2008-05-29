@@ -1,7 +1,7 @@
 import pylons
 from facebook import FacebookError
 from facebook.wsgi import facebook
-from masterapp.model import User, Session
+from masterapp.model import User, Session, users_table
 from masterapp.lib.base import *
 from sqlalchemy import or_
 
@@ -64,6 +64,21 @@ def filter_friends(qry):
     else:
         qry = qry.filter(User.id == session['user'].id)
     return qry
+
+def filter_sql_friends(qry):
+    friend = request.params.get('friend')
+    friend_fbid = None
+    if friend:
+        friend_fbid = Session.query(User).get(friend).fbid
+        friend = int(friend)
+    
+    if friend_fbid in session['fbfriends']:
+        qry = qry.where(users_table.c.id == friend)
+    else:
+        qry = qry.where(users_table.c.id == session['user'].id)
+
+    return qry
+
 
 def filter_any_friend(qry):
     """

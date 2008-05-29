@@ -4,7 +4,7 @@ from __future__ import with_statement
 
 import sys
 import threading
-from Queue import Queue, Empty
+from Queue import Queue
 
 
 class MsgQueue(object):
@@ -86,7 +86,8 @@ class FileUploadThread(object):
             BrainzTagger(),
             AmazonCovers(),
             S3Uploader(),
-            DBRecorder()
+            DBRecorder(),
+            Cleanup()
         ]
 
         # Set up our chain of handlers

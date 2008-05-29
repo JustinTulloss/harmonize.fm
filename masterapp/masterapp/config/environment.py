@@ -25,8 +25,6 @@ def load_environment(global_conf, app_conf):
                  static_files=os.path.join(root, 'public'),
                  templates=[os.path.join(root, 'templates')])
 
-    sys.path.insert(0,os.path.join(root, '..','..', 'libs.py'))
-
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='masterapp',
                     template_engine='mako', paths=paths)

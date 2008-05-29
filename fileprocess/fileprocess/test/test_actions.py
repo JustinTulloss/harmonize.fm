@@ -12,11 +12,12 @@ import fileprocess
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
 
+from pylons import config as pconfig
+
 import os, shutil, sys
-sys.path.append('libs.py')
 from mock import Mock, patch, sentinel
 
-from configuration import config, dev_config, test_config
+from fileprocess.configuration import config, dev_config, test_config
 
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
@@ -299,8 +300,8 @@ class TestDBActions(TestBase):
     """
     def __init__(self, *args):
         super(TestDBActions, self).__init__(*args)
-        config['pylons.g'] = Mock()
-        config['pylons.g'].sa_engine = engine_from_config(config,
+        pconfig['pylons.g'] = Mock()
+        pconfig['pylons.g'].sa_engine = engine_from_config(config,
             prefix = 'sqlalchemy.reflect.'
         )
         self.memengine = engine_from_config(config,

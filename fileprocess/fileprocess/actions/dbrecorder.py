@@ -76,7 +76,6 @@ class DBRecorder(BaseAction):
             file['na'] = na.FAILURE
         finally:
             self.model.Session.remove()
-            self.cleanup(file)
             return file
 
 

@@ -12,13 +12,13 @@ class Cleanup(BaseAction):
     terminal action.
     """
     def process(self, file):
-        UploadStatus(
+        us = UploadStatus(
             file.get('msg', "File Successfully Uploaded"),
             file.get('na', na.NOTHING),
             file
         )
+        log.debug('Cleanup %s:%s', file.get('msg'), file.get('na'))
 
-        try:
+        if os.path.exists(file.get('fname')):
+            log.debug('Removing %s:%s', file.get('title'), file.get('fname'))
             os.remove(file['fname'])
-        except:
-            pass
