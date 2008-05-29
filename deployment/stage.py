@@ -5,46 +5,21 @@ This script is for deploying the staging server. It automatically updates the
 codebase and restarts paster in daemon mode. Optionally, pass it -d to go into
 staging debug mode (no daemon and with the debugger turned on)
 """
+import deploy
 
-import subprocess
-import os, sys
-import time
-import xmlrpclib
+REPOPATH = os.path.join(os.environ['REPOSITORY'], 'masterapp')
 
-PIDPATH = '/var/log/rubicon/paster.pid'
-STAGEPATH = os.path.join(os.environ['STAGING'], 'masterapp')
-
-proxy = xmlrpclib.ServerProxy('http://localhost:9001')
-if proxy.supervisor.getProcessInfo('stage_server')['statename'] == 'RUNNING':
-    proxy.supervisor.stopProcess('stage_server')
-    
-
-#Change to staging directory
-os.chdir(STAGEPATH)
+#Change to repository
+os.chdir(REPOPATH)
 
 #Update repository
-subprocess.check_call(['hg', 'pull', '-u'])
+subprocess.check_call(['hg', 'up'])
 
 #Update compressed javascript
 os.chdir('./helpers')
 sys.path.append('.')
 import compressor
 compressor.main()
-os.chdir('..')
 
-#Restart server
-if '-d' in sys.argv or '--debug' in sys.argv:
-    arglist = [
-        'paster', 'serve', 
-        '--user=www-data',
-        '--group=www-data',
-        '--pid-file', PIDPATH
-    ]
-    arglist.append('dproduction.ini')
-    subprocess.check_call(arglist)
-else:
-    proxy.supervisor.startProcess('stage_server')
-
-# Restart lighty to ensure that the fastcgi connection is fresh
-#os.system('/etc/init.d/lighttpd restart')
-
+#Install changes in stage server
+deploy('STAGING', '-d' in sys.argv or '--debug' in sys.argv)

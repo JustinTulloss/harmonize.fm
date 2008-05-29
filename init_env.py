@@ -6,34 +6,24 @@ This script initializes your environment to work the way it should.
 import os, sys
 import subprocess
 import shutil
+from deployment.deploy import to_setup, to_fetch
 from os.path import join
 
 USAGE = """
 Without arguments, just sets environment variables. Run with -i to install
 necessary packages
 """
-# a list of packages to run "setup.py develop" on
-to_setup = [
-    'masterapp',
-    'libs.py',
-    'fileprocess'
-]
-
-# a list of packages to download (and the command to do so) and install
-to_fetch = [
-    ('sqlalchemy',
-    'svn checkout http://svn.sqlalchemy.org/sqlalchemy/trunk sqlalchemy')
-]
-
 def setup_env_variables():
     """
     Sets the appropriate environment variables.
     """
-    if os.path.exists('/var/local/rubicon_env.sh') and \
+    ENV_SH = '/var/local/rubicon_env.sh'
+    if os.path.exists(ENV_SH) and \
             not os.environ.has_key('PRODUCTION'):
         brc = open('~/.bashrc', 'a')
-        brc.write('source /var/local/rubicon_env.sh')
+        brc.write('source %s' % ENV_SH)
         brc.close()
+        os.system('source %s' % ENV_SH)
 
 def create_dev_env():
     """
