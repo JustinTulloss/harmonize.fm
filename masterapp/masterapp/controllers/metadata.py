@@ -118,7 +118,10 @@ class MetadataController(BaseController):
             for row in results:
                 lrow = {}
                 for key in row.keys():
-                    lrow[key] = getattr(row, key)
+                    value = getattr(row, key)
+                    if isinstance(value, Decimal):
+                        value = int(value)
+                    lrow[key] = value
                 json['data'].append(lrow)
                 json['data'][len(json['data'])-1]['type'] =\
                     request.params.get('type')
