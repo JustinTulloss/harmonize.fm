@@ -144,7 +144,7 @@ class MetadataController(BaseController):
     @_filter_user
     def songs(self):
         qry = Session.query(*dbfields['song']).join(Song.artist).\
-            reset_joinpoint().join(Album)
+            reset_joinpoint().join(Album).group_by(Song)
 
         sort = [Artist.sort, Album.title, Song.tracknumber]
         if request.params.get('album'):
