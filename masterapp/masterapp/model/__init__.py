@@ -1,9 +1,17 @@
+import logging
 from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join
 from sqlalchemy.orm import mapper, relation, column_property, deferred
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+from facebook.wsgi import facebook
+from facebook import FacebookError
+
+from time import sleep
+
+log = logging.getLogger(__name__)
 
 Session = scoped_session(sessionmaker(
                         autoflush = True,
@@ -33,9 +41,56 @@ Classes that represent above tables. You can add abstractions here
 """
 
 class User(object):
+    fbid = None
+    fbinfo = None
+
     def __init__(self, fbid=None):
         self.fbid = fbid
 
+    def fbattr(func):
+        def check_fbinfo(self, *args, **kwargs):
+            if not self.fbinfo:
+                self._get_fbinfo()
+            return func(self, *args, **kwargs)
+        return check_fbinfo
+
+    def _get_fbinfo(self):
+        # Eventually we'll need to select on network, store locally, whatever
+        info = None
+        while not info:
+            try:
+                fields = [
+                    'name',
+                    'first_name',
+                    'pic',
+                    'pic_big'
+                ]
+                info = facebook.users.getInfo(self.fbid, fields=fields)[0]
+            except FacebookError, e:
+                log.info("Could not connect to facebook, retrying: %s", e)
+                sleep(.1)
+        self.fbinfo = info
+        
+    @fbattr
+    def get_name(self):
+        return self.fbinfo['name']
+    name = property(get_name)
+
+    @fbattr
+    def get_firstname(self):
+        return self.fbinfo['first_name']
+    firstname = property(get_firstname)
+
+    @fbattr
+    def get_picture(self):
+        return self.fbinfo['pic']
+    picture = property(get_picture)
+
+    @fbattr
+    def get_bigpicture(self):
+        return self.fbinfo['pic_big']
+    bigpicture = property(get_bigpicture)
+    
     def get_from_fbid(fbid, create=False):
         """
         Fetches a user by facebook id. Set create to true to create it if it
