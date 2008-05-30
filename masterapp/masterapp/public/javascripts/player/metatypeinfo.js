@@ -134,11 +134,24 @@ var typeinfo = {
     friend:{
         next: function(row, breadcrumb){
             bc = new BcEntry();
+            barwidth = 200;
+            var pbody = new Ext.Panel({
+                anchor: '-'+barwidth+' 0',
+                contentEl: 'profile-body'
+            });
+            var pright = new Ext.Panel({
+                anchor: '0 0',
+                width: barwidth,
+                contentEl: 'profile-right'
+            });
+
             bc.panel = new Ext.Panel({
+                layout: 'anchor',
                 autoLoad: {
                     url: 'people/profile/'+row.get('Friend_id')
                 },
-                nocrumb: true
+                nocrumb: true,
+                items: [pright, pbody]
             });
             breadcrumb.fireEvent('bcupdate', bc);
         },
