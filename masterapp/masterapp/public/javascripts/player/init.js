@@ -33,7 +33,7 @@ function init()
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
     errmgr = new ErrorManager();
 
-    /* Initialize event handlers*/
+    /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
 

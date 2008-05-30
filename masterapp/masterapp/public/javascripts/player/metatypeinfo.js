@@ -76,7 +76,14 @@ var typeinfo = {
         display:'Home'
     },
     artist:{
-        next:'album', 
+        next: function (row, breadcrumb) {
+            var bc = new BcEntry(
+                'album',
+                row.get('Artist_name'),
+                'album'
+            );
+            breadcrumb.addbreadcrumb(bc);
+        },
         lblindex: 'Artist_name',
         qryindex: 'Artist_id',
         display:'Artists',
@@ -84,7 +91,14 @@ var typeinfo = {
         gridclass: ArtistGrid
     }, 
     album:{
-        next:'song', 
+        next: function (row, breadcrumb) {
+            var bc = new BcEntry(
+                'song', 
+                row.get('Album_title'),
+                'song'
+            );
+            breadcrumb.addbreadcrumb(bc);
+        },
         lblindex: 'Album_title',
         qryindex:'Album_id', 
         display:'Albums',
@@ -92,7 +106,14 @@ var typeinfo = {
         gridclass: AlbumGrid
     }, 
     playlist:{
-        next:'playlistsong', 
+        next: function (row, breadcrumb) {
+            var bc = new BcEntry(
+                'playlistsong', 
+                row.get('Playlist_name'),
+                'playlistsong'
+            );
+            breadcrumb.addbreadcrumb(bc);
+        },
         lblindex: 'Playlist_name',
         qryindex:'Playlist_id', 
         display:'Playlists',
@@ -111,7 +132,16 @@ var typeinfo = {
         gridclass: PlaylistSongGrid
     },
     friend:{
-        next:'artist', 
+        next: function(row, breadcrumb){
+            bc = new BcEntry();
+            bc.panel = new Ext.Panel({
+                autoLoad: {
+                    url: 'people/profile/'+row.get('Friend_id')
+                },
+                nocrumb: true
+            });
+            breadcrumb.fireEvent('bcupdate', bc);
+        },
         qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid
