@@ -76,8 +76,7 @@ function PlayQueue()
 
 
 
-    my.enqueue = enqueue;
-    function enqueue(records)
+    my.enqueue = function(records)
     {
         for (i = 0; i < (records.length); i++) {
             var nn = newnode({record:records[i]});

@@ -29,6 +29,7 @@ function show_spotlight(record) {
 
 	Ext.get('spot_cancel').on('click', remove_spotlight);
 	Ext.get('spot_add').on('click', add_spotlight);
+	Ext.get('spot_textarea').focus(); //This doesn't work the first time
 }
 
 function remove_spotlight(e) {

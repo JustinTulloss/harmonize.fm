@@ -102,11 +102,11 @@ class BlogEntry(object):
         self.timestamp = datetime.now()
 
 class Spotlight(object):
-	def __init__(self, uid, albumid, comment=None):
-		self.uid = uid
-		self.albumid = albumid
-		self.comment = comment
-		self.timestamp = datetime.now()
+    def __init__(self, uid, albumid, comment=None):
+        self.uid = uid
+        self.albumid = albumid
+        self.comment = comment[:255]
+        self.timestamp = datetime.now()
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
@@ -200,4 +200,7 @@ mapper(Playlist, playlists_table, properties={
 
 mapper(BlogEntry, blog_table)
 
-mapper(Spotlight, spotlight_table)
+mapper(Spotlight, spotlight_table, properties={
+    'album': relation(Album, lazy=False),
+    'user' : relation(User, lazy=False)})
+

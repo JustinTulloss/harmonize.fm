@@ -31,11 +31,29 @@ class PlayerController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
+    def get_feed_entries(self, uid, max_count=20):
+        entries = Session.query(BlogEntry)[:max_count].all()
+        entries.extend(Session.query(Spotlight).\
+                     filter_by(uid=uid)[:max_count].all())
+
+        def sort_by_timestamp(x, y):
+            if x.timestamp > y.timestamp:
+                return 1
+            elif x.timestamp == y.timestamp:
+                return 0
+            else:
+                return -1
+
+        entries.sort(sort_by_timestamp)
+        return entries[:max_count]
+
     def index(self):
         c.profile = Profile()
         c.fullname = self.username()
         c.fields = masterapp.controllers.metadata.fields
-        c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
+        #c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
+        c.entries = self.get_feed_entries(session['user'].id)
+
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
         else:

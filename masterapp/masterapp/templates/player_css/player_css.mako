@@ -21,6 +21,7 @@ body, html {
 
 #downloadlink {
     margin-left: 37px;
+	margin-top: 16px;
 }
 
 #downloadlink a {
@@ -143,3 +144,30 @@ td {
 	margin-left: 4px;
 }
 
+#news_feed {
+	margin-left: 15px;
+}
+
+.feed_entry {
+	margin-bottom: 2px;
+}
+
+.feed_content {
+	margin-left: 22px;
+}
+
+.feed_content h4 {
+	color: ${c.profile.dark_txt};
+	margin-bottom: 2px;
+}
+
+.feed_entry img {
+	float: left;
+	margin-top: 1px;
+}
+
+.spotlight_feed_comment {
+	vertical-align: top;
+	color: #777;
+	padding-left: 3px;
+}
