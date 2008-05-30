@@ -8,6 +8,7 @@ setup(
     #author_email='',
     #url='',
     packages=find_packages(),
+    py_modules=['S3', 'guid', 'mailer', 'mock', 'ecs', 'alert'],
     include_package_data=True,
     test_suite='nose.collector',
 )

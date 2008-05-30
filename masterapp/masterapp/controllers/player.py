@@ -32,9 +32,9 @@ class PlayerController(BaseController):
         ensure_fb_session()
 
     def get_feed_entries(self, uid, max_count=20):
-        entries = Session.query(BlogEntry)[:max_count].all()
+        entries = Session.query(BlogEntry)[:max_count]
         entries.extend(Session.query(Spotlight).\
-                     filter_by(uid=uid)[:max_count].all())
+                     filter_by(uid=uid)[:max_count])
 
         def sort_by_timestamp(x, y):
             if x.timestamp > y.timestamp:
@@ -50,8 +50,8 @@ class PlayerController(BaseController):
     def index(self):
         c.profile = Profile()
         c.fullname = self.username()
-        c.fields = masterapp.controllers.metadata.fields
         #c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
+        c.fields = masterapp.controllers.metadata.fields
         c.entries = self.get_feed_entries(session['user'].id)
 
         if config.get('compressed') == 'true':

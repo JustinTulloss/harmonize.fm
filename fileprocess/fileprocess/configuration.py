@@ -2,6 +2,7 @@
 # knows python here
 
 import logging
+import os
 from logging import handlers
 
 config = {
@@ -26,7 +27,7 @@ dev_config = {
 
 test_config = {
     'sqlalchemy.default.url': 'sqlite:///:memory:',
-    'sqlalchemy.reflect.url': 'sqlite:///../masterapp/music.db',
+    'sqlalchemy.reflect.url': 'sqlite:///../../masterapp/music.db',
     'upload_dir': './test/testuploaddir',
     'media_dir': './test/teststagingdir'
 }
@@ -35,13 +36,15 @@ production_config = {
     'S3.upload': True,
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
-    'sqlalchemy.default.pool_recycle': 3600
+    'sqlalchemy.default.pool_recycle': 3600,
+    'upload_dir': os.environ.get('UPLOADS'),
+    'media_dir': os.environ.get('MEDIA')
 }
 
 live_config = {
     'port': 48262,
     'sqlalchemy.default.url': \
-        'mysql://webappuser:gravelbits@localhost:3306/production',
+        'mysql://webappuser:gravelbits@localhost:3306/harmonize',
 }
 
 base_logging = {

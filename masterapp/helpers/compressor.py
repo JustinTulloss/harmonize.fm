@@ -37,7 +37,9 @@ def compress(file, outfile, type):
     ], stdin = subprocess.PIPE, stdout = outfile)
 
     compressor.stdin.write(file.read())
+    compressor.stdin.close()
     outfile.close()
+    compressor.wait()
 
 def main():
     from masterapp.config.include_files import player_files,\
@@ -55,9 +57,9 @@ def main():
     # Write out compressed JS
     outp = os.path.join(PREFIXES['js'], compressed_player_files.javascripts[0])
 
-    dir_name = os.path.dirname(outp)
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
+    dirname = os.path.dirname(outp)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
 
     js = compress(concatenate(jsfiles), open(outp, 'wb'), 'js')
 
@@ -67,10 +69,9 @@ def main():
         compressed_player_files.stylesheets[0]
     )
     outp = outp+'.css'
-    try:
-        os.makedirs(os.path.dirname(outp))
-    except Exception, e:
-        print e
+    dirname = os.path.dirname(outp)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
     css = compress(concatenate(cssfiles), open(outp, 'wb'), 'css')
 
 if __name__ == '__main__':

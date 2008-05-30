@@ -4,7 +4,6 @@ import sys
 import logging
 
 from pylons import config
-from subprocess import PIPE, Popen
 
 import masterapp.lib.app_globals as app_globals
 import masterapp.lib.helpers
@@ -25,8 +24,6 @@ def load_environment(global_conf, app_conf):
                  static_files=os.path.join(root, 'public'),
                  templates=[os.path.join(root, 'templates')])
 
-    sys.path.insert(0,os.path.join(root, '..','..', 'libs.py'))
-
     # Initialize config with the basic options
     config.init_app(global_conf, app_conf, package='masterapp',
                     template_engine='mako', paths=paths)
@@ -45,11 +42,3 @@ def load_environment(global_conf, app_conf):
     # any Pylons config options)
     config['pylons.g'].sa_engine = \
         engine_from_config(config, 'sqlalchemy.default.')
-
-    # Print the version we're booting under
-    try:
-        hg = Popen(['hg', 'identify'], stdout = PIPE)
-        log.info('Current version: %s', hg.communicate()[0])
-    except:
-        pass
-

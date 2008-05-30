@@ -3,7 +3,8 @@ import S3
 import os
 from baseaction import BaseAction
 import fileprocess
-from configuration import config
+from fileprocess.configuration import config
+from fileprocess.processingthread import na
 
 log = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class S3Uploader(BaseAction):
                 fo = open(file['fname'],'rb')
             except IOError, e:
                 file['msg'] = "An error occurred while committing file"
-                file['na'] = fileprocess.na.TRYAGAIN
+                file['na'] = na.TRYAGAIN
                 self.cleanup(file)
                 return False
 
@@ -51,11 +52,14 @@ class S3Uploader(BaseAction):
 
         message = ''
         while message != '200 OK':
-            response = upload_file()
-            if response:
-                message = response.message
-            else:
-                return False
+            try:
+                response = upload_file()
+                if response:
+                    message = response.message
+                else:
+                    return False
+            except S3.httplib.HTTPException:
+                message = 'EXCEPTION'
             
         log.info("%s successfully uploaded to S3", 
             file.get('title', 'Unknown Song'))

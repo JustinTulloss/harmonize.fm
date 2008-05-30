@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+import sys
+import fileprocess
+from fileprocess.processingthread import FileUploadThread
+import logging
+import threading
+import socket
+import cPickle
+pickle = cPickle
+from fileprocess.configuration import *
+
+log = None
+
+def main():
+    # Initialize the config
+    global config
+    lconfig = base_logging
+    if '--production' in sys.argv:
+        config.update(production_config)
+        lconfig.update(production_logging)
+    elif '--live' in sys.argv:
+        config.update(production_config)
+        config.update(live_config)
+        lconfig.update(production_logging)
+    else:
+        config.update(dev_config)
+        lconfig.update(dev_logging)
+
+    # Initialize Logging
+    global log
+    logging.basicConfig(**lconfig)
+    log = logging.getLogger(__name__)
+    handler = lconfig['handler'](*lconfig['handler_args'])
+    log.addHandler(handler)
+
+    # Initialize the processing thread
+    fp = FileUploadThread()
+
+    # Initialize the monitoring thread
+    mthread = threading.Thread(None, monitor, args = [fp])
+    mthread.setDaemon(True)
+    mthread.start()
+
+    # Initialize the file socket
+    fsock = socket.socket(
+        socket.AF_INET, socket.SOCK_STREAM
+    )
+    port = config['port']
+    fsock.bind(('localhost', port))
+    fsock.listen(5)
+    log.info("Bound to %d, ready to process files", port)
+    while True:
+        pfile = ''
+        csock, caddr = fsock.accept()
+        received = None
+        while received != '':
+            received = csock.recv(40)
+            pfile = pfile + received
+
+        fp.process(pickle.loads(pfile))
+
+def monitor(pipeline):
+    msock = socket.socket(
+        socket.AF_INET, socket.SOCK_STREAM
+    )
+    msock.bind(('localhost', config['port']+1))
+
+    msock.listen(2)
+    log.info("Monitor thread started")
+    while True:
+        try:
+            csock, caddr = msock.accept()
+            csock.recv(1)
+
+            status = []
+            for handler in pipeline.handlers:
+                waiting = list(handler.queue.queue)
+                status.append((handler.__class__.__name__, waiting))
+            
+            csock.sendall(pickle.dumps(status))
+            csock.close()
+        except Exception, e:
+            log.error("An exception occurred in the monitor: %s", e)
+            break
+
+if __name__ == '__main__':
+    main()

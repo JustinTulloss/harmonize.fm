@@ -16,11 +16,10 @@
             fullname: '${c.fullname}',
             fields: ${simplejson.dumps(c.fields)}
         };
-
     </script>
-
     ${parent.head_tags()}
-    <script type="text/javascript">
+    <script>
+	// Soundmanager configuration
         var soundManager = new SoundManager();
         /* Soundmanager configuration */
         soundManager.url='/flash/soundmanager2.swf';
@@ -28,10 +27,12 @@
         soundManager.useConsole = false;
         soundManager.consoleOnly = true;
         soundManager.onerror = function () {
-            /* TODO: Tie into actual error handling mechanism */
-            alert ('An error occurred loading the soundmanager');
+			// TODO: Tie into actual error handling mechanism 
+			alert ('An error occurred loading the soundmanager');
         }
     </script>
+
+
 </%def>
 
 <div id="header">

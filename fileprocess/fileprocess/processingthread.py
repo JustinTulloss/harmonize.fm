@@ -2,19 +2,10 @@
 #A thread that allows us to process files
 from __future__ import with_statement
 
-from configuration import *
 import sys
-sys.path.insert(0, '../libs.py')
 import threading
-from Queue import Queue, Empty
-import socket
-import logging
-import cPickle
-pickle = cPickle
+from Queue import Queue
 
-#The different handlers
-from actions import *
-log = None
 
 class MsgQueue(object):
     def __init__(self):
@@ -64,6 +55,9 @@ class UploadStatus(object):
 
 na = NextAction()
 
+#The different handlers
+from actions import *
+
 class FileUploadThread(object):
     """
     A thread that processes files that have been uploaded.
@@ -92,7 +86,8 @@ class FileUploadThread(object):
             BrainzTagger(),
             AmazonCovers(),
             S3Uploader(),
-            DBRecorder()
+            DBRecorder(),
+            Cleanup()
         ]
 
         # Set up our chain of handlers
@@ -112,78 +107,3 @@ class FileUploadThread(object):
         while(self.running):
             newfile = self._fqueue.get()
             self.handlers[0].queue.put(newfile)
-
-def monitor(pipeline):
-    msock = socket.socket(
-        socket.AF_INET, socket.SOCK_STREAM
-    )
-    msock.bind(('localhost', config['port']+1))
-
-    msock.listen(2)
-    log.info("Monitor thread started")
-    while True:
-        try:
-            csock, caddr = msock.accept()
-            csock.recv(1)
-
-            status = []
-            for handler in pipeline.handlers:
-                waiting = list(handler.queue.queue)
-                status.append((handler.__class__.__name__, waiting))
-            
-            csock.sendall(pickle.dumps(status))
-            csock.close()
-        except Exception, e:
-            log.error("An exception occurred in the monitor: %s", e)
-            break
-
-def main():
-    # Initialize the config
-    global config
-    lconfig = base_logging
-    if '--production' in sys.argv:
-        config.update(production_config)
-        lconfig.update(production_logging)
-    elif '--live' in sys.argv:
-        config.update(production_config)
-        config.update(live_config)
-        lconfig.update(production_logging)
-    else:
-        config.update(dev_config)
-        lconfig.update(dev_logging)
-
-    # Initialize Logging
-    global log
-    logging.basicConfig(**lconfig)
-    log = logging.getLogger(__name__)
-    handler = lconfig['handler'](*lconfig['handler_args'])
-    log.addHandler(handler)
-
-    # Initialize the processing thread
-    fp = FileUploadThread()
-
-    # Initialize the monitoring thread
-    mthread = threading.Thread(None, monitor, args = [fp])
-    mthread.setDaemon(True)
-    mthread.start()
-
-    # Initialize the file socket
-    fsock = socket.socket(
-        socket.AF_INET, socket.SOCK_STREAM
-    )
-    port = config['port']
-    fsock.bind(('localhost', port))
-    fsock.listen(5)
-    log.info("Bound to %d, ready to process files", port)
-    while True:
-        pfile = ''
-        csock, caddr = fsock.accept()
-        received = None
-        while received != '':
-            received = csock.recv(40)
-            pfile = pfile + received
-
-        fp.process(pickle.loads(pfile))
-
-if __name__ == '__main__':
-    main()

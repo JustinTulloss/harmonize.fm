@@ -1,6 +1,7 @@
 import logging
 import hashlib, os
 from baseaction import BaseAction
+from fileprocess.processingthread import na
 import fileprocess
 
 log = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class Hasher(BaseAction):
             log.info("The client's hash %s did not match ours %s, bailing"%
 					 (file['usersha'], file['sha']))
             file['msg'] = "Hash mismatch"
-            file['na'] = fileprocess.na.TRYAGAIN
+            file['na'] = na.TRYAGAIN
             self.cleanup(file)
             return False
 

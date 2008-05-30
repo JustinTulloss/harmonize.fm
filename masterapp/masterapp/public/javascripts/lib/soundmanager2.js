@@ -865,5 +865,3 @@ function SoundManager(smURL,smID) {
   if (document.addEventListener) document.addEventListener('DOMContentLoaded',self.domContentLoaded,false);
 
 }; // SoundManager()
-
-//var soundManager = new SoundManager();

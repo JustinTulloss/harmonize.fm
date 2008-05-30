@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 setup(
     name='fileprocess',
@@ -7,7 +7,11 @@ setup(
     #author='',
     #author_email='',
     #url='',
-    packages=find_packages(exclude=['test']),
+    packages=find_packages(exclude=['fileprocess.test']),
     test_suite='nose.collector',
-    scripts=['fileprocess.py']
+    scripts=['fileprocessd'],
+    ext_modules = [
+        Extension('fileprocess.actions.picard.util.astrcmp',
+        ['fileprocess/actions/picard/util/astrcmp.cpp'])
+    ]
 )

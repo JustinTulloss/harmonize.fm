@@ -8,15 +8,17 @@ from mockfiles import mockfiles
 from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
     S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher, Transcoder
 import fileprocess
+from fileprocess.processingthread import na
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
 
+from pylons import config as pconfig
+
 import os, shutil, sys
-sys.path.append('libs.py')
 from mock import Mock, patch, sentinel
 
-from configuration import config, dev_config, test_config
+from fileprocess.configuration import config, dev_config, test_config
 
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
@@ -190,7 +192,7 @@ class TestActions(TestBase):
         assert_false(f.process(self.fdata['badfbsession']))
         assert f.cleanup_handler.queue.put.called,\
             "Did not properly cleanup after facebook failed"
-        assert self.fdata['badfbsession']['na'] == fileprocess.na.AUTHENTICATE,\
+        assert self.fdata['badfbsession']['na'] == na.AUTHENTICATE,\
             "Facebook Action did not request reauthentication"
 
         nf = f.process(self.fdata['goodfbsession'])
@@ -232,12 +234,15 @@ class TestActions(TestBase):
             "S3 did not clean up local file"
         s.cleanup_handler.queue.put.reset()
 
+        """
+        S3 now just tries forever when in this situation
         # Test for when S3 returns an error
         putfxn.return_value.message = '500 Server Error'
         upload(self.fdata['goodfile'])
         assert s.cleanup_handler.queue.put.called, \
             "S3 did not clean up local file"
         s.cleanup_handler.queue.put.reset()
+        """
 
     def testAmazonCovers(self):
         a = AmazonCovers()
@@ -299,8 +304,8 @@ class TestDBActions(TestBase):
     """
     def __init__(self, *args):
         super(TestDBActions, self).__init__(*args)
-        config['pylons.g'] = Mock()
-        config['pylons.g'].sa_engine = engine_from_config(config,
+        pconfig['pylons.g'] = Mock()
+        pconfig['pylons.g'].sa_engine = engine_from_config(config,
             prefix = 'sqlalchemy.reflect.'
         )
         self.memengine = engine_from_config(config,
@@ -351,21 +356,21 @@ class TestDBActions(TestBase):
         # Test insertion of good record
         nf = r.process(self.fdata['dbrec'])
         assert (
-            nf['dbowner'] 
-            and nf['dbfile'] 
-            and nf['dbsong'] 
-            and nf['dbalbum']
-            and nf['dbartist']
+            nf['dbownerid'] 
+            and nf['dbfileid'] 
+            and nf['dbsongid'] 
+            and nf['dbalbumid']
+            and nf['dbartistid']
         )
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect clean record insertion")
-        assert nf['dbsong'].title == u'Save Öur City',\
+        assert self.model.Session.query(self.model.Song).get(nf['dbsongid']).title == u'Save Öur City',\
             "DB messed up unicode characters"
-        nf.pop('dbowner')
-        nf.pop('dbfile')
-        nf.pop('dbsong')
-        nf.pop('dbalbum')
-        nf.pop('dbartist')
+        nf.pop('dbownerid')
+        nf.pop('dbfileid')
+        nf.pop('dbsongid')
+        nf.pop('dbalbumid')
+        nf.pop('dbartistid')
 
         # Test insertion of same record with different user and sha
         self.fdata['dbrec']['sha'] = '256f863d46e7a03cc4f05bab267e313d4b258e01'
@@ -376,24 +381,22 @@ class TestDBActions(TestBase):
         self.model.Session.commit()
         self.fdata['dbrec']['dbuser'] = user
         nf = r.process(self.fdata['dbrec'])
-        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong']
-        assert not nf.has_key('dbalbum') #This key only exists on a new album
+        assert nf['dbownerid'] and nf['dbfileid'] and nf['dbsongid']
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song insertion")
-        nf.pop('dbowner')
-        nf.pop('dbfile')
-        nf.pop('dbsong')
+        nf.pop('dbownerid')
+        nf.pop('dbfileid')
+        nf.pop('dbsongid')
 
         # Test insertion of same record with different sha
         self.fdata['dbrec']['sha'] = '1dfbc8174c31551c3f7698a344fe6dc2d6a0f431'
         nf = r.process(self.fdata['dbrec'])
-        assert nf['dbowner'] and nf['dbfile'] and nf['dbsong']
-        assert not nf.has_key('dbalbum')
+        assert nf['dbownerid'] and nf['dbfileid'] and nf['dbsongid']
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song and user insertion")
-        nf.pop('dbowner')
-        nf.pop('dbfile')
-        nf.pop('dbsong')
+        nf.pop('dbownerid')
+        nf.pop('dbfileid')
+        nf.pop('dbsongid')
 
         # Test insertion of incomplete record
         assert_raises(AssertionError, r.process,  self.fdata['goodtags'])

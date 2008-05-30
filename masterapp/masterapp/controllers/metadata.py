@@ -4,11 +4,23 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
     filter_friends,
+    filter_sql_friends,
     filter_any_friend
 )
 from sqlalchemy import sql, or_
-from masterapp.model import \
-    Song, Album, Artist, Owner, File, Session, User, Playlist, PlaylistSong
+from masterapp import model
+from masterapp.model import (
+    Song,
+    Album, 
+    Artist, 
+    Owner, 
+    File, 
+    Session, 
+    User, 
+    Playlist, 
+    PlaylistSong,
+    filter_user
+)
 from pylons import config
 from facebook import FacebookError
 from facebook.wsgi import facebook
@@ -39,7 +51,8 @@ fields = {
         'Album_havesongs',
         'Album_length',
         'Album_year',
-        'Artist_name',
+        'Album_smallart',
+        'Artist_name'
     ],
     'artist': [
         'type',
@@ -47,8 +60,6 @@ fields = {
         'Artist_id',
         'Artist_name',
         'Artist_sort',
-        'Artist_availsongs',
-        'Artist_numalbums',
     ],
     'playlist': [],
     'friend': [
@@ -58,9 +69,20 @@ fields = {
     ],
 }
 
+dbfields = {}
+for k, v in fields.items():
+    cols = []
+    for column in v:
+        try:
+            klass, field = column.split('_')
+            cols.append(getattr(getattr(model, klass), field).label(column))
+        except:
+            pass
+    dbfields[k] = cols
+
 class MetadataController(BaseController):
     """
-    This class is for querying for metadata about songs. All of its functions
+    This class is for querying for metadata about songs. All of its actions
     return JSON, so anybody using it should probably be ready to deal with
     that.
     """
@@ -79,39 +101,39 @@ class MetadataController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def _dictionize_row(self, sqlrow, type):
-        expanded = {}
-        prefix = sqlrow.__class__.__name__
-        for field in sqlrow.c.keys():
-            key = prefix + '_' + field
-            val = getattr(sqlrow, field)
-            if isinstance(val, Decimal):#FIXME: The model should address this
-                val = int(val)
-            expanded[key] = val
-        return expanded
+    def _filter_user(func):
+        def filtered(self, *args):
+            query = func(self, *args)
+            friendid = request.params.get('friend')
+            if not friendid:
+                friendid = session['user'].id
+            self.friend = friendid
+            return filter_user(query, friendid)
+        return filtered
 
-    def _build_json_row(self, sqlrow, type):
-        if hasattr(sqlrow, '__iter__'):
-            expanded = {}
-            for rowpart in sqlrow:
-                expanded.update(self._build_json_row(rowpart, type))
-            return expanded
-        else:
-            return self._dictionize_row(sqlrow, type)
-        
-    def _build_json(self, results, type):
-        json = { "data": []}
-        for row in results:
-            json['data'].append(self._build_json_row(row, type))
-            json['data'][len(json['data'])-1]['type']=type
-            json['data'][len(json['data'])-1]['Friend_id']=request.params.get('friend')
-
-        json['success']=True
-        return json
+    def _build_json(func):
+        def builder(self, *args):
+            query = func(self, *args)
+            results = query.all()
+            json = { "data": []}
+            for row in results:
+                lrow = {}
+                for key in row.keys():
+                    value = getattr(row, key)
+                    if isinstance(value, Decimal):
+                        value = int(value)
+                    lrow[key] = value
+                json['data'].append(lrow)
+                json['data'][len(json['data'])-1]['type'] =\
+                    request.params.get('type')
+                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
+            json['success']=True
+            return json
+        return builder
 
     @jsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
-        return {'success':False, 'error':error, 'data':[]}
+        return {'success': False, 'error': error, 'data':[]}
 
     def index(self):
         type = request.params.get('type')
@@ -119,49 +141,47 @@ class MetadataController(BaseController):
         return handler()
 
     @jsonify
+    @_build_json
+    @_filter_user
     def songs(self):
-        qry = Session.query(Song).join('artist').\
-            reset_joinpoint().join('album').\
-            reset_joinpoint().join(['files', 'owners', 'user']).\
-            add_entity(Album).add_entity(Artist)
+        qry = Session.query(*dbfields['song']).join(Song.artist).\
+            reset_joinpoint().join(Album).group_by(Song)
 
         sort = [Artist.sort, Album.title, Song.tracknumber]
         if request.params.get('album'):
-            qry = filter_any_friend(qry)
             qry = qry.filter(Album.id== request.params.get('album'))
             sort = [Song.tracknumber]
         elif request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
-        else:
-            qry = filter_friends(qry)
         if request.params.get('playlist'):
             qry = qry.filter(Playlist.id == request.params.get('playlist'))
 
         qry = qry.order_by(sort)
-        results = qry.all()
-        return self._build_json(results, 'song')
+        return qry
 
     @jsonify
+    @_build_json
+    @_filter_user
     def albums(self):
-        qry = Session.query(Album).join('artist').\
-            reset_joinpoint().join(['songs', 'files', 'owners', 'user']).\
-            add_entity(Artist)
-
-        qry = filter_friends(qry)
-
+        qry = Session.query(*dbfields['album']).join(Album.artist).\
+            join(Album.songs).group_by(Album)
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         qry = qry.order_by([Artist.sort, Album.title])
-        results = qry.all()
-        return self._build_json(results, 'album')
+        return qry
         
     @jsonify
+    @_build_json
+    @_filter_user
     def artists(self):
-        qry = Session.query(Artist).join(['albums', 'songs','files','owners', 'user'])
-        qry = filter_friends(qry)
+        numalbums = Session.query(Album.artistid,
+            sql.func.count('*').label('numalbums')
+        ).group_by(Album.artistid).subquery()
+
+        qry = Session.query(numalbums.c.numalbums, *dbfields['artist']).\
+            join(Artist.albums).join(Song).group_by(Artist)
         qry = qry.order_by(Artist.sort)
-        results = qry.all()
-        return self._build_json(results, 'artist')
+        return qry
         
     @jsonify
     def friends(self):
@@ -180,11 +200,11 @@ class MetadataController(BaseController):
         def _intersect(item):
             if len(results) > 0:
                 if results[0].fbid == item['uid']:
-                    item['Friend_name'] = item['name']
                     item['type'] = dtype
+                    item['Friend_name'] = item['name']
                     item['Friend_id'] = results[0].id
-                    del item['name']
                     del item['uid']
+                    del item['name']
                     del results[0]
                     return True
                 else:
@@ -204,6 +224,8 @@ class MetadataController(BaseController):
         return {'success':True, 'data':data}
 
     @jsonify
+    @_build_json
+    @_filter_user
     def playlists(self):
         qry = Session.query(Playlist).join('owner')
         qry = filter_friends(qry)
@@ -212,6 +234,8 @@ class MetadataController(BaseController):
         return self._build_json(results, 'playlist')
 
     @jsonify
+    @_build_json
+    @_filter_user
     def playlistsongs(self):
         qry = Session.query(PlaylistSong).join('playlist').reset_joinpoint(). \
             join('album').reset_joinpoint().join(['files', 'owners', 'user'])
