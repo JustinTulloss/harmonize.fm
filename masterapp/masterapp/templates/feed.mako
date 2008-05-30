@@ -1,5 +1,6 @@
 <%!
 	from masterapp.model import BlogEntry, Spotlight
+	from simplejson import dumps
 %>
 
 <%def name="render(entries)">
@@ -11,9 +12,10 @@
 	</%def>
 
 	<%def name="spotlight_feed(entry)">
-		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.user.id}, ${entry.album.id});" />
+		<img src="/images/enqueue.png" onclick='enqueue_album(${entry.user.id}, ${entry.album.id}, ${dumps(str(entry.album.title))}, ${entry.album.totaltracks}, ${entry.album.havesongs});' />
 		<div class="feed_content">
-			<h4>${entry.id} added a Spotlight on ${entry.album.title}</h4>
+			<h4>${entry.user.get_firstname()} 
+				added a Spotlight on ${entry.album.title}</h4>
 			<table class="spotlight_feed_info"><tr>
 				<!--td><img src="/images/enqueue.png" /></td-->
 				<td><img src="${entry.album.smallart}" /></td>

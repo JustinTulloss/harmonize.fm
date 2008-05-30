@@ -135,9 +135,12 @@ a.bc_link:hover {
 	text-align: right;
 }
 
-td {
-	margin: 0;
+table td, table th {
 	padding: 0;
+}
+
+table {
+	border-spacing: 0;
 }
 
 #spot_cancel {
@@ -145,7 +148,7 @@ td {
 }
 
 #news_feed {
-	margin-left: 15px;
+	margin-left: 12px;
 }
 
 .feed_entry {
@@ -153,7 +156,7 @@ td {
 }
 
 .feed_content {
-	margin-left: 22px;
+	margin-left: 25px;
 }
 
 .feed_content h4 {
@@ -170,4 +173,8 @@ td {
 	vertical-align: top;
 	color: #777;
 	padding-left: 3px;
+}
+
+.spotlight_feed_info {
+	padding: 0;
 }
