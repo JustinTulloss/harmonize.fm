@@ -37,7 +37,7 @@ function Browser()
             });
 
             crumb.panel.on('render', function(grid) {
-                grid.getView().mainBody.on('mousedown', grid.onMouseDown, grid);
+                grid.getView().mainBody.on('mousedown', grid.onMouseDown);
             }, this);
 
             this.fireEvent('newgrid', crumb);
@@ -56,6 +56,8 @@ Ext.extend(Browser, Ext.util.Observable);
 
 function BaseGrid(config)
 {
+	var my = this;
+
     config.selModel = new Ext.grid.RowSelectionModel();
     config.enableColLock = false;
     config.enableColumnMove = false;
@@ -82,15 +84,13 @@ function BaseGrid(config)
 		show_spotlight: function(records) {show_spotlight(records[0]);}
     };
 
-    this.onMouseDown = onMouseDown;
-    function onMouseDown(e, div)
-    {
+    my.onMouseDown = function(e, div) {
         /* XXX: Does this loop scale to lots of actions? */
-        for (action in this.actions) {
+        for (action in my.actions) {
             if (Ext.get(div).hasClass(action)) {
                 e.stopPropagation(); /* Keep this row from getting selected */
-                var records = this.getSelectionModel().getSelections();
-                this.actions[action].call(this, records);
+                var records = my.getSelectionModel().getSelections();
+                my.actions[action].call(my, records);
             }
         }
     }
