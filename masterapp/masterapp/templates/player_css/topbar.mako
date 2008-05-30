@@ -27,6 +27,10 @@
 	margin-bottom: 0;
 }
 
+.pcontrol {
+	cursor: pointer;
+}
+
 #play-img {
 	height: 18px;
 	width: 18px;

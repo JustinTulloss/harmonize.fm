@@ -38,11 +38,11 @@ class PlayerController(BaseController):
 
         def sort_by_timestamp(x, y):
             if x.timestamp > y.timestamp:
-                return 1
+                return -1
             elif x.timestamp == y.timestamp:
                 return 0
             else:
-                return -1
+                return 1
 
         entries.sort(sort_by_timestamp)
         return entries[:max_count]
@@ -177,3 +177,8 @@ class PlayerController(BaseController):
         Session.commit()
         
         return '1'
+
+    def blog(self, id):
+        c.entries = Session.query(BlogEntry)
+        c.main = True
+        return render('/blog.mako')

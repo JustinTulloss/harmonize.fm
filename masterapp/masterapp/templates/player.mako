@@ -44,15 +44,15 @@
             <div id="now-playing-time"></div>
         </div>
         <div id="playcontrols">
-            <a href="#"><div id="playbutton">
+            <div id="playbutton" class="pcontrol">
                     <div id="play-img" class="play"></div>
-            </div></a>
-            <a href="#"><div id="prevbutton">
+            </div>
+            <div id="prevbutton" class="pcontrol">
                 <div id="prev-img"></div>
-            </div></a>
-            <a href="#"><div id="nextbutton">
+            </div>
+            <div id="nextbutton" class="pcontrol">
                 <div id="next-img"></div>
-            </div></a>
+            </div>
             <div id="no-volume"></div>
             <div id="volume"></div>
             <div id="full-volume"></div>

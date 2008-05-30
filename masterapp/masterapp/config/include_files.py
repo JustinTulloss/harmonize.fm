@@ -51,7 +51,8 @@ player_files = IncludeFiles(
         'player/columns.js',
         'player/init.js',
         'player/feedback.js',
-		'player/spotlight.js'
+		'player/spotlight.js',
+		'player/urlmanager.js'
     ]
 )
 

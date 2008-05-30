@@ -49,6 +49,8 @@ function init()
 
     playqueue.on('playsong', player.playsong, player);
     playqueue.on('stop', player.stop, player);
+
+	init_url_manager();
 }
 
 function add_grid_listeners(crumb, e)

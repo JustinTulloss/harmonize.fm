@@ -16,6 +16,7 @@
  */
 function ViewManager(crumb, objects)
 {
+	var my = this;
 
     var homepanel = new Ext.Panel({
         title: "Home", 
@@ -76,6 +77,15 @@ function ViewManager(crumb, objects)
         items: [bcpanel, gridstack]
     });
 
+	my.centerpanel = new Ext.Panel({
+		region: 'center',
+        id: 'centerpanel',
+        layout: 'card',
+        activeItem: 0,
+        items: [homepanel, browserpanel],
+        bbar: statusbar
+    });
+
     bigshow = new Ext.Viewport({
         layout: 'border',
         items: [{
@@ -91,15 +101,8 @@ function ViewManager(crumb, objects)
 			id: 'top-panel',
 			style: 'overflow: visible'
         }, 
-        objects.queue.panel,
-        {
-            region: 'center',
-            id: 'centerpanel',
-            layout: 'card',
-            activeItem: 0,
-            items: [homepanel, browserpanel],
-            bbar: statusbar
-        }]
+        objects.queue.panel, 
+		my.centerpanel]
     });
     var username=global_config.fullname;
 

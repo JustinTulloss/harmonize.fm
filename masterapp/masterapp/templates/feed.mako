@@ -7,11 +7,15 @@
 	<%def name="blog_feed(entry)">
 		<div class="feed_content">
 			<h4>${entry.author} wrote a new blog post</h4>
-			<a href="/player/blog/${entry.id}">read more...</a>
+			<a href="#/player/blog/${entry.id}">read more...</a>
 		</div>
 	</%def>
 
 	<%def name="spotlight_feed(entry)">
+		<%
+		max_quote_len = 175
+		%>
+
 		<img src="/images/enqueue.png" onclick='enqueue_album(${entry.user.id}, ${entry.album.id}, ${dumps(str(entry.album.title))}, ${entry.album.totaltracks}, ${entry.album.havesongs});' />
 		<div class="feed_content">
 			<h4>${entry.user.get_firstname()} 
@@ -19,7 +23,13 @@
 			<table class="spotlight_feed_info"><tr>
 				<!--td><img src="/images/enqueue.png" /></td-->
 				<td><img src="${entry.album.smallart}" /></td>
-				<td class="spotlight_feed_comment">${entry.comment}</td>
+				<td class="spotlight_feed_comment">
+	%	if len(entry.comment) < max_quote_len:
+				${entry.comment}
+	%	else:
+				${entry.comment[:max_quote_len] + '...'}	
+	%	endif
+				</td>
 			</tr></table>
 		</div>
 	</%def>

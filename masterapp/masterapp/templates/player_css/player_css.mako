@@ -172,7 +172,8 @@ table {
 .spotlight_feed_comment {
 	vertical-align: top;
 	color: #777;
-	padding-left: 3px;
+	padding-left: 7px;
+	width: 250px;
 }
 
 .spotlight_feed_info {
