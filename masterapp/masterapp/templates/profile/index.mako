@@ -1,28 +1,31 @@
 ##vim:filetype=html:expandtab:tabstop=4
-<style type="text/css">
-    <%include file="/profile/profile.css.mako"/>
-</style>
+<div id="profile-right">
+    <div class="profile-pic"><img src="${c.user.bigpicture}" /></div>
+    <div class="profile-subtitle">Musical Tastes</div>
+    <div class="profile-right-content">${c.user.musictastes}</div>
+    <div class="profile-subtitle">Top Artists</div>
+</div>
 
-<div class="profile">
-    <div id="profile-right">
-        <div class="profile-right2">
-            <div class="profile-pic"><img src="${c.user.bigpicture}" /></div>
-            <div class="profile-right-title">Listening To</div>
-            <div class="profile-right-title">Musical Tastes</div>
-            <div class="profile-right-content">${c.user.musictastes}</div>
-        </div>
-    </div>
-    <div id="profile-body">
-        <div class="profile-header">
-            <div class="profile-info">
-                <div class="profile-name">${c.user.name}</div>
-                <div class="profile-fblink">
-                    <a href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a>
-                </div>
+<div id="profile-body">
+    <div class="profile-header">
+        <div class="profile-info">
+            <div class="profile-status">
+                <span class="profile-name">${c.user.name}</span>
+                % if c.user.listeningto:
+                    <span class="profile-listeningto">
+                        is listening to ${c.user.listeningto}
+                    </span>
+                % endif
+            </div>
+            <div class="profile-links">
+                <a class="profile-link" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a>
+                <a class="profile-link" href="#">browse ${c.user.firstname}'s music</a>
+                <a class="profile-link" href="#">recommend a song to ${c.user.firstname}</a>
+                </a>
             </div>
         </div>
-        <div class="profile-spotlight">
-            <div class="profile-spotlight-title">&nbsp;Spotlight</div>
-        </div>
+    </div>
+    <div class="profile-spotlight">
+        <div class="profile-subtitle">Spotlight</div>
     </div>
 </div>

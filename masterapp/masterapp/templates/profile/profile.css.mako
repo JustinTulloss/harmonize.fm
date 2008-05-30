@@ -1,51 +1,51 @@
-.profile {
-    margin: 10px;
-    position: relative;
-}
-
 .profile-name {
-    color: ${c.profile.dark_txt};
+    padding-left: 15px;
     font-size: 24pt;
     font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+}
+
+.profile-status {
+    color: ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.dark_txt};
 }
 
-.profile-fblink {
-    text-align: right;
-    height: 60px;
+.profile-link {
+    display: block;
+    line-height: 13pt;
 }
 
-.profile-fblink a {
+.profile-links {
+    text-align: right;
+}
+
+.profile-links a {
     color: ${c.profile.menu_txt};
 }
 
-.profile-fblink a:hover {
+.profile-links a:hover {
     color: ${c.profile.click}
 }
 
-.profile-spotlight-title {
-    font-weight: bold;
+.profile-subtitle {
     font-size: 14pt;
     border-bottom: 1px solid ${c.profile.border};
-    background: ${c.profile.queue_bg};
-    padding: 2px;
+    padding-left: 10px;
+    padding-bottom: 2px;
+    margin-top: 10px;
+    margin-bottom: 5px;
 }
 
-/*
-.profile-right{
-    float: right;
+#profile-body {
+    padding: 10px;
+}
+#profile-right {
+    position: absolute;
     background: white;
+    right: 0;
+    top: 0;
     width: 200px;
     padding: 10px;
-    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border-left: 1px solid ${c.profile.border};
 }
-
-.profile-right-title {
-    font-weight: bold;
-    background: ${c.profile.queue_bg};
-    padding: 2px;
-    border-bottom: 1px solid ${c.profile.border};
-    margin-top: 10px;
-}
-*/

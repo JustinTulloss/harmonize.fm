@@ -43,6 +43,7 @@ Classes that represent above tables. You can add abstractions here
 class User(object):
     fbid = None
     fbinfo = None
+    listeningto = None
 
     def __init__(self, fbid=None):
         self.fbid = fbid
