@@ -92,22 +92,23 @@ function BreadCrumb()
         else
             bclist[current].qryvalue = row.get(clickedtype);
         
-        /* Make new crumb describing what you're looking at */
-        var newtype = typeinfo[clickedinfo.next]
-        var newcrumb = new BcEntry(
-            clickedinfo.next, 
-            row.get(clickedinfo.lblindex), 
-            clickedinfo.next
-        );
+        /* Call the type's defined next action */
+        clickedinfo.next(row, this);
+    }
 
+    this.addbreadcrumb = addbreadcrumb;
+    function addbreadcrumb(crumb)
+    {
         current++;
+
         /* removes everything after new current and adds on newcrumb */
-        bclist.splice(current, bclist.length-current, newcrumb);
+        bclist.splice(current, bclist.length-current, crumb);
         this.update_div();
         params = create_params(bclist[current]);
         this.fireEvent('bcupdate', bclist[current], params);
         this.fireEvent('newfilter', bclist[current], params);
     }
+
 
     this.go = go;
     /* This function goes 1 past home to a fresh, unfiltered type */
