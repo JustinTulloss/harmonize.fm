@@ -68,5 +68,11 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
+function enqueue_album(fid, aid) {
+	record = {data:{Friend_id:fid, type:'album', Album_id:aid},
+			  get:(function(key) {return record.data[key];})};
+	playqueue.enqueue([record])
+}
+
 Ext.onReady(init);
 /****End of Initializations ****/
