@@ -4,6 +4,32 @@
     <div class="profile-subtitle">Musical Tastes</div>
     <div class="profile-right-content">${c.user.musictastes}</div>
     <div class="profile-subtitle">Top Artists</div>
+    <div class="profile-right-content">
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+        <div class="profile-ta">
+            <span class="profile-ta-num">1.</span>
+            <span> Radiohead </span>
+        </div>
+    </div>
 </div>
 
 <div id="profile-body">
@@ -18,9 +44,9 @@
                 % endif
             </div>
             <div class="profile-links">
-                <a class="profile-link" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a>
-                <a class="profile-link" href="#">browse ${c.user.firstname}'s music</a>
-                <a class="profile-link" href="#">recommend a song to ${c.user.firstname}</a>
+                <div><a href="#">recommend a song to ${c.user.firstname}</a></div>
+                <div><a href="#">browse ${c.user.firstname}'s music</a></div>
+                <div><a href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
                 </a>
             </div>
         </div>

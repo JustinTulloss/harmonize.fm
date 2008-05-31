@@ -9,11 +9,6 @@
     border-bottom: 1px solid ${c.profile.dark_txt};
 }
 
-.profile-link {
-    display: block;
-    line-height: 13pt;
-}
-
 .profile-links {
     text-align: right;
 }
@@ -39,13 +34,13 @@
     padding: 10px;
 }
 #profile-right {
+    /*
     position: absolute;
-    background: white;
     right: 0;
     top: 0;
     width: 200px;
+    height: 100%;
     padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
     border-left: 1px solid ${c.profile.border};
+    */
 }

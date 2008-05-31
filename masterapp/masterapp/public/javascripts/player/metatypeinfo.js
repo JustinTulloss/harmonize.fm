@@ -135,26 +135,32 @@ var typeinfo = {
         next: function(row, breadcrumb){
             bc = new BcEntry();
             bc.panel = new Ext.Panel({
-                layout: 'anchor',
+                layout: 'column',
                 autoScroll: true,
                 nocrumb: true,
+                items: [{
+                    autoLoad: 'people/profile/'+row.get('Friend_id'),
+                    /*contentEl: 'profile-body',*/
+                    columnWidth: 1
+                },{
+                    /*contentEl: 'profile-right',*/
+                    width: 220
+                }],
+                /*
                 autoLoad: {
                     url: 'people/profile/'+row.get('Friend_id'),
                     callback: function() {
                         var barwidth = 220;
                         var pbody = new Ext.Panel({
-                            anchor: '-'+barwidth+' 0',
-                            contentEl: 'profile-body'
                         });
                         var pright = new Ext.Panel({
-                            contentEl: 'profile-right'
                         });
 
-                        bc.panel.add(pbody); 
                         bc.panel.add(pright);
-                        bc.panel.syncSize();
+                        bc.panel.add(pbody); 
+                        bc.panel.doLayout();
                     }
-                }
+                }*/
             });
             breadcrumb.fireEvent('bcupdate', bc);
         },
