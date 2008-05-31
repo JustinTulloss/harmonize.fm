@@ -16,7 +16,7 @@
 		max_quote_len = 175
 		%>
 
-		<img src="/images/enqueue.png" onclick='enqueue_album(${entry.user.id}, ${entry.album.id}, ${dumps(str(entry.album.title))}, ${entry.album.totaltracks}, ${entry.album.havesongs});' />
+		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id});" />
 		<div class="feed_content">
 			<h4>${entry.user.get_firstname()} 
 				added a Spotlight on ${entry.album.title}</h4>

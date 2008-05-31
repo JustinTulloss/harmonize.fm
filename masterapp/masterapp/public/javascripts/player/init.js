@@ -70,12 +70,16 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
-function enqueue_album(fid, aid, title, totaltracks, havesongs) {
-	record = {data:{Friend_id:fid, type:'album', Album_id:aid,
-					Album_title:title, Album_totaltracks:totaltracks,
-					Album_havesongs:havesongs},
-			  		get:(function(key) {return record.data[key];})};
-	playqueue.enqueue([record])
+function enqueue_album(albumid) {
+	function enqueue_result(response) {
+		var result = eval('('+response.responseText+')');
+		var record = result.data[0];
+		record.get = (function(key) {return record[key];});
+		playqueue.enqueue([record]);
+	}
+	Ext.Ajax.request({
+		url:'/metadata/album/'+albumid,
+		success: enqueue_result});
 }
 
 Ext.onReady(init);

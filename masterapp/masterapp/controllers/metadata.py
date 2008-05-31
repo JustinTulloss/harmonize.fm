@@ -1,5 +1,6 @@
 # vim:expandtab:smarttab
 import logging
+import simplejson
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
@@ -110,26 +111,30 @@ class MetadataController(BaseController):
             self.friend = friendid
             return filter_user(query, friendid)
         return filtered
+    
+    def _build(self, query):
+        results = query.all()
+        json = { "data": []}
+        for row in results:
+            lrow = {}
+            for key in row.keys():
+                value = getattr(row, key)
+                if isinstance(value, Decimal):
+                    value = int(value)
+                lrow[key] = value
+            json['data'].append(lrow)
+            json['data'][len(json['data'])-1]['type'] =\
+                request.params.get('type')
+            if hasattr(self, 'friend'):
+                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
+        json['success']=True
+        return json
+        
 
     def _build_json(func):
-        def builder(self, *args):
-            query = func(self, *args)
-            results = query.all()
-            json = { "data": []}
-            for row in results:
-                lrow = {}
-                for key in row.keys():
-                    value = getattr(row, key)
-                    if isinstance(value, Decimal):
-                        value = int(value)
-                    lrow[key] = value
-                json['data'].append(lrow)
-                json['data'][len(json['data'])-1]['type'] =\
-                    request.params.get('type')
-                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
-            json['success']=True
-            return json
-        return builder
+        def wrapper(self, *args):
+            return self._build(func(self, *args))
+        return wrapper
 
     @jsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
@@ -245,3 +250,9 @@ class MetadataController(BaseController):
         qry = qry.order_by(PlaylistSong.songindex)
         results = qry.all()
         return self._build_json(results, 'playlistsong')
+
+    def album(self, id):
+        res = Session.query(*dbfields['album']).join(Album.artist).filter(Album.id==id).group_by(Album)
+        json = self._build(res)
+        json['data'][0]['type'] = 'album'
+        return simplejson.dumps(json)
