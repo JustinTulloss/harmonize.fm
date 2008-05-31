@@ -33,14 +33,36 @@
 #profile-body {
     padding: 10px;
 }
+
 #profile-right {
-    /*
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 200px;
-    height: 100%;
     padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     border-left: 1px solid ${c.profile.border};
-    */
 }
+
+.profile-sp {
+    padding-left: 5px;
+}
+
+.profile-sp-albumart {
+    float: right;
+}
+
+.profile-sp-title {
+    font-size: 16pt;
+    color: ${c.profile.dark_txt};
+}
+
+.profile-sp-artist {
+    color: ${c.profile.menu_txt};
+}
+
+.profile-sp-review {
+    padding-left: 3px;
+}
+
+.profile-sp-comments a {
+    color: ${c.profile.menu_txt}
+}
+

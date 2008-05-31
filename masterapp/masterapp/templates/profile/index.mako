@@ -1,37 +1,4 @@
 ##vim:filetype=html:expandtab:tabstop=4
-<div id="profile-right">
-    <div class="profile-pic"><img src="${c.user.bigpicture}" /></div>
-    <div class="profile-subtitle">Musical Tastes</div>
-    <div class="profile-right-content">${c.user.musictastes}</div>
-    <div class="profile-subtitle">Top Artists</div>
-    <div class="profile-right-content">
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-        <div class="profile-ta">
-            <span class="profile-ta-num">1.</span>
-            <span> Radiohead </span>
-        </div>
-    </div>
-</div>
-
 <div id="profile-body">
     <div class="profile-header">
         <div class="profile-info">
@@ -53,5 +20,24 @@
     </div>
     <div class="profile-spotlight">
         <div class="profile-subtitle">Spotlight</div>
+        % for spotlight in c.user.spotlights:
+            ${build_spotlight(spotlight)}
+        % endfor
     </div>
 </div>
+
+<%def name="build_spotlight(spotlight)" >
+    <div class="profile-sp">
+        % if spotlight.album.smallart:
+            <div class="profile-sp-albumart">
+                <img src=${spotlight.album.smallart} />
+            </div>
+        % endif
+        <div class="profile-sp-title">${spotlight.album.title}</div>
+        <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
+        <div class="profile-sp-review">${spotlight.comment}</div>
+        <div class="profile-sp-comments">
+            <a href="#">view comments</a>
+        </div>
+    </div>
+</%def>

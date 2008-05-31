@@ -273,5 +273,6 @@ mapper(BlogEntry, blog_table)
 
 mapper(Spotlight, spotlight_table, properties={
     'album': relation(Album, lazy=False),
-    'user' : relation(User, lazy=False)})
+    'user' : relation(User, lazy=False, backref='spotlights')
+})
 

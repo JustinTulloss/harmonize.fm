@@ -139,28 +139,14 @@ var typeinfo = {
                 autoScroll: true,
                 nocrumb: true,
                 items: [{
-                    autoLoad: 'people/profile/'+row.get('Friend_id'),
-                    /*contentEl: 'profile-body',*/
+                    autoLoad: 'people/profile_body/'+row.get('Friend_id'),
+                    layout: 'fit',
                     columnWidth: 1
                 },{
-                    /*contentEl: 'profile-right',*/
+                    autoLoad: 'people/profile_right/'+row.get('Friend_id'),
+                    layout:'fit',
                     width: 220
                 }],
-                /*
-                autoLoad: {
-                    url: 'people/profile/'+row.get('Friend_id'),
-                    callback: function() {
-                        var barwidth = 220;
-                        var pbody = new Ext.Panel({
-                        });
-                        var pright = new Ext.Panel({
-                        });
-
-                        bc.panel.add(pright);
-                        bc.panel.add(pbody); 
-                        bc.panel.doLayout();
-                    }
-                }*/
             });
             breadcrumb.fireEvent('bcupdate', bc);
         },
