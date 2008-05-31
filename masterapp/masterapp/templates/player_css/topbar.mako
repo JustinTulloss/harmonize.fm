@@ -120,13 +120,17 @@
 	margin-right: 5px;
 }
 
-#topmenu a:hover {
+#topmenu *:hover {
     color: ${c.profile.click};
 	text-decoration: none;
 }
 
-#topmenu a:focus {
+#topmenu *:focus {
 	outline: none;
+}
+
+#feedback-link {
+	position: relative;
 }
 
 .feedbackActive {

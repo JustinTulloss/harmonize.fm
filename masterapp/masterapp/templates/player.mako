@@ -64,7 +64,7 @@
 		<a href="#/bc/album">albums</a>
 		<a href="#/bc/song">songs</a>
 		<a href="#/bc/friend">friends</a>
-		<a href="#" id="feedback_link">feedback</a>
+		<a href="#" id="feedback-link">feedback</a>
 	</div>
     <div id="logo">
         <a href="/"><img src="/images/whiteharmonizefm.png" /></a>
