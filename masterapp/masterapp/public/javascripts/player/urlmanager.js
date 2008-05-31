@@ -1,6 +1,7 @@
 var check_url; //assigned in init_url_manager
 
-function init_url_manager() {
+//submanagers should be a list of url component => handler function pairs
+function init_url_manager(submanagers) {
 	var panel_lookup = {};
 	var guid = 0;
 	//Since we are always serving home page we need to detect when the user is
@@ -23,6 +24,17 @@ function init_url_manager() {
 	}
 
 	function goto_page(url) {
+		//First check for a different handler function
+		for (var i=0; i<submanagers.length; i++) {
+			var current = submanagers[i];
+			var pattern = current[0];
+			if (url.substring(0, pattern.length) === pattern) {
+				current_url = url;
+				current[1](url.substring(pattern.length));
+				return;
+			}
+		}
+
 		if (panel_lookup[url] !== undefined) {
 			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
 		}

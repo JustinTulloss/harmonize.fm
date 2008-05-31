@@ -90,7 +90,7 @@
 	padding-top: 3px;
 	padding-left: 8px;
 	position: absolute;
-};
+}
 
 
 
@@ -109,31 +109,24 @@
 }
 */
 
-
-.topmenu {
-    font-size: 9px;
+#topmenu {
+	text-align: right;
 }
 
-#menu {
-	z-index: 200;
-}
-
-.menuitem {
-    /*font-size: 13px; */
+#topmenu a {
+    font-size: 13px;
     color: #FFFFFF;
-	cursor: pointer;
-	border-width: 0;
-	background-color: transparent;
-	padding: 0;
-	margin: 0;
+	text-decoration: none;
+	margin-right: 5px;
 }
 
-a.menuitem {
-	text-decoration: underline;
-}
-
-.menuitem:hover, .menuitem:hover button {
+#topmenu a:hover {
     color: ${c.profile.click};
+	text-decoration: none;
+}
+
+#topmenu a:focus {
+	outline: none;
 }
 
 .feedbackActive {

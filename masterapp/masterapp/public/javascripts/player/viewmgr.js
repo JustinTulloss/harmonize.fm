@@ -108,36 +108,6 @@ function ViewManager(crumb, objects)
 
     set_status(null);
 
-    this.init_top_menu = init_top_menu;
-    function init_top_menu()
-    {
-        topmenu = new Ext.Toolbar({renderTo: 'menu', cls:'topmenu', height:18});
-        var leftspc = new Ext.Toolbar.Fill();
-        var homebtn = new Ext.Toolbar.Button({text:'home', cls:'menuitem'});
-        var artistbtn= new Ext.Toolbar.Button({text:'artists', cls:'menuitem'});
-        var albumbtn= new Ext.Toolbar.Button({text:'albums', cls:'menuitem'});
-        var songsbtn= new Ext.Toolbar.Button({text:'songs', cls:'menuitem'});
-        var friendsbtn= new Ext.Toolbar.Button({text:'friends', cls:'menuitem'});
-
-        homebtn.on('click', bread_crumb.go_home, bread_crumb);
-        artistbtn.on('click', function() {bread_crumb.go('artist')});
-        albumbtn.on('click', function() {bread_crumb.go('album')});
-        songsbtn.on('click', function() {bread_crumb.go('song')});
-        friendsbtn.on('click', function() {bread_crumb.go('friend')});
-
-        topmenu.add(
-            leftspc,
-            homebtn,
-            artistbtn,
-            albumbtn,
-            songsbtn,
-            friendsbtn,
-			feedbackButton()
-        );
-    }
-
-    this.init_top_menu();
-
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {

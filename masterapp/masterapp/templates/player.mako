@@ -58,7 +58,14 @@
             <div id="full-volume"></div>
         </div>
     </div>
-    <div id="menu"></div>
+	<div id="topmenu">
+		<a href="#">home</a>
+		<a href="#/bc/artist">artists</a>
+		<a href="#/bc/album">albums</a>
+		<a href="#/bc/song">songs</a>
+		<a href="#/bc/friend">friends</a>
+		<a href="#" id="feedback_link">feedback</a>
+	</div>
     <div id="logo">
         <a href="/"><img src="/images/whiteharmonizefm.png" /></a>
     </div>

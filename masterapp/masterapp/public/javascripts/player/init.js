@@ -50,7 +50,7 @@ function init()
     playqueue.on('playsong', player.playsong, player);
     playqueue.on('stop', player.stop, player);
 
-	init_url_manager();
+	init_url_manager([['/bc/', (function(url){bread_crumb.go(url)})]]);
 }
 
 function add_grid_listeners(crumb, e)
