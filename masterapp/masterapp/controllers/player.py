@@ -31,7 +31,7 @@ class PlayerController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def get_feed_entries(self, uid, max_count=20):
+    def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
         entries.extend(Session.query(Spotlight).\
                      filter_by(uid=uid)[:max_count])
@@ -52,7 +52,7 @@ class PlayerController(BaseController):
         c.fullname = self.username()
         #c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
         c.fields = masterapp.controllers.metadata.fields
-        c.entries = self.get_feed_entries(session['user'].id)
+        c.entries = self._get_feed_entries(session['user'].id)
 
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
@@ -182,3 +182,8 @@ class PlayerController(BaseController):
         c.entries = Session.query(BlogEntry)
         c.main = True
         return render('/blog.mako')
+
+    def feed(self):
+        c.entries = self._get_feed_entries(session['user'].id)
+        c.main = True
+        return render('/feed.mako')

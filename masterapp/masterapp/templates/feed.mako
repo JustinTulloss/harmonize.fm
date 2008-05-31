@@ -49,3 +49,6 @@
 	</div>
 </%def>
 
+%	if hasattr(c, 'main') and c.main:
+	${render(c.entries)}
+%	endif
