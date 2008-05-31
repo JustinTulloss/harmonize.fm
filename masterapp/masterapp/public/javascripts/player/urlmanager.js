@@ -3,13 +3,15 @@ var check_url; //assigned in init_url_manager
 function init_url_manager() {
 	var panel_lookup = {};
 	var guid = 0;
-	var current_url = get_url(location.hash);
+	//Since we are always serving home page we need to detect when the user is
+	//at a different page
+	var current_url = get_url(''); 
 
-	panel_lookup['/home'] = 0;
+	panel_lookup['/player/home'] = 0;
 
 	function get_url(hash) {
 		if (hash === '' || hash === '#')
-			return '/home';
+			return '/player/home';
 		else
 			return hash.substring(1);
 	}
