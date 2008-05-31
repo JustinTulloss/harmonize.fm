@@ -25,7 +25,6 @@ function Browser()
             });
         }
 
-        /* load as soon as possible so we can get other work done */
         if(params)
             params.type = crumb.type;
         else

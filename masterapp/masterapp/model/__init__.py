@@ -43,6 +43,7 @@ Classes that represent above tables. You can add abstractions here
 class User(object):
     fbid = None
     fbinfo = None
+    listeningto = None
 
     def __init__(self, fbid=None):
         self.fbid = fbid
@@ -63,7 +64,8 @@ class User(object):
                     'name',
                     'first_name',
                     'pic',
-                    'pic_big'
+                    'pic_big',
+                    'music'
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
@@ -90,6 +92,11 @@ class User(object):
     def get_bigpicture(self):
         return self.fbinfo['pic_big']
     bigpicture = property(get_bigpicture)
+
+    @fbattr
+    def get_musictastes(self):
+        return self.fbinfo['music']
+    musictastes = property(get_musictastes)
     
     def get_from_fbid(fbid, create=False):
         """
@@ -266,5 +273,6 @@ mapper(BlogEntry, blog_table)
 
 mapper(Spotlight, spotlight_table, properties={
     'album': relation(Album, lazy=False),
-    'user' : relation(User, lazy=False)})
+    'user' : relation(User, lazy=False, backref='spotlights')
+})
 

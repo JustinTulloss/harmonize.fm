@@ -29,7 +29,8 @@ player_files = IncludeFiles(
         'player_css/queue_css.mako',
         'player_css/album_details.mako',
         'player_css/topbar.mako',
-        'player_css/statusbar.mako'
+        'player_css/statusbar.mako',
+        'profile/profile.css.mako'
     ],
     javascripts = [
         'lib/ext-2.1/adapter/ext/ext-base.js',

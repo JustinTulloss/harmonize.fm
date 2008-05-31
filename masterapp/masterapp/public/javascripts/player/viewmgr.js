@@ -24,7 +24,8 @@ function ViewManager(crumb, objects)
         autocreate: true, 
         contentEl: 'home', 
         header: false,
-		cls: 'homepanel'
+		cls: 'homepanel',
+        nocrumb: true
     });
 
     t_status = new Ext.Template(
@@ -112,17 +113,21 @@ function ViewManager(crumb, objects)
     function set_panel(crumb, params, e)
     {
         if (crumb.panel) {
-            if (crumb.panel == homepanel) {
-                bigshow.getComponent('centerpanel').
-                    getLayout().setActiveItem(crumb.panel.id);
+            if (crumb.panel.nocrumb) {
+                center = bigshow.getComponent('centerpanel');
+                if (!center.findById(crumb.panel.id))
+                    center.add(crumb.panel);
+                center.getLayout().setActiveItem(crumb.panel.id);
                 return;
             }
-            else if (!gridstack.findById(crumb.panel.id)){
-                gridstack.add(crumb.panel);
+            else {
+                if (!gridstack.findById(crumb.panel.id)){
+                    gridstack.add(crumb.panel);
+                }
+                gridstack.getLayout().setActiveItem(crumb.panel.id);
+                bigshow.getComponent('centerpanel').
+                    getLayout().setActiveItem(browserpanel.id);
             }
-            gridstack.getLayout().setActiveItem(crumb.panel.id);
-            bigshow.getComponent('centerpanel').
-                getLayout().setActiveItem(browserpanel.id);
         }
     }
 
