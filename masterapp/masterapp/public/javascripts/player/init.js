@@ -34,7 +34,7 @@ function init()
     errmgr = new ErrorManager();
 
     /* Initialize event handlers */
-    bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
+    //bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
@@ -51,7 +51,7 @@ function init()
     playqueue.on('stop', player.stop, player);
 
     urlmanager = new UrlManager([
-        ['/bc/', (function(url){bread_crumb.go(url)})],
+        ['/bc/', (function(url){bread_crumb.load_url(url)})],
         ['/profile/', profile_factory]
     ]);
 	init_feedback();

@@ -104,11 +104,37 @@ function BreadCrumb()
         /* removes everything after new current and adds on newcrumb */
         bclist.splice(current, bclist.length-current, crumb);
         this.update_div();
-        params = create_params(bclist[current]);
-        this.fireEvent('bcupdate', bclist[current], params);
+        var params = create_params(bclist[current]);
+        var url = urlmanager.goto_url('/bc/'+bclist[current].qrytype, params);
+        bclist[current].url = url;
         this.fireEvent('newfilter', bclist[current], params);
     }
 
+
+    my.load_url = function(url) { 
+        build_bc(url);
+        return viewmgr.browser;
+    }
+
+    function build_bc(url) {
+        var parts = url.split('/')
+        var params = {};
+        for (var i =0; i<parts.length; i++) {
+            param = parts[i].split('=');
+            if (param.length == 2) {
+                params[param[0]] = param[1];
+            }
+            if (bclist[i]) {
+                if (bclist[i].type != param[0]) {
+                    /* this is not a currently loaded bc */
+                    bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
+                }
+            }
+            else
+                bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
+        }
+        my.update_div();
+    }
 
     this.go = go;
     /* This function goes 1 past home to a fresh, unfiltered type */
@@ -171,12 +197,17 @@ function BreadCrumb()
                 value = typeinfo[crumb.type].display;
             else
                 value = crumb.value;
-            t_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
-            crumb.el.on('click', jump_to);
+            link = ['bc', crumb.type].join('/')
+            t_crumb.overwrite(crumb.el, {
+                id:crumb.name, 
+                name:value, 
+                ajaxlink: link
+            });
+            //crumb.el.on('click', jump_to);
         }
     }
 
-    this.update_div = update_div;
+    my.update_div = update_div;
     function update_div()
     {
         /* For now, clear and rebuild everytime. It should be cheaper than
@@ -197,8 +228,13 @@ function BreadCrumb()
                 newEl = t_active_crumb.append(div, {id:newId, name:value},true);
             }
             else {
-                newEl = t_crumb.append(div, {id:newId, name:value}, true);
-                newEl.on('click', jump_to);
+                var link = ['/bc', bclist[i].type].join('/')
+                newEl = t_crumb.append(div, {
+                    id:newId, 
+                    name:value,
+                    ajaxlink: link
+                }, true);
+                //newEl.on('click', jump_to);
             }
             bclist[i].el = newEl;
             bclist[i].id = newEl.id;
@@ -209,7 +245,7 @@ function BreadCrumb()
         }
     }
 
-    this.update_div();
+    my.update_div();
 
     function create_params(current_crumb)
     {

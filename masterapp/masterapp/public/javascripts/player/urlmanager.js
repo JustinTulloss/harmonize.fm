@@ -81,8 +81,11 @@ function UrlManager(submanagers) {
         submanagers = submanagers.concat(moremanagers);
     }
 
-    my.goto_url = function(url)
+    my.goto_url = function(url, params)
     {
+        if (params)
+            url = [url, '?', Ext.urlEncode(params)].join('');
         location.hash = '#'+url;
+        return url;
     }
 }
