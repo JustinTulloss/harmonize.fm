@@ -126,6 +126,7 @@ class User(object):
             func.sum(SongStat.playcount).label('totalcount')
         )
         totalcount = totalcount.join([Artist.songs, SongStat])
+        totalcount = totalcount.filter(SongStat.uid == self.id)
         totalcount = totalcount.group_by(Artist.id)
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
