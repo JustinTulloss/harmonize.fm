@@ -70,10 +70,6 @@ class PlayerController(BaseController):
             c.include_files = compressed_player_files
         else:
             c.include_files = player_files
-        if 'Windows' in request.headers['User-Agent']:
-            c.platform = 'windows'
-        elif 'Macintosh' in request.headers['User-Agent']:
-            c.platform = 'mac'
         return render('/player.mako')
     
     def songurl(self, id):
@@ -200,7 +196,11 @@ class PlayerController(BaseController):
         c.main = True
         return render('/blog.mako')
 
-    def feed(self):
-        c.entries = self._get_feed_entries(session['user'].id)
+    def home(self):
+        c.entries = self._get_feed_entries(session['userid'])
         c.main = True
-        return render('/feed.mako')
+        if 'Windows' in request.headers['User-Agent']:
+            c.platform = 'windows'
+        elif 'Macintosh' in request.headers['User-Agent']:
+            c.platform = 'mac'
+        return render('/home.mako')

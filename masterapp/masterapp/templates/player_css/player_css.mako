@@ -182,7 +182,7 @@ table {
 
 .feed_entry img {
 	float: left;
-	margin-top: 1px;
+	margin-top: 2px;
 }
 
 .blog_feed_comment {
