@@ -254,8 +254,10 @@ class MetadataController(BaseController):
         results = qry.all()
         return self._build_json(results, 'playlistsong')
 
+    """
     def album(self, id):
         res = Session.query(*dbfields['album']).join(Album.artist).filter(Album.id==id).group_by(Album)
         json = self._build(res)
         json['data'][0]['type'] = 'album'
         return simplejson.dumps(json)
+    """

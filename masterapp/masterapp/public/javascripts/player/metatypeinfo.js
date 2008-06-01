@@ -133,7 +133,7 @@ var typeinfo = {
     },
     friend:{
         next: function(row){
-            urlmanager.goto_url('/profile/'+row.get('Friend_id'));
+            urlm.goto_url('/profile/'+row.get('Friend_id'));
         },
         qryindex:'Friend_id', 
         display:'Friends',
