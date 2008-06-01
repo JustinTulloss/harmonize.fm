@@ -44,7 +44,7 @@ urlm = {}; //urlmanager is a singleton
 
 		var new_panel = new Ext.Panel({autoLoad: autoLoad});
 
-		add_panel(new_panel);
+		add_panel(new_panel, url);
 		set_active(url);
 	}
 

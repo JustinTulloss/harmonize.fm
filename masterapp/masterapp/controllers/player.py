@@ -22,6 +22,7 @@ from facebook.wsgi import facebook
 from pylons import config
 import pylons
 from sqlalchemy.sql import or_
+import sqlalchemy.sql as sql
 
 from mailer import mail
 import re
@@ -195,7 +196,7 @@ class PlayerController(BaseController):
         return '1'
 
     def blog(self, id):
-        c.entries = Session.query(BlogEntry)
+        c.entries = Session.query(BlogEntry).order_by(sql.desc(BlogEntry.timestamp))
         c.main = True
         return render('/blog.mako')
 

@@ -73,6 +73,7 @@
 </div>
 
 <div id="home">
+    <div id="home-sidebar">
     <%
         href = None
         if c.platform == 'windows':
@@ -81,10 +82,10 @@
             href = '/uploaders/Harmonize.dmg'
     %>
     % if href:
-    <div id="downloadlink">
-        <a href="${href}">Download the uploader</a>
-    </div>
+        <div><a href="${href}">Download the uploader</a></div>
     % endif
+		<div><a href="#/player/blog">Blog</a></div>
+    </div>
     ${feed.render(c.entries)}
     <div id="mainlogo"><img src="/images/bigharmonized2.png" /></div>
 </div>

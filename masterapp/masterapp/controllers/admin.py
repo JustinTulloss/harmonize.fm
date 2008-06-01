@@ -5,7 +5,7 @@ import socket
 import cPickle as pickle
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
-from masterapp.model import Session, File, Song, Album, BlogEntry
+from masterapp.model import Session, File, Song, Album, BlogEntry, User
 from mako.template import Template
 from pylons import config
 
@@ -19,7 +19,8 @@ class AdminController(BaseController):
 
     def __before__(self):
         ensure_fb_session()
-        if not session['user'].fbid in self.admin:
+        user = Session.query(User).get(session['userid'])
+        if not user.fbid in self.admin:
             redirect_to('/')
 
     def index(self):
