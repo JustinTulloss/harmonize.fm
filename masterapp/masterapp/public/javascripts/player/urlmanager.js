@@ -21,28 +21,38 @@ urlm = {}; //urlmanager is a singleton
 			return hash.substring(1);
 	}
 
+	function set_active(url) {
+		if (panel_lookup[url] !== undefined) {
+			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
+			return true;
+		}
+		else
+			return false;
+	}
+
+	function add_panel(obj, url) {
+		viewmgr.centerpanel.add(obj);
+		panel_lookup[url] = obj.id;
+	}
+
 	/*Function goes to a url and gets it from the cache if possible.
 	  will call function k if defined passing in the newly created panel */
 	function goto_page_directly(url, k) {
-        /* Check the cache */
-		if (panel_lookup[url] !== undefined) {
-			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
-            return;
-		}
-
 		var autoLoad = {url: url};
 		if (k)
 			autoLoad.callback(k)
 
 		var new_panel = new Ext.Panel({autoLoad: autoLoad});
 
-        viewmgr.centerpanel.add(new_panel);
-        viewmgr.centerpanel.layout.setActiveItem(new_panel.id);
-        panel_lookup[url] = new_panel.id;
+		add_panel(new_panel);
+		set_active(url);
 	}
 
     function goto_page(url) {
 		current_url = url;
+
+		if (set_active(url))
+			return;
 
 		/* First check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
@@ -101,6 +111,15 @@ urlm = {}; //urlmanager is a singleton
 					function(panel) {handler(rest);});
 		};
 	};
+
+	my.generate_panel = function(handler) {
+		return function(matched, rest) {
+			new_panel = handler(rest);
+			var complete_url = matched+rest;
+			add_panel(new_panel, complete_url);
+			set_active(complete_url);
+		}
+	}
 	
 	my.goto_url = function(url) {
 		location.hash = '#'+url;

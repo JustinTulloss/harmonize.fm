@@ -55,8 +55,8 @@ function init()
 	}
 
     urlm.init([
-        ['/bc/', urlm.ignore_matched(jump_bc)]/*,
-        ['/profile/', urlm.ignore_matched(profile_factory)]*/
+        ['/bc/', urlm.ignore_matched(jump_bc)],
+        ['/profile/', urlm.generate_panel(profile_factory)]
     ]);
 	init_feedback();
 }
