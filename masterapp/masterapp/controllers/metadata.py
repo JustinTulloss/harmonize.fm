@@ -94,12 +94,12 @@ class MetadataController(BaseController):
     def __init__(self):
         super(MetadataController, self).__init__()
         self.datahandlers = {
-            'artist': self.artists,
-            'album': self.albums,
-            'song': self.songs,
-            'friend': self.friends,
-            'playlist': self.playlists,
-            'playlistsong': self.playlistsongs
+            'artist': self.artist,
+            'album': self.album,
+            'song': self.song,
+            'friend': self.friend,
+            'playlist': self.playlist,
+            'playlistsong': self.playlistsong
         }
 
     def __before__(self):
@@ -151,7 +151,7 @@ class MetadataController(BaseController):
     @jsonify
     @_build_json
     @_filter_user
-    def songs(self):
+    def song(self):
         qry = Session.query(*dbfields['song']).join(Song.artist).\
             reset_joinpoint().join(Album).group_by(Song)
 
@@ -170,7 +170,7 @@ class MetadataController(BaseController):
     @jsonify
     @_build_json
     @_filter_user
-    def albums(self):
+    def album(self):
         qry = Session.query(*dbfields['album']).join(Album.artist).\
             join(Album.songs).group_by(Album)
         if request.params.get('artist'):
@@ -181,7 +181,7 @@ class MetadataController(BaseController):
     @jsonify
     @_build_json
     @_filter_user
-    def artists(self):
+    def artist(self):
         numalbums = Session.query(Album.artistid,
             sql.func.count('*').label('numalbums')
         ).group_by(Album.artistid).subquery()
@@ -192,7 +192,7 @@ class MetadataController(BaseController):
         return qry
         
     @jsonify
-    def friends(self):
+    def friend(self):
         dtype = request.params.get('type')
         userStore = session['fbfriends']
         data=facebook.users.getInfo(userStore)
@@ -234,7 +234,7 @@ class MetadataController(BaseController):
     @jsonify
     @_build_json
     @_filter_user
-    def playlists(self):
+    def playlist(self):
         qry = Session.query(Playlist).join('owner')
         qry = filter_friends(qry)
         qry = qry.order_by(Playlist.name)
@@ -244,7 +244,7 @@ class MetadataController(BaseController):
     @jsonify
     @_build_json
     @_filter_user
-    def playlistsongs(self):
+    def playlistsong(self):
         qry = Session.query(PlaylistSong).join('playlist').reset_joinpoint(). \
             join('album').reset_joinpoint().join(['files', 'owners', 'user'])
         qry = filter_friends(qry)
