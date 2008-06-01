@@ -10,9 +10,7 @@ urlm = {}; //urlmanager is a singleton
 	var submanagers = [];
 	//Since we are always serving home page we need to detect when the user is
 	//at a different page
-	var current_url = get_url(''); 
-
-	panel_lookup['/player/home'] = 0;
+	var current_url = 'undefined';
 
 	function get_url(hash) {
 		if (hash === '' || hash === '#')
@@ -44,7 +42,7 @@ urlm = {}; //urlmanager is a singleton
 
 		var new_panel = new Ext.Panel({autoLoad: autoLoad});
 
-		add_panel(new_panel);
+		add_panel(new_panel, url);
 		set_active(url);
 	}
 
@@ -119,7 +117,7 @@ urlm = {}; //urlmanager is a singleton
 			add_panel(new_panel, complete_url);
 			set_active(complete_url);
 		}
-	}
+	};
 	
 	my.goto_url = function(url, params) {
         if(params) {

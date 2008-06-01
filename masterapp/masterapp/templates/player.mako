@@ -5,9 +5,6 @@
     import simplejson
 %>
 
-<%namespace name="blog" file="blog.mako" />
-<%namespace name="feed" file="feed.mako" />
-
 <%def name="head_tags()">
     <title>harmonize.fm | connect with your music</title>
 
@@ -72,22 +69,6 @@
     </div>
 </div>
 
-<div id="home">
-    <%
-        href = None
-        if c.platform == 'windows':
-            href = '/uploaders/setup.exe'
-        elif c.platform == 'mac':
-            href = '/uploaders/Harmonize.dmg'
-    %>
-    % if href:
-    <div id="downloadlink">
-        <a href="${href}">Download the uploader</a>
-    </div>
-    % endif
-    ${feed.render(c.entries)}
-    <div id="mainlogo"><img src="/images/bigharmonized2.png" /></div>
-</div>
 
 <div id="bccontent">
     <div id="breadcrumb"></div>

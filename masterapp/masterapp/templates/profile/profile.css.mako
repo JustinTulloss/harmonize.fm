@@ -1,5 +1,5 @@
 .profile-name {
-    padding-left: 15px;
+    padding-left: 5px;
     font-size: 24pt;
     font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
 }
@@ -28,9 +28,9 @@
 .profile-subtitle {
     font-size: 14pt;
     border-bottom: 1px solid ${c.profile.profile_border};
-    padding-left: 10px;
+    padding-left: 5px;
     padding-bottom: 2px;
-    margin-top: 10px;
+    margin-top: 5px;
     margin-bottom: 5px;
     color: ${c.profile.profile_subtitle};
 }
@@ -71,7 +71,7 @@
 }
 
 .profile-sp-review {
-    padding-left: 3px;
+    padding-left: 8px;
 }
 
 .profile-sp-comments a {

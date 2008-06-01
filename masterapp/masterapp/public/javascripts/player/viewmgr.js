@@ -18,6 +18,7 @@ function ViewManager(crumb, objects)
 {
 	var my = this;
 
+	/*
     var homepanel = new Ext.Panel({
         title: "Home", 
         fitToFrame: true, 
@@ -27,6 +28,7 @@ function ViewManager(crumb, objects)
 		cls: 'homepanel',
         nocrumb: true
     });
+	*/
 
     t_status = new Ext.Template(
         '<div name="status">',
@@ -36,8 +38,10 @@ function ViewManager(crumb, objects)
     );
     t_status = t_status.compile();
 
+	/*
     if (crumb)
         crumb.panel = homepanel;
+	*/
 
     this.srchfld = new Ext.form.TextField({
         emptyText: "Search...",
@@ -83,7 +87,7 @@ function ViewManager(crumb, objects)
         id: 'centerpanel',
         layout: 'card',
         activeItem: 0,
-        items: [homepanel, browserpanel],
+        items: [browserpanel],
         bbar: statusbar
     });
 

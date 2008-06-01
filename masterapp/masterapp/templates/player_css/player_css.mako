@@ -19,17 +19,24 @@ body, html {
     width: 80%;
 }
 
-#downloadlink {
-    margin-left: 37px;
-	margin-top: 16px;
+#home-sidebar {
+	float: right;
+    margin-right: 56px;
+	font-size: 11pt;
+	border-left: 1px solid #777;
+	padding-left: 5px;
 }
 
-#downloadlink a {
+#home-sidebar a {
     color: ${c.profile.dark_txt};
     text-decoration: none;
 }
 
-#downloadlink a:hover {
+#home-sidebar div {
+	margin-bottom: 2px;
+}
+
+#home-sidebar a:hover {
     color: ${c.profile.click}
 }
 
@@ -169,11 +176,13 @@ table {
 .feed_content h4 {
 	color: ${c.profile.dark_txt};
 	margin-bottom: 2px;
+	font-size: 11pt;
+	font-weight: normal;
 }
 
 .feed_entry img {
 	float: left;
-	margin-top: 1px;
+	margin-top: 2px;
 }
 
 .blog_feed_comment {
