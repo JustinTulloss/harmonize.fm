@@ -54,6 +54,7 @@ function init()
         ['/bc/', (function(url){bread_crumb.go(url)})],
         ['/profile/', profile_factory]
     ]);
+	init_feedback();
 }
 
 function add_grid_listeners(crumb, e)
