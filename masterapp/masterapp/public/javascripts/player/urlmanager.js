@@ -2,7 +2,8 @@
 var check_url; //assigned in init_url_manager
 
 //submanagers should be a list of url component => handler function pairs
-function init_url_manager(submanagers) {
+function UrlManager(submanagers) {
+    var my = this;
 	var panel_lookup = {};
 	var guid = 0;
 	//Since we are always serving home page we need to detect when the user is
@@ -24,40 +25,39 @@ function init_url_manager(submanagers) {
 		return res;
 	}
 
+    my.goto_page = goto_page;
 	function goto_page(url) {
-		//First check for a different handler function
+        var new_panel = null;
+
+        /* Check the cache */
+		if (panel_lookup[url] !== undefined) {
+			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
+            return;
+		}
+
+		/* Not cached, first check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
 			var current = submanagers[i];
 			var pattern = current[0];
 			if (url.substring(0, pattern.length) === pattern) {
 				current_url = url;
-				current[1](url.substring(pattern.length));
-				return;
+				new_panel = current[1](url.substring(pattern.length));
+                if (new_panel == null)
+                    return;
 			}
 		}
 
-		if (panel_lookup[url] !== undefined) {
-			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
+		if(new_panel == null) {
+            new_panel = Ext.Panel({
+                autoLoad: {
+                    url: url
+                }
+            });
 		}
-		else {
-			function page_fetched(response) {
-				var el = document.createElement('div');
-				el.id = get_guid();
-				el.innerHTML = response.responseText;
+        viewmgr.centerpanel.add(new_panel);
+        viewmgr.centerpanel.layout.setActiveItem(new_panel.id);
+        panel_lookup[url] = new_panel.id;
 
-				viewmgr.centerpanel.add(Ext.get(el));
-				viewmgr.centerpanel.layout.setActiveItem(el.id);
-				panel_lookup[url] = el.id;
-
-				initialize_links();
-			}
-
-
-			Ext.Ajax.request({
-				url: url,
-				success: page_fetched
-			});
-		}
 		current_url = url;
 	}
 		
@@ -67,37 +67,20 @@ function init_url_manager(submanagers) {
 		goto_page(url);
 	}
 
-	function is_internal_link(link) {
-		if ( (link.href && link.href.indexOf('#') != -1) &&
-			 ( (link.pathname == location.pathname) ||
-			   ('/'+link.pathname == location.pathname)) &&
-			 (link.search == location.search)) {
-			return true;
-		}
-		else return false;
-	}
-
-	function initialize_links() {
-		var tags = document.getElementsByTagName('a');
-		for (var i=0; i<tags.length; i++) {
-			var current = tags[i];
-			if (is_internal_link(current)) {
-				if (!current.urlmanaged) {
-					current.urlmanaged = true;
-					Ext.get(current).on('click', onLinkClick);
-				}
-			}
-		}
-	}
-
-	initialize_links();
-
 	check_url = function() {
 		var new_url = get_url(location.hash);
 		if (current_url != new_url) {
 			goto_page(new_url);
 		}
 	}
-	
+
 	setInterval('check_url();', 200);
+
+    /* Public functions */
+    my.register_handler = register_handler
+    function register_handler(moremanagers)
+    {
+        submanagers = submanagers.concat(moremanagers);
+    }
+
 }
