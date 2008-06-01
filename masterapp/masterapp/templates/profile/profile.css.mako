@@ -14,7 +14,7 @@
 }
 
 .profile-links a {
-    color: ${c.profile.menu_txt};
+    color: ${c.profile.profile_links};
 }
 
 .profile-links a:hover {
@@ -23,11 +23,17 @@
 
 .profile-subtitle {
     font-size: 14pt;
-    border-bottom: 1px solid ${c.profile.border};
+    border-bottom: 1px solid ${c.profile.profile_border};
     padding-left: 10px;
     padding-bottom: 2px;
     margin-top: 10px;
     margin-bottom: 5px;
+    color: ${c.profile.profile_subtitle};
+}
+
+.profile-spotlight{
+    position: relative;
+    top: -20px;
 }
 
 #profile-body {
@@ -38,11 +44,13 @@
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 10px;
-    border-left: 1px solid ${c.profile.border};
+    border-left: 1px solid ${c.profile.profile_border};
 }
 
 .profile-sp {
     padding-left: 5px;
+    clear: right;
+    margin-top: 10px;
 }
 
 .profile-sp-albumart {
@@ -55,7 +63,7 @@
 }
 
 .profile-sp-artist {
-    color: ${c.profile.menu_txt};
+    color: ${c.profile.profile_links};
 }
 
 .profile-sp-review {
@@ -63,6 +71,10 @@
 }
 
 .profile-sp-comments a {
-    color: ${c.profile.menu_txt}
+    line-height: 13pt;
+    color: ${c.profile.profile_links};
 }
 
+.profile-sp-comments a:hover {
+    color: ${c.profile.click}
+}

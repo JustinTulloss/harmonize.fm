@@ -37,7 +37,7 @@
         <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
         <div class="profile-sp-review">${spotlight.comment}</div>
         <div class="profile-sp-comments">
-            <a href="#">view comments</a>
+            <a class="profile-links" href="#">view comments</a>
         </div>
     </div>
 </%def>

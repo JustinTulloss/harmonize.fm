@@ -1,3 +1,4 @@
+/* vim:noexpandtab */
 var check_url; //assigned in init_url_manager
 
 //submanagers should be a list of url component => handler function pairs
