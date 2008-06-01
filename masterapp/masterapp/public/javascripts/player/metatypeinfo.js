@@ -97,6 +97,7 @@ var typeinfo = {
                 row.get('Album_title'),
                 'song'
             );
+            bc.row = row;
             breadcrumb.addbreadcrumb(bc);
         },
         lblindex: 'Album_title',
@@ -135,6 +136,7 @@ var typeinfo = {
         next: function(row){
             urlm.goto_url('/profile/'+row.get('Friend_id'));
         },
+        lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid

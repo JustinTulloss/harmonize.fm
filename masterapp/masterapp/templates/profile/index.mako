@@ -13,7 +13,7 @@
             </div>
             <div class="profile-links">
                 <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
-                <div><a href="#/artist/?friend=${c.user.id}">browse ${c.user.firstname}'s music</a></div>
+                <div><a href="#/bc/friend=${c.user.id}/artist">browse ${c.user.firstname}'s music</a></div>
                 <div><a href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
                 </a>
             </div>
@@ -37,8 +37,10 @@
         <div class="profile-sp-title">${spotlight.album.title}</div>
         <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
         <div class="profile-sp-review">${spotlight.comment}</div>
+        <!--
         <div class="profile-sp-comments">
             <a class="profile-links" href="#/profile_comments/${spotlight.id}">view comments</a>
         </div>
+        -->
     </div>
 </%def>
