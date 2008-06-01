@@ -78,10 +78,11 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
-function enqueue_album(albumid) {
+function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var result = eval('('+response.responseText+')');
 		var record = result.data[0];
+		record.Friend_id = friendid;
 		record.get = (function(key) {return record[key];});
 		playqueue.enqueue([record]);
 	}

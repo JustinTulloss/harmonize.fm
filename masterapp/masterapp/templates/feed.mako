@@ -16,7 +16,7 @@
 
 	<%def name="spotlight_feed(entry)">
 
-		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id});" />
+		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
 		<div class="feed_content">
 			<h4>${entry.user.get_firstname()} 
 				added a Spotlight on ${entry.album.title}</h4>
