@@ -1,11 +1,13 @@
-/* vim:noexpandtab */
+// vim:noexpandtab
 var check_url; //assigned in init_url_manager
 
-//submanagers should be a list of url component => handler function pairs
-function UrlManager(submanagers) {
-    var my = this;
+urlm = {}; //urlmanager is a singleton
+
+(function() {
+    var my = urlm;
+
 	var panel_lookup = {};
-	var guid = 0;
+	var submanagers = [];
 	//Since we are always serving home page we need to detect when the user is
 	//at a different page
 	var current_url = get_url(''); 
@@ -19,52 +21,43 @@ function UrlManager(submanagers) {
 			return hash.substring(1);
 	}
 
-	function get_guid() {
-		var res = 'urlm' + String(guid);
-		guid++;
-		return res;
-	}
-
-    my.goto_page = goto_page;
-	function goto_page(url) {
-        var new_panel = null;
-
+	/*Function goes to a url and gets it from the cache if possible.
+	  will call function k if defined passing in the newly created panel */
+	function goto_page_directly(url, k) {
         /* Check the cache */
 		if (panel_lookup[url] !== undefined) {
 			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
             return;
 		}
 
-		/* Not cached, first check for a different handler function */
-		for (var i=0; i<submanagers.length; i++) {
-			var current = submanagers[i];
-			var pattern = current[0];
-			if (url.substring(0, pattern.length) === pattern) {
-				current_url = url;
-				new_panel = current[1](url.substring(pattern.length));
-                if (new_panel == null)
-                    return;
-			}
-		}
+		var autoLoad = {url: url};
+		if (k)
+			autoLoad.callback(k)
 
-		if(new_panel == null) {
-            new_panel = Ext.Panel({
-                autoLoad: {
-                    url: url
-                }
-            });
-		}
+		var new_panel = new Ext.Panel({autoLoad: autoLoad});
+
         viewmgr.centerpanel.add(new_panel);
         viewmgr.centerpanel.layout.setActiveItem(new_panel.id);
         panel_lookup[url] = new_panel.id;
-
-		current_url = url;
 	}
-		
 
-	function onLinkClick(e, target) {
-		var url = get_url(target.hash);
-		goto_page(url);
+    function goto_page(url) {
+		current_url = url;
+
+		/* First check for a different handler function */
+		for (var i=0; i<submanagers.length; i++) {
+			var current = submanagers[i];
+			var pattern = current[0](url);
+			if (pattern) {
+				var matched = pattern[0];
+				var rest = url.substring(matched.length);
+				current[1](matched, rest);
+				return;
+			}
+		}
+
+		//If there are no handlers
+		goto_page_directly(url);
 	}
 
 	check_url = function() {
@@ -72,15 +65,38 @@ function UrlManager(submanagers) {
 		if (current_url != new_url) {
 			goto_page(new_url);
 		}
-	}
+	};
 
-	setInterval('check_url();', 200);
+	setInterval('check_url();', 100);
 
     /* Public functions */
-    my.register_handler = register_handler
-    function register_handler(moremanagers)
-    {
-        submanagers = submanagers.concat(moremanagers);
-    }
 
-}
+	//submanagers should be a list of (url component, handler function) pairs
+    my.register_handlers = function(moremanagers) {
+
+		//Convert all the patterns into regular expressions and make sure they
+		//match the beginning of a string
+		for (var i=0; i<moremanagers.length; i++) {
+			var current = moremanagers[i];
+			if (current[0][0] === '$')
+				current[0] = RegExp(current[0]);
+			else
+				current[0] = RegExp('$'+current[0]);
+		}
+
+        submanagers = submanagers.concat(moremanagers);
+    };
+
+	my.ignore_matched = function(handler) {
+		return function(matched, rest) {
+			handler(rest);
+		};
+	};
+
+	my.handle_matched = function(handler) {
+		return function(matched, rest) {
+			goto_page_directly(matched, 
+					function(panel) {handler(rest);});
+		};
+	};
+})();

@@ -4,17 +4,17 @@
 %>
 
 <%def name="render(entries)">
+
 	<%def name="blog_feed(entry)">
 		<div class="feed_content">
 			<h4>${entry.author} wrote a new blog post</h4>
+			<div class="blog_feed_comment">
+				${quote_comment(entry.entry, 60)}</div>
 			<a href="#/player/blog/${entry.id}">read more...</a>
 		</div>
 	</%def>
 
 	<%def name="spotlight_feed(entry)">
-		<%
-		max_quote_len = 175
-		%>
 
 		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id});" />
 		<div class="feed_content">
@@ -24,14 +24,21 @@
 				<!--td><img src="/images/enqueue.png" /></td-->
 				<td><img src="${entry.album.smallart}" /></td>
 				<td class="spotlight_feed_comment">
-	%	if len(entry.comment) < max_quote_len:
-				${entry.comment}
-	%	else:
-				${entry.comment[:max_quote_len] + '...'}	
-	%	endif
+				${quote_comment(entry.comment, 175)}
 				</td>
 			</tr></table>
 		</div>
+	</%def>
+
+	<%
+	max_quote_len = 175
+	%>
+	<%def name="quote_comment(comment, max_len)">
+	%	if len(comment) < max_len:
+			${comment}
+	%	else:
+			${comment[:max_len]}...
+	%	endif
 	</%def>
 
 	<div id="news_feed">

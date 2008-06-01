@@ -50,9 +50,13 @@ function init()
     playqueue.on('playsong', player.playsong, player);
     playqueue.on('stop', player.stop, player);
 
-    urlmanager = new UrlManager([
-        ['/bc/', (function(url){bread_crumb.go(url)})],
-        ['/profile/', profile_factory]
+	function jump_bc(rest) {
+		bread_crumb.go(rest);
+	}
+
+    urlm.register_handlers([
+        ['/bc/', urlm.ignore_matched(jump_bc)]/*,
+        ['/profile/', urlm.ignore_matched(profile_factory)]*/
     ]);
 	init_feedback();
 }

@@ -85,7 +85,7 @@ a.bc_link:hover {
     display: inline;
 }
 
-#spot_bg {
+#dialog-bg {
 	position: absolute;
 	z-index: 1;
 	height: 100%;
@@ -94,21 +94,28 @@ a.bc_link:hover {
 	top: 0;
 }
 
-#spot_content {
+#dialog-window {
 	margin-top: 10px;
 	padding: 10px;
 	background-color: white;
 	border: solid 2px ${c.profile.dark_txt};
 }
 
-#spot_content h1, #spot_content h2 {
-	margin-top: 0px;
-	margin-bottom: 10px;
+#dialog-content {
+	text-align: center;
 }
 
+#dialog-content h1, #dialog-content h2 {
+	margin-top: 0px;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+/*
 #spot_content tr {
 	text-align: center;
 }
+*/
 
 #spot_form textarea {
 	height: 72px;
@@ -167,6 +174,10 @@ table {
 .feed_entry img {
 	float: left;
 	margin-top: 1px;
+}
+
+.blog_feed_comment {
+	color: #777;
 }
 
 .spotlight_feed_comment {
