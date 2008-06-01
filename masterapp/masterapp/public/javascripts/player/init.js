@@ -34,7 +34,7 @@ function init()
     errmgr = new ErrorManager();
 
     /* Initialize event handlers */
-    //bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
+    bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
@@ -50,9 +50,13 @@ function init()
     playqueue.on('playsong', player.playsong, player);
     playqueue.on('stop', player.stop, player);
 
-    urlmanager = new UrlManager([
-        ['/bc/', (function(url){bread_crumb.load_url(url)})],
-        ['/profile/', profile_factory]
+	function jump_bc(rest) {
+		bread_crumb.go(rest);
+	}
+
+    urlm.init([
+        ['/bc/', urlm.ignore_matched(jump_bc)],
+        ['/profile/', urlm.generate_panel(profile_factory)]
     ]);
 	init_feedback();
 }
@@ -74,10 +78,11 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
-function enqueue_album(albumid) {
+function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var result = eval('('+response.responseText+')');
 		var record = result.data[0];
+		record.Friend_id = friendid;
 		record.get = (function(key) {return record[key];});
 		playqueue.enqueue([record]);
 	}

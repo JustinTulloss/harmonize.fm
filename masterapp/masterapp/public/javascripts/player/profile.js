@@ -27,7 +27,7 @@ function Profile(id)
         }],
     });
 
-    urlmanager.register_handlers([
+    urlm.register_handlers([
         ['/profile_comments/', view_comments],
     ]);
 

@@ -176,6 +176,10 @@ table {
 	margin-top: 1px;
 }
 
+.blog_feed_comment {
+	color: #777;
+}
+
 .spotlight_feed_comment {
 	vertical-align: top;
 	color: #777;

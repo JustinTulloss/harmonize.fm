@@ -1,11 +1,13 @@
-/* vim:noexpandtab */
+// vim:noexpandtab
 var check_url; //assigned in init_url_manager
 
-//submanagers should be a list of url component => handler function pairs
-function UrlManager(submanagers) {
-    var my = this;
+urlm = {}; //urlmanager is a singleton
+
+(function() {
+    var my = urlm;
+
 	var panel_lookup = {};
-	var guid = 0;
+	var submanagers = [];
 	//Since we are always serving home page we need to detect when the user is
 	//at a different page
 	var current_url = get_url(''); 
@@ -19,51 +21,53 @@ function UrlManager(submanagers) {
 			return hash.substring(1);
 	}
 
-	function get_guid() {
-		var res = 'urlm' + String(guid);
-		guid++;
-		return res;
-	}
-
-	function goto_page(url) {
-        var new_panel = null;
-
-        /* Check the cache */
+	function set_active(url) {
 		if (panel_lookup[url] !== undefined) {
 			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
-            return;
+			return true;
 		}
+		else
+			return false;
+	}
 
-		/* Not cached, first check for a different handler function */
+	function add_panel(obj, url) {
+		viewmgr.centerpanel.add(obj);
+		panel_lookup[url] = obj.id;
+	}
+
+	/*Function goes to a url and gets it from the cache if possible.
+	  will call function k if defined passing in the newly created panel */
+	function goto_page_directly(url, k) {
+		var autoLoad = {url: url};
+		if (k)
+			autoLoad.callback(k)
+
+		var new_panel = new Ext.Panel({autoLoad: autoLoad});
+
+		add_panel(new_panel);
+		set_active(url);
+	}
+
+    function goto_page(url) {
+		current_url = url;
+
+		if (set_active(url))
+			return;
+
+		/* First check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
 			var current = submanagers[i];
-			var pattern = current[0];
-			if (url.substring(0, pattern.length) === pattern) {
-				current_url = url;
-				new_panel = current[1](url.substring(pattern.length));
-                if (new_panel == null)
-                    return;
+			var pattern = current[0](url);
+			if (pattern) {
+				var matched = pattern[0];
+				var rest = url.substring(matched.length);
+				current[1](matched, rest);
+				return;
 			}
 		}
 
-		if(new_panel == null) {
-            new_panel = Ext.Panel({
-                autoLoad: {
-                    url: url
-                }
-            });
-		}
-        viewmgr.centerpanel.add(new_panel);
-        viewmgr.centerpanel.layout.setActiveItem(new_panel.id);
-        panel_lookup[url] = new_panel.id;
-
-		current_url = url;
-	}
-		
-
-	function onLinkClick(e, target) {
-		var url = get_url(target.hash);
-		goto_page(url);
+		//If there are no handlers
+		goto_page_directly(url);
 	}
 
 	check_url = function() {
@@ -71,21 +75,57 @@ function UrlManager(submanagers) {
 		if (current_url != new_url) {
 			goto_page(new_url);
 		}
-	}
-
-	setInterval('check_url();', 200);
+	};
 
     /* Public functions */
-    my.register_handlers = function(moremanagers)
-    {
-        submanagers = submanagers.concat(moremanagers);
-    }
+	my.init = function(moremanagers) {
+		my.register_handlers(moremanagers);
+		setInterval('check_url();', 100);
+	}
 
-    my.goto_url = function(url, params)
-    {
-        if (params)
+	//submanagers should be a list of (url component, handler function) pairs
+    my.register_handlers = function(moremanagers) {
+
+		//Convert all the patterns into regular expressions and make sure they
+		//match the beginning of a string
+		for (var i=0; i<moremanagers.length; i++) {
+			var current = moremanagers[i];
+			if (current[0][0] === '^')
+				current[0] = RegExp(current[0]);
+			else
+				current[0] = RegExp('^'+current[0]);
+		}
+
+        submanagers = submanagers.concat(moremanagers);
+    };
+
+	my.ignore_matched = function(handler) {
+		return function(matched, rest) {
+			handler(rest);
+		};
+	};
+
+	my.handle_matched = function(handler) {
+		return function(matched, rest) {
+			goto_page_directly(matched, 
+					function(panel) {handler(rest);});
+		};
+	};
+
+	my.generate_panel = function(handler) {
+		return function(matched, rest) {
+			new_panel = handler(rest);
+			var complete_url = matched+rest;
+			add_panel(new_panel, complete_url);
+			set_active(complete_url);
+		}
+	}
+	
+	my.goto_url = function(url, params) {
+        if(params) {
             url = [url, '?', Ext.urlEncode(params)].join('');
-        location.hash = '#'+url;
+        }
+		location.hash = '#'+url;
         return url;
-    }
-}
+	}
+})();

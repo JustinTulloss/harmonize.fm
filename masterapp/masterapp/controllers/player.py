@@ -21,6 +21,7 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
 import pylons
+from sqlalchemy.sql import or_
 
 from mailer import mail
 import re
@@ -40,8 +41,12 @@ class PlayerController(BaseController):
 
     def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
-        entries.extend(Session.query(Spotlight).\
-                     filter_by(uid=uid)[:max_count])
+        myor = or_()
+        for friend in session['fbfriends']:
+            myor.append(User.fbid == friend)
+
+        entries.extend(Session.query(Spotlight).join(User).filter(myor)\
+                [:max_count])
 
         def sort_by_timestamp(x, y):
             if x.timestamp > y.timestamp:
