@@ -76,8 +76,11 @@ for k, v in fields.items():
     for column in v:
         try:
             klass, field = column.split('_')
-            cols.append(getattr(getattr(model, klass), field).label(column))
-        except:
+            if hasattr(model, klass):
+                entity = getattr(model, klass)
+                if hasattr(entity, field):
+                    cols.append(getattr(entity, field).label(column))
+        except ValueError:
             pass
     dbfields[k] = cols
 
@@ -107,7 +110,7 @@ class MetadataController(BaseController):
             query = func(self, *args)
             friendid = request.params.get('friend')
             if not friendid:
-                friendid = session['user'].id
+                friendid = session['userid']
             self.friend = friendid
             return filter_user(query, friendid)
         return filtered

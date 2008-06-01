@@ -47,24 +47,18 @@ player_files = IncludeFiles(
         'player/queueui.js',
         'player/playqueue.js',
         'player/player.js',
-        #'player/auth.js',
         'player/metatypeinfo.js',
         'player/columns.js',
         'player/init.js',
         'player/feedback.js',
 		'player/spotlight.js',
-		'player/urlmanager.js'
+		'player/urlmanager.js',
+        'player/profile.js'
     ]
 )
 
 compressed_player_files = IncludeFiles(
     stylesheets = ['compressed/player'],
-    templated_stylesheets = [
-        'player_css/player_css.mako',
-        'player_css/queue_css.mako',
-        'player_css/album_details.mako',
-        'player_css/topbar.mako',
-        'player_css/statusbar.mako'
-    ],
+    templated_stylesheets = player_files.templated_stylesheets,
     javascripts = ['compressed/player.js']
 )

@@ -25,7 +25,6 @@ function UrlManager(submanagers) {
 		return res;
 	}
 
-    my.goto_page = goto_page;
 	function goto_page(url) {
         var new_panel = null;
 
@@ -77,10 +76,13 @@ function UrlManager(submanagers) {
 	setInterval('check_url();', 200);
 
     /* Public functions */
-    my.register_handler = register_handler
-    function register_handler(moremanagers)
+    my.register_handlers = function(moremanagers)
     {
         submanagers = submanagers.concat(moremanagers);
     }
 
+    my.goto_url = function(url)
+    {
+        location.hash = '#'+url;
+    }
 }

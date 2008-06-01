@@ -4,6 +4,10 @@
     font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
 }
 
+.profile-nowplaying {
+    font-weight: bold;
+}
+
 .profile-status {
     color: ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.dark_txt};

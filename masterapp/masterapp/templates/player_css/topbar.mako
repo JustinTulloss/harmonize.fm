@@ -137,6 +137,29 @@
 	background-color: #A0ACC0;
 }
 
+#feedback-content {
+	width: 14em;
+}
+
+#feedback-content td {
+	text-align: right;
+}
+
+#feedback-email {
+	width: 98%;
+}
+#feedback-textarea {
+	width: 98%;
+}
+#feedback-cancel {
+	margin-left: 5px;
+}
+
+.feedback-label {
+	padding-bottom: 9px;
+	line-height: 100%;
+}
+
 #feedbackBox {
 	padding: 5px;
 	width: 190px;

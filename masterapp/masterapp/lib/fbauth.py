@@ -6,6 +6,8 @@ from masterapp.model import User, Session, users_table
 from masterapp.lib.base import *
 from sqlalchemy import or_
 
+from datetime import datetime
+
 def ensure_fb_session():
     c.facebook = facebook
 
@@ -17,9 +19,12 @@ def ensure_fb_session():
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
-            Session.save(user)
-            Session.commit()
-        session['user'] = user
+            Session.add(user)
+        user.lastseen = datetime.now()
+        user.fbsession = facebook.session_key
+        session['userid'] = user.id
+        Session.add(user)
+        Session.commit()
 
         session['fbfriends']=facebook.friends.getAppUsers()
         # XXX: This conditional works around a bug where the getAppUsers call
@@ -63,7 +68,7 @@ def filter_friends(qry):
     if friend_fbid in session['fbfriends']:
         qry = qry.filter(User.id == friend)
     else:
-        qry = qry.filter(User.id == session['user'].id)
+        qry = qry.filter(User.id == session['userid'])
     return qry
 
 def filter_sql_friends(qry):
@@ -76,10 +81,9 @@ def filter_sql_friends(qry):
     if friend_fbid in session['fbfriends']:
         qry = qry.where(users_table.c.id == friend)
     else:
-        qry = qry.where(users_table.c.id == session['user'].id)
+        qry = qry.where(users_table.c.id == session['userid'])
 
     return qry
-
 
 def filter_any_friend(qry):
     """
@@ -90,7 +94,7 @@ def filter_any_friend(qry):
     fbclause = or_()
     for friend in session['fbfriends']:
         fbclause.append(User.fbid==friend)
-    fbclause.append(User.id == session['user'].id)
+    fbclause.append(User.id == session['userid'])
     qry = qry.filter(fbclause)
     return qry
 
