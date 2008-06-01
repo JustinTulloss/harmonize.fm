@@ -10,6 +10,8 @@
  *              1. Pull apart application look and behavior
  *              2. Put more functionality in here.
  *              --JMT
+ * 06/01/2008 - Updated to use the location instead of jump_to and other such
+ *              ugliness --JMT
  */
 
 /* An entry of data in the breadcrumb. Generally what you display and what
@@ -86,7 +88,6 @@ function BreadCrumb()
         var clickedinfo = typeinfo[clickedtype];
 
         /* Change the old crumb to show updated values */
-//        bclist[current].value = row.get(clickedtype);
         if (clickedinfo.qryindex)
             bclist[current].qryvalue = row.get(clickedinfo.qryindex);
         else
@@ -153,41 +154,8 @@ function BreadCrumb()
             bclist.splice(current+1, bclist.length-current+1);
         my.update_div();
         my.fireEvent('bcupdate', bclist[current], params);
-        my.fireEvent('newfilter', bclist[current], params);
-    }
-
-    this.go = go;
-    /* This function goes 1 past home to a fresh, unfiltered type */
-    function go(type)
-    {
-        newtype = typeinfo[type]
-        newcrumb = new BcEntry(type, newtype.display, type);
-        current = 1;
-        bclist.splice(current, bclist.length-current, newcrumb);
-        this.update_div();
-        this.fireEvent('bcupdate', bclist[current], null);
-        this.fireEvent('newfilter', bclist[current], null);
-    }
-
-    this.go_home = go_home
-    function go_home()
-    {
-        current = 0;
-        bclist.splice(1, bclist.length-1);
-        this.update_div();
-        this.fireEvent('bcupdate', bclist[current]);
-    }
-
-    function jump_to(e) {
-        var el = e.getTarget(null, null, true);
-	    for (var i=0; i<bclist.length; i++) {
-            if (bclist[i].el.contains(el)) {
-                my.update_current_div(bclist[i], bclist[current]);
-                current = i;
-                params = create_params(bclist[current]);
-                my.fireEvent('bcupdate', bclist[current], params);
-            }
-        }
+        if (!bclist[current].panel)
+            my.fireEvent('newfilter', bclist[current], params);
     }
 
     this.update_current_div = function(crumb, oldcrumb) {
