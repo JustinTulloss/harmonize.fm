@@ -54,7 +54,7 @@ function init()
 		bread_crumb.go(rest);
 	}
 
-    urlm.register_handlers([
+    urlm.init([
         ['/bc/', urlm.ignore_matched(jump_bc)]/*,
         ['/profile/', urlm.ignore_matched(profile_factory)]*/
     ]);

@@ -132,23 +132,8 @@ var typeinfo = {
         gridclass: PlaylistSongGrid
     },
     friend:{
-        next: function(row, breadcrumb){
-            bc = new BcEntry();
-            bc.panel = new Ext.Panel({
-                layout: 'column',
-                autoScroll: true,
-                nocrumb: true,
-                items: [{
-                    autoLoad: 'people/profile_body/'+row.get('Friend_id'),
-                    layout: 'fit',
-                    columnWidth: 1
-                },{
-                    autoLoad: 'people/profile_right/'+row.get('Friend_id'),
-                    layout:'fit',
-                    width: 220
-                }],
-            });
-            breadcrumb.fireEvent('bcupdate', bc);
+        next: function(row){
+            urlmanager.goto_url('/profile/'+row.get('Friend_id'));
         },
         qryindex:'Friend_id', 
         display:'Friends',

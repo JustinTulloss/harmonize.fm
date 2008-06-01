@@ -160,10 +160,10 @@ class UploadsController(BaseController):
     def desktop_redirect(self):
         fb = self.get_fb()
         if fb.check_session(request):
-            url = 'http://localhost:8080/complete_login?session_key='+ \
+            url = 'http://localhost:26504/complete_login?session_key='+ \
                 fb.session_key
         else:
-            url = 'http://localhost:8080/login_error.html'
+            url = 'http://localhost:26504/login_error.html'
         #session_key returns unicode, have to convert back to string
         redirect_to(str(url)) 
 

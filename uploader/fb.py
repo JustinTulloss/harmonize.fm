@@ -1,4 +1,4 @@
-import webbrowser, cgi, thread, urlparse
+import webbrowser, cgi, thread, urlparse, socket
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import config
 
@@ -22,7 +22,7 @@ def synchronous_login():
 
 	session_key = None #This needs to be reset for reauthenticating uploader
 
-	server = HTTPServer(('localhost', 8080), LoginServer)
+	server = HTTPServer(('localhost', 26504), LoginServer)
 	webbrowser.open(server_url)
 	while session_key == None:
 		server.handle_request()
@@ -37,7 +37,7 @@ def get_session_key():
 
 def wait_login(callback=None):
 	global session_key
-	server = HTTPServer(('localhost', 8080), LoginServer)
+	server = HTTPServer(('localhost', 26504), LoginServer)
 	while session_key == None:
 		server.handle_request()
 
@@ -47,7 +47,7 @@ class LoginServer(BaseHTTPRequestHandler):
 	def error(self):
 		self.send_response(404)
 		self.end_headers()
-	
+	founders@harmonize.fm
 	def log_message(format, *args):
 		pass
 

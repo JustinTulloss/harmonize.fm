@@ -9,7 +9,14 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.profile import Profile
-from masterapp.model import Session, User, File, Album, BlogEntry, Spotlight
+from masterapp.model import (
+    Session, 
+    User, 
+    File, 
+    Album, 
+    BlogEntry, 
+    Spotlight, 
+    Song)
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -49,10 +56,9 @@ class PlayerController(BaseController):
 
     def index(self):
         c.profile = Profile()
-        c.fullname = self.username()
-        #c.entries = Session.query(BlogEntry).order_by(BlogEntry.timestamp.desc()).all()
+        c.user = Session.query(User).get(session['userid'])
         c.fields = masterapp.controllers.metadata.fields
-        c.entries = self._get_feed_entries(session['user'].id)
+        c.entries = self._get_feed_entries(session['userid'])
 
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
@@ -79,6 +85,11 @@ class PlayerController(BaseController):
         files= Session.query(File).\
             join(['owners', 'user']).filter(File.songid==int(id))
         files = files.all()
+        # Update now playing
+        user = Session.query(User).get(session['userid'])
+        user.nowplaying = Session.query(Song).get(id);
+        Session.add(user)
+        Session.commit()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
 	    config['S3.accesskey'], config['S3.secret'],
@@ -159,7 +170,7 @@ class PlayerController(BaseController):
         def sendmail():
             mail(config['smtp_server'], config['smtp_port'],
                 config['feedback_email'], config['feedback_password'],
-                config['feedback_email'], subject, user_feedback)
+                'founders@harmonize.fm', subject, user_feedback)
 
         thread.start_new_thread(sendmail, ())
         return '1'
@@ -170,7 +181,7 @@ class PlayerController(BaseController):
 
         albumid = id
         comment = request.params['comment']
-        uid = session['user'].id
+        uid = session['userid']
 
         spotlight = Spotlight(uid, albumid, comment)
         Session.save(spotlight)

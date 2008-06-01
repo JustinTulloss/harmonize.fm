@@ -98,12 +98,36 @@ class User(object):
         return self.fbinfo['music']
     musictastes = property(get_musictastes)
     
+    def get_nowplaying(self):
+        return self._nowplaying
+
+    def set_nowplaying(self, song):
+        self._nowplayingid = song.id
+        stats = Session.query(SongStat).\
+            filter(SongStat.song == song).\
+            filter(SongStat.user == self).first()
+        if not stats:
+            stats = SongStat(user = self, song = song)
+
+        stats.playcount = stats.playcount + 1
+        stats.lastplayed = datetime.now()
+        Session.add(stats)
+    nowplaying = property(get_nowplaying, set_nowplaying)
+
     def get_from_fbid(fbid, create=False):
         """
         Fetches a user by facebook id. Set create to true to create it if it
         doesn't exist
         """
         pass
+
+    def get_top_10_artists(self):
+        totalcount = Session.query(Artist.id, Artist.name,
+            func.sum(SongStat.playcount).label('totalcount')
+        ).join([Artist.songs, SongStat]).group_by(Artist.id).order_by('totalcount').limit(10)
+        return totalcount.all()
+    top_10_artists = property(get_top_10_artists)
+            
 
 class Owner(object):
     def __init__(self, uid=None, fid=None):
@@ -184,6 +208,13 @@ class Spotlight(object):
         self.comment = comment[:255]
         self.timestamp = datetime.now()
 
+class SongStat(object):
+    def __init__(self, user = None, song = None):
+        self.user = user
+        self.song = song
+        self.playcount = 0
+        self.lastrecommended = datetime.now() #we don't currently use this
+
 def filter_user(query, uid):
     """
     Filters out any result that does not belong to you. Assumes you're joined
@@ -197,7 +228,13 @@ def filter_user(query, uid):
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
 """
-mapper(User, users_table)
+mapper(User, users_table, allow_column_override = True, properties = {
+    '_nowplayingid': users_table.c.nowplayingid,
+    '_nowplaying': relation(Song,
+        primaryjoin=users_table.c.nowplayingid==songs_table.c.id,
+        foreign_keys = [users_table.c.nowplayingid]
+    )
+})
 
 mapper(File, files_table, properties={
     'owners': relation(Owner, backref='file', cascade='all, delete-orphan')
@@ -246,12 +283,6 @@ mapper(Album, albums_table, allow_column_override = True,
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid
     ),
-    'havesongs': column_property(
-        select([func.count(songs_table.c.id).label('havesongs')],
-            songs_table.c.albumid == albums_table.c.id,
-            group_by=songs_table.c.albumid
-        ).correlate(albums_table).label('havesongs')
-    ),
     'length': column_property(
         select([func.sum(songs_table.c.length).label('length')],
             songs_table.c.albumid == albums_table.c.id,
@@ -274,5 +305,10 @@ mapper(BlogEntry, blog_table)
 mapper(Spotlight, spotlight_table, properties={
     'album': relation(Album, lazy=False),
     'user' : relation(User, lazy=False, backref='spotlights')
+})
+
+mapper(SongStat, songstats_table, properties={
+    'song': relation(Song, backref='stats', lazy=True),
+    'user': relation(User, backref='songstats')
 })
 

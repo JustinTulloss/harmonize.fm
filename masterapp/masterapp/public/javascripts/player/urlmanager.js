@@ -67,9 +67,11 @@ urlm = {}; //urlmanager is a singleton
 		}
 	};
 
-	setInterval('check_url();', 100);
-
     /* Public functions */
+	my.init = function(moremanagers) {
+		my.register_handlers(moremanagers);
+		setInterval('check_url();', 100);
+	}
 
 	//submanagers should be a list of (url component, handler function) pairs
     my.register_handlers = function(moremanagers) {
@@ -78,10 +80,10 @@ urlm = {}; //urlmanager is a singleton
 		//match the beginning of a string
 		for (var i=0; i<moremanagers.length; i++) {
 			var current = moremanagers[i];
-			if (current[0][0] === '$')
+			if (current[0][0] === '^')
 				current[0] = RegExp(current[0]);
 			else
-				current[0] = RegExp('$'+current[0]);
+				current[0] = RegExp('^'+current[0]);
 		}
 
         submanagers = submanagers.concat(moremanagers);
@@ -99,4 +101,8 @@ urlm = {}; //urlmanager is a singleton
 					function(panel) {handler(rest);});
 		};
 	};
+	
+	my.goto_url = function(url) {
+		location.hash = '#'+url;
+	}
 })();
