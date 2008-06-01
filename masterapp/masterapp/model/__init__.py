@@ -124,7 +124,10 @@ class User(object):
     def get_top_10_artists(self):
         totalcount = Session.query(Artist.id, Artist.name,
             func.sum(SongStat.playcount).label('totalcount')
-        ).join([Artist.songs, SongStat]).group_by(Artist.id).order_by('totalcount').limit(10)
+        )
+        totalcount = totalcount.join([Artist.songs, SongStat])
+        totalcount = totalcount.group_by(Artist.id)
+        totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
             
