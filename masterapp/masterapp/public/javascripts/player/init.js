@@ -51,6 +51,7 @@ function init()
     playqueue.on('stop', player.stop, player);
 
 	init_url_manager([['/bc/', (function(url){bread_crumb.go(url)})]]);
+	init_feedback();
 }
 
 function add_grid_listeners(crumb, e)
