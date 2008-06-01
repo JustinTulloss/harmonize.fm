@@ -7,7 +7,7 @@
 
 	<%def name="blog_feed(entry)">
 		<div class="feed_content">
-			<h4>${entry.author} wrote a new blog post</h4>
+			<h4>${entry.author} wrote a new update</h4>
 			<div class="blog_feed_comment">
 				${quote_comment(entry.entry, 60)}</div>
 			<a href="#/player/blog/${entry.id}">read more...</a>
