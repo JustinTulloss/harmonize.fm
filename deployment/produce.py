@@ -24,7 +24,7 @@ def main():
 
     # Update the database schema
     os.chdir(os.path.join(
-        os.environ['REPOSITORY'],' masterapp', 'masterapp', 'model', 'manage')
+        os.environ['REPOSITORY'],'masterapp', 'masterapp', 'model', 'manage')
     )
     subprocess.check_call(['python', 'mysqlprodmgr.py', 'upgrade'])
 
