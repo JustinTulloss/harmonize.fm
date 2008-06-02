@@ -54,7 +54,7 @@ class PlayerController(BaseController):
                 if y.timestamp == None:
                     return 0
                 return -1
-            elif y.timestamp == None
+            elif y.timestamp == None:
                 return 1
             elif x.timestamp > y.timestamp:
                 return -1
@@ -100,7 +100,7 @@ class PlayerController(BaseController):
         Session.commit()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
-	    config['S3.accesskey'], config['S3.secret'],
+        config['S3.accesskey'], config['S3.secret'],
             is_secure = False
         )
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
@@ -156,10 +156,10 @@ class PlayerController(BaseController):
         
         userDict = dict(data = userList) 
         return userDict
-	
+    
     def get_active(self, uid):
         if uid == 1908861:
-            return True	
+            return True 
         else:
             return False
 
