@@ -87,8 +87,10 @@ function enqueue_album(albumid, friendid) {
 		playqueue.enqueue([record]);
 	}
 	Ext.Ajax.request({
-		url:'/metadata/album/'+albumid,
-		success: enqueue_result});
+		url:'/metadata/album_by_id/'+albumid,
+		success: enqueue_result,
+        params: {friend: friendid}
+    });
 }
 
 Ext.onReady(init);

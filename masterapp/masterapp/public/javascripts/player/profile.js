@@ -19,13 +19,15 @@ function Profile(id)
         items: [{
             autoLoad: 'people/profile_body/'+id,
             layout: 'fit',
-            columnWidth: 1
+            columnWidth: .98
         },{
             autoLoad: 'people/profile_right/'+id,
             layout:'fit',
             width: 220
         }],
     });
+
+    my.panel.on('show', function(){my.panel.syncSize()});
 
     urlm.register_handlers([
         ['/profile_comments/', view_comments],
