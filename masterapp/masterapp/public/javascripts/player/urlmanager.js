@@ -30,6 +30,9 @@ urlm = {}; //urlmanager is a singleton
 
 	function add_panel(obj, url) {
 		viewmgr.centerpanel.add(obj);
+		if (panel_lookup[url]) {
+			Ext.get(panel_lookup[url]).remove();
+		}
 		panel_lookup[url] = obj.id;
 	}
 
@@ -52,8 +55,8 @@ urlm = {}; //urlmanager is a singleton
     function goto_page(url) {
 		current_url = url;
 
-		if (set_active(url))
-			return;
+		//if (set_active(url))
+		//	return;
 
 		/* First check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
@@ -128,5 +131,9 @@ urlm = {}; //urlmanager is a singleton
         }
 		location.hash = '#'+url;
         return url;
+	}
+
+	my.invalidate_page = function() {
+		current_url = 'undefined';
 	}
 })();

@@ -11,7 +11,7 @@ release: $(FILES)
 	mv dist.dmg Harmonize.dmg
 
 publish: release
-	scp Harmonize.dmg harmonize.fm:/var/www/sites/stage/masterapp/masterapp/public/uploaders
+	scp Harmonize.dmg harmonize.fm:/var/www/sites/live/public/uploaders
 
 clean:
 	rm -rf build dist

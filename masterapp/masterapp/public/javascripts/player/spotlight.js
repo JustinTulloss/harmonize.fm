@@ -52,4 +52,5 @@ function hide_dialog() {
 	var dlg = Ext.get('dialog-bg');
 	if (dlg)
 		dlg.remove();
+	urlm.invalidate_page();
 }
