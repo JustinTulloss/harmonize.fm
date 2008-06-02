@@ -157,6 +157,7 @@ class Album(object):
             asin=None, year=None, totaltracks=0,
             smallart=None, medart=None, largeart=None, swatch=None):
         self.title = title
+        self.mbid = mbid
         self.asin = asin
         self.year = year
         self.totaltracks = totaltracks

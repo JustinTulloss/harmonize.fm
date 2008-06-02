@@ -116,7 +116,7 @@ class DBRecorder(BaseAction):
     def create_album(self, file):
         album = self.model.Album(
             title = file.get('album'),
-            mbid = file.get('mbid'),
+            mbid = file['mbalbumid'],
             asin = file.get('asin'),
             year = file.get('year'),
             totaltracks = file.get('totaltracks'),
