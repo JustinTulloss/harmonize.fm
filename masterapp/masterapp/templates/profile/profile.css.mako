@@ -54,7 +54,7 @@
 .profile-sp {
     padding-left: 5px;
     clear: right;
-    margin-top: 10px;
+    padding-top: 5px;
 }
 
 .profile-sp-albumart {
@@ -81,4 +81,15 @@
 
 .profile-sp-comments a:hover {
     color: ${c.profile.click}
+}
+
+#rightcol {
+	width: 200px;
+}
+#profile-table td {
+	vertical-align: top;
+}
+
+#profile-table {
+	width: 100%;
 }

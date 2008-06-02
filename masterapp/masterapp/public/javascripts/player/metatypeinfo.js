@@ -134,7 +134,7 @@ var typeinfo = {
     },
     friend:{
         next: function(row){
-            urlm.goto_url('/profile/'+row.get('Friend_id'));
+            urlm.goto_url('/people/profile/'+row.get('Friend_id'));
         },
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 

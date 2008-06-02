@@ -57,7 +57,7 @@
     </div>
 	<div id="topmenu">
 		<a href="#">home</a>
-		<a href="#/profile/${c.user.id}">profile</a>
+		<a href="#/people/profile/${c.user.id}">profile</a>
 		<a href="#/bc/artist">artists</a>
 		<a href="#/bc/album">albums</a>
 		<a href="#/bc/song">songs</a>

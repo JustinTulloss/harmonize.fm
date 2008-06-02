@@ -15,7 +15,7 @@ class PeopleController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def profile_body(self, id):
+    def profile(self, id):
         """
         Display the main profile for a user identified by id
         """
@@ -25,14 +25,3 @@ class PeopleController(BaseController):
         c.user = Session.query(User).get(id)
         c.profile = Profile()
         return render('/profile/index.mako')
-
-    def profile_right(self, id):
-        """
-        Display the right column of a user identified by id. I currently do 2
-        requests cause I can't figure out how to do it with Ext layouts in 1. I
-        want to use ext layouts cause I can't get scrolling to work properly on
-        my own.
-        """
-        c.user = Session.query(User).get(id)
-        c.profile = Profile()
-        return render('/profile/rightcol.mako')
