@@ -42,9 +42,11 @@
                 <img src=${spotlight.album.smallart} />
             </div>
         % endif
-        <div class="profile-sp-title">${spotlight.album.title}</div>
+        <div class="profile-sp-title"><img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
+				${spotlight.album.title}</div>
         <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
         <div class="profile-sp-review">${spotlight.comment}</div>
+		
         <!--
         <div class="profile-sp-comments">
             <a class="profile-links" href="#/profile_comments/${spotlight.id}">view comments</a>

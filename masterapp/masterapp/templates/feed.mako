@@ -7,10 +7,10 @@
 
 	<%def name="blog_feed(entry)">
 		<div class="feed_content">
-			<h4>${entry.author} wrote a new update</h4>
+			<h4><a href="#/player/blog/${entry.id}">
+				${entry.author} wrote a post titled "${entry.title}"</a></h4>
 			<div class="blog_feed_comment">
 				${quote_comment(entry.entry, 60)}</div>
-			<a href="#/player/blog/${entry.id}">read more...</a>
 		</div>
 	</%def>
 
@@ -18,8 +18,9 @@
 
 		<img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
 		<div class="feed_content">
-			<h4>${entry.user.get_firstname()} 
-				added a Spotlight on ${entry.album.title}</h4>
+			<h4><a href="#/people/profile/${entry.user.id}">
+				${entry.user.get_firstname()} 
+				added a Spotlight on ${entry.album.title}</a></h4>
 			<table class="spotlight_feed_info"><tr>
 				<!--td><img src="/images/enqueue.png" /></td-->
 				<td><img src="${entry.album.smallart}" /></td>
@@ -42,6 +43,7 @@
 	</%def>
 
 	<div id="news_feed">
+		<div><h1 id="news-header">News Feed</h1></div>
 	<%
 		type_table = {
 			BlogEntry : blog_feed,

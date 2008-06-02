@@ -10,7 +10,8 @@
 
 .profile-status {
     color: ${c.profile.dark_txt};
-    border-bottom: 1px solid ${c.profile.dark_txt};
+    border-bottom: 1px solid ${c.profile.profile_border};
+	margin-left: 25px;
 }
 
 .profile-links {
@@ -32,6 +33,7 @@
     padding-bottom: 2px;
     margin-top: 5px;
     margin-bottom: 5px;
+	margin-left: 25px;
     color: ${c.profile.profile_subtitle};
 }
 
@@ -42,6 +44,7 @@
 
 #profile-body {
     padding: 10px;
+	padding-left: 0px;
 }
 
 #profile-right {
@@ -52,13 +55,14 @@
 }
 
 .profile-sp {
-    padding-left: 5px;
+	padding-left: 2px;
     clear: right;
     padding-top: 5px;
 }
 
 .profile-sp-albumart {
     float: right;
+	margin-left: 3px;
 }
 
 .profile-sp-title {
@@ -68,9 +72,11 @@
 
 .profile-sp-artist {
     color: ${c.profile.profile_links};
+	margin-left: 28px;
 }
 
 .profile-sp-review {
+	margin-left: 28px;
     padding-left: 8px;
 }
 

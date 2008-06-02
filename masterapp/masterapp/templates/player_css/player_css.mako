@@ -19,12 +19,17 @@ body, html {
     width: 80%;
 }
 
+#home {
+	height: 100%;
+	overflow: auto;
+	padding-top: 10px;
+}
+
 #home-sidebar {
-	float: right;
     margin-right: 56px;
 	font-size: 11pt;
-	border-left: 1px solid #777;
-	padding-left: 5px;
+	border-left: 1px solid ${c.profile.profile_border};
+	padding-left: 8px;
 }
 
 #home-sidebar a {
@@ -38,6 +43,19 @@ body, html {
 
 #home-sidebar a:hover {
     color: ${c.profile.click}
+}
+
+#home-sidebar-header {
+	border-botton: 1px solid $777;
+	font-size: 16pt;
+	color: ${c.profile.profile_subtitle};
+	border-bottom: solid 1px ${c.profile.profile_border};
+}
+
+#home-bg {
+	float: right;
+	background-color:white;
+	padding-left: 8px;
 }
 
 .blogtitle {
@@ -163,6 +181,15 @@ table {
 
 #news_feed {
 	margin-left: 12px;
+	overflow: auto;
+}
+
+#news_feed h1 {
+	color: ${c.profile.profile_subtitle};
+	font-size: 16pt;
+	font-weight: normal;
+	border-bottom: solid 1px ${c.profile.profile_border};
+	margin: 0;
 }
 
 .feed_entry {
@@ -178,6 +205,16 @@ table {
 	margin-bottom: 2px;
 	font-size: 11pt;
 	font-weight: normal;
+}
+
+.feed_content a {
+	color: ${c.profile.dark_txt};
+	text-decoration: none;
+}
+
+.feed_content a:hover {
+    color: ${c.profile.click};
+	text-decoration: underline;
 }
 
 .feed_entry img {
