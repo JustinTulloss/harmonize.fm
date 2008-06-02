@@ -53,9 +53,9 @@ class PlayerController(BaseController):
             if x.timestamp == None:
                 if y.timestamp == None:
                     return 0
-                return -1
-            elif y.timestamp == None:
                 return 1
+            elif y.timestamp == None:
+                return -1
             elif x.timestamp > y.timestamp:
                 return -1
             elif x.timestamp == y.timestamp:

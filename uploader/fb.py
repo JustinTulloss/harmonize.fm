@@ -47,7 +47,6 @@ class LoginServer(BaseHTTPRequestHandler):
 	def error(self):
 		self.send_response(404)
 		self.end_headers()
-	founders@harmonize.fm
 	def log_message(format, *args):
 		pass
 
