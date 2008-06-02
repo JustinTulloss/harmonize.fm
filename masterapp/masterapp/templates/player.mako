@@ -11,6 +11,7 @@
     <script type="text/javascript">
         var global_config = {
             fullname: '${c.user.firstname}',
+			uid: ${c.user.id},
             fields: ${simplejson.dumps(c.fields)}
         };
     </script>

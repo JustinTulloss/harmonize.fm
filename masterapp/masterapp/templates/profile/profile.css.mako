@@ -33,13 +33,16 @@
     padding-bottom: 2px;
     margin-top: 5px;
     margin-bottom: 5px;
-	margin-left: 25px;
     color: ${c.profile.profile_subtitle};
 }
 
 .profile-spotlight{
     position: relative;
     top: -20px;
+}
+
+.profile-spotlight .profile-subtitle {
+	margin-left: 25px;
 }
 
 #profile-body {

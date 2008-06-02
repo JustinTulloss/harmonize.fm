@@ -14,7 +14,8 @@ var render = {
     enqColumn: function (value, p, record)
     {
         id = record.id;
-		if (record.data.type === 'album')
+		if (record.get('type') === 'album' && 
+			record.get('Friend_id') === global_config.uid )
 			return t_add_col_alb.apply();
 		else
 			return t_add_col.apply();
