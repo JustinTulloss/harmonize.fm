@@ -26,7 +26,7 @@ def main():
     os.chdir(os.path.join(
         os.environ['REPOSITORY'],' masterapp', 'masterapp', 'model', 'manage')
     )
-    subprocess.check_call(['python', 'mysqlprodmgr.py', 'update'])
+    subprocess.check_call(['python', 'mysqlprodmgr.py', 'upgrade'])
 
     
 
