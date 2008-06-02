@@ -254,10 +254,9 @@ class MetadataController(BaseController):
         results = qry.all()
         return self._build_json(results, 'playlistsong')
 
-    """
-    def album(self, id):
+    def album_by_id(self, id):
         res = Session.query(*dbfields['album']).join(Album.artist).filter(Album.id==id).group_by(Album)
         json = self._build(res)
         json['data'][0]['type'] = 'album'
+        json['data'][0]['Friend_id'] = request.params.get('friend')
         return simplejson.dumps(json)
-    """
