@@ -32,7 +32,7 @@ deploy('STAGING', '-d' in sys.argv or '--debug' in sys.argv)
 os.chdir(os.path.join(
     os.environ['REPOSITORY'], 'masterapp', 'masterapp', 'model', 'manage')
 )
-subprocess.check_call(['python', 'mysqlmgr.py', 'update'])
+subprocess.check_call(['python', 'mysqlmgr.py', 'upgrade'])
 
 
 #Record the current version.
