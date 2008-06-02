@@ -28,7 +28,7 @@ class AdminController(BaseController):
 
     def rmentities(self):
         c.albums = Session.query(Album).all()
-        c.songs = Session.query(Song).all()
+        c.songs = []
         return render('/admin/rmentities.mako')
 
     def rmsongs(self):
