@@ -16,6 +16,8 @@
 
 .profile-links {
     text-align: right;
+    position: relative;
+    z-index: 1;
 }
 
 .profile-links a {
