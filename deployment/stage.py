@@ -28,6 +28,13 @@ compressor.main()
 #Install changes in stage server
 deploy('STAGING', '-d' in sys.argv or '--debug' in sys.argv)
 
+#Update database schema
+os.chdir(os.path.join(
+    os.environ['REPOSITORY'], 'masterapp', 'masterapp', 'model', 'manage')
+)
+subprocess.check_call(['python', 'mysqlmgr.py', 'update'])
+
+
 #Record the current version.
 repo = localrepository(ui(), os.environ['REPOSITORY'])
 fd = open(os.path.join(os.environ['STAGING'], 'changeset'), 'w')
