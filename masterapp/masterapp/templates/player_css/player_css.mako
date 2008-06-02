@@ -19,9 +19,12 @@ body, html {
     width: 80%;
 }
 
-#home {
+#home-container {
 	height: 100%;
 	overflow: auto;
+}
+
+#home {
 	padding-top: 10px;
 }
 
