@@ -40,7 +40,10 @@ urlm = {}; //urlmanager is a singleton
 		if (k)
 			autoLoad.callback(k)
 
-		var new_panel = new Ext.Panel({autoLoad: autoLoad});
+		var new_panel = new Ext.Panel({
+            layout: 'fit',
+            autoLoad: autoLoad
+        });
 
 		add_panel(new_panel, url);
 		set_active(url);
