@@ -60,8 +60,7 @@ def main():
     
     setup_env_variables()
 
-    if '-i' in sys.argv or '--install' in sys.argv:
-        create_dev_env()
+    create_dev_env()
 
 if __name__ == '__main__':
     main()
