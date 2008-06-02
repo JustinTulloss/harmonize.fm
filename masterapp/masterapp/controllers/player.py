@@ -50,7 +50,13 @@ class PlayerController(BaseController):
                 [:max_count])
 
         def sort_by_timestamp(x, y):
-            if x.timestamp > y.timestamp:
+            if x.timestamp == None:
+                if y.timestamp == None:
+                    return 0
+                return -1
+            elif y.timestamp == None
+                return 1
+            elif x.timestamp > y.timestamp:
                 return -1
             elif x.timestamp == y.timestamp:
                 return 0
