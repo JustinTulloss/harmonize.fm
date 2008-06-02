@@ -48,6 +48,10 @@ function Browser()
             scope: this
         });
         this.fireEvent('chgstatus', 'Loading...');
+        crumb.ds.on('loadexception', function(proxy, options,response, e){
+            if (response.status == 401)
+                show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
+        });
 
     }
 }

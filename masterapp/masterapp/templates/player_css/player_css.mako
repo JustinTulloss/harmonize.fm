@@ -199,3 +199,8 @@ table {
 .spotlight_feed_info {
 	padding: 0;
 }
+
+.fblogin {
+    width: 646px;
+    height: 436px;
+}

@@ -47,7 +47,8 @@ def ensure_fb_session():
         else:
             next = '%s' % (request.environ['PATH_INFO'])
             url = facebook.get_login_url(next=next, canvas=False)
-            facebook.redirect_to(url)
+            #facebook.redirect_to(url)
+            abort(401)
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']

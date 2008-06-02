@@ -55,8 +55,7 @@ function init()
 	}
 
     urlm.init([
-        ['/bc/', urlm.ignore_matched(bread_crumb.load_url)]/*,
-        ['/profile/', urlm.generate_panel(profile_factory)]*/
+        ['/bc/', urlm.ignore_matched(bread_crumb.load_url)]
     ]);
 	init_feedback();
 }
