@@ -120,6 +120,7 @@ a.bc_link:hover {
 	width: 100%;
 	left: 0;
 	top: 0;
+	overflow: auto;
 }
 
 #dialog-window {
