@@ -58,6 +58,7 @@ function BaseGrid(config)
 	var my = this;
 
     config.selModel = new Ext.grid.RowSelectionModel();
+    config.bufferResize = true;
     config.enableColLock = false;
     config.enableColumnMove = false;
     config.enableHdMenu = false;

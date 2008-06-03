@@ -11,6 +11,7 @@ from pylons.i18n import _, ungettext, N_
 from pylons.templating import render
 
 import masterapp.lib.helpers as h
+from masterapp.lib.decorators import cjsonify
 import masterapp.model as model
 
 class BaseController(WSGIController):
