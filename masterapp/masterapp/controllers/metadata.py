@@ -10,6 +10,7 @@ from masterapp.lib.fbauth import (
 )
 from sqlalchemy import sql, or_
 from masterapp import model
+from masterapp.config.schema import dbfields
 from masterapp.model import (
     Song,
     Album, 
@@ -30,59 +31,6 @@ from functools import partial
 from decimal import Decimal
 
 log = logging.getLogger(__name__)
-
-fields = {
-    'song': [
-        'type',
-        'Friend_id',
-        'Song_id',
-        'Song_tracknumber',
-        'Song_title',
-        'Song_length',
-        'Album_title',
-        'Album_totaltracks',
-        'Artist_name',
-    ],
-    'album': [
-        'type',
-        'Friend_id',
-        'Album_id',
-        'Album_title',
-        'Album_totaltracks',
-        'Album_havesongs',
-        'Album_length',
-        'Album_year',
-        'Album_smallart',
-        'Artist_name'
-    ],
-    'artist': [
-        'type',
-        'Friend_id',
-        'Artist_id',
-        'Artist_name',
-        'Artist_sort',
-    ],
-    'playlist': [],
-    'friend': [
-        'type',
-        'Friend_id',
-        'Friend_name',
-    ],
-}
-
-dbfields = {}
-for k, v in fields.items():
-    cols = []
-    for column in v:
-        try:
-            klass, field = column.split('_')
-            if hasattr(model, klass):
-                entity = getattr(model, klass)
-                if hasattr(entity, field):
-                    cols.append(getattr(entity, field).label(column))
-        except ValueError:
-            pass
-    dbfields[k] = cols
 
 class MetadataController(BaseController):
     """
@@ -105,18 +53,28 @@ class MetadataController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
+    def _pass_user(func):
+        def pass_user(self, *args, **kwargs):
+            friendid = request.params.get('friend')
+            if not friendid:
+                user = Session.query(User).get(session['userid'])
+            else:
+                # TODO: Make sure they're friends
+                user = Session.query(User).get(friendid)
+            return func(self, user, *args, **kwargs)
+        return pass_user
+
     def _filter_user(func):
         def filtered(self, *args):
             query = func(self, *args)
             friendid = request.params.get('friend')
             if not friendid:
                 friendid = session['userid']
-            self.friend = friendid
-            return filter_user(query, friendid)
+            self.friendid = friendid
+            return filter_user(query, friendid).all()
         return filtered
     
-    def _build(self, query):
-        results = query.all()
+    def _build(self, results):
         json = { "data": []}
         for row in results:
             lrow = {}
@@ -128,8 +86,8 @@ class MetadataController(BaseController):
             json['data'].append(lrow)
             json['data'][len(json['data'])-1]['type'] =\
                 request.params.get('type')
-            if hasattr(self, 'friend'):
-                json['data'][len(json['data'])-1]['Friend_id'] = self.friend
+            if hasattr(self, 'friendid'):
+                json['data'][len(json['data'])-1]['Friend_id'] = self.friendid
         json['success']=True
         return json
         
@@ -169,19 +127,20 @@ class MetadataController(BaseController):
 
     @jsonify
     @_build_json
-    @_filter_user
-    def album(self):
-        qry = Session.query(*dbfields['album']).join(Album.artist).\
-            join(Album.songs).group_by(Album)
+    @_pass_user
+    def album(self, user):
+        qry = user.album_query
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         qry = qry.order_by([Artist.sort, Album.title])
-        return qry
+        results = qry.all()
+        return results
         
     @jsonify
     @_build_json
-    @_filter_user
-    def artist(self):
+    @_pass_user
+    def artist(self, user):
+        """
         numalbums = Session.query(Album.artistid,
             sql.func.count('*').label('numalbums')
         ).group_by(Album.artistid).subquery()
@@ -189,7 +148,8 @@ class MetadataController(BaseController):
         qry = Session.query(numalbums.c.numalbums, *dbfields['artist']).\
             join(Artist.albums).join(Song).group_by(Artist)
         qry = qry.order_by(Artist.sort)
-        return qry
+        """
+        return user.artist_query.all()
         
     @jsonify
     def friend(self):

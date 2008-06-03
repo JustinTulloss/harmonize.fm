@@ -9,6 +9,7 @@ from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.profile import Profile
+from masterapp.config import schema
 from masterapp.model import (
     Session, 
     User, 
@@ -69,7 +70,7 @@ class PlayerController(BaseController):
     def index(self):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
-        c.fields = masterapp.controllers.metadata.fields
+        c.fields = schema.fields
         c.entries = self._get_feed_entries(session['userid'])
 
         if config.get('compressed') == 'true':
