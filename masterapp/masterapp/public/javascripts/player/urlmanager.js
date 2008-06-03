@@ -11,6 +11,7 @@ urlm = {}; //urlmanager is a singleton
 	//Since we are always serving home page we need to detect when the user is
 	//at a different page
 	var current_url = 'undefined';
+	var current_panel;
 
 	function get_url(hash) {
 		if (hash === '' || hash === '#')
@@ -30,10 +31,18 @@ urlm = {}; //urlmanager is a singleton
 
 	function add_panel(obj, url) {
 		viewmgr.centerpanel.add(obj);
+		viewmgr.centerpanel.layout.setActiveItem(obj.id);
+		/*
 		if (panel_lookup[url]) {
 			Ext.get(panel_lookup[url]).remove();
 		}
 		panel_lookup[url] = obj.id;
+		*/
+		if (current_panel) 
+			viewmgr.centerpanel.remove(current_panel);
+		
+
+		current_panel = obj;
 	}
 
 	/*Function goes to a url and gets it from the cache if possible.
@@ -49,7 +58,7 @@ urlm = {}; //urlmanager is a singleton
         });
 
 		add_panel(new_panel, url);
-		set_active(url);
+		//set_active(url);
 	}
 
     function goto_page(url) {
@@ -121,7 +130,7 @@ urlm = {}; //urlmanager is a singleton
 			new_panel = handler(rest);
 			var complete_url = matched+rest;
 			add_panel(new_panel, complete_url);
-			set_active(complete_url);
+			//set_active(complete_url);
 		}
 	};
 	
