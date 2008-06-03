@@ -1,6 +1,6 @@
 # vim:expandtab:smarttab
 import logging
-import simplejson
+import cjson
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
@@ -64,16 +64,6 @@ class MetadataController(BaseController):
             return func(self, user, *args, **kwargs)
         return pass_user
 
-    def _filter_user(func):
-        def filtered(self, *args):
-            query = func(self, *args)
-            friendid = request.params.get('friend')
-            if not friendid:
-                friendid = session['userid']
-            self.friendid = friendid
-            return filter_user(query, friendid).all()
-        return filtered
-    
     def _build(self, results):
         json = { "data": []}
         for row in results:
@@ -219,4 +209,4 @@ class MetadataController(BaseController):
         json = self._build(res)
         json['data'][0]['type'] = 'album'
         json['data'][0]['Friend_id'] = request.params.get('friend')
-        return simplejson.dumps(json)
+        return cjson.encode(json)
