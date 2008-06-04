@@ -129,16 +129,9 @@ class MetadataController(BaseController):
     @_build_json
     @_pass_user
     def artists(self, user):
-        """
-        numalbums = Session.query(Album.artistid,
-            sql.func.count('*').label('numalbums')
-        ).group_by(Album.artistid).subquery()
-
-        qry = Session.query(numalbums.c.numalbums, *dbfields['artist']).\
-            join(Artist.albums).join(Song).group_by(Artist)
+        qry = user.artist_query
         qry = qry.order_by(Artist.sort)
-        """
-        return user.artist_query.all()
+        return qry.all()
         
     @cjsonify
     @_pass_user
