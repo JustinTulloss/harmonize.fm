@@ -12,6 +12,7 @@
             <th>RM</th>
             <th>Album</th>
             <th>Artist</th>
+            <th>MusicBrainz ID</th>
         </tr>
         % for album in c.albums:
             ${makealbumrow(album)}
@@ -50,6 +51,7 @@
         <td>${h.rails.check_box(album.id)}</td>
         <td>${album.title}</td>
         <td>${album.artist.name}</td>
+        <td>${album.mbid}</td>
     </tr>
 </%def>
 

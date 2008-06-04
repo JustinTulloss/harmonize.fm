@@ -3,7 +3,7 @@ from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join
-from sqlalchemy.orm import mapper, relation, column_property, deferred
+from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from facebook.wsgi import facebook
@@ -131,6 +131,66 @@ class User(object):
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
+
+    def get_song_query(self):
+        from masterapp.config.schema import dbfields
+        query = Session.query(*dbfields['song'])
+        query = query.join(Song.album).reset_joinpoint()
+        query = query.join(Song.artist).reset_joinpoint()
+        query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
+        return query
+    song_query = property(get_song_query)
+
+    def get_album_query(self):
+        from masterapp.config.schema import dbfields
+
+        # Number of songs available on this album subquery
+        havesongs = Session.query(Album.id.label('albumid'),
+            func.count(Song.id).label('Album_havesongs'),
+            func.sum(Song.length).label('Album_length')
+        ).join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        havesongs = havesongs.group_by(Album.id).subquery()
+
+        query = Session.query(havesongs.c.Album_havesongs,
+            havesongs.c.Album_length,
+            *dbfields['album'])
+        joined = join(Album, havesongs, Album.id == havesongs.c.albumid)
+        query = query.select_from(joined)
+        query = query.join(Album.artist).reset_joinpoint()
+        query = query.join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        query = query.group_by(Album)
+        return query
+    album_query = property(get_album_query)
+
+    def get_artist_query(self):
+        from masterapp.config.schema import dbfields
+
+        # Number of songs by this artist subquery
+        numsongs = Session.query(Artist.id.label('artistid'),
+            func.count(Song.id).label('Artist_availsongs')
+        ).join(Artist.songs, File, Owner).filter(Owner.uid == self.id)
+        numsongs = numsongs.group_by(Artist.id).subquery()
+        
+        # Number of albums by this artist subquery
+        albumquery = self.song_query.group_by(Song.albumid).subquery()
+        numalbums = Session.query(albumquery.c.Song_artistid.label('artistid'),
+            func.count(albumquery.c.Song_albumid).label('Artist_numalbums')
+        ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
+
+        # Build the main query
+        query = Session.query(numsongs.c.Artist_availsongs,
+            numalbums.c.Artist_numalbums,
+            *dbfields['artist'])
+        joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
+        #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
+        query = query.select_from(joined)
+        query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
+        query = query.join(Artist.albums, Song, File, Owner)
+        query = query.filter(Owner.uid == self.id)
+        query = query.group_by(Artist)
+        return query
+    artist_query = property(get_artist_query)
+        
             
 
 class Owner(object):
@@ -287,12 +347,6 @@ mapper(Album, albums_table, allow_column_override = True,
         lazy = False,
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid
-    ),
-    'length': column_property(
-        select([func.sum(songs_table.c.length).label('length')],
-            songs_table.c.albumid == albums_table.c.id,
-            group_by=songs_table.c.albumid 
-        ).correlate(albums_table).label('length')
     )
 })
 
