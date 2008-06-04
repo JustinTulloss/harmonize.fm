@@ -90,10 +90,14 @@ def upload_file(filename, callback):
 					#Going to retry request
 				elif response == 'retry':
 					pass #This will just retry
+				elif response =='wait':
+					time.sleep(60)
 				else:
 					uploaded = True
 			elif response == 'reauthenticate':
 				reauthenticate(callback)
+			elif response == 'wait':
+				time.sleep(60)
 			else:
 				#Should be file_uploaded, but if it's not just keep on truckin
 				uploaded = True 
