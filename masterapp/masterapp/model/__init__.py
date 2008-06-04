@@ -138,6 +138,7 @@ class User(object):
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
         query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
+        query = query.group_by(Song)
         return query
     song_query = property(get_song_query)
 
