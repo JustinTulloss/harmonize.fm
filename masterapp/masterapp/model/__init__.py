@@ -132,12 +132,17 @@ class User(object):
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
 
-    def get_song_query(self):
+    def _build_song_query(self):
         from masterapp.config.schema import dbfields
         query = Session.query(*dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
         query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
+        return query
+        
+    def get_song_query(self):
+        query = self._build_song_query()
+        query = query.group_by(Song)
         return query
     song_query = property(get_song_query)
 
@@ -172,7 +177,7 @@ class User(object):
         numsongs = numsongs.group_by(Artist.id).subquery()
         
         # Number of albums by this artist subquery
-        albumquery = self.song_query.group_by(Song.albumid).subquery()
+        albumquery = self._build_song_query().group_by(Song.albumid).subquery()
         numalbums = Session.query(albumquery.c.Song_artistid.label('artistid'),
             func.count(albumquery.c.Song_albumid).label('Artist_numalbums')
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
