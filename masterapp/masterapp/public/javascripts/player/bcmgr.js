@@ -144,6 +144,12 @@ function BreadCrumb()
                     bclist[i].url = build_bc_url(i);
                     splice = true;
                 }
+                else if (params[param[0]] != bclist[i].qryvalue) {
+                    /* this is not a currently loaded bc */
+                    bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
+                    bclist[i].url = build_bc_url(i);
+                    splice = true;
+                }
             }
             else
                 bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
