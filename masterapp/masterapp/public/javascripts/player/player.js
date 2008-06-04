@@ -16,7 +16,7 @@
 function Player()
 {
 	if (this == window) alert('new not called for Player()');
-	var that = this;
+	var my = this;
 
     // this.some player variables to save
     var position;
@@ -311,5 +311,10 @@ function Player()
 	}
 
 	volume_control.on('change', onVolumeChange);
+
+	window.onbeforeunload = function() {
+		if (playingsong)
+			return "You will lose your currently playing song.";
+	};
 }
 Ext.extend(Player, Ext.util.Observable);
