@@ -31,9 +31,11 @@ Source: "C:\Documents and Settings\Brian\rubicon-local\uploader\dist\*"; DestDir
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\Harmonize"; Filename: "{app}\Harmonize.exe"
-Name: "{commondesktop}\Rubicon"; Filename: "{app}\Harmonize.exe"; Tasks: desktopicon
+Name: "{group}\Harmonize"; Filename: "{app}\Harmonize.exe"; WorkingDir: "{app}"
+Name: "{commondesktop}\Harmonize"; Filename: "{app}\Harmonize.exe"; Tasks: desktopicon; WorkingDir: "{app}"
 
 [Run]
 Filename: "{app}\Harmonize.exe"; Description: "{cm:LaunchProgram,Harmonize}"; Flags: nowait postinstall skipifsilent
+
+
 
