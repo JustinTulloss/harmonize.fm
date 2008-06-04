@@ -7,6 +7,7 @@ import os.path as path
 import facebook
 from facebook import FacebookError
 from urllib2 import URLError
+import df
 
 from masterapp.lib.base import *
 import cPickle
@@ -22,7 +23,7 @@ class UploadsController(BaseController):
         self.apikey = config['pyfacebook.apikey']
         self.secret = config['pyfacebook.secret']
 
-    def file_already_uploaded(self, f_sha, fbid):
+    def _file_already_uploaded(self, f_sha, fbid):
         """Checks to see if a song has already been uploaded and marks that user
             as having uploaded it if true"""
         song = model.Session.query(model.File).filter_by(sha=f_sha).first()
@@ -43,15 +44,15 @@ class UploadsController(BaseController):
         model.Session.commit()
         return True
 
-    def get_fb(self):
+    def _get_fb(self):
         return facebook.Facebook(self.apikey, self.secret)
 
-    def get_fbid(self, request):
+    def _get_fbid(self, request):
         session_key = request.params.get('session_key')
         if session_key == None:
             return None
         
-        fb = self.get_fb()
+        fb = self._get_fb()
         retries = 2
         while retries > 0:
             try:
@@ -98,13 +99,22 @@ class UploadsController(BaseController):
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         #first get session key
-        fbid = self.get_fbid(request)
+        fbid = self._get_fbid(request)
         if fbid == None:
             try:
                 self.read_postdata()
             except self.PostException:
                 pass
             return 'reauthenticate'
+
+        if config['app_conf']['check_df'] and \
+                df.check(config['app_conf']['upload_dir']) > 80:
+            try:
+                self.read_postdata()
+            except self.PostException:
+                pass
+            return 'wait'
+            
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
         if not path.exists(dest_dir):
@@ -147,18 +157,23 @@ class UploadsController(BaseController):
     def file_exists(self, id):
         """GET /uploads/id : This is to check whether a file has already been
         uploaded or not. Returns a 1 if it has and a 0 otherwise"""
-        fbid = self.get_fbid(request)
+        fbid = self._get_fbid(request)
 
         if fbid == None:
             return 'reauthenticate'
 
-        if self.file_already_uploaded(id, fbid):
+
+        if config['app_conf']['check_df'] == 'true' and \
+                df.check(config['app_conf']['upload_dir']) > 70:
+            return 'wait'
+
+        if self._file_already_uploaded(id, fbid):
             return 'file_uploaded'
         else:
             return 'upload_file'
     
     def desktop_redirect(self):
-        fb = self.get_fb()
+        fb = self._get_fb()
         if fb.check_session(request):
             url = 'http://localhost:26504/complete_login?session_key='+ \
                 fb.session_key
@@ -168,7 +183,7 @@ class UploadsController(BaseController):
         redirect_to(str(url)) 
 
     def desktop_login(self):
-        url = self.get_fb().get_login_url(canvas=False,next='/desktop_redirect')
+        url = self._get_fb().get_login_url(canvas=False,next='/desktop_redirect')
         redirect_to(str(url))
 
     def upload_ping(self):

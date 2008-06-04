@@ -3,8 +3,9 @@ import mailer
 import sys
 from ConfigParser import SafeConfigParser
 
-config_paths = ['/var/www/sites/stage/masterapp/development.ini',
-				'/Users/brian/rubicon/masterapp/development.ini']
+config_paths = ['/var/www/sites/live/config/development.ini',
+				'/Users/brian/rubicon/masterapp/development.ini',
+				r'C:\documents and settings\brian\rubicon-local\masterapp\development.ini']
 
 def alert(subject, message):
 	configp = SafeConfigParser()
