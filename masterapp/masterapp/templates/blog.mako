@@ -2,7 +2,11 @@
 	<%def name="format_entry(entry)">
 		<div class="blogentry">
 			<div class="blogtitle"> ${entry.title} </div>
-			<span class="blogbyline">by<span class="blogauthor"> ${entry.author} </span></span>
+			<span class="blogbyline">by<span class="blogauthor"> ${entry.author} </span>
+	%	if entry.timestamp:
+			on ${entry.timestamp.strftime('%b %d')}
+	%	endif
+ </span>
 			<div class="blogcontent"> ${entry.entry} </div>
 		</div>
 	</%def>
