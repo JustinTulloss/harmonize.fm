@@ -17,7 +17,8 @@ function PlayQueue()
         newsong : true,
         reordered : true,
         playsong: true,
-        stop : true
+        stop : true,
+		buffersong: true
     });
 
     var instructions = new Ext.Template(
@@ -74,10 +75,7 @@ function PlayQueue()
         items: [my.inspanel, my.tree]
     });
 
-
-
-    my.enqueue = function(records)
-    {
+    my.enqueue = function(records) {
         for (i = 0; i < (records.length); i++) {
             var nn = newnode({record:records[i]});
             my.root.appendChild(nn);
@@ -87,6 +85,7 @@ function PlayQueue()
             my.panel.getLayout().setActiveItem(1);
             my.dequeue();
         }
+		buffer_top();
     }
 
     function newnode(config)
@@ -96,20 +95,27 @@ function PlayQueue()
         return new typeinfo[type].nodeclass(config);
     }
 
-    my.dequeue = dequeue;
-    function dequeue()
-    {
+    my.dequeue = function () {
         if (my.playing != null) {
             my.played.push(my.playing);
             my.playing = null;
         }
-        node = my.root.firstChild;
+        var node = my.root.firstChild;
         if (node) {
-            play(node.dequeue());
+			node.dequeue(function(record) {
+				play(record); });
         }
         else
             my.fireEvent('stop');
     }
+
+	function buffer_top() {	
+		var node = my.root.firstChild;
+		if (node) {
+			node.peek( function(record) {
+				my.fireEvent('buffersong', record)});
+		}
+	}
 
     my.playgridrow = playgridrow
     function playgridrow(grid, songindex, e)
@@ -135,6 +141,7 @@ function PlayQueue()
         if (record) {
             my.playing = record;
             my.fireEvent('playsong', record);
+			buffer_top();
         }
     }
 
@@ -166,12 +173,13 @@ function PlayQueue()
             my.showprev();
     }
 
-    function remove(node, checked)
-    {
+    function remove(node, checked) {
         var p = node.parentNode;
         node.remove();
         if (p.update_text)
             p.update_text();
+
+		buffer_top();
         /* this is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
@@ -182,6 +190,7 @@ function PlayQueue()
     function reorder(tree, node, oldParent, newParent, index)
     {
         my.fireEvent('reordered');
+		buffer_top();
     }
 
     my.showprev = showprev;
@@ -191,7 +200,7 @@ function PlayQueue()
         if (my.playing) {
             nn = new PlayingQueueNode(config = {
                 record: my.playing,
-                queue: my,
+                queue: my
             });
             my.root.insertBefore(nn, my.root.item(0));
             my.showingplaying = true;
@@ -296,7 +305,8 @@ function QueueNode(config)
     this.record = config.record;
     this.queue = config.queue;
 
-    this.dequeue = function() {return false;};
+    this.dequeue = function(k) {k(false);};
+	this.peek = function(k) {k(false);};
     this.update_text = function () {};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
@@ -310,17 +320,18 @@ function SongQueueNode(config)
 
     SongQueueNode.superclass.constructor.call(this, config);
 
-    this.dequeue = dequeue;
-    function dequeue()
-    {
+    this.dequeue = function(k) {
         this.remove();
-        return this.record;
+        k(this.record);
     }
+
+	this.peek = function(k) {
+		k(this.record);
+	};
 }
 Ext.extend(SongQueueNode, QueueNode);
 
-function PlayingQueueNode(config)
-{
+function PlayingQueueNode(config) {
     config.title = config.record.get('Song_title');
     config.artist = config.record.get('Artist_name');
     config.album = config.record.get('Album_title');
@@ -338,6 +349,8 @@ Ext.extend(PlayingQueueNode, QueueNode);
 
 function AlbumQueueNode(config)
 {
+	var my = this;
+
     config.text = String.format('{0} ({1}/{2})', 
         config.record.get('Album_title'),
         config.record.get('Album_havesongs'),
@@ -366,27 +379,36 @@ function AlbumQueueNode(config)
 
     AlbumQueueNode.superclass.constructor.call(this, config);
 
-    this.dequeue = dequeue;
-    function dequeue()
-    {
-        /* When an album is dequeued, just get its songs and queue them */
-        if (this.songs_loaded) {
-            record = this.firstChild.record;
-            this.firstChild.remove();
+    this.dequeue = function(k) {
+		function dequeue_aux() {
+			var record = my.firstChild.record;
+			my.firstChild.remove();
+			my.update_text();
+			k(record);
+		}
 
-            /* now that one of my songs is playing, update myself*/
-            this.update_text();
-            return record;
+        if (my.songs_loaded) {
+			dequeue_aux();
         }
         else {
-            this.songs.load({
+            my.songs.load({
                 callback: songs_callback,
-                scope: this,
-                play: true
+                k: dequeue_aux
             });
-            return false;
         }
     }
+
+	my.peek = function(k) {
+		if (my.songs_loaded)
+			k(this.firstChild.record);
+		else {
+			my.songs.load({
+				callback: songs_callback,
+				k : (function() {
+						k(my.firstChild.record)})
+			});
+		}
+	}
 
     this.update_text = update_text;
     function update_text()
@@ -400,40 +422,35 @@ function AlbumQueueNode(config)
             this.remove();
     }
 
-    function on_expand(node)
-    {
-        if (!this.songs_loaded)
-            this.songs.load({
+    function on_expand(node) {
+        if (!my.songs_loaded) {
+            my.songs.load({
                 callback: songs_callback,
-                scope: this,
-                play: false
             });
+		}
     }
 
     function songs_callback(records, options, success)
     {
-        if(!success)
-        {
+        if (!success) {
             alert("Something fucked up");
             return;
         }
 
-        this.songs_loaded = true;
-        queue_songs.call(this);
-        if (options.play){
-            this.queue.dequeue();
-        }
+        my.songs_loaded = true;
+        queue_songs();
+		if (options.k)
+			options.k()
     }
 
-    function queue_songs()
-    {
-        this.songs.each(function(record) {
+    function queue_songs() {
+        my.songs.each(function(record) {
             var nn = new SongQueueNode({
-                queue: this.queue, 
+                queue: my.queue, 
                 record: record,
             });
-            this.appendChild(nn);
-        }, this);
+            my.appendChild(nn);
+        });
     }
 
     this.on('expand', on_expand, this);

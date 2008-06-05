@@ -47,8 +47,9 @@ function init()
     player.on('showprev', playqueue.showprev, playqueue);
     player.on('hideprev', playqueue.hideprev, playqueue);
 
-    playqueue.on('playsong', player.playsong, player);
-    playqueue.on('stop', player.stop, player);
+    playqueue.on('playsong', player.playsong);
+    playqueue.on('stop', player.stop);
+	playqueue.on('buffersong', player.buffersong);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);

@@ -23,7 +23,9 @@ function Player()
     var state = 0; //stopped, paused, or playing (0, 1, 2)
     var volume = 80;
     var playingsong;
-    var nextsong;
+	var bufferedsong;
+	var buffer_onload; //Should be a fn to call when a song finishes loading
+	var buffer_loaded;
     var slider;
     var shuttle;
     var progressbar;
@@ -81,11 +83,9 @@ function Player()
 		}
     }
 
-    this.nextclicked = nextclicked;
-    function nextclicked(e)
-    {
+    function nextclicked() {
         /* initiates the nextsong chain of events. True for play now.*/
-        this.fireEvent('nextsong', this.playsong);
+        my.fireEvent('nextsong', my.playsong);
     }
 
     function prevclicked(e)
@@ -118,7 +118,7 @@ function Player()
     {
         //init_seekbar();
         Ext.get('playbutton').on('click', playpause, this);
-        Ext.get('nextbutton').on('click', nextclicked, this);
+        Ext.get('nextbutton').on('click', nextclicked);
         Ext.get('prevbutton').on('click', prevclicked, this);
         Ext.get('prevbutton').on('mouseover', showprev, this);
         Ext.get('prevbutton').on('mouseout', hideprev, this);
@@ -126,32 +126,83 @@ function Player()
 
     this.init_playcontrols();
 
-    this.playsong = playsong;
-    function playsong (song)
+    my.playsong = function(song)
     {
+		if (playingsong) {
+			soundManager.destroySound(playingsong);
+			playingsong = null;
+		}
+
+		update_now_playing({
+			title : song.get('Song_title'),
+			artist : song.get('Artist_name'),
+			album : song.get('Album_title'),
+			length : song.get('Song_length')})
+
+		set_pause(true);
+
+		if (bufferedsong && bufferedsong === song.get('Song_id')) {
+			if (!buffer_loaded) {
+				clear_buffer();
+			}
+			else {
+				soundManager.play(bufferedsong);
+				playingsong = bufferedsong;
+				bufferedsong = null;
+				return;
+			}
+		}
+
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('Song_id'),
             success: loadsongurl,
             failure: badsongurl,
             songid: song.get('Song_id'),
             songlength: song.get('Song_length'),
-            playnow: true,
-            scope: this
         });
-		update_now_playing({
-			title : song.data.Song_title,
-			artist : song.data.Artist_name,
-			album : song.data.Album_title,
-			/*Song length is in milliseconds now,
-			  should I convert to seconds here or in the fn... */
-			length : song.data.Song_length})
-
-		set_pause(true);
     }
 
-    this.stop = stop;
-    function stop()
-    {
+	function clear_buffer() {
+		if (bufferedsong)
+			soundManager.destroySound(bufferedsong);
+		bufferedsong = null;
+		buffer_onload = null;
+		buffer_loaded = false;
+	}
+
+	my.buffersong = function(song) {
+		var newid = song.get('Song_id');
+		if (newid == bufferedsong)
+			return;
+
+		clear_buffer();
+		bufferedsong = newid;
+
+		function loadbufferedurl(response) {
+			if (newid != bufferedsong) return; //Another song buffering
+			createSound(response.responseText, bufferedsong);
+			buffer_loaded = true;
+		}
+
+		function buffer() {
+			Ext.Ajax.request({
+				url: '/player/songurl/'+newid,
+				success: loadbufferedurl,
+				failure: badsongurl,
+			});
+			buffer_onload = null;
+		}	
+
+		if (!playingsong || !soundManager.getSoundById(playingsong) ||
+				soundManager.getSoundById(playingsong).readyState != 3) {
+			buffer_onload = buffer;
+		}
+		else {
+			buffer();
+		}
+	}
+
+    my.stop = function stop() {
         if (playingsong) {
             soundManager.destroySound(playingsong);
             playingsong = null;
@@ -159,36 +210,30 @@ function Player()
 		set_pause(false);
     }
 
-    function loadsongurl(response, options)
-    {
-        if(playingsong)
-            soundManager.destroySound(playingsong);
-        playingsong = options.songid;
-
+	function createSound(url, id) {
         soundManager.createSound({
-            id: playingsong,
-            player: this,
-            url:response.responseText,
+            id: id,
+            url: url,
             volume: volume,
             whileplaying: function(){
 				update_duration(this);
                 update_progress_bar(this.position);
             },
-            onfinish: function(){
-                this.options.player.nextclicked.call(this.options.player, this);
-            }
+            onfinish: nextclicked,
+			onload: function() {
+				if (buffer_onload)
+					buffer_onload();
+			}
         });
+	}
 
-        /* create progressbar */
-        /*
-        progressbar = new Ext.ProgressBar({
-            renderTo: 'timeline'
-        });
-        */
+    function loadsongurl(response, options) {
+        playingsong = options.songid;
+
+		createSound(response.responseText, playingsong);
 
         soundManager.play(playingsong);
     }
-
     function updatetime(sound)
     {
         var total = soundduration(sound);
@@ -196,8 +241,6 @@ function Player()
         //Ext.get('time2').update('-'+format_time(total-sound.position));
         updateseekbar(sound.position/total);
     }
-
-
 
     function updateseekbar(percentage)
     {
