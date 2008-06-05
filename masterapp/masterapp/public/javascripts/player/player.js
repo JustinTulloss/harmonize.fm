@@ -152,6 +152,7 @@ function Player()
 			}
 		}
 
+		playingsong = song.get('Song_id');
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('Song_id'),
             success: loadsongurl,
@@ -159,6 +160,15 @@ function Player()
             songid: song.get('Song_id'),
             songlength: song.get('Song_length'),
         });
+    }
+
+    function loadsongurl(response, options) {
+        if (playingsong != options.songid)
+			return;
+
+		createSound(response.responseText, playingsong);
+
+        soundManager.play(playingsong);
     }
 
 	function clear_buffer() {
@@ -230,13 +240,6 @@ function Player()
         });
 	}
 
-    function loadsongurl(response, options) {
-        playingsong = options.songid;
-
-		createSound(response.responseText, playingsong);
-
-        soundManager.play(playingsong);
-    }
     function updatetime(sound)
     {
         var total = soundduration(sound);
