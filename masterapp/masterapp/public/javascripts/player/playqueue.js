@@ -85,7 +85,8 @@ function PlayQueue()
             my.panel.getLayout().setActiveItem(1);
             my.dequeue();
         }
-		buffer_top();
+		else
+			buffer_top();
     }
 
     function newnode(config)
@@ -103,7 +104,7 @@ function PlayQueue()
         var node = my.root.firstChild;
         if (node) {
 			node.dequeue(function(record) {
-				play(record); });
+				play(record);});
         }
         else
             my.fireEvent('stop');
@@ -113,7 +114,8 @@ function PlayQueue()
 		var node = my.root.firstChild;
 		if (node) {
 			node.peek( function(record) {
-				my.fireEvent('buffersong', record)});
+				//if (record)
+					my.fireEvent('buffersong', record)});
 		}
 	}
 
@@ -484,8 +486,6 @@ function ArtistQueueNode(config)
             var record = records.pop();
             var nn = new AlbumQueueNode({record: record, queue: my.queue});
             my.queue.root.replaceChild(nn, my);
-            if (my.queue.playing == null)
-                my.queue.dequeue();
 
             for (var i = 0; i < records.length; i++) {
                 var last = nn;
@@ -493,6 +493,9 @@ function ArtistQueueNode(config)
                 nn = new AlbumQueueNode({record: record, queue: my.queue});
                 config.queue.root.insertBefore(nn, last);
             }
+
+            if (my.queue.playing == null)
+                my.queue.dequeue();
         }
         else
             my.remove();

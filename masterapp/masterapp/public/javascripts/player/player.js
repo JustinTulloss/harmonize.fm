@@ -147,6 +147,7 @@ function Player()
 			}
 			else {
 				soundManager.play(bufferedsong);
+				soundManager.getSoundById(bufferedsong).setVolume(volume);
 				playingsong = bufferedsong;
 				bufferedsong = null;
 				return;
@@ -163,8 +164,9 @@ function Player()
     }
 
 	function clear_buffer() {
-		if (bufferedsong)
+		if (bufferedsong && bufferedsong !== playingsong) {
 			soundManager.destroySound(bufferedsong);
+		}
 		bufferedsong = null;
 		buffer_onload = null;
 		buffer_loaded = false;
@@ -182,6 +184,7 @@ function Player()
 			if (newid != bufferedsong) return; //Another song buffering
 			createSound(response.responseText, bufferedsong);
 			buffer_loaded = true;
+			soundManager.getSoundById(bufferedsong).load({});
 		}
 
 		function buffer() {
@@ -223,7 +226,8 @@ function Player()
 			onload: function() {
 				if (buffer_onload)
 					buffer_onload();
-			}
+			},
+			multishot: false
         });
 	}
 
