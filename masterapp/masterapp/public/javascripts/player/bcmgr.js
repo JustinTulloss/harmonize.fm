@@ -131,6 +131,7 @@ function BreadCrumb()
     function build_bc(url) {
         var parts = url.split('/')
         var params = {};
+        var param;
         var splice = false;
         for (var i =0; i<parts.length; i++) {
             param = parts[i].split('=');
@@ -139,12 +140,6 @@ function BreadCrumb()
             }
             if (bclist[i]) {
                 if (bclist[i].type != param[0]) {
-                    /* this is not a currently loaded bc */
-                    bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                    bclist[i].url = build_bc_url(i);
-                    splice = true;
-                }
-                else if (params[param[0]] != bclist[i].qryvalue) {
                     /* this is not a currently loaded bc */
                     bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
                     bclist[i].url = build_bc_url(i);
