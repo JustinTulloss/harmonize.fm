@@ -131,6 +131,7 @@ function BreadCrumb()
     function build_bc(url) {
         var parts = url.split('/')
         var params = {};
+        var param;
         var splice = false;
         for (var i =0; i<parts.length; i++) {
             param = parts[i].split('=');

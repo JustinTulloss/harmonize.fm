@@ -135,7 +135,13 @@ var typeinfo = {
         gridclass: PlaylistSongGrid
     },
     friend:{
-        next: function(row){
+        next: function(row, breadcrumb){
+            var bc = new BcEntry(
+                'profile',
+                row.get('Friend_name'),
+                'profile'
+            );
+            breadcrumb.addbreadcrumb(bc);
             urlm.goto_url('/people/profile/'+row.get('Friend_id'));
         },
         lblindex: 'Friend_name',
