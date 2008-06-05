@@ -101,14 +101,12 @@ function Player()
         this.fireEvent('prevsong', this.playsong);
     }
 
-    function showprev(e)
-    {
-        this.fireEvent('showprev');
+    function showprev(e) {
+        my.fireEvent('showprev');
     }
 
-    function hideprev(e)
-    {
-        this.fireEvent('hideprev');
+	function hideprev(e) {
+        my.fireEvent('hideprev');
     }
 
     /* End event handlers */
@@ -120,8 +118,8 @@ function Player()
         Ext.get('playbutton').on('click', playpause, this);
         Ext.get('nextbutton').on('click', nextclicked);
         Ext.get('prevbutton').on('click', prevclicked, this);
-        Ext.get('prevbutton').on('mouseover', showprev, this);
-        Ext.get('prevbutton').on('mouseout', hideprev, this);
+        Ext.get('prevbutton').on('mouseover', showprev);
+        Ext.get('prevbutton').on('mouseout', hideprev);
     }   
 
     this.init_playcontrols();
@@ -211,6 +209,7 @@ function Player()
             playingsong = null;
         }
 		set_pause(false);
+		update_now_playing({});
     }
 
 	function createSound(url, id) {
