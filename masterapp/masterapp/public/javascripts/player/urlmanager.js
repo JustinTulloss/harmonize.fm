@@ -38,8 +38,10 @@ urlm = {}; //urlmanager is a singleton
 		}
 		panel_lookup[url] = obj.id;
 		*/
-		if (current_panel) 
-			viewmgr.centerpanel.remove(current_panel);
+		if (current_panel) {
+			viewmgr.centerpanel.remove(current_panel.id);
+			current_panel.remove();
+		}
 		
 
 		current_panel = obj;
@@ -48,16 +50,33 @@ urlm = {}; //urlmanager is a singleton
 	/*Function goes to a url and gets it from the cache if possible.
 	  will call function k if defined passing in the newly created panel */
 	function goto_page_directly(url, k) {
+	/*
 		var autoLoad = {url: url};
 		if (k)
 			autoLoad.callback(k)
 
 		var new_panel = new Ext.Panel({
             layout: 'fit',
-            autoLoad: autoLoad
+            autoLoad: autoLoad,
+			autoScroll: true
         });
+		*/
 
-		add_panel(new_panel, url);
+		var new_panel = document.createElement('div');
+		new_panel.className = 'content-container';
+		new_panel.show = function() {};
+
+		add_panel(Ext.get(new_panel), url);
+		
+		Ext.Ajax.request({
+			url: url,
+			success: function(response) {
+				new_panel.innerHTML = response.responseText;
+				if (k)
+					k(new_panel);
+			}
+		});
+
 		//set_active(url);
 	}
 

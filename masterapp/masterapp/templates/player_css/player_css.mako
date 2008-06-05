@@ -19,11 +19,6 @@ body, html {
     width: 80%;
 }
 
-#home-container {
-	height: 100%;
-	overflow: auto;
-}
-
 #home {
 	padding-top: 10px;
 }
@@ -253,4 +248,9 @@ table {
     color: ${c.profile.dark_txt};
 	padding: 3px 5px;
 	visibility: hidden;
+}
+
+.content-container {
+	height: 100%;
+	overflow: auto;
 }

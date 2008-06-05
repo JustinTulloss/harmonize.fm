@@ -1,7 +1,6 @@
 ##vim:filetype=html:expandtab:tabstop=4
 <%namespace name="rightcol" file="rightcol.mako" />
 
-<div style="height:100%; overflow:auto">
 <table id="profile-table"><tr><td id="profile-main">
 <div id="profile-body">
     <div class="profile-header">
@@ -35,7 +34,6 @@
 </td><td id="rightcol">
 	${rightcol.render()}
 </td></tr></table>
-</div>
 
 <%def name="build_spotlight(spotlight)" >
     <div class="profile-sp">

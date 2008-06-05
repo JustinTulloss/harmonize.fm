@@ -1,7 +1,6 @@
 <%namespace name="feed" file="feed.mako" />
 
 <%def name="render(entries)">
-	<div id="home-container">
 		<div id="home">
 			<div id="home-bg">
 			<div id="home-sidebar">
@@ -21,7 +20,6 @@
 			${feed.render(entries)}
 			<!--div id="mainlogo"><img src="/images/bigharmonized2.png" /></div-->
 		</div>
-	</div>
 </%def>
 
 %	if hasattr(c, 'main') and c.main:
