@@ -240,3 +240,17 @@ table {
 .spotlight_feed_info {
 	padding: 0;
 }
+
+#status-box {
+	position: absolute;
+	width: 100%;
+	margin-top: 3px;
+	text-align: center;
+}
+
+#status-box span {
+	background-color: #D8DEEB;
+    color: ${c.profile.dark_txt};
+	padding: 3px 5px;
+	visibility: hidden;
+}

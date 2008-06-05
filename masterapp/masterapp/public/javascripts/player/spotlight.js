@@ -19,7 +19,9 @@ function show_spotlight(record) {
 	function add_spotlight(e) {
 		Ext.Ajax.request({
 			url:'/player/spotlight_album/'+record.data.Album_id,
-			success: hide_dialog,
+			success: function() {
+						hide_dialog(); 
+						show_status_msg("Spotlight Added!");},
 			failure: hide_dialog,
 			params: {comment:document.getElementById('spot_textarea').value}});
 		e.preventDefault();
@@ -53,4 +55,17 @@ function hide_dialog() {
 	if (dlg)
 		dlg.remove();
 	urlm.invalidate_page();
+}
+
+function show_status_msg(msg, keepshowing) {
+	el = document.getElementById('status-box').firstChild;
+	el.innerHTML = msg;
+	el.style.visibility = 'visible';
+	if (!keepshowing)
+		setTimeout("hide_status_msg();", 5000);
+}
+
+function hide_status_msg() {
+	el = document.getElementById('status-box').firstChild;
+	el.style.visibility = 'hidden';
 }

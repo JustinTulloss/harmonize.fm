@@ -15,7 +15,8 @@ var render = {
     {
         id = record.id;
 		if (record.get('type') === 'album' && 
-			record.get('Friend_id') === global_config.uid )
+				(record.get('Friend_id') === global_config.uid ||
+				 record.get('Friend_id') === ''))
 			return t_add_col_alb.apply();
 		else
 			return t_add_col.apply();

@@ -65,6 +65,7 @@
 		<a href="#/bc/friend">friends</a>
 		<a href="#" id="feedback-link">feedback</a>
 	</div>
+	<div id="status-box"><span></span></div>
     <div id="logo">
         <a href="/"><img src="/images/whiteharmonizefm.png" /></a>
     </div>

@@ -32,7 +32,9 @@ var init_feedback;
 				url: '/player/feedback',
 				params: { email: emailInput.dom.value,
 						  feedback: textarea.dom.value},
-				success: hide_feedback,
+				success: function() {
+							hide_feedback();
+							show_status_msg("Feedback Received!");},
 				failure: hide_feedback
 			});
 		}
