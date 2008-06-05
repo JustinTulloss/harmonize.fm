@@ -26,16 +26,25 @@ class UploadsController(BaseController):
     def _file_already_uploaded(self, f_sha, fbid):
         """Checks to see if a song has already been uploaded and marks that user
             as having uploaded it if true"""
-        song = model.Session.query(model.File).filter_by(sha=f_sha).first()
-        if song == None:
-            return False
-
-        #We already have the song, mark the user as having it
         user = model.Session.query(model.User).filter_by(fbid=fbid).first()
         if user == None:
             user = model.User(fbid)
             model.Session.save(user)
         
+        # Check so see if the user has already uploaded the file
+        song = model.Session.query(model.File).join(model.Owner)
+        song = song.filter(model.File.sha == f_sha)
+        song = song.filter(model.Owner.user == user)
+        song = song.first()
+        if song != None:
+            return True
+
+        # Check to see if anybody else already has the song
+        song = model.Session.query(model.File).filter_by(sha=f_sha).first()
+        if song == None:
+            return False
+
+        #We already have the song, mark the user as having it
         new_owner = model.Owner()
         new_owner.file = song
         new_owner.user = user

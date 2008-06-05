@@ -25,6 +25,5 @@ def cjsonify(func, *args, **kwargs):
               "http://pylonshq.com/warnings/JSONArray"
         warnings.warn(msg, Warning, 2)
         log.warning(msg)
-    log.debug("Returning JSON wrapped action output")
     return cjson.encode(data)
 
