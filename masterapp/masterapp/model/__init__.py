@@ -195,6 +195,11 @@ class User(object):
         query = query.group_by(Artist)
         return query
     artist_query = property(get_artist_query)
+
+    def get_album_by_id(self, id):
+        qry = self.album_query
+        qry = qry.filter(Album.id == id)
+        return qry.first()
         
             
 

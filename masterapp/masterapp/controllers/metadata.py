@@ -55,14 +55,18 @@ class MetadataController(BaseController):
 
     def _pass_user(func):
         def pass_user(self, *args, **kwargs):
-            friendid = request.params.get('friend')
-            if not friendid:
-                user = Session.query(User).get(session['userid'])
-            else:
-                # TODO: Make sure they're friends
-                user = Session.query(User).get(friendid)
+            user = self._get_user()
             return func(self, user, *args, **kwargs)
         return pass_user
+
+    def _get_user(self):
+        friendid = request.params.get('friend')
+        if not friendid:
+            user = Session.query(User).get(session['userid'])
+        else:
+            # TODO: Make sure they're friends
+            user = Session.query(User).get(friendid)
+        return user
 
     def _build(self, results):
         json = { "data": []}
@@ -195,9 +199,9 @@ class MetadataController(BaseController):
         results = qry.all()
         return self._build_json(results, 'playlistsong')
 
-    def album_by_id(self, id):
-        res = Session.query(*dbfields['album']).join(Album.artist).filter(Album.id==id).group_by(Album)
-        json = self._build(res)
+    def album(self, id):
+        user = self._get_user()
+        album = user.get_album_by_id(id)
+        json = self._build([album])
         json['data'][0]['type'] = 'album'
-        json['data'][0]['Friend_id'] = request.params.get('friend')
         return cjson.encode(json)
