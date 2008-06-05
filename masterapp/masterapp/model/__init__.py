@@ -134,7 +134,7 @@ class User(object):
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields
-        query = Session.query(*dbfields['song'])
+        query = Session.query(Owner.uid.label('Friend_id'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
         query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
@@ -156,7 +156,7 @@ class User(object):
         ).join(Album.songs, File, Owner).filter(Owner.uid == self.id)
         havesongs = havesongs.group_by(Album.id).subquery()
 
-        query = Session.query(havesongs.c.Album_havesongs,
+        query = Session.query(Owner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
             havesongs.c.Album_length,
             *dbfields['album'])
         joined = join(Album, havesongs, Album.id == havesongs.c.albumid)
@@ -183,7 +183,7 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
-        query = Session.query(numsongs.c.Artist_availsongs,
+        query = Session.query(Owner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
             numalbums.c.Artist_numalbums,
             *dbfields['artist'])
         joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)

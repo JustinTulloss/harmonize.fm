@@ -76,8 +76,6 @@ class MetadataController(BaseController):
             json['data'].append(lrow)
             json['data'][len(json['data'])-1]['type'] =\
                 request.params.get('type')
-            if hasattr(self, 'friendid'):
-                json['data'][len(json['data'])-1]['Friend_id'] = self.friendid
         json['success']=True
         return json
         
