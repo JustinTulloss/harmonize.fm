@@ -135,6 +135,10 @@ a.bc_link:hover {
 	text-align: center;
 }
 
+.dialog-warning {
+	color: red;
+}
+
 /*
 #spot_content tr {
 	text-align: center;
@@ -180,7 +184,6 @@ table {
 
 #news_feed {
 	margin-left: 12px;
-	overflow: auto;
 }
 
 #news_feed h1 {
