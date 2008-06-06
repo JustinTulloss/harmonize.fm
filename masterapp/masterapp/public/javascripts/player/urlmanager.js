@@ -89,7 +89,7 @@ urlm = {}; //urlmanager is a singleton
 		/* First check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
 			var current = submanagers[i];
-			var pattern = current[0](url);
+			var pattern = url.match(current[0]);
 			if (pattern) {
 				var matched = pattern[0];
 				var rest = url.substring(matched.length);

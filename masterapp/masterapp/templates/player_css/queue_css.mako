@@ -66,3 +66,10 @@ a.qn-text{
     margin-right: 1em;
     margin-bottom: 0;
 }
+
+#queue-instructions {
+	height: 100%;
+	vertical-align: center;
+	width: 100%;
+	text-align: center;
+}

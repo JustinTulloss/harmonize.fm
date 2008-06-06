@@ -103,8 +103,7 @@ function ViewManager(crumb, objects)
             height: 'auto',
             titlebar: false,
             contentEl: 'header',
-			id: 'top-panel',
-			style: 'overflow: visible'
+			id: 'top-panel'
         }, 
         objects.queue.panel, 
 		my.centerpanel]

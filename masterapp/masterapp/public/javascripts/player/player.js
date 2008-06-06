@@ -158,7 +158,7 @@ function Player()
             success: loadsongurl,
             failure: badsongurl,
             songid: song.get('Song_id'),
-            songlength: song.get('Song_length'),
+            songlength: song.get('Song_length')
         });
     }
 
@@ -199,7 +199,7 @@ function Player()
 			Ext.Ajax.request({
 				url: '/player/songurl/'+newid,
 				success: loadbufferedurl,
-				failure: badsongurl,
+				failure: badsongurl
 			});
 			buffer_onload = null;
 		}	

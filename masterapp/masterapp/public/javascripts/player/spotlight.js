@@ -10,15 +10,15 @@ var spot_template = new Ext.Template(
 
 function show_spotlight(record) {
 	var spotlight = spot_template.apply( 
-			{album_name : record.data.Album_title,
-			 artist_name : record.data.Artist_name,
-			 album_art: record.json.Album_smallart});
+			{album_name : record.get('Album_title'),
+			 artist_name : record.get('Artist_name'),
+			 album_art: record.get('Album_smallart')});
 
 	show_dialog(spotlight);
 
 	function add_spotlight(e) {
 		Ext.Ajax.request({
-			url:'/player/spotlight_album/'+record.data.Album_id,
+			url:'/player/spotlight_album/'+record.get('Album_id'),
 			success: function() {
 						hide_dialog(); 
 						show_status_msg("Spotlight Added!");},

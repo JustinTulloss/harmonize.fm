@@ -1,6 +1,6 @@
 <%def name="render()">
 	<div id="profile-right">
-		<div class="profile-pic"><img src="${c.user.bigpicture}" /></div>
+		<div class="profile-pic"><center><img src="${c.user.bigpicture}" /></center></div>
 		<div class="profile-subtitle">Musical Tastes</div>
 		<div class="profile-right-content">${c.user.musictastes}</div>
 		<div class="profile-subtitle">Top Artists</div>

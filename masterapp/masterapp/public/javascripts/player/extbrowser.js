@@ -80,8 +80,8 @@ function BaseGrid(config)
     });
 
     this.actions={
-        addtoqueue: function(records) {this.fireEvent('enqueue', records);},
-		show_spotlight: function(records) {show_spotlight(records[0]);}
+        addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
+		show_spotlight: function(record) {show_spotlight(record);}
     };
 
     my.onMouseDown = function(e, div) {
@@ -89,8 +89,9 @@ function BaseGrid(config)
         for (action in my.actions) {
             if (Ext.get(div).hasClass(action)) {
                 e.stopPropagation(); /* Keep this row from getting selected */
-                var records = my.getSelectionModel().getSelections();
-                my.actions[action].call(my, records);
+				var row = e.getTarget('.x-grid3-row')
+				var record = my.getStore().getAt(row.rowIndex);
+                my.actions[action](record);
             }
         }
     }

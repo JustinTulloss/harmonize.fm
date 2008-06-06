@@ -1,29 +1,25 @@
 ##vim:filetype=html:expandtab:tabstop=4
 <%namespace name="rightcol" file="rightcol.mako" />
 
-<table id="profile-table"><tr><td id="profile-main">
+${rightcol.render()}
 <div id="profile-body">
-    <div class="profile-header">
-        <div class="profile-info">
-            <div class="profile-status">
-                <span class="profile-name">${c.user.name}</span>
-                % if c.user.nowplaying:
-                    <span class="profile-nowplaying">
-                        is listening to ${c.user.nowplaying.title}, by
-                        ${c.user.nowplaying.artist.name}
-                    </span>
-                % endif
-            </div>
-            <div class="profile-links">
-                <!--
-                <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
-                -->
-                <div><a href="#/bc/friend=${c.user.id}/artist">browse ${c.user.firstname}'s music</a></div>
-                <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
-                </a>
-            </div>
-        </div>
-    </div>
+	<div class="profile-status">
+		<span class="profile-name">${c.user.name}</span>
+		% if c.user.nowplaying:
+			<span class="profile-nowplaying">
+				is listening to ${c.user.nowplaying.title}, by
+				${c.user.nowplaying.artist.name}
+			</span>
+		% endif
+	</div>
+	<div class="profile-links">
+		<!--
+		<div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
+		-->
+		<div><a href="#/bc/friend=${c.user.id}/artist">browse ${c.user.firstname}'s music</a></div>
+		<div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
+		</a>
+	</div>
     <div class="profile-spotlight">
         <div class="profile-subtitle">Spotlight</div>
         % for spotlight in c.user.spotlights:
@@ -31,9 +27,6 @@
         % endfor
     </div>
 </div>
-</td><td id="rightcol">
-	${rightcol.render()}
-</td></tr></table>
 
 <%def name="build_spotlight(spotlight)" >
     <div class="profile-sp">

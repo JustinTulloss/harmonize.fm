@@ -24,7 +24,7 @@ function Profile(id)
             autoLoad: 'people/profile_right/'+id,
             layout:'fit',
             width: 220
-        }],
+        }]
     });
 
     my.panel.on('show', function(){my.panel.syncSize()});

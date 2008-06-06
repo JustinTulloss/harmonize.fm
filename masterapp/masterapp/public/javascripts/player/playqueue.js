@@ -22,9 +22,11 @@ function PlayQueue()
     });
 
     var instructions = new Ext.Template(
+		'<table id="queue-instructions"><tr><td>',
         'Drag here to add songs',
         '<br>-OR-<br>',
-        'Hit the <img class="middle" src="/images/enqueue.png" /> button'
+        'Hit the <img class="middle" src="/images/enqueue.png" /> button',
+		'</td></tr></table>'
     );
     instructions = instructions.compile();
 
@@ -57,9 +59,7 @@ function PlayQueue()
         border: false,
         hideBorders: true,
         header: false,
-        html: instructions.apply(),
-        bodyStyle:"text-align: center; display: table-cell; "+
-            "vertical-align: middle; #position: relative; #top: 50%;"
+        html: instructions.apply()
     });
 
     my.panel = new Ext.Panel({
@@ -274,7 +274,7 @@ function PlayQueue()
     my.inspanel.on('render', function() {
         dtarget = new Ext.dd.DropTarget(my.panel.getEl(), {
             notifyDrop: paneldrop,
-            ddGroup: 'TreeDD',
+            ddGroup: 'TreeDD'
         });
     });
     my.inspanel.on('hide', function() {
@@ -427,7 +427,7 @@ function AlbumQueueNode(config)
     function on_expand(node) {
         if (!my.songs_loaded) {
             my.songs.load({
-                callback: songs_callback,
+                callback: songs_callback
             });
 		}
     }
@@ -449,7 +449,7 @@ function AlbumQueueNode(config)
         my.songs.each(function(record) {
             var nn = new SongQueueNode({
                 queue: my.queue, 
-                record: record,
+                record: record
             });
             my.appendChild(nn);
         });
