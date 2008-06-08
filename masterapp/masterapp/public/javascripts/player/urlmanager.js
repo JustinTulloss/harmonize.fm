@@ -131,8 +131,7 @@ urlm = {}; //urlmanager is a singleton
 	my.handle_matched = function(handler) {
 		return function(matched, rest) {
 			function nhandler() {
-				if (rest != '')
-					handler(rest);
+				handler(rest);
 			}
 			if (matched == last_url_matched)
 				nhandler();

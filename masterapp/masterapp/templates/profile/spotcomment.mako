@@ -1,5 +1,7 @@
 <%def name="render(spotlight)">
-    <div class="comments-body" style="visibility: none;">
+    <div class="comments-body" style="display: none;">
+        Comments:&nbsp;
+        <a href="${c.current_url}" class="profile-sp-comment">hide</a>
         % for spot_comment in spotlight.friend_comments:
             ${render_comment(spot_comment)}
         % endfor

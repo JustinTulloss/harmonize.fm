@@ -100,6 +100,11 @@
 	margin-top: 5px;
 }
 
+.comments-body {
+	margin-top: 5px;
+    color: ${c.profile.profile_links};
+}
+
 .profile-sp-comment div {
 	padding-left: 8px;
 	color: black;
