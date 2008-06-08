@@ -33,7 +33,8 @@ playlistsongs_table= Table("playlistsongs", metadata, autoload=True)
 blockedfriends_table = Table("blockedfriends", metadata, autoload=True)
 blockedartists_table = Table("blockedartists", metadata, autoload=True)
 blog_table = Table("blog", metadata, autoload=True)
-spotlight_table = Table('spotlights', metadata, autoload=True)
+spotlights_table = Table('spotlights', metadata, autoload=True)
+spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -200,6 +201,11 @@ class User(object):
         qry = self.album_query
         qry = qry.filter(Album.id == id)
         return qry.first()
+
+    def get_active_spotlights(self):
+        return Session.query(Spotlight).filter(sql.and_(\
+                Spotlight.uid==self.id, Spotlight.active==True)).\
+                order_by(sql.desc(Spotlight.timestamp))
         
             
 
@@ -277,10 +283,30 @@ class BlogEntry(object):
         self.timestamp = datetime.now()
 
 class Spotlight(object):
-    def __init__(self, uid, albumid, comment=None):
+    def __init__(self, uid, albumid, comment=None, active=True):
         self.uid = uid
         self.albumid = albumid
         self.comment = comment[:255]
+        self.timestamp = datetime.now()
+        self.active = active
+        if active:
+            self._unactivate_lru()
+
+    def _unactivate_lru(self):
+        if Session.query(func.count(Spotlight.id)).filter(sql.and_(
+                Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:
+            lru = Session.query(Spotlight).\
+                    filter(sql.and_(
+                            Spotlight.uid==self.uid, 
+                            Spotlight.active==True))\
+                    .order_by(Spotlight.timestamp)[0]
+            lru.active = False
+
+class SpotlightComment(object):
+    def __init__(self, uid, spotlightid, comment):
+        self.uid = uid
+        self.spotlightid = spotlightid
+        self.comment = comment
         self.timestamp = datetime.now()
 
 class SongStat(object):
@@ -371,9 +397,14 @@ mapper(Playlist, playlists_table, properties={
 
 mapper(BlogEntry, blog_table)
 
-mapper(Spotlight, spotlight_table, properties={
+mapper(Spotlight, spotlights_table, properties={
     'album': relation(Album, lazy=False),
     'user' : relation(User, lazy=False, backref='spotlights')
+})
+
+mapper(SpotlightComment, spotlight_comments_table, properties={
+    'user' : relation(User),
+    'spotlight' : relation(Spotlight, backref='friend_comments')
 })
 
 mapper(SongStat, songstats_table, properties={

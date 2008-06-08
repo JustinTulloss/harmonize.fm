@@ -41,7 +41,7 @@
     color: ${c.profile.profile_subtitle};
 }
 
-.profile-spotlight .profile-subtitle {
+#profile-spotlight .profile-subtitle {
 	margin-left: 25px;
 }
 
@@ -87,11 +87,25 @@
     padding-left: 8px;
 }
 
-.profile-sp-comments a {
+.profile-sp-comment a, a.profile-sp-comment {
     line-height: 13pt;
     color: ${c.profile.profile_links};
 }
 
-.profile-sp-comments a:hover {
+.profile-sp-comment a:hover, a.profile-sp-comment:hover {
     color: ${c.profile.click}
 }
+
+.profile-sp-comment {
+	margin-top: 5px;
+}
+
+.profile-sp-comment div {
+	padding-left: 8px;
+	color: black;
+}
+
+.profile-sp-commentcontainer {
+	margin-left: 28px;
+}
+

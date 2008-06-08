@@ -16,13 +16,14 @@ from masterapp.model import (
     File, 
     Album, 
     BlogEntry, 
-    Spotlight, 
+    Spotlight,
+    SpotlightComment,
     Song)
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
 import pylons
-from sqlalchemy.sql import or_
+from sqlalchemy.sql import or_, and_
 import sqlalchemy.sql as sql
 
 from mailer import mail
@@ -47,8 +48,15 @@ class PlayerController(BaseController):
         for friend in session['fbfriends']:
             myor.append(User.fbid == friend)
 
-        entries.extend(Session.query(Spotlight).join(User).filter(myor)\
+        entries.extend(Session.query(Spotlight).join(User).filter(and_(
+                myor, Spotlight.active==True))\
                 [:max_count])
+
+        entries.extend(Session.query(SpotlightComment).join(Spotlight).\
+            filter(and_(
+                Spotlight.uid == uid, 
+                SpotlightComment.uid != uid,
+                Spotlight.active == True))[:max_count])
 
         def sort_by_timestamp(x, y):
             if x.timestamp == None:
