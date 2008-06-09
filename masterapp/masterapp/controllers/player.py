@@ -23,6 +23,7 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
 import pylons
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import or_, and_
 import sqlalchemy.sql as sql
 
@@ -52,11 +53,23 @@ class PlayerController(BaseController):
                 myor, Spotlight.active==True))\
                 [:max_count])
 
-        entries.extend(Session.query(SpotlightComment).join(Spotlight).\
-            filter(and_(
-                Spotlight.uid == uid, 
-                SpotlightComment.uid != uid,
-                Spotlight.active == True))[:max_count])
+        CommentUser = aliased(User)
+        SpotlightUser = aliased(User)
+        commentor = or_()
+        spotlightor = or_()
+        for friend in session['fbfriends']:
+            commentor.append(CommentUser.fbid == friend)
+            spotlightor.append(SpotlightUser.fbid == friend)
+            
+
+        entries.extend(Session.query(SpotlightComment).\
+                join(CommentUser,
+                    (Spotlight, SpotlightComment.spotlight), 
+                    (SpotlightUser, Spotlight.user)).\
+                filter(and_(
+                    or_(Spotlight.uid==session['userid'],
+                        and_(commentor, spotlightor)),
+                    Spotlight.active == True))[:max_count])
 
         def sort_by_timestamp(x, y):
             if x.timestamp == None:
@@ -79,7 +92,6 @@ class PlayerController(BaseController):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
-        c.entries = self._get_feed_entries(session['userid'])
 
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
