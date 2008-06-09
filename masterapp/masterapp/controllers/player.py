@@ -214,6 +214,7 @@ class PlayerController(BaseController):
     def home(self):
         c.entries = self._get_feed_entries(session['userid'])
         c.main = True
+        c.user = Session.query(User).get(session['userid'])
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:

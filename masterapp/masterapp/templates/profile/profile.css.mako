@@ -114,3 +114,7 @@
 	margin-left: 28px;
 }
 
+.spot-comment-textarea {
+	width: 250px;
+	height: 65px;
+}
