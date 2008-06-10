@@ -36,7 +36,7 @@
             <h4>
             <a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
                 ${entry.user.get_firstname()} commented on 
-            % if entry.uid == c.user.id:
+            % if entry.spotlight.uid == c.user.id:
                 your
             % elif entry.uid == entry.spotlight.uid:
                 % if c.user.sex == 'female':
