@@ -98,6 +98,7 @@ class PlayerController(BaseController):
             c.include_files = compressed_player_files
         else:
             c.include_files = player_files
+
         return render('/player.mako')
     
     def songurl(self, id):

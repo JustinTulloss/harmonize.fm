@@ -66,7 +66,8 @@ class User(object):
                     'first_name',
                     'pic',
                     'pic_big',
-                    'music'
+                    'music',
+                    'sex'
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
@@ -98,6 +99,11 @@ class User(object):
     def get_musictastes(self):
         return self.fbinfo['music']
     musictastes = property(get_musictastes)
+
+    @fbattr
+    def get_sex(self):
+        return self.fbinfo['sex']
+    sex = property(get_sex)
     
     def get_nowplaying(self):
         return self._nowplaying
