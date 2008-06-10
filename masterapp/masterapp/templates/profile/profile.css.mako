@@ -15,9 +15,11 @@
 }
 
 .profile-links {
-    text-align: right;
-    position: relative;
-    z-index: 1;
+    float: right;
+}
+
+.profile-links div {
+	text-align: right;
 }
 
 .profile-links a {
@@ -31,6 +33,7 @@
 .profile-subtitle {
     font-size: 14pt;
     border-bottom: 1px solid ${c.profile.profile_border};
+	padding-top: 10px;
     padding-left: 5px;
     padding-bottom: 2px;
     margin-top: 5px;
@@ -38,18 +41,14 @@
     color: ${c.profile.profile_subtitle};
 }
 
-.profile-spotlight{
-    position: relative;
-    top: -20px;
-}
-
-.profile-spotlight .profile-subtitle {
+#profile-spotlight .profile-subtitle {
 	margin-left: 25px;
 }
 
 #profile-body {
     padding: 10px;
 	padding-left: 0px;
+	overflow: hidden;
 }
 
 #profile-right {
@@ -57,6 +56,9 @@
     margin-top: 10px;
     margin-bottom: 10px;
     border-left: 1px solid ${c.profile.profile_border};
+	width: 200px;
+	float: right;
+	background-color: white;
 }
 
 .profile-sp {
@@ -85,22 +87,34 @@
     padding-left: 8px;
 }
 
-.profile-sp-comments a {
+.profile-sp-comment a, a.profile-sp-comment {
     line-height: 13pt;
     color: ${c.profile.profile_links};
 }
 
-.profile-sp-comments a:hover {
+.profile-sp-comment a:hover, a.profile-sp-comment:hover {
     color: ${c.profile.click}
 }
 
-#rightcol {
-	width: 200px;
-}
-#profile-table td {
-	vertical-align: top;
+.profile-sp-comment {
+	margin-top: 5px;
 }
 
-#profile-table {
-	width: 100%;
+.comments-body {
+	margin-top: 5px;
+    color: ${c.profile.profile_links};
+}
+
+.profile-sp-comment div {
+	padding-left: 8px;
+	color: black;
+}
+
+.profile-sp-commentcontainer {
+	margin-left: 28px;
+}
+
+.spot-comment-textarea {
+	width: 250px;
+	height: 65px;
 }

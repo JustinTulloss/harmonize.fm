@@ -10,6 +10,7 @@ urlm = {}; //urlmanager is a singleton
 	var submanagers = [];
 	//Since we are always serving home page we need to detect when the user is
 	//at a different page
+	var last_url_matched = 'undefined';
 	var current_url = 'undefined';
 	var current_panel;
 
@@ -50,18 +51,6 @@ urlm = {}; //urlmanager is a singleton
 	/*Function goes to a url and gets it from the cache if possible.
 	  will call function k if defined passing in the newly created panel */
 	function goto_page_directly(url, k) {
-	/*
-		var autoLoad = {url: url};
-		if (k)
-			autoLoad.callback(k)
-
-		var new_panel = new Ext.Panel({
-            layout: 'fit',
-            autoLoad: autoLoad,
-			autoScroll: true
-        });
-		*/
-
 		var new_panel = document.createElement('div');
 		new_panel.className = 'content-container';
 		new_panel.show = function() {};
@@ -89,17 +78,19 @@ urlm = {}; //urlmanager is a singleton
 		/* First check for a different handler function */
 		for (var i=0; i<submanagers.length; i++) {
 			var current = submanagers[i];
-			var pattern = current[0](url);
+			var pattern = url.match(current[0]);
 			if (pattern) {
 				var matched = pattern[0];
 				var rest = url.substring(matched.length);
 				current[1](matched, rest);
+				last_url_matched = matched;
 				return;
 			}
 		}
 
 		//If there are no handlers
 		goto_page_directly(url);
+		last_url_matched = url;
 	}
 
 	check_url = function() {
@@ -139,8 +130,14 @@ urlm = {}; //urlmanager is a singleton
 
 	my.handle_matched = function(handler) {
 		return function(matched, rest) {
-			goto_page_directly(matched, 
-					function(panel) {handler(rest);});
+			function nhandler() {
+				handler(rest);
+			}
+			if (matched == last_url_matched)
+				nhandler();
+			else {
+				goto_page_directly(matched, nhandler);
+			}
 		};
 	};
 
@@ -163,5 +160,6 @@ urlm = {}; //urlmanager is a singleton
 
 	my.invalidate_page = function() {
 		current_url = 'undefined';
+		last_url_matched = 'undefined';
 	}
 })();

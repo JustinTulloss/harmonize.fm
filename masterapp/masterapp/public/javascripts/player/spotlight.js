@@ -3,28 +3,36 @@ var spot_template = new Ext.Template(
 			'<h1>Add Album to your Spotlight</h1>',
 			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
-			'<textarea id="spot_textarea"></textarea><div id="spot_comment">comment</div><br /></tr></td>',
+			'<textarea id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<tr><td></td></tr>',
 			'<tr><td><button id="spot_add">add</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
 		'</table></form>');
 
 function show_spotlight(record) {
 	var spotlight = spot_template.apply( 
-			{album_name : record.data.Album_title,
-			 artist_name : record.data.Artist_name,
-			 album_art: record.json.Album_smallart});
+			{album_name : record.get('Album_title'),
+			 artist_name : record.get('Artist_name'),
+			 album_art: record.get('Album_smallart')});
 
 	show_dialog(spotlight);
 
 	function add_spotlight(e) {
-		Ext.Ajax.request({
-			url:'/player/spotlight_album/'+record.data.Album_id,
-			success: function() {
-						hide_dialog(); 
-						show_status_msg("Spotlight Added!");},
-			failure: hide_dialog,
-			params: {comment:document.getElementById('spot_textarea').value}});
 		e.preventDefault();
+		var comment = document.getElementById('spot_textarea').value;
+		if (comment.length <= 255) {
+			Ext.Ajax.request({
+				url:'/player/spotlight_album/'+record.get('Album_id'),
+				success: function() {
+							hide_dialog(); 
+							show_status_msg("Spotlight Added!");},
+				failure: hide_dialog,
+				params: {comment: comment}});
+		}
+		else {
+			var warning = document.getElementById('spot-error');
+			warning.innerHTML = 'Your comment is too long, please shorten it';
+		}
 	}
 
 	Ext.get('spot_cancel').on('click', hide_dialog);
@@ -54,7 +62,8 @@ function hide_dialog() {
 	var dlg = Ext.get('dialog-bg');
 	if (dlg)
 		dlg.remove();
-	urlm.invalidate_page();
+	//Not clear this is necessary in any cases now so it won't be the default
+	//urlm.invalidate_page(); 
 }
 
 function show_status_msg(msg, keepshowing) {

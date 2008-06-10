@@ -1,5 +1,5 @@
 <%!
-	from masterapp.model import BlogEntry, Spotlight
+	from masterapp.model import BlogEntry, Spotlight, SpotlightComment
 	from simplejson import dumps
 %>
 
@@ -31,6 +31,24 @@
 		</div>
 	</%def>
 
+    <%def name="comment_feed(entry)">
+        <div class="feed_content">
+            <h4>
+            <a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
+                ${entry.user.get_firstname()} wrote a comment on 
+            % if entry.spotlight.uid == c.user.id:
+                your
+            % else:
+                ${entry.spotlight.user.get_firstname()}'s 
+            % endif
+                Spotlight of ${entry.spotlight.album.title}
+            </a></h4>
+            <div class="blog_feed_comment">
+                ${quote_comment(entry.comment, 75)}
+            </div>
+        </div>
+    </%def>
+
 	<%
 	max_quote_len = 175
 	%>
@@ -43,11 +61,12 @@
 	</%def>
 
 	<div id="news_feed">
-		<div><h1 id="news-header">News Feed</h1></div>
+		<div><h1 id="news-header">Music Feed</h1></div>
 	<%
 		type_table = {
 			BlogEntry : blog_feed,
-			Spotlight : spotlight_feed
+			Spotlight : spotlight_feed,
+            SpotlightComment: comment_feed
 		}
 	%>
 	%	for entry in entries:
