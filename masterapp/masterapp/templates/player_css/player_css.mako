@@ -102,10 +102,8 @@ a.bc_link:hover {
 }
 
 #bccontent {
-    position: relative;
-    left: 19px;
-    top: 16px;
-    display: inline;
+	margin-top: 19px;
+	margin-left: 16px;
 }
 
 #dialog-bg {
