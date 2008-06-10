@@ -67,6 +67,7 @@ class PlayerController(BaseController):
                     (Spotlight, SpotlightComment.spotlight), 
                     (SpotlightUser, Spotlight.user)).\
                 filter(and_(
+                    SpotlightComment.uid!=session['userid'],
                     or_(Spotlight.uid==session['userid'],
                         and_(commentor, spotlightor)),
                     Spotlight.active == True))[:max_count])
