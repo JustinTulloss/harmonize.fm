@@ -2,7 +2,7 @@ import logging
 from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
-from sqlalchemy.sql import func, select, join
+from sqlalchemy.sql import func, select, join, or_
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -104,6 +104,19 @@ class User(object):
     def get_sex(self):
         return self.fbinfo['sex']
     sex = property(get_sex)
+
+    def are_friends(self, user):
+        return user in self.friends
+
+    def get_friends(self):
+        if self._friendids == None:
+            self._friendids = facebook.friends.getAppUsers()
+            allfriends = or_()
+            for id in self._friendids:
+                allfriends.append(User.fbid == id)
+            self._friends == Session.query(User).filter(allfriends).all()
+        return self._friends
+    friends = property(get_friends)
     
     def get_nowplaying(self):
         return self._nowplaying
