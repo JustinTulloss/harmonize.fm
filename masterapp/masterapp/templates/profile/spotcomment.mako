@@ -17,7 +17,7 @@
 
 <%def name="render_comment(spot_comment)">
     <div class="profile-sp-comment">
-    % if c.user.id == spot_comment.uid:
+    % if c.current_uid == spot_comment.uid:
         You wrote:
     % else:
         <a href="#/people/profile/${spot_comment.uid}">

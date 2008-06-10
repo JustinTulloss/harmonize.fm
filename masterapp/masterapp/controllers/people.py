@@ -27,8 +27,9 @@ class PeopleController(BaseController):
         # Make sure this user is allowed to access this profile
         #ensure_friends(id)
         
-        c.user = Session.query(User).get(session['userid'])
+        c.user = Session.query(User).get(id)
         c.current_url = '#/people/profile/'+id
+        c.current_uid = session['userid']
         c.profile = Profile()
         return render('/profile/index.mako')
 
