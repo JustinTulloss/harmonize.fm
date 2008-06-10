@@ -91,7 +91,11 @@ class PlayerController(BaseController):
     def index(self):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
+        c.fburl = \
+            "http://www.facebook.com/login.php?api_key=%s&v=1.0&popup=true" % \
+            pylons.config['pyfacebook.apikey']
         c.fields = schema.fields
+        c.entries = self._get_feed_entries(session['userid'])
 
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
