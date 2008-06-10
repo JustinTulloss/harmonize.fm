@@ -68,7 +68,6 @@ function PlayQueue()
         split: true,
         width: '20%',
         titlebar:false,
-        collapsible: true,
         layout: 'card',
         cls: 'queue',
         activeItem: 0,

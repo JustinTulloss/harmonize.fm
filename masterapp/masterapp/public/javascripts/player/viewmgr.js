@@ -71,6 +71,7 @@ function ViewManager(crumb, objects)
 
     var statusbar = new Ext.Toolbar({
         height: 25,
+		region: 'south',
         cls: 'status'
     });
 
@@ -88,7 +89,6 @@ function ViewManager(crumb, objects)
         layout: 'card',
         activeItem: 0,
         items: [browserpanel],
-        bbar: statusbar
     });
 
     bigshow = new Ext.Viewport({
@@ -106,7 +106,8 @@ function ViewManager(crumb, objects)
 			id: 'top-panel'
         }, 
         objects.queue.panel, 
-		my.centerpanel]
+		my.centerpanel,
+		statusbar]
     });
     var username=global_config.fullname;
 
