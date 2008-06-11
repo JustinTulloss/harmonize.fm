@@ -58,12 +58,12 @@
         </div>
     </div>
 	<div id="topmenu">
-	    <a href="#" id="friend_radio_link">Friend Radio<span id="friend_radio_status">(OFF)</span><a>
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
 		<a href="#/bc/artist">artists</a>
 		<a href="#/bc/album">albums</a>
 		<a href="#/bc/song">songs</a>
+		<a href="#" id="friend_radio_link">Friend Radio<span id="friend_radio_status">(OFF)</span><a>
 		<a href="#/bc/friend">friends</a>
 		<a href="#" id="feedback-link">feedback</a>
 	</div>
