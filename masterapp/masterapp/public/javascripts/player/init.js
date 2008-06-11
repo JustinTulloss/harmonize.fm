@@ -35,7 +35,6 @@ function init()
     errmgr = new ErrorManager();
     friend_radio = new FriendRadio();
     friend_radio_link = Ext.get("friend_radio_link"); 
-    friend_radio_status = Ext.get("friend_radio_status");
 
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
@@ -47,7 +46,6 @@ function init()
     browser.on('newgrid', add_grid_listeners);
 
     player.on('nextsong', playqueue.dequeue, playqueue);
-    player.on('nextradiosong', friend_radio.nextSong, friend_radio);
     player.on('prevsong', playqueue.prev, playqueue);
     player.on('showprev', playqueue.showprev, playqueue);
     player.on('hideprev', playqueue.hideprev, playqueue);
@@ -57,7 +55,6 @@ function init()
 	playqueue.on('buffersong', player.buffersong);
 	
 	friend_radio_link.on('click', friend_radio.toggle, friend_radio);
-	friend_radio.on('playsong', player.playsong);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);

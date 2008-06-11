@@ -85,11 +85,7 @@ function Player()
 
     function nextclicked() {
         /* initiates the nextsong chain of events. True for play now.*/
-        if (friend_radio.enabled) {
-            my.fireEvent('nextradiosong', my.playsong);
-        } else {
-            my.fireEvent('nextsong', my.playsong);
-        }
+        my.fireEvent('nextsong', my.playsong);
     }
 
     function prevclicked(e)

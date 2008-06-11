@@ -503,3 +503,60 @@ function ArtistQueueNode(config)
 }
 Ext.extend(ArtistQueueNode, QueueNode);
 
+function FriendRadioQueueNode(config)
+{
+	var my = this;
+	var current_song = null;
+
+    config.text = String.format('Friend Radio');
+    config.draggable = true;
+    config.checked = false;
+    config.allowDrop = false;
+    config.expandable = false;
+    config.leaf = false;
+
+    FriendRadioQueueNode.superclass.constructor.call(this, config);
+
+    this.dequeue = function(k) {
+		//this is where we send the ajax request to find the new song.
+		//when the song is returned, call k(song) on it.
+        radio_handler = function(response, options) {
+            var next_song = eval('(' + response.responseText + ')');
+            next_song = next_song.data[0];
+            next_song.get = (function(key) {return next_song[key];});
+            k(next_song);
+            current_song = next_song;
+        }
+        
+        radio_handler_failure = function(response, options) {
+            alert("next song couldn't be retrieved.  fuxx0red.");
+        }
+        
+        request_next_song(radio_handler, radio_handler_failure);
+    }
+    
+    function request_next_song(success_handler, failure_handler) {
+        Ext.Ajax.request({
+            url:'/metadata/next_radio_song',
+            success: success_handler,
+            failure: failure_handler
+        });
+    }
+    
+	my.peek = function(k) {
+	    
+	    success = function(response, options) {
+	        var next_song = eval('(' + response.responseText + ')');
+	        next_song = next_song.data[0];
+	        next_song.get = (function(key) { return next_song[key];});
+	        k(next_song);
+	    }
+	    
+	    failure = function(response, options) {
+            alert("retrieving next song failed for buffering purposes");	    
+	    }
+	    
+	    request_next_song(success, failure);
+	}
+}
+Ext.extend(FriendRadioQueueNode, QueueNode);

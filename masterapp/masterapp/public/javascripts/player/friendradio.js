@@ -12,16 +12,17 @@ function FriendRadio() {
     });
     
     var enabled = false;
-    var enabling = false;
     
     my.toggle = function(){
         if (my.enabled) {
-            my.enabled = false;
-            Ext.get("friend_radio_status").update(" (OFF)");
+            alert("friend radio is already enabled");
         } else {
             my.enabled = true;
-            Ext.get("friend_radio_status").update(" (ON)");
-            my.nextSong();
+            record = Ext.data.Record.create([]);
+            record.type = "friend_radio";            
+            record.get = (function(key) {return record[key];});
+            playqueue.enqueue([record]);
+            
         }
     }
     
