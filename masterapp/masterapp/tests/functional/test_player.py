@@ -1,5 +1,5 @@
 from masterapp.tests import *
-from masterapp import model
+#from masterapp import model
 
 class TestPlayerController(TestController):
     def test_index(self):

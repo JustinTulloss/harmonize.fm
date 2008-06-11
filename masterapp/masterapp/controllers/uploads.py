@@ -8,6 +8,7 @@ import facebook
 from facebook import FacebookError
 from urllib2 import URLError
 import df
+from puid import lookup_fingerprint
 
 from masterapp.lib.base import *
 import cPickle
@@ -105,9 +106,37 @@ class UploadsController(BaseController):
             dest_file.write(data)
 
 
+    def fingerprint(self):
+        # check session
+        fbid = self._get_fbid(request)
+        if fbid == None:
+            return 'reauthenticate'
+
+        # Check to make sure we got the right parameters
+        version = request.params.get('version')
+        if not version:
+            abort(400, "A version number must be specified")
+
+        file = dict(
+            artist = request.params.get('artist'),
+            album = request.params.get('album'),
+            title = request.params.get('title'),
+            date = request.params.get('date'),
+            genre = request.params.get('genre'),
+            tracknumber = request.params.get('tracknumber'),
+            bitrate = request.params.get('bitrate'),
+            duration = request.params.get('duration')
+        )
+        fingerprint = request.params.get('fingerprint')
+
+        if fingerprint:
+            # Look up the puid
+            puid = lookup_fingerprint(fingerprint, **file)
+        return puid
+
     def upload_new(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
-        #first get session key
+        # first get session key
         fbid = self._get_fbid(request)
         if fbid == None:
             try:

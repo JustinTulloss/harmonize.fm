@@ -13,12 +13,16 @@ setup(
     #author_email='',
     #url='',
     install_requires=[
-        "Pylons>=0.9.6.1", 
+        "Pylons>=0.9.6.2", 
         "sqlalchemy>=0.4.3",
         "sqlalchemy-migrate>=0.4.4",
         "python-cjson>=1.0.5"
     ],
-    packages=find_packages(exclude=['ez_setup']),
+    packages=find_packages(exclude=[
+        'ez_setup', 
+        '*tests*',
+        'masterapp.model.manage*',
+    ]),
     include_package_data=True,
     test_suite='nose.collector',
     package_data={'masterapp': ['i18n/*/LC_MESSAGES/*.mo']},
