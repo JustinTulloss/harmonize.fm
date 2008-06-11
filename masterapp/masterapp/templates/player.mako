@@ -11,8 +11,9 @@
     <script type="text/javascript">
         var global_config = {
             fullname: '${c.user.firstname}',
-			uid: ${c.user.id},
-            fields: ${simplejson.dumps(c.fields)}
+            fields: ${simplejson.dumps(c.fields)},
+            fburl: '${c.fburl}',
+			uid: ${c.user.id}
         };
     </script>
     ${parent.head_tags()}

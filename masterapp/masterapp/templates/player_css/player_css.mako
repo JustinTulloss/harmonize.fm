@@ -255,3 +255,7 @@ table {
 	height: 100%;
 	overflow: auto;
 }
+.fblogin {
+    width: 646px;
+    height: 436px;
+}

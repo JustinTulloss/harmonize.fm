@@ -20,6 +20,7 @@ def ensure_fb_session():
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
             Session.add(user)
+            Session.commit()
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
         session['userid'] = user.id
