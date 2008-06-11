@@ -58,6 +58,7 @@
         </div>
     </div>
 	<div id="topmenu">
+	    <a href="#" id="friend_radio_link">Friend Radio<span id="friend_radio_status">(OFF)</span><a>
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
 		<a href="#/bc/artist">artists</a>

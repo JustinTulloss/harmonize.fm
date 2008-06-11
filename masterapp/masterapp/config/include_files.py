@@ -53,7 +53,8 @@ player_files = IncludeFiles(
         'player/feedback.js',
 		'player/spotlight.js',
 		'player/urlmanager.js',
-        'player/profile.js'
+        'player/profile.js',
+        'player/friendradio.js'
     ]
 )
 
