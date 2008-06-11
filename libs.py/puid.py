@@ -2,6 +2,8 @@
 Justin Tulloss
 
 A simple library that takes a fingerprint and finds a puid.
+
+Inspired by pyofa: http://furius.ca/pyofa/
 """
 
 MD_HOST = 'ofa.musicdns.org'
