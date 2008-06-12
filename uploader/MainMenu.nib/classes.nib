@@ -18,6 +18,7 @@
                 mainWindow = NSWindow; 
                 progressbar = NSProgressIndicator; 
                 uploadFolderButton = NSButtonCell; 
+                uploadFolderField = NSTextField; 
                 uploadITunesButton = NSButtonCell; 
                 uploadOptions = NSWindow; 
                 uploadView = NSView; 
