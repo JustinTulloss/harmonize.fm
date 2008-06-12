@@ -234,3 +234,16 @@ class PlayerController(BaseController):
         elif 'Macintosh' in request.headers['User-Agent']:
             c.platform = 'mac'
         return render('/home.mako')
+        
+    def spotlight_album_edit(self):
+        if not request.params.has_key('comment'):
+            return '0'
+        elif not request.params.has_key('spot_id'):
+            return '0'
+        id = request.params.get('spot_id')
+        comment = request.params.get('comment')
+        spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
+        spotlight.comment = comment
+        Session.commit()
+        
+        return '1'

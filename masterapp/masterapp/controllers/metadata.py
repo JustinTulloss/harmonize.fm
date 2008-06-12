@@ -22,6 +22,7 @@ from masterapp.model import (
     User, 
     Playlist, 
     PlaylistSong,
+    Spotlight,
     filter_user
 )
 from pylons import config
@@ -49,7 +50,8 @@ class MetadataController(BaseController):
             'friend': self.friends,
             'playlist': self.playlists,
             'playlistsong': self.playlistsongs,
-            'next_radio_song': self.next_radio_song
+            'next_radio_song': self.next_radio_song,
+            'spotlight_lookup': self.spotlight_lookup
         }
 
     def __before__(self):
@@ -212,8 +214,7 @@ class MetadataController(BaseController):
     @_build_json
     @_pass_user
     def next_radio_song(self,user):
-        #todo: replace this with actual randomizing
-        #      and correct record returns
+        #todo: replace this with recommendations
         
         userStore = session['fbfriends']
         users=facebook.users.getInfo(userStore)
@@ -230,12 +231,22 @@ class MetadataController(BaseController):
             temp = data.filter(User.fbid == uid)
             for record in temp:
                 songlist.append(record.Song_id)
+        
         num_songs = len(songlist)
-        song_index = random.randint(0,num_songs) #replace with a random number generator
+        song_index = random.randint(0,num_songs)
         song_id = songlist[song_index]
         
         #now grab the actual song data based on the song_id
         song = data.filter(Song.id == song_id)
-        #song = song.group_by(Song)
-        #song = song.all()
         return song
+        
+    @cjsonify
+    @_build_json
+    @_pass_user
+    def spotlight_lookup(self, user):
+        if not request.params.has_key('id'):
+            return '0'
+        
+        spot = Session.query(Spotlight).filter(Spotlight.id == request.params['id'])
+        album = Session.query(*dbfields['album']).filter(Album.id == spot[0].albumid).join(Album.artist)
+        return album

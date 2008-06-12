@@ -15,39 +15,56 @@ var profile_handler;
 			container.child('.comments-body').setDisplayed(false);
 		}
 	}
-
+    //this function is called whenever the profile page is loaded
 	profile_handler = function(rest) {
 		hide_all();
-
+		
 		var components = rest.split('/');
-		if (components.length != 3 || components[1] != 'spcomments') {
+		
+		if (components.length != 3 || (components[1] != 'spcomments' && components[1] != 'spedit')) {
 			return;
 		}
-
-		var spot_id = components[2];
-		var target = Ext.get('spot-comment-'+spot_id);
-		if (target) {
-			target.child('.comment-controls').setDisplayed(false);
-			target.child('.comments-body').setDisplayed(true);
-
-			var button = target.child('.send-spot-comment');
-			if (!button.managed) {
-				button.managed = true;
-				button.on('click', function(e) {
-					e.preventDefault();
-					var textarea = target.child('.spot-comment-textarea');
-					Ext.Ajax.request({
-						url: '/people/add_spotcomment/'+spot_id,
-						params: {comment: textarea.dom.value},
-						success: function() {
-							show_status_msg('Comment added!');
-							urlm.invalidate_page();
-						}
-					});
-				});
-			}
-		}
-	}
+        var spot_id = components[2];		
+		//if the user clicked the edit spotlight link, this code is executed: 
+		if (components[1] == 'spedit') {
+    		Ext.Ajax.request({
+                url: '/metadata/spotlight_lookup',
+                params: {id: spot_id},
+                success: function(response, options) {
+                    record = eval('(' + response.responseText + ')');
+                    record = record.data[0];
+                    record.get = (function(key) { return record[key];});
+                    show_spotlight(record);
+                },
+                failure: function(response, options) {
+                    alert("failed to lookup spotlight");                
+                }
+            });
+        } else if (components[1] == 'spcomments') {		 //the user must've clicked the add comment link 
+		    var target = Ext.get('spot-comment-'+spot_id);
+		    if (target) {
+    			target.child('.comment-controls').setDisplayed(false);
+			    target.child('.comments-body').setDisplayed(true);
+    
+			    var button = target.child('.send-spot-comment');
+			    if (!button.managed) {
+    				button.managed = true;
+				    button.on('click', function(e) {
+    					e.preventDefault();
+					    var textarea = target.child('.spot-comment-textarea');
+					    Ext.Ajax.request({
+    						url: '/people/add_spotcomment/'+spot_id,
+						    params: {comment: textarea.dom.value},
+						    success: function() {
+    							show_status_msg('Comment added!');
+							    urlm.invalidate_page();
+						    }
+					    });
+				    });
+			    }
+		    }
+	    }
+    }
 })();
 
 function profile_factory(url) {

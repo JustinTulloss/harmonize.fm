@@ -34,6 +34,24 @@ function show_spotlight(record) {
 			warning.innerHTML = 'Your comment is too long, please shorten it';
 		}
 	}
+	
+	function edit_spotlight(e, id, record) {
+	    e.preventDefault();
+	    var comment = document.getElementById('spot_textarea').value;
+	    if (comment.length <= 255) {
+	        Ext.Ajax.request({
+                url:'/player/spotlight_album_edit',
+                params: {comment: comment, spot_id: id},
+                success: function() {
+                    hide_dialog();
+                    show_status_msg("Spotlight changed!");
+                },
+                failure: hide_dialag
+	        });
+	    } else {
+	    
+	    }
+	}
 
 	Ext.get('spot_cancel').on('click', hide_dialog);
 	Ext.get('spot_add').on('click', add_spotlight);
