@@ -6,8 +6,8 @@ def check(path):
 	proc = subprocess.Popen(['df', path], stdout=subprocess.PIPE, 
 										  stderr=subprocess.PIPE)
 	proc.stdout.readline()
-	line = proc.stdout.readline()
-	used = int(re.match(r'.*\s(\d+)%', line).groups()[0])
+	line = proc.stdout.read()
+	used = int(re.search(r'(\d+)%', line).groups(1)[0])
 
 	proc.stdout.read()
 	proc.stderr.read()

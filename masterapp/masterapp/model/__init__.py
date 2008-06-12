@@ -35,6 +35,7 @@ blockedartists_table = Table("blockedartists", metadata, autoload=True)
 blog_table = Table("blog", metadata, autoload=True)
 spotlights_table = Table('spotlights', metadata, autoload=True)
 spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
+puids_table = Table('puids', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -335,6 +336,11 @@ class SongStat(object):
         self.playcount = 0
         self.lastrecommended = datetime.now() #we don't currently use this
 
+class Puid(object):
+    def __init__(self, puid = None, song = None):
+        self.song = song
+        self.puid = puid
+
 def filter_user(query, uid):
     """
     Filters out any result that does not belong to you. Assumes you're joined
@@ -431,3 +437,6 @@ mapper(SongStat, songstats_table, properties={
     'user': relation(User, backref='songstats')
 })
 
+mapper(Puid, puids_table, properties={
+    'songs': relation(Song, lazy=True)
+})

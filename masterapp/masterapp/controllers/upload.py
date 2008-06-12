@@ -9,16 +9,32 @@ from facebook import FacebookError
 from urllib2 import URLError
 import df
 from puid import lookup_fingerprint
+from musicbrainz2.webservice import (
+    Query,
+    TrackFilter,
+    WebServiceError
+)
+
+from sqlalchemy.sql import or_
 
 from masterapp.lib.base import *
-import cPickle
-pickle = cPickle
+import cPickle as pickle
 
 from masterapp import model
 
 log = logging.getLogger(__name__)
 
-class UploadsController(BaseController):
+class Response(object):
+    upload = 'upload'
+    reauthenticate = 'reauthenticate'
+    done = 'done'
+    upload = 'upload'
+    wait = 'wait'
+    retry = 'retry'
+
+upload_response = Response()
+
+class UploadController(BaseController):
     def __init__(self, *args):
         super(BaseController, self).__init__(args)
         self.apikey = config['pyfacebook.apikey']
@@ -105,36 +121,7 @@ class UploadsController(BaseController):
         if dest_file != None:
             dest_file.write(data)
 
-
-    def fingerprint(self):
-        # check session
-        fbid = self._get_fbid(request)
-        if fbid == None:
-            return 'reauthenticate'
-
-        # Check to make sure we got the right parameters
-        version = request.params.get('version')
-        if not version:
-            abort(400, "A version number must be specified")
-
-        file = dict(
-            artist = request.params.get('artist'),
-            album = request.params.get('album'),
-            title = request.params.get('title'),
-            date = request.params.get('date'),
-            genre = request.params.get('genre'),
-            tracknumber = request.params.get('tracknumber'),
-            bitrate = request.params.get('bitrate'),
-            duration = request.params.get('duration')
-        )
-        fingerprint = request.params.get('fingerprint')
-
-        if fingerprint:
-            # Look up the puid
-            puid = lookup_fingerprint(fingerprint, **file)
-        return puid
-
-    def upload_new(self, id):
+    def file(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         # first get session key
         fbid = self._get_fbid(request)
@@ -143,15 +130,15 @@ class UploadsController(BaseController):
                 self.read_postdata()
             except self.PostException:
                 pass
-            return 'reauthenticate'
+            return upload_response.reauthenticate
 
-        if config['app_conf']['check_df'] and \
-                df.check(config['app_conf']['upload_dir']) > 80:
+        if config['app_conf']['check_df'] == 'true' and \
+                df.check(config['app_conf']['upload_dir']) > 85:
             try:
                 self.read_postdata()
             except self.PostException:
                 pass
-            return 'wait'
+            return upload_response.wait
             
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
@@ -166,7 +153,9 @@ class UploadsController(BaseController):
                 self.read_postdata(dest_file)
             except self.PostException:
                 os.remove(dest_path)
-                return 'retry'
+                return upload_response.retry
+
+            dest_file.close()
 
             #finally, put the file in file_queue for processing
             fdict = {
@@ -174,7 +163,6 @@ class UploadsController(BaseController):
                 'fbid': fbid,
                 'usersha': id
             }
-            dest_file.close()
             pfile = pickle.dumps(fdict)
             fsock = socket.socket(
                 socket.AF_INET, socket.SOCK_STREAM
@@ -190,26 +178,48 @@ class UploadsController(BaseController):
             except self.PostException:
                 pass
 
-        return 'file_uploaded'
+        return upload_response.done
         
-    def file_exists(self, id):
-        """GET /uploads/id : This is to check whether a file has already been
-        uploaded or not. Returns a 1 if it has and a 0 otherwise"""
+    def tags(self):
         fbid = self._get_fbid(request)
+        if not fbid:
+            return upload_response.reauthenticate
 
-        if fbid == None:
-            return 'reauthenticate'
+        # Check for api version
+        version = request.params.get('version')
+        if not version=='1.0':
+            abort(400, 'Version must be 1.0')
 
+        # Check our database for PUID
+        userpuid = request.params.get('puid')
+        if not userpuid:
+            return upload_response.upload
 
-        if config['app_conf']['check_df'] == 'true' and \
-                df.check(config['app_conf']['upload_dir']) > 70:
-            return 'wait'
+        dbpuids = model.Session.query(model.Puid).filter(
+            model.Puid.puid == userpuid
+        ).all()
+        if len(dbpuids) > 0:
+            return upload_response.done
 
-        if self._file_already_uploaded(id, fbid):
-            return 'file_uploaded'
-        else:
-            return 'upload_file'
-    
+        # Check MB for puid matches, then our database for MB matches
+        try:
+            mbq = Query()
+            filter = TrackFilter(puid=userpuid)
+            results = mbq.getTracks(filter)
+        except WebServiceError, e:
+            log.info('Brainz error occurred, uploading the file')
+            return upload_response.upload
+
+        anyof = or_()
+        for result in results:
+            anyof.append(model.Song.mbid == result.track.id.split('/').pop())
+        checksongs = model.Session.query(model.Song).filter(anyof).all()
+        if len(checksongs)>0:
+            return upload_response.done
+
+        # We haven't seen the song, let's get the whole file
+        return upload_response.upload
+            
     def desktop_redirect(self):
         fb = self._get_fb()
         if fb.check_session(request):

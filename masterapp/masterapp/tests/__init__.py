@@ -23,7 +23,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import engine
 from pylons import config
 
-__all__ = ['url_for', 'TestController', 'TestModel', 'model', 'here_dir']
+__all__ = ['url_for', 'TestController', 'TestModel', 'model', 'here_dir',
+    'conf_dir']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
