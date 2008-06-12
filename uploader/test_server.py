@@ -17,11 +17,11 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 	def GET_response(self):
 		global requests, fbsession
 		if requests % 2 == 0:
-			response = 'upload_file' 
+			response = 'upload' 
 		else:
-			response = 'file_uploaded'
+			response = 'done'
 
-		if requests % 7 == 0:
+		if requests % 20 == 0:
 			print 'Changing session key'
 			fbsession += 1
 
@@ -42,21 +42,25 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			session_key = None
 
 		status = 200
-		if request_path[:9] == '/uploads/' and self.request_body == None:
-			print 'Asking if file ', request_path[9:], 'has been uploaded'
+		if request_path == '/upload/tags':
+			print 'Asking if file', self.post_query['title'][0],\
+					'has been uploaded'
 			response = self.GET_response()
-		elif request_path[:9] == '/uploads/' and self.request_body != None:
-			print 'Attempting to upload the file ', request_path[9:], \
+		elif request_path[:12] == '/upload/file' and self.request_body != None:
+			print 'Attempting to upload the file ', request_path[12:], \
 					'with file length: ', self.length
 			if session_key != fbsession:
 				print 'Session key invalid, need to reauth'
 				response = 'reauthenticate'
 			else:
-				response = 'file_uploaded'
+				response = 'done'
 		elif request_path == '/desktop_login':
-			return self.redirect('http://localhost:8080/complete_login?session_key='+str(fbsession))
+			return self.redirect('http://localhost:26504/complete_login?session_key='+str(fbsession))
+		elif request_path == '/upload_ping':
+			print 'ping received'
+			return ''
 		else:
-			print 'Error: unkown request received'
+			print 'Error: unknown request received (%s)' % request_path
 			response = None
 			status = 404
 
