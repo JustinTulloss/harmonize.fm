@@ -269,6 +269,15 @@ function PlayQueue()
             e.cancel = false;
         }
     }
+    
+    my.insert = insert;
+    function insert(records) {
+        //config.queue = my;
+        for (var i = 0; i < (records.length); i++) {
+            var nn = newnode({record:records[i]});
+            my.root.insertBefore(nn, my.root.item(0));
+        }
+    }
 
     var dtarget;
     my.inspanel.on('render', function() {
@@ -513,7 +522,7 @@ function FriendRadioQueueNode(config)
     config.checked = false;
     config.allowDrop = false;
     config.expandable = false;
-    config.leaf = false;
+    config.leaf = true;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
 

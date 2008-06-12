@@ -150,6 +150,7 @@ var typeinfo = {
         gridclass: FriendGrid
     },
     friend_radio:{
+        display: 'FriendRadio',
         nodeclass: FriendRadioQueueNode
     }
 };
