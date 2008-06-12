@@ -548,7 +548,7 @@ function FriendRadioQueueNode(config)
     config.checked = false;
     config.allowDrop = true;
     config.expandable = false;
-    config.leaf = false;
+    config.leaf = true;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
 
