@@ -546,9 +546,9 @@ function FriendRadioQueueNode(config)
     config.text = String.format('Friend Radio');
     config.draggable = true;
     config.checked = false;
-    config.allowDrop = false;
+    config.allowDrop = true;
     config.expandable = false;
-    config.leaf = true;
+    config.leaf = false;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
 
@@ -559,6 +559,7 @@ function FriendRadioQueueNode(config)
             var next_song = eval('(' + response.responseText + ')');
             next_song = next_song.data[0];
             next_song.get = (function(key) {return next_song[key];});
+            next_song.type = "song";
             k(next_song);
             current_song = next_song;
         }
@@ -584,6 +585,7 @@ function FriendRadioQueueNode(config)
 	        var next_song = eval('(' + response.responseText + ')');
 	        next_song = next_song.data[0];
 	        next_song.get = (function(key) { return next_song[key];});
+	        next_song.type = "song";
 	        k(next_song);
 	    }
 	    
