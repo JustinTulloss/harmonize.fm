@@ -1,7 +1,7 @@
-import os, re, hashlib, httplib, sys, platform, time
+import os, re, hashlib, httplib, sys, platform, time, urllib
 import os.path as path
 from thread import start_new_thread
-import config, tags, rate_limit, fb
+import config, tags, rate_limit, fb, genpuid
 
 def get_default_path():
 	def default_osx():
@@ -58,30 +58,40 @@ def upload_file(filename, callback):
 	try:
 		file_contents = open(filename, 'rb').read()
 		if file_contents == '': return
-		contents_wo_tags = tags.file_contents_without_tags(filename)
-		if contents_wo_tags == '': return
+		file_sha = hashlib.sha1(file_contents).hexdigest()
+		puid = genpuid.gen(filename)
 	except IOError, e:
-		#sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
+		if config.current['debug']:
+			sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
 		return
 
-	file_sha = hashlib.sha1(contents_wo_tags).hexdigest()
 
 	uploaded = False
 	while not uploaded:
 		try:
-			connection = httplib.HTTPConnection(config.current['server_addr'],
-				config.current['server_port'])
-			url = '/uploads/' + file_sha + '?session_key='+fb.get_session_key()
-			connection.request('GET', url)
+			connection = httplib.HTTPConnection(
+					config.current['server_addr'],
+					config.current['server_port'])
+			if puid:
+				song_tags = tags.get_tags(filename, puid)
+				body = urllib.urlencode(song_tags)
+				headers = {"Content-type": "application/x-www-form-urlencoded"}
+				puid_url = '/upload/tags'+'?session_key='+fb.get_session_key()
+				connection.request('POST', puid_url, body, headers)
 
-			response = connection.getresponse().read()
+				response = connection.getresponse().read()
+			else:
+				response = 'upload'
 
-			if response == 'upload_file':
+
+			if response == 'upload':
+				upload_url = '/upload/file/'+file_sha + \
+								'?session_key='+fb.get_session_key()
 				if config.current['rate_limit']:
 					response = \
-						rate_limit.post(connection, url, file_contents).read()
+						rate_limit.post(connection, upload_url, file_contents).read()
 				else:
-					connection.request('POST', url, file_contents, 
+					connection.request('POST', upload_url, file_contents, 
 										{'Content-type':'audio/x-mpeg-3'})
 					response = connection.getresponse().read()
 				
