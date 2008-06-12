@@ -33,8 +33,9 @@ var profile_handler;
                 success: function(response, options) {
                     record = eval('(' + response.responseText + ')');
                     record = record.data[0];
+                    record['id'] = spot_id;
                     record.get = (function(key) { return record[key];});
-                    show_spotlight(record);
+                    show_spotlight(record, "edit");
                 },
                 failure: function(response, options) {
                     alert("failed to lookup spotlight");                

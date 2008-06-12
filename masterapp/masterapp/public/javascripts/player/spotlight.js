@@ -9,7 +9,7 @@ var spot_template = new Ext.Template(
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
 		'</table></form>');
 
-function show_spotlight(record) {
+function show_spotlight(record,mode) {
 	var spotlight = spot_template.apply( 
 			{album_name : record.get('Album_title'),
 			 artist_name : record.get('Artist_name'),
@@ -35,9 +35,10 @@ function show_spotlight(record) {
 		}
 	}
 	
-	function edit_spotlight(e, id, record) {
+	function edit_spotlight(e) {
 	    e.preventDefault();
 	    var comment = document.getElementById('spot_textarea').value;
+	    var id = record.get('id');
 	    if (comment.length <= 255) {
 	        Ext.Ajax.request({
                 url:'/player/spotlight_album_edit',
@@ -46,7 +47,7 @@ function show_spotlight(record) {
                     hide_dialog();
                     show_status_msg("Spotlight changed!");
                 },
-                failure: hide_dialag
+                failure: hide_dialog
 	        });
 	    } else {
 	    
@@ -54,7 +55,10 @@ function show_spotlight(record) {
 	}
 
 	Ext.get('spot_cancel').on('click', hide_dialog);
-	Ext.get('spot_add').on('click', add_spotlight);
+	if (mode == "add")
+	    Ext.get('spot_add').on('click', add_spotlight);
+	else
+	    Ext.get('spot_add').on('click', edit_spotlight);
 	Ext.get('spot_textarea').focus(); //This doesn't work the first time
 }
 

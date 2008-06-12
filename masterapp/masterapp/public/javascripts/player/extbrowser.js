@@ -85,7 +85,7 @@ function BaseGrid(config)
 
     this.actions={
         addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
-		show_spotlight: function(record) {show_spotlight(record);}
+		show_spotlight: function(record) {show_spotlight(record, "add");}
     };
 
     my.onMouseDown = function(e, div) {

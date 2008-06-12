@@ -43,11 +43,11 @@ ${rightcol.render()}
 
         <%
             edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-            edit_class = 'class="profile-sp-edit edit-controls"'
+            edit_class = 'class="profile-sp-comment comment-controls"'
         %>
         
         <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
-            <a ${edit_class} href="${edit_spotlight_url}">Edit this spotlight</a>
+            
         </div>
         
         <% 
@@ -57,6 +57,7 @@ ${rightcol.render()}
         %>
         
         <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
+        <a ${edit_class} href="${edit_spotlight_url}">Edit this spotlight</a><br />
         
         % if num_comments == 0 and own_profile:
             
