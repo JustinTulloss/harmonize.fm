@@ -5,7 +5,9 @@
 function FriendRadio() {
     if (this == window) alert('new not called for FriendRadio()');
     var my = this;
-    
+
+    /* Toggle() is called when the friend_radio_link is clicked (an event, see init.js)
+     */
     my.toggle = function(){
         record = Ext.data.Record.create([]);
         record.type = "friend_radio";            

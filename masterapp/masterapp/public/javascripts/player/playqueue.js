@@ -273,10 +273,37 @@ function PlayQueue()
     my.insert = insert;
     function insert(records) {
         //config.queue = my;
+        if (records[0].type == "friend_radio") {
+            if (my.is_friend_radio()) {
+                return;    
+            }
+        }
         for (var i = 0; i < (records.length); i++) {
             var nn = newnode({record:records[i]});
-            my.root.insertBefore(nn, my.root.item(0));
+            if (my.root.hasChildNodes()) 
+                my.root.insertBefore(nn, my.root.item(0));
+            else {
+                my.root.appendChild(nn);
+                if(my.playing == null) {
+                    my.panel.getLayout().setActiveItem(1);
+                    my.dequeue();
+                }
+                else
+                    buffer_top();   
+                }
         }
+        if (my.playing) {
+            my.dequeue();
+        }
+    }
+    
+    my.is_friend_radio = function() {
+        if (!my.root.hasChildNodes()) return false;        
+        var node = my.root.firstChild;        
+        if (node.config.record.type == "friend_radio") {
+            return true;
+        }
+        else return false;        
     }
 
     var dtarget;
