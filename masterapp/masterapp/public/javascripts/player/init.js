@@ -21,6 +21,7 @@ var viewmgr = null;
 var bread_crumb = null;
 var settingspanel = null;
 var errmgr = null;
+var friend_radio = null;
 
 /******* Initialization functions ********/
 function init()
@@ -32,6 +33,8 @@ function init()
     settingspanel = new SettingsPanel();
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
     errmgr = new ErrorManager();
+    friend_radio = new FriendRadio();
+    friend_radio_link = Ext.get("friend_radio_link"); 
 
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
@@ -42,14 +45,16 @@ function init()
     browser.on('chgstatus', viewmgr.set_status, viewmgr);
     browser.on('newgrid', add_grid_listeners);
 
-    player.on('nextsong', playqueue.dequeue, playqueue);
-    player.on('prevsong', playqueue.prev, playqueue);
-    player.on('showprev', playqueue.showprev, playqueue);
-    player.on('hideprev', playqueue.hideprev, playqueue);
+    player.on('nextsong', playqueue.dequeue);
+    player.on('prevsong', playqueue.prev);
+    player.on('showprev', playqueue.showprev);
+    player.on('hideprev', playqueue.hideprev);
 
     playqueue.on('playsong', player.playsong);
     playqueue.on('stop', player.stop);
 	playqueue.on('buffersong', player.buffersong);
+	
+	friend_radio_link.on('click', friend_radio.toggle, friend_radio);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);

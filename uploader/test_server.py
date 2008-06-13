@@ -58,7 +58,7 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			return self.redirect('http://localhost:26504/complete_login?session_key='+str(fbsession))
 		elif request_path == '/upload_ping':
 			print 'ping received'
-			return ''
+			response = ''
 		else:
 			print 'Error: unknown request received (%s)' % request_path
 			response = None
@@ -76,9 +76,13 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 	def do_POST(self):
 		if self.headers.has_key('Content-Length'):
 			self.length = int(self.headers['Content-Length'])
-			self.request_body = self.rfile.read(self.length)
-			if self.headers.has_key('Content-Type') and \
-					self.headers['Content-Type']=='application/x-www-form-urlencoded':
+			if self.headers.get('Content-Type') != 'audio/x-mpeg=3':
+				self.request_body = self.rfile.read(self.length)
+			else:
+				while len(self.rfile.read(1024)) == 1024:
+					pass
+			if self.headers.get('Content-Type') ==\
+							'application/x-www-form-urlencoded':
 				self.post_query = cgi.parse_qs(self.request_body)
 			else:
 				self.post_query = None

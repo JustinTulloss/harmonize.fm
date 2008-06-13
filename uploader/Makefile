@@ -3,7 +3,7 @@ all: devel
 FILES=Harmonize_osx.py MainMenu.nib setup.py fb.py dir_browser.py upload.py itunes.py rate_limit.py
 
 devel: $(FILES)
-	python setup.py py2app
+	python setup.py py2app -A
 
 release: $(FILES)
 	python setup.py py2app
