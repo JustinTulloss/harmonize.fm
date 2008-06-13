@@ -74,11 +74,22 @@ function show_spotlight(record,mode) {
 	    }
 	}
 
-	Ext.get('spot_cancel').on('click', hide_dialog);
-	if (mode == "add")
+	if (mode == "add") {
 	    Ext.get('spot_add').on('click', add_spotlight);
-	else
+	    Ext.get('spot_cancel').on('click', hide_dialog);
+	}
+	else {
 	    Ext.get('spot_add').on('click', edit_spotlight);
+	    Ext.get('spot_cancel').on('click', function() {
+	        hide_dialog();
+	        history.back();
+	        //var orig_link = Ext.get('spot-comment-' + record.get('id').child('.#').dom;
+	        //var orig_class = orig_link.class;
+	        
+	        
+	        //document.location = old_loc;
+	    });
+	}
 	Ext.get('spot_textarea').focus(); //This doesn't work the first time
 }
 
