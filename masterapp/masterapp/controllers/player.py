@@ -237,13 +237,27 @@ class PlayerController(BaseController):
         
     def spotlight_album_edit(self):
         if not request.params.has_key('comment'):
-            return '0'
+            return False
         elif not request.params.has_key('spot_id'):
-            return '0'
+            return False
         id = request.params.get('spot_id')
         comment = request.params.get('comment')
         spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
         spotlight.comment = comment
         Session.commit()
         
-        return '1'
+        return True
+
+    def delete_spotlight(self):
+        if not request.params.has_key('id'):
+            return False
+        
+        spot = Session.query(Spotlight).filter(Spotlight.id == request.params.get('id'))
+        if (spot.first()):
+            Session.delete(spot.first())
+            Session.commit()
+            return True
+        else:
+            return False
+        
+        

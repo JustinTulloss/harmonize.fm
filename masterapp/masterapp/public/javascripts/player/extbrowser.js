@@ -87,12 +87,16 @@ function BaseGrid(config)
         addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
 		show_spotlight: function(record) {
             //we need to check and make sure this spotlight doesn't already exist
-            var album_id = record['Album_id'];
+            var album_id = record.get('Album_id');
             Ext.Ajax.request({
                 url: 'metadata/find_spotlight_by_album',
                 params: {album_id: album_id},
                 success: function(response, options) {
-                    alert("you've already spotlighted this album");                
+                    if (response.responseText == "True") {
+                        show_status_msg("You already have a spotlight for this album.");
+                    } else {
+                        show_spotlight(record, "add");
+                    }                
                 },
                 failure: function(response, options) {
                     show_spotlight(record, "add");                

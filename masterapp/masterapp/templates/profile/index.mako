@@ -37,6 +37,7 @@ ${rightcol.render()}
             </div>
         % endif
         <div class="profile-sp-title"><img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
+                <img src="/images/song_remove.png" onclick="delete_spotlight(${spotlight.id},'${spotlight.album.title}')" />
                 ${spotlight.album.title}</div>
         <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
         <div class="profile-sp-review">${spotlight.comment}</div>

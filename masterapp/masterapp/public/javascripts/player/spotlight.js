@@ -16,9 +16,21 @@ var edit_spot_template = new Ext.Template(
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
 			'<textarea id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_add">change</button>',
+			'<tr><td><button id="spot_change">change</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
-		'</table></form>');		
+		'</table></form>');
+		
+var delete_spot_template = new Ext.Template(
+		'<form id="spot_form">',
+			'<h1 id="spot_form_title">Delete Spotlight</h1>',
+			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
+			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
+			'{current_comment}<div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<tr><td></td></tr>',
+			'<tr><td>Are you sure?</td></tr>',
+			'<tr><td><button id="spot_delete">yes</button>',
+			'<button id="spot_cancel">cancel</button></center></td></tr>',
+		'</table></form>');			
 
 function show_spotlight(record,mode) {
     var spotlight;    
@@ -27,12 +39,21 @@ function show_spotlight(record,mode) {
 			    {album_name : record.get('Album_title'),
 			     artist_name : record.get('Artist_name'),
 			     album_art: record.get('Album_smallart')});
-    } else { //mode must be "edit"
+    } else if (mode == "edit" ){ 
         spotlight = edit_spot_template.apply(
                 {album_name : record.get('Album_title'),
                 artist_name : record.get('Artist_name'),
                 album_art: record.get('Album_smallart'),
                 current_comment: record.get('Spotlight_comment')});
+    } else if (mode == "delete") {
+        spotlight = delete_spot_template.apply(
+                    {album_name: record.get('Album_title'),
+                    artist_name: record.get('Artist_name'),
+                    current_comment: record.get('Spotlight_comment'),
+                    album_art: record.get('Album_smallart')   
+                    }     
+                );
+        
     }
 	show_dialog(spotlight);
 
@@ -42,9 +63,15 @@ function show_spotlight(record,mode) {
 		if (comment.length <= 255) {
 			Ext.Ajax.request({
 				url:'/player/spotlight_album/'+record.get('Album_id'),
-				success: function() {
+				success: function(response, options) {
+				    if (response.responseText == "1") {
 							hide_dialog(); 
-							show_status_msg("Spotlight Added!");},
+							show_status_msg("Spotlight Added!");
+					} else {
+					    hide_dialog();
+					    show_status_msg("Spotlight was NOT added.");
+					}
+				},
 				failure: hide_dialog,
 				params: {comment: comment}});
 		}
@@ -62,10 +89,12 @@ function show_spotlight(record,mode) {
 	        Ext.Ajax.request({
                 url:'/player/spotlight_album_edit',
                 params: {comment: comment, spot_id: id},
-                success: function() {
-                    hide_dialog();
-                    show_status_msg("Spotlight changed!");
-                    urlm.invalidate_page();
+                success: function(response, options) {
+                    if (response.responseText == "True") {
+                        hide_dialog();    
+                        show_status_msg("Spotlight changed!");
+                        urlm.invalidate_page();
+                    } else hide_dialog();
                 },
                 failure: hide_dialog
 	        });
@@ -74,14 +103,58 @@ function show_spotlight(record,mode) {
 			warning.innerHTML = 'Your comment is too long, please shorten it';
 	    }
 	}
+	
+	function do_delete_spotlight() {
+        Ext.Ajax.request({
+            url: 'player/delete_spotlight',
+            params: {id: record.get('id')},
+            success: function (response, options) {
+                if (response.responseText == "True") {
+                    hide_dialog();
+                    show_status_msg("Spotlight deleted.");
+                    urlm.invalidate_page();
+                } else {
+                    hide_dialog();
+                    show_status_msg("didnt work");
+                }
+            },
+            failure: function () {
+                hide_dialog();
+                show_status_msg("didn't work for some reason");   
+            }
+        });
+    }
+    
     Ext.get('spot_cancel').on('click', hide_dialog);
 	if (mode == "add") {
 	    Ext.get('spot_add').on('click', add_spotlight);
+	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	}
-	else {
-	    Ext.get('spot_add').on('click', edit_spotlight);
+	else if (mode == "edit") {
+	    Ext.get('spot_change').on('click', edit_spotlight);
+	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
+	} else if (mode == "delete") {
+	    Ext.get('spot_delete').on('click', do_delete_spotlight);
 	}
-	Ext.get('spot_textarea').focus(); //This doesn't work the first time
+}
+
+function delete_spotlight(spot_id, album_title) {
+    Ext.Ajax.request({
+        url: 'metadata/find_spotlight_by_id',
+        params: {id: spot_id},
+        success: 
+            function(response, options) {
+                if (response.responseText != "False") {
+                    record = eval('(' + response.responseText + ')');
+                    record = record.data[0];
+                    record['id'] = spot_id;
+                    record.get = (function(key) { return record[key];});
+                    show_spotlight(record, "delete");
+                } else alert("error retrieving spotlight information");
+            },        
+        
+        failure: function() {alert('error retrieving spotlight information');}
+    });    
 }
 
 //Use a table to shrinkwrap content
