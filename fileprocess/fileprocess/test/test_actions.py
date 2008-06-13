@@ -5,8 +5,9 @@ import logging
 import nose
 from nose.tools import *
 from mockfiles import mockfiles
-from ..actions import Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,\
-    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher, Transcoder
+from ..actions import (Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,
+    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher, Transcoder,
+    PuidGenerator, DBTagger)
 import fileprocess
 from fileprocess.processingthread import na
 
@@ -292,6 +293,20 @@ class TestActions(TestBase):
         assert nf['fname'] != origname, 'File did not get transcoded'
     """
 
+    def testPuidGenerator(self):
+        p = PuidGenerator()
+        p.cleanup_handler = Mock()
+        assert p, "PuidGenerator not constructed"
+
+        # Test an irrelevant file
+        nf = p.process(self.fdata['empty'])
+
+        # Test a good file
+        self.fdata['goodfile']['fname'] = \
+            os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
+        nf = p.process(self.fdata['goodfile'])
+        assert nf['puid'] == '3178113b-858c-2456-f73e-1ab929f38934'
+
 class TestDBActions(TestBase):
     """
     These actions need a database to back them. Since databases are painful
@@ -391,3 +406,11 @@ class TestDBActions(TestBase):
 
         # Test insertion of incomplete record
         assert_raises(AssertionError, r.process,  self.fdata['goodtags'])
+
+    def testDBTagger(self):
+        t = DBTagger()
+        assert t, "DBTagger not constructed"
+
+        nf = t.process(self.fdata['dbrec'])
+        assert not nf.has_key('dbsongid'), \
+            'DBTagger matched something it shouldn\'t have'

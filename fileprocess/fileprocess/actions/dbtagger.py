@@ -1,10 +1,15 @@
 import logging
+from mock import Mock
 from baseaction import BaseAction
 from tag_compare import (
     compare_to_release,
     match_file_to_release,
     match_file_to_track
 )
+from pylons import config as pconfig
+from sqlalchemy import engine_from_config
+from sqlalchemy import engine
+from fileprocess.configuration import config
 log = logging.getLogger(__name__)
 
 class DBTagger(BaseAction):
@@ -15,7 +20,7 @@ class DBTagger(BaseAction):
             prefix = 'sqlalchemy.default.'
         )
         from masterapp import model
-        from masterapp.schema import dbfields
+        from masterapp.config.schema import dbfields
         self.model = model
 
     def process(self, file):
@@ -23,8 +28,8 @@ class DBTagger(BaseAction):
             return file
 
         # Get the songs that have this PUID
-        songmatches = self.model.Session.query(Song).join(Puid).\
-            filter(Puid.puid == file['puid']).all()
+        songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
+            filter(self.model.Puid.puid == file['puid']).all()
 
         # Make sure this file matches one of the songs with this PUID
         trackl = []
@@ -51,9 +56,9 @@ class DBTagger(BaseAction):
             return file
         
         # Check to see if the user already owns this song
-        owner = self.model.Session.query(Owner).\
-            filter(Owner.song == match).\
-            filter(Owner.user == file['dbuser']).first()
+        owner = self.model.Session.query(self.model.Owner).\
+            filter(self.model.Owner.song == match).\
+            filter(self.model.Owner.user == file['dbuser']).first()
         if owner:
             #Just bail now, this file's already been uploaded
             log.debug('%s has already been uploaded by %s', 
@@ -73,4 +78,4 @@ class DBTagger(BaseAction):
         file['dbsongid'] = match.id
         file['dbartistid'] = match.artist.id
         file['dbalbumid'] = match.album.id
-        return False
+        return file

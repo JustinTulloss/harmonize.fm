@@ -15,6 +15,12 @@ class PuidGenerator(BaseAction):
             if file['puid'] != None:
                 return file
 
+        if not file.has_key('fname'):
+            return file
+
+        if not os.path.exists(file.get('fname')):
+            return file
+
         gp = subprocess.Popen(
             ['genpuid', config['musicdns.key'], '-xml', file.get('fname')],
             stdout=subprocess.PIPE
