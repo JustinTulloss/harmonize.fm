@@ -94,7 +94,7 @@ function PlayQueue()
     }
 
     function newnode(config) {
-        type = config.record.get('type');
+        var type = config.record.get('type');
         config.queue = my;
         return new typeinfo[type].nodeclass(config);
     }
