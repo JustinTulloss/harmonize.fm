@@ -148,6 +148,10 @@ var typeinfo = {
         qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid
+    },
+    friend_radio:{
+        display: 'FriendRadio',
+        nodeclass: FriendRadioQueueNode
     }
 };
 

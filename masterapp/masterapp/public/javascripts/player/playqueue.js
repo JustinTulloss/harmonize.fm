@@ -275,6 +275,42 @@ function PlayQueue()
         }
 		update_instructions();
     }
+    
+    my.insert = insert;
+    function insert(records) {
+        //config.queue = my;
+        if (records[0].type == "friend_radio") {
+            if (my.is_friend_radio()) {
+                return;    
+            }
+        }
+        for (var i = 0; i < (records.length); i++) {
+            var nn = newnode({record:records[i]});
+            if (my.root.hasChildNodes()) 
+                my.root.insertBefore(nn, my.root.item(0));
+            else {
+                my.root.appendChild(nn);
+                if(my.playing == null) {
+                    my.panel.getLayout().setActiveItem(1);
+                    my.dequeue();
+                }
+                else
+                    buffer_top();   
+                }
+        }
+        if (my.playing) {
+            my.dequeue();
+        }
+    }
+    
+    my.is_friend_radio = function() {
+        if (!my.root.hasChildNodes()) return false;        
+        var node = my.root.firstChild;        
+        if (node.config.record.type == "friend_radio") {
+            return true;
+        }
+        else return false;        
+    }
 
     var dtarget;
     my.inspanel.on('render', function() {
@@ -518,3 +554,62 @@ function ArtistQueueNode(config)
 }
 Ext.extend(ArtistQueueNode, QueueNode);
 
+function FriendRadioQueueNode(config)
+{
+	var my = this;
+	var current_song = null;
+
+    config.text = String.format('Friend Radio');
+    config.draggable = true;
+    config.checked = false;
+    config.allowDrop = true;
+    config.expandable = false;
+    config.leaf = true;
+
+    FriendRadioQueueNode.superclass.constructor.call(this, config);
+
+    this.dequeue = function(k) {
+		//this is where we send the ajax request to find the new song.
+		//when the song is returned, call k(song) on it.
+        radio_handler = function(response, options) {
+            var next_song = eval('(' + response.responseText + ')');
+            next_song = next_song.data[0];
+            next_song.get = (function(key) {return next_song[key];});
+            next_song.type = "song";
+            k(next_song);
+            current_song = next_song;
+        }
+        
+        radio_handler_failure = function(response, options) {
+            alert("next song couldn't be retrieved.  fuxx0red.");
+        }
+        
+        request_next_song(radio_handler, radio_handler_failure);
+    }
+    
+    function request_next_song(success_handler, failure_handler) {
+        Ext.Ajax.request({
+            url:'/metadata/next_radio_song',
+            success: success_handler,
+            failure: failure_handler
+        });
+    }
+    
+	my.peek = function(k) {
+	    
+	    success = function(response, options) {
+	        var next_song = eval('(' + response.responseText + ')');
+	        next_song = next_song.data[0];
+	        next_song.get = (function(key) { return next_song[key];});
+	        next_song.type = "song";
+	        k(next_song);
+	    }
+	    
+	    failure = function(response, options) {
+            alert("retrieving next song failed for buffering purposes");	    
+	    }
+	    
+	    request_next_song(success, failure);
+	}
+}
+Ext.extend(FriendRadioQueueNode, QueueNode);

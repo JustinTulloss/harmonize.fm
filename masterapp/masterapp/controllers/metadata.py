@@ -1,6 +1,7 @@
 # vim:expandtab:smarttab
 import logging
 import cjson
+import random
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
@@ -47,7 +48,8 @@ class MetadataController(BaseController):
             'song': self.songs,
             'friend': self.friends,
             'playlist': self.playlists,
-            'playlistsong': self.playlistsongs
+            'playlistsong': self.playlistsongs,
+            'next_radio_song': self.next_radio_song
         }
 
     def __before__(self):
@@ -205,3 +207,35 @@ class MetadataController(BaseController):
         json = self._build([album])
         json['data'][0]['type'] = 'album'
         return cjson.encode(json)
+
+    @cjsonify
+    @_build_json
+    @_pass_user
+    def next_radio_song(self,user):
+        #todo: replace this with actual randomizing
+        #      and correct record returns
+        
+        userStore = session['fbfriends']
+        users=facebook.users.getInfo(userStore)
+        fbids = []
+        for user in users:
+            fbids.append(user['uid'])
+        #songlist is a list where each element is a song id.
+        #this will be used to generate a random number between 0 and the number
+        #of songs (the length of the list)        
+        songlist = []
+        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(File,Owner,User)
+        for uid in fbids:
+            # grab each users songs and append their song_ids to songlist
+            temp = data.filter(User.fbid == uid)
+            for record in temp:
+                songlist.append(record.Song_id)
+        num_songs = len(songlist)
+        song_index = random.randint(0,num_songs) #replace with a random number generator
+        song_id = songlist[song_index]
+        
+        #now grab the actual song data based on the song_id
+        song = data.filter(Song.id == song_id)
+        #song = song.group_by(Song)
+        #song = song.all()
+        return song
