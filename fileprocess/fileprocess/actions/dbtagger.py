@@ -1,4 +1,5 @@
 import logging
+from baseaction import BaseAction
 from tag_compare import (
     compare_to_release,
     match_file_to_release,
@@ -6,7 +7,7 @@ from tag_compare import (
 )
 log = logging.getLogger(__name__)
 
-class BrainzTagger(BaseAction):
+class DBTagger(BaseAction):
     def __init__(self, *args):
         # Hook up to the database
         pconfig['pylons.g'] = Mock()
@@ -14,4 +15,62 @@ class BrainzTagger(BaseAction):
             prefix = 'sqlalchemy.default.'
         )
         from masterapp import model
+        from masterapp.schema import dbfields
         self.model = model
+
+    def process(self, file):
+        if not file.has_key('puid'):
+            return file
+
+        # Get the songs that have this PUID
+        songmatches = self.model.Session.query(Song).join(Puid).\
+            filter(Puid.puid == file['puid']).all()
+
+        # Make sure this file matches one of the songs with this PUID
+        trackl = []
+        trackd = {}
+        for track in songmatches:
+            trackd[track.mbid] = track
+            trackl.append({
+                'id': track.mbid,
+                'releaseid': track.album.mbid,
+                'title': track.title,
+                'album': track.album.title,
+                'artist': track.album.artist.name,
+                'duration': track.length,
+                'tracknumber': track.tracknumber,
+                'totaltracks': track.album.totaltracks,
+                'date': track.album.year,
+            })
+            
+        result = match_file_to_track(file, trackl)
+        if result:
+            match = trackd[result['id']]
+        else:
+            # Didn't find any tracks in the current db that match this one
+            return file
+        
+        # Check to see if the user already owns this song
+        owner = self.model.Session.query(Owner).\
+            filter(Owner.song == match).\
+            filter(Owner.user == file['dbuser']).first()
+        if owner:
+            #Just bail now, this file's already been uploaded
+            log.debug('%s has already been uploaded by %s', 
+                file.get('fname'), file['fbid'])
+            file['msg'] = "File has already been uploaded by user"
+            file['na'] = na.NOTHING
+            self.cleanup(file)
+            return False
+
+        # Create a new owner indicating they own the matched song
+        nowner = self.model.Owner()
+        nowner.song = match
+        nowner.user = file['dbuser']
+        self.model.Session.add(nowner)
+        self.model.Session.commit()
+
+        file['dbsongid'] = match.id
+        file['dbartistid'] = match.artist.id
+        file['dbalbumid'] = match.album.id
+        return False

@@ -17,7 +17,8 @@ config = {
     'pyfacebook.callbackpath': None,
     'pyfacebook.apikey': 'cec673d0ef3fbc12395d0d3500cd72f9',
     'pyfacebook.secret': 'a08f822bf3d7f80ee25c47414fe98be1',
-    'pyfacebook.appid': '2364724122'
+    'pyfacebook.appid': '2364724122',
+    'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1'
 }
 
 dev_config = {

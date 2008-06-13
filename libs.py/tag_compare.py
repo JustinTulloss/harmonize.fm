@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The below functions were stolen from picard, with modifications
 
@@ -21,10 +22,14 @@ The below functions were stolen from picard, with modifications
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 """
 
-from tag_utils import year, totaltracks
+import logging
+from tag_utils import get_year, totaltracks
 from picard.similarity import similarity2
+from musicbrainz2.webservice import Release
 
-TRACK_THRESHOLD = .65
+log = logging.getLogger(__name__)
+
+TRACK_THRESHOLD = .70
 def compare_to_release(file, release):
     """
     Compare cluster metadata to a MusicBrainz release.
@@ -52,7 +57,7 @@ def compare_to_release(file, release):
         total += similarity2(a, b) * 6.0 / 33.0
 
     a = file.get('date')
-    b = year(release)
+    b = get_year(release)
     if a and b:
         total += 1.0-abs(cmp(a, b)) * 4.0 / 33.0
 
@@ -89,7 +94,7 @@ def match_file_to_release(file, release):
             'duration': track.duration,
             'tracknumber': release.tracks.index(track) + 1,
             'totaltracks': len(release.tracks),
-            'date': year(release),
+            'date': get_year(release),
             'types': release.types
         })
         
@@ -113,16 +118,16 @@ def match_file_to_track(file, tracks):
     matches.sort(reverse=True)
     log.debug('Track matches: %r', matches)
 
-    if matches[0][0] > TRACK_THRESHOLD
+    if matches[0][0] > TRACK_THRESHOLD:
         return matches[0][1]
     return False
 
-def compare_meta(self, file, track):
+def compare_meta(file, track):
     """
     Compare file metadata to a MusicBrainz track.
 
     Weights:
-      * title                = 15 
+      * title                = 15
       * artist name          = 6
       * release name         = 8
       * length               = 10
@@ -141,8 +146,8 @@ def compare_meta(self, file, track):
     a = file.get('title')
     b = track.get('title')
     if a and b:
-        parts.append((similarity2(a, b), 20))
-        total += 20
+        parts.append((similarity2(a, b), 15))
+        total += 15
 
     a = file.get('artist')
     b = track.get('artist')
@@ -204,13 +209,5 @@ def compare_meta(self, file, track):
         if b.TYPE_ALBUM in a:
             parts.append((1.0, 3))
         total += 8
-
-    a = self.releasecache.get((file.get('album'), file.get('artist')))
-    b = track.get('releaseid')
-    if a:
-        a = a.id
-        if a == b:
-            parts.append((1.0, 4))
-        total += 4
 
     return reduce(lambda x, y: x + y[0] * y[1] / total, parts, 0.0)

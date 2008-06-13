@@ -23,6 +23,9 @@ class Mover(BaseAction):
         The overridden process function, moves the file and renames it.
         Assumes the file is rewound
         """
+        if not file.has_key('fname'):
+            return file
+
         log.debug('Moving %s', file['fname'])
 
         to = os.path.join(self.to, guid.generate())
@@ -31,10 +34,12 @@ class Mover(BaseAction):
         else:
             frm = file['fname']
         if not os.path.exists(frm):
-            file['msg'] = "An Error occurred while processing file"
+            log.info("Given filename does not exist, bailing")
+            file['msg'] = "File does not exist"
             file['na'] = na.FAILURE
             self.cleanup(file)
             return False
+            
         move(frm, to)
 
         file["fname"] = to

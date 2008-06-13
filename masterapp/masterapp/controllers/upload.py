@@ -121,6 +121,17 @@ class UploadController(BaseController):
         if dest_file != None:
             dest_file.write(data)
 
+    def _process(self, file):
+        pfile = pickle.dumps(file)
+        fsock = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM
+        )
+        port = int(config['pipeline_port'])
+        fsock.connect(('localhost', port))
+        fsock.send(pfile)
+        fsock.shutdown(socket.SHUT_RDWR)
+        fsock.close()
+        
     def file(self, id):
         """POST /uploads/id: This one uploads new songs for realsies"""
         # first get session key
@@ -163,15 +174,7 @@ class UploadController(BaseController):
                 'fbid': fbid,
                 'usersha': id
             }
-            pfile = pickle.dumps(fdict)
-            fsock = socket.socket(
-                socket.AF_INET, socket.SOCK_STREAM
-            )
-            port = int(config['pipeline_port'])
-            fsock.connect(('localhost', port))
-            fsock.send(pfile)
-            fsock.shutdown(socket.SHUT_RDWR)
-            fsock.close()
+            self._process(fdict)
         else:
             try:
                 self.read_postdata()
@@ -195,10 +198,24 @@ class UploadController(BaseController):
         if not userpuid:
             return upload_response.upload
 
+        def build_fdict():
+            return dict(
+                puid = request.params.get('puid')
+                artist = request.params.get('artist')
+                album = request.params.get('album')
+                title = request.params.get('title')
+                duration = request.params.get('duration')
+                bitrate = request.params.get('bitrate')
+                date = request.params.get('date')
+                tracknumber = request.params.get('tracknumber')
+                genre = request.params.get('genre')
+            )
+
         dbpuids = model.Session.query(model.Puid).filter(
             model.Puid.puid == userpuid
         ).all()
         if len(dbpuids) > 0:
+            self._process(build_fdict())
             return upload_response.done
 
         # Check MB for puid matches, then our database for MB matches
@@ -215,6 +232,7 @@ class UploadController(BaseController):
             anyof.append(model.Song.mbid == result.track.id.split('/').pop())
         checksongs = model.Session.query(model.Song).filter(anyof).all()
         if len(checksongs)>0:
+            self._process(build_fdict())
             return upload_response.done
 
         # We haven't seen the song, let's get the whole file

@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 setup(
     name='libs.py',
@@ -12,6 +12,6 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     ext_modules = [
-        Extension('picard.util.astrcmp',
-        ['picard/util/astrcmp.cpp'])
+        Extension('picard.util.astrcmp',['picard/util/astrcmp.cpp'])
+    ]
 )

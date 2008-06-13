@@ -29,7 +29,7 @@ class DBChecker(BaseAction):
 
     def process(self, file):
         assert file and len(file)>0 and \
-            file.has_key('fbid') and file.has_key('sha')
+            file.has_key('fbid')
 
         # Get this user, create him if he doesn't exist
         qry = self.model.Session.query(self.model.User).filter(
@@ -44,9 +44,13 @@ class DBChecker(BaseAction):
 
         file['dbuser'] = user
 
+        if not file.has_key('sha'):
+            # It's not really our job to take care of this. Let's move on.
+            return file
+
         # Check to see if this file has already been uploaded by this person.
         qry = self.model.Session.query(self.model.Owner).join('file').filter(
-            and_(self.model.File.sha == file['sha'], self.model.Owner.id==user.id)
+            and_(self.model.Song.sha == file['sha'], self.model.Owner.id==user.id)
         )
         ownerfile = qry.first()
         if ownerfile != None:
@@ -66,6 +70,7 @@ class DBChecker(BaseAction):
             owner = self.model.Owner()
             owner.file = dbfile
             owner.user = user
+            owner.song = dbfile.song
             log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
             self.model.Session.save(owner)
             self.model.Session.commit()

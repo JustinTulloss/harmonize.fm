@@ -98,5 +98,6 @@ class TestUploadController(TestController):
             os.path.join(conf_dir,'tmp','1909354',
                 '23620cde3a549a043a20d1e9c2b4c1c85899d2f9'
             )), 'Uploaded file does not exist'
+
         # Cleanup file
         shutil.rmtree(os.path.join(conf_dir, 'tmp', '1909354'))

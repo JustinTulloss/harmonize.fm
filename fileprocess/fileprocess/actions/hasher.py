@@ -16,7 +16,8 @@ class Hasher(BaseAction):
     """
 
     def process(self, file):
-        assert file.has_key('usersha')
+        if not (file.has_key('usersha') and os.path.exists(file.get('fname'))):
+            return file
 
         # Hash the untagged file
         f = open(file['fname'], 'rb')

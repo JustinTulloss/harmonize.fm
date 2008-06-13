@@ -233,6 +233,8 @@ class Owner(object):
     def __init__(self, uid=None, fid=None):
         self.uid = uid
         self.fileid = fid
+        self.recommendations = 0
+        self.playcount = 0
 
 class File(object):
     def __init__(self, sha=None, songid=None):
