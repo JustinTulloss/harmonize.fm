@@ -1,6 +1,6 @@
 var spot_template = new Ext.Template(
 		'<form id="spot_form">',
-			'<h1>Add Album to your Spotlight</h1>',
+			'<h1 id="spot_form_title">Add Album to your Spotlight</h1>',
 			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
 			'<textarea id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
@@ -8,13 +8,32 @@ var spot_template = new Ext.Template(
 			'<tr><td><button id="spot_add">add</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
 		'</table></form>');
+		
+var edit_spot_template = new Ext.Template(
+		'<form id="spot_form">',
+			'<h1 id="spot_form_title">Edit Spotlight</h1>',
+			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
+			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
+			'<textarea id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<tr><td></td></tr>',
+			'<tr><td><button id="spot_add">edit</button>',
+			'<button id="spot_cancel">cancel</button></center></td></tr>',
+		'</table></form>');		
 
 function show_spotlight(record,mode) {
-	var spotlight = spot_template.apply( 
-			{album_name : record.get('Album_title'),
-			 artist_name : record.get('Artist_name'),
-			 album_art: record.get('Album_smallart')});
-
+    var spotlight;    
+    if (mode == "add") {
+    	spotlight = spot_template.apply( 
+			    {album_name : record.get('Album_title'),
+			     artist_name : record.get('Artist_name'),
+			     album_art: record.get('Album_smallart')});
+    } else { //mode must be "edit"
+        spotlight = edit_spot_template.apply(
+                {album_name : record.get('Album_title'),
+                artist_name : record.get('Artist_name'),
+                album_art: record.get('Album-smallart'),
+                current_comment: record.get('Album_title')});
+    }
 	show_dialog(spotlight);
 
 	function add_spotlight(e) {
@@ -50,7 +69,8 @@ function show_spotlight(record,mode) {
                 failure: hide_dialog
 	        });
 	    } else {
-	    
+	        var warning = document.getElementById('spot-error');
+			warning.innerHTML = 'Your comment is too long, please shorten it';
 	    }
 	}
 

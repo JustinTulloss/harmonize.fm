@@ -41,6 +41,7 @@ fields = {
         'Friend_id',
         'Friend_name',
     ],
+    'spotlight': [],
 }
 
 dbfields = {}
