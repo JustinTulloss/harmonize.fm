@@ -38,6 +38,7 @@ class TestUploadController(TestController):
         res = self.app.post('/upload/tags', params=debra)
         assert res.body == 'upload'
 
+        self._listen()
         # Put a file in the database that has the same mbid but different puid
         nsong = model.Song(
             title = 'Debra',
@@ -61,6 +62,7 @@ class TestUploadController(TestController):
         debra['puid'] = None
         res = self.app.post('/upload/tags', params = debra)
         assert res.body == 'upload'
+        self._stop_listening()
 
     def test_file(self):
         """
@@ -71,20 +73,13 @@ class TestUploadController(TestController):
         )
         assert res.body == 'reauthenticate'
 
-        # Hook up to socket uploader will send file down
-        fsock = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM
-        )
-        port = int(config['pipeline_port'])
-        fsock.bind(('localhost', port))
-        fsock.listen(2)
-
         testfilepath = os.path.join(here_dir, 'functional', '02 Vacileo.mp3')
         testfile = open(testfilepath)
         size = os.stat(testfilepath)[os.path.stat.ST_SIZE]
         url ='/upload/file/23620cde3a549a043a20d1e9c2b4c1c85899d2f9'+\
             '?session_key=08bd66d3ebc459d32391d0d2-1909354'
 
+        self._listen()
         res = self.app.post(url,
             params = testfile.read(),
             headers = {
@@ -101,3 +96,17 @@ class TestUploadController(TestController):
 
         # Cleanup file
         shutil.rmtree(os.path.join(conf_dir, 'tmp', '1909354'))
+        self._stop_listening()
+
+    def _listen(self):
+        # Hook up to socket uploader will send file down
+        self.fsock = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM
+        )
+        port = int(config['pipeline_port'])
+        self.fsock.bind(('localhost', port))
+        self.fsock.listen(10)
+
+    def _stop_listening(self):
+        self.fsock.close()
+

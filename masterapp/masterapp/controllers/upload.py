@@ -49,9 +49,9 @@ class UploadController(BaseController):
             model.Session.save(user)
         
         # Check so see if the user has already uploaded the file
-        song = model.Session.query(model.File).join(model.Owner)
+        song = model.Session.query(model.File).join(model.SongOwner)
         song = song.filter(model.File.sha == f_sha)
-        song = song.filter(model.Owner.user == user)
+        song = song.filter(model.SongOwner.user == user)
         song = song.first()
         if song != None:
             return True
@@ -62,9 +62,7 @@ class UploadController(BaseController):
             return False
 
         #We already have the song, mark the user as having it
-        new_owner = model.Owner()
-        new_owner.file = song
-        new_owner.user = user
+        new_owner = model.SongOwner(song=song, user=user)
         model.Session.save(new_owner)
 
         model.Session.commit()
@@ -200,14 +198,14 @@ class UploadController(BaseController):
 
         def build_fdict():
             return dict(
-                puid = request.params.get('puid')
-                artist = request.params.get('artist')
-                album = request.params.get('album')
-                title = request.params.get('title')
-                duration = request.params.get('duration')
-                bitrate = request.params.get('bitrate')
-                date = request.params.get('date')
-                tracknumber = request.params.get('tracknumber')
+                puid = request.params.get('puid'),
+                artist = request.params.get('artist'),
+                album = request.params.get('album'),
+                title = request.params.get('title'),
+                duration = request.params.get('duration'),
+                bitrate = request.params.get('bitrate'),
+                date = request.params.get('date'),
+                tracknumber = request.params.get('tracknumber'),
                 genre = request.params.get('genre')
             )
 

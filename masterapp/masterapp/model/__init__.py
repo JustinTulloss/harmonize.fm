@@ -156,10 +156,10 @@ class User(object):
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields
-        query = Session.query(Owner.uid.label('Friend_id'), *dbfields['song'])
+        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
+        query = query.join(Song.files, SongOwner).filter(SongOwner.uid == self.id)
         return query
         
     def get_song_query(self):
@@ -175,16 +175,16 @@ class User(object):
         havesongs = Session.query(Album.id.label('albumid'),
             func.count(Song.id).label('Album_havesongs'),
             func.sum(Song.length).label('Album_length')
-        ).join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        ).join(Album.songs, SongOwner).filter(SongOwner.uid == self.id)
         havesongs = havesongs.group_by(Album.id).subquery()
 
-        query = Session.query(Owner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
+        query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
             havesongs.c.Album_length,
             *dbfields['album'])
         joined = join(Album, havesongs, Album.id == havesongs.c.albumid)
         query = query.select_from(joined)
         query = query.join(Album.artist).reset_joinpoint()
-        query = query.join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        query = query.join(Album.songs, SongOwner).filter(SongOwner.uid == self.id)
         query = query.group_by(Album)
         return query
     album_query = property(get_album_query)
@@ -195,7 +195,7 @@ class User(object):
         # Number of songs by this artist subquery
         numsongs = Session.query(Artist.id.label('artistid'),
             func.count(Song.id).label('Artist_availsongs')
-        ).join(Artist.songs, File, Owner).filter(Owner.uid == self.id)
+        ).join(Artist.songs, SongOwner).filter(SongOwner.uid == self.id)
         numsongs = numsongs.group_by(Artist.id).subquery()
         
         # Number of albums by this artist subquery
@@ -205,15 +205,15 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
-        query = Session.query(Owner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
+        query = Session.query(SongOwner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
             numalbums.c.Artist_numalbums,
             *dbfields['artist'])
         joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
         #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
         query = query.select_from(joined)
         query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
-        query = query.join(Artist.albums, Song, File, Owner)
-        query = query.filter(Owner.uid == self.id)
+        query = query.join(Artist.albums, Song, SongOwner)
+        query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
         return query
     artist_query = property(get_artist_query)
@@ -350,15 +350,6 @@ class SongOwner(object):
     def __init__(self, song=None, user=None):
         self.song = song
         self.user = user
-
-def filter_user(query, uid):
-    """
-    Filters out any result that does not belong to you. Assumes you're joined
-    with song. I don't want it to assume that, but I haven't figured out a way
-    to do that yet
-    """
-    query = query.join([File, Owner, User])
-    return query.filter(User.id == uid)
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the

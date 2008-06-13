@@ -16,13 +16,13 @@ from masterapp.model import (
     Song,
     Album, 
     Artist, 
-    Owner, 
+    Owner,
+    SongOwner,
     File, 
     Session, 
     User, 
     Playlist, 
-    PlaylistSong,
-    filter_user
+    PlaylistSong
 )
 from pylons import config
 from facebook import FacebookError
@@ -224,7 +224,7 @@ class MetadataController(BaseController):
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        
         songlist = []
-        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(File,Owner,User)
+        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(SongOwner,User)
         for uid in fbids:
             # grab each users songs and append their song_ids to songlist
             temp = data.filter(User.fbid == uid)
