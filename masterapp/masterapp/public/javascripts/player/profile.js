@@ -25,10 +25,10 @@ var profile_handler;
 
 		for (i = 0; i < edit_links.length; i++) {
 		    var spot_id = parseInt(edit_links[i].id);
-
+            //this handler looks hackish because it solves a closure property (shudder)
 		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
 		        Ext.Ajax.request({
-                    url: '/metadata/spotlight_lookup',
+                    url: '/metadata/find_spotlight_by_id',
                     params: {id: parseInt(spot_id)},
                     success: function(response, options) {
                         record = eval('(' + response.responseText + ')');

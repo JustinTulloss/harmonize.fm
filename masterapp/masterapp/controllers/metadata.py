@@ -51,7 +51,7 @@ class MetadataController(BaseController):
             'playlist': self.playlists,
             'playlistsong': self.playlistsongs,
             'next_radio_song': self.next_radio_song,
-            'spotlight_lookup': self.spotlight_lookup
+            'find_spotlight_by_id': self.find_spotlight_by_id
         }
 
     def __before__(self):
@@ -243,10 +243,28 @@ class MetadataController(BaseController):
     @cjsonify
     @_build_json
     @_pass_user
-    def spotlight_lookup(self,user):
+    def find_spotlight_by_id(self,user):
         if not request.params.has_key('id'):
             return '0'
         
-        qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params['id'])
+        qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params['id']).filter(User.id == user.id)
         #qry = Session.query(Spotlight, *dbfields['album']).filter(Spotlight.id == request.params['id'])
         return qry
+        
+    #@cjsonify
+    #@_build_json
+    #@_pass_user
+    def find_spotlight_by_album(self):
+        if not request.params.has_key('album_id'):
+            return '0';
+        album = Session.query(Album).filter(Album.id == request.params['album_id'])
+        if album.first():
+            qry = Session.query(Spotlight).filter(Spotlight.albumid == album[0].id)
+            if qry.first():
+                return '1'
+            else:
+                return '0'
+            endif
+        else:
+            return '0'
+        endif
