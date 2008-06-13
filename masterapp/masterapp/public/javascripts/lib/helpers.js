@@ -22,3 +22,11 @@ function digitize(value)
         return String.format("0{0}", value);
     else return String(value, 10);
 }    
+
+function untyped_record(response) {
+	var res = eval('(' + response.responseText + ')');
+	var record = res.data[0];
+	record.get = function(key) {return record[key];};
+	record.set = function(key, val) {record[key] = val;};
+	return record;
+}

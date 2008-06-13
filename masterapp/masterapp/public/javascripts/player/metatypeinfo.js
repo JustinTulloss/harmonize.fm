@@ -129,6 +129,20 @@ var typeinfo = {
         nodeclass: SongQueueNode,
         gridclass: SongGrid
     },
+    nowplayingsong:{
+        next:'play', 
+        lblindex: 'Song_title',
+        display:'Songs',
+        nodeclass: PlayingQueueNode,
+		inactive: true
+    },
+    prevsong:{
+        next:'play', 
+        lblindex: 'Song_title',
+        display:'Songs',
+        nodeclass: SongQueueNode,
+		inactive: true
+    },
     playlistsong:{
         next:'play', 
         display:'Songs',

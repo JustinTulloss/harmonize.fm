@@ -87,10 +87,8 @@ function enqueue(recordid)
 
 function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
-		var result = eval('('+response.responseText+')');
-		var record = result.data[0];
-		record.Friend_id = friendid;
-		record.get = (function(key) {return record[key];});
+		var record = untyped_record(response);
+		record.set('Friend_id',  friendid);
 		playqueue.enqueue([record]);
 	}
 	Ext.Ajax.request({
