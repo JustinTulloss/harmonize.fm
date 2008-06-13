@@ -1,3 +1,9 @@
+import os, re, hashlib, httplib, sys, time, urllib
+import os.path as path
+from thread import start_new_thread
+import config, tags, rate_limit, fb, genpuid
+#some imports at end of file
+
 def get_music_files(dir):
 	music_files = []
 	
@@ -127,7 +133,4 @@ def retry_fn(fn, callback):
 			time.sleep(20)
 	return res
 
-import os, re, hashlib, httplib, sys, time, urllib
-import os.path as path
-from thread import start_new_thread
-import config, tags, rate_limit, fb, genpuid, db
+import db

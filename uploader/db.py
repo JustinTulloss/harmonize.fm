@@ -1,4 +1,8 @@
-#imports at end of program
+import sqlite3, os
+from itunes import get_library_file, ITunes
+from hplatform import get_db_path, get_default_path
+#some imports at end of program
+
 def get_conn():
 	global db_dir
 	return sqlite3.connect(db_dir)
@@ -77,12 +81,7 @@ def init_db():
 	
 	conn.commit()
 
-#end defines
-
-import sqlite3, os
 from upload import is_music_file, get_music_files
-from itunes import get_library_file, ITunes
-from hplatform import get_db_path, get_default_path
 
 db_dir = get_db_path()
 

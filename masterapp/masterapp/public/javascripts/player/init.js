@@ -42,10 +42,10 @@ function init()
     browser.on('chgstatus', viewmgr.set_status, viewmgr);
     browser.on('newgrid', add_grid_listeners);
 
-    player.on('nextsong', playqueue.dequeue, playqueue);
-    player.on('prevsong', playqueue.prev, playqueue);
-    player.on('showprev', playqueue.showprev, playqueue);
-    player.on('hideprev', playqueue.hideprev, playqueue);
+    player.on('nextsong', playqueue.dequeue);
+    player.on('prevsong', playqueue.prev);
+    player.on('showprev', playqueue.showprev);
+    player.on('hideprev', playqueue.hideprev);
 
     playqueue.on('playsong', player.playsong);
     playqueue.on('stop', player.stop);
