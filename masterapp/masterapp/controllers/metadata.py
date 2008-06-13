@@ -243,10 +243,10 @@ class MetadataController(BaseController):
     @cjsonify
     @_build_json
     @_pass_user
-    def spotlight_lookup(self, user):
+    def spotlight_lookup(self,user):
         if not request.params.has_key('id'):
             return '0'
         
-        spot = Session.query(Spotlight).filter(Spotlight.id == request.params['id'])
-        album = Session.query(*dbfields['album']).filter(Album.id == spot[0].albumid).join(Album.artist)
-        return album
+        qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params['id'])
+        #qry = Session.query(Spotlight, *dbfields['album']).filter(Spotlight.id == request.params['id'])
+        return qry

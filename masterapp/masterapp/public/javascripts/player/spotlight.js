@@ -31,8 +31,8 @@ function show_spotlight(record,mode) {
         spotlight = edit_spot_template.apply(
                 {album_name : record.get('Album_title'),
                 artist_name : record.get('Artist_name'),
-                album_art: record.get('Album-smallart'),
-                current_comment: record.get('Album_title')});
+                album_art: record.get('Album_smallart'),
+                current_comment: record.get('Spotlight_comment')});
     }
 	show_dialog(spotlight);
 
