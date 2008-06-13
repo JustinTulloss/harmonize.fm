@@ -20,28 +20,36 @@ var profile_handler;
 		hide_all();
 		
 		var components = rest.split('/');
-		
-		if (components.length != 3 || (components[1] != 'spcomments' && components[1] != 'spedit')) {
+		//find all the edit_spotlight links and assign onclick handlers to them
+		var edit_links = Ext.query('.edit-spotlight');
+
+		for (i = 0; i < edit_links.length; i++) {
+		    var spot_id = parseInt(edit_links[i].id);
+
+		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
+		        Ext.Ajax.request({
+                    url: '/metadata/spotlight_lookup',
+                    params: {id: parseInt(spot_id)},
+                    success: function(response, options) {
+                        record = eval('(' + response.responseText + ')');
+                        record = record.data[0];
+                        record['id'] = spot_id;
+                        record.get = (function(key) { return record[key];});
+                        show_spotlight(record, "edit");
+                    },
+                    failure: function(response, options) {
+                        alert("failed to lookup spotlight");                
+                    }
+                });
+		    };})(spot_id));
+		}
+		if (components.length != 3 || components[1] != 'spcomments') {
 			return;
 		}
         var spot_id = components[2];		
 		//if the user clicked the edit spotlight link, this code is executed: 
-		if (components[1] == 'spedit') {
-    		Ext.Ajax.request({
-                url: '/metadata/spotlight_lookup',
-                params: {id: spot_id},
-                success: function(response, options) {
-                    record = eval('(' + response.responseText + ')');
-                    record = record.data[0];
-                    record['id'] = spot_id;
-                    record.get = (function(key) { return record[key];});
-                    show_spotlight(record, "edit");
-                },
-                failure: function(response, options) {
-                    alert("failed to lookup spotlight");                
-                }
-            });
-        } else if (components[1] == 'spcomments') {		 //the user must've clicked the add comment link 
+        		
+		if (components[1] == 'spcomments') {		 //the user must've clicked the add comment link 
 		    var target = Ext.get('spot-comment-'+spot_id);
 		    if (target) {
     			target.child('.comment-controls').setDisplayed(false);

@@ -16,7 +16,7 @@ var edit_spot_template = new Ext.Template(
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
 			'<textarea id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_add">edit</button>',
+			'<tr><td><button id="spot_add">change</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
 		'</table></form>');		
 
@@ -65,6 +65,7 @@ function show_spotlight(record,mode) {
                 success: function() {
                     hide_dialog();
                     show_status_msg("Spotlight changed!");
+                    urlm.invalidate_page();
                 },
                 failure: hide_dialog
 	        });
@@ -73,22 +74,12 @@ function show_spotlight(record,mode) {
 			warning.innerHTML = 'Your comment is too long, please shorten it';
 	    }
 	}
-
+    Ext.get('spot_cancel').on('click', hide_dialog);
 	if (mode == "add") {
 	    Ext.get('spot_add').on('click', add_spotlight);
-	    Ext.get('spot_cancel').on('click', hide_dialog);
 	}
 	else {
 	    Ext.get('spot_add').on('click', edit_spotlight);
-	    Ext.get('spot_cancel').on('click', function() {
-	        hide_dialog();
-	        history.back();
-	        //var orig_link = Ext.get('spot-comment-' + record.get('id').child('.#').dom;
-	        //var orig_class = orig_link.class;
-	        
-	        
-	        //document.location = old_loc;
-	    });
 	}
 	Ext.get('spot_textarea').focus(); //This doesn't work the first time
 }

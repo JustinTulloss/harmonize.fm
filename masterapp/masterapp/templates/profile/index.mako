@@ -24,7 +24,7 @@ ${rightcol.render()}
     <div id="profile-spotlight">
         <div class="profile-subtitle">Spotlight</div>
         % for spotlight in c.user.get_active_spotlights():
-            ${build_spotlight(spotlight, False)}
+            ${build_spotlight(spotlight, c.current_uid == c.user.id)}
         % endfor
     </div>
 </div>
@@ -43,7 +43,7 @@ ${rightcol.render()}
 
         <%
             edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-            edit_class = 'class="profile-sp-comment comment-controls"'
+            edit_class = 'class="profile-sp-comment comment-controls edit-spotlight"'
         %>
         
         <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
@@ -57,11 +57,11 @@ ${rightcol.render()}
         %>
         
         <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
-        <a ${edit_class} href="${edit_spotlight_url}">Edit this spotlight</a><br />
-        
-        % if num_comments == 0 and own_profile:
-            
-        % elif num_comments == 0 and not own_profile:
+        % if own_profile:
+        <a id="${spotlight.id}" ${edit_class} href="${c.current_url}">Edit this spotlight</a><br />
+        % endif
+          
+        % if num_comments == 0:
             <a ${aclass} href="${comment_url}">Add comment</a>
         % else:
             <a ${aclass} href="${comment_url}">View comments (${num_comments})</a>
