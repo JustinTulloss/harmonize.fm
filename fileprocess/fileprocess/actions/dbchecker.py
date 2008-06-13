@@ -66,13 +66,14 @@ class DBChecker(BaseAction):
             self.model.File.sha==file['sha']
         )
         dbfile = qry.first()
-        if dbfile is not None: #this file exists, create a owner and get out
+        if dbfile is not None: #this file exists, create an owner and get out
             owner = self.model.Owner()
             owner.file = dbfile
             owner.user = user
-            owner.song = dbfile.song
             log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
-            self.model.Session.save(owner)
+            songowner = self.model.SongOwner(user=user, song=song)
+            self.model.Session.add(owner)
+            self.model.Session.add(songowner)
             self.model.Session.commit()
             log.debug('%s already uploaded, removing', file.get('fname'))
             self.cleanup(file)

@@ -65,15 +65,29 @@ class DBRecorder(BaseAction):
             # Create a new file associated with the song we found or created
             dbfile = self.model.File()
             dbfile.sha = file['sha']
+            dbfile.bitrate = file.get('bitrate')
+            dbfile.size = file.get('size')
             dbfile.song = song
             log.debug("New file %s added to files", file['sha'])
             self.model.Session.save(dbfile)
 
+            if dbfile.bitrate > song.bitrate and dbfile.bitrate < 256000:
+                # Found a higher quality song
+                song.sha = file.get('sha')
+                song.bitrate = file.get('bitrate')
+                song.size = file.get('size')
+                self.model.Session.add(song)
+            
+            # Mark the owner of this fine file
+            fowner = self.model.Owner()
+            fowner.file = dbfile
+            fowner.user = file['dbuser']
+            self.model.Session.add(fowner)
+
         # add the file to this user's library
-        owner = self.model.Owner()
+        owner = self.model.SongOwner()
         owner.user = file['dbuser']
         owner.song = song
-        owner.file = dbfile
         log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
         self.model.Session.save(owner)
 
@@ -98,14 +112,15 @@ class DBRecorder(BaseAction):
             self.model.Session.remove()
             return file
 
-
-
     def create_song(self, file):
         song = self.model.Song(
             title = file.get('title'),
             length = file.get('duration'),
             tracknumber = file.get('tracknumber'),
-            mbid = file.get('mbtrackid')
+            mbid = file.get('mbtrackid'),
+            sha = file.get('sha'),
+            size = file.get('size'),
+            bitrate = file.get('bitrate')
         )
         log.debug("Saving new song %s", song.title)
 

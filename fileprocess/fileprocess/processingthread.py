@@ -73,6 +73,7 @@ class FileUploadThread(object):
             Hasher(),
             TagGetter(),
             PuidGenerator(),
+            TagSaver(),
             Transcoder(),
             DBChecker(),
             DBTagger(),

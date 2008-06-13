@@ -106,9 +106,10 @@ def match_file_to_release(file, release):
 def match_file_to_track(file, tracks):
     matches = []
     for track in tracks:
-        if file.get('mbtrackid') == track['id']:
-            matches.append((2.0, track))
-            break
+        if file.has_key('mbtrackid'):
+            if file['mbtrackid'] == track['id']:
+                matches.append((2.0, track))
+                break
         sim = compare_meta(file, track)
         matches.append((sim, track))
 
@@ -130,7 +131,7 @@ def compare_meta(file, track):
       * title                = 15
       * artist name          = 6
       * release name         = 8
-      * length               = 10
+      * length               = 15
       * number of tracks     = 4
       * track placement      = 5
       * official release     = 5
@@ -181,8 +182,8 @@ def compare_meta(file, track):
     b = track.get('duration')
     if a and b:
         score = 1.0 - min(abs(a - b), 30000) / 30000.0
-        parts.append((score, 10))
-        total += 10
+        parts.append((score, 15))
+        total += 15
 
     a = file.get('totaltracks')
     b = track.get('totaltracks')

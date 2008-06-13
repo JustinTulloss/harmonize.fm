@@ -2,12 +2,11 @@
 # vim:expandtab:smarttab
 import unittest
 import logging
+import cPickle as pickle
 import nose
 from nose.tools import *
 from mockfiles import mockfiles
-from ..actions import (Mover, TagGetter, BrainzTagger, Cleanup, FacebookAction,
-    S3Uploader, DBChecker, DBRecorder, AmazonCovers, Hasher, Transcoder,
-    PuidGenerator, DBTagger)
+from fileprocess.actions import *
 import fileprocess
 from fileprocess.processingthread import na
 
@@ -36,15 +35,11 @@ class TestBase(unittest.TestCase):
         for key,f in mockfiles.iteritems():
             self.fdata[key]=f.copy()
 
-            # Also add mocked session
-            self.fdata[key]['session'] = Mock(spec={})
-            self.fdata[key]['session']._methods.append('save')
-            self.fdata[key]['session'].has_key.return_value=True
-            self.fdata[key]['session'].get.return_value = []
-
     def tearDown(self):
         shutil.rmtree(config['upload_dir'])
         shutil.rmtree(config['media_dir'])
+        if os.path.exists(config['tagshelf']):
+            os.remove(config['tagshelf'])
 
 class TestActions(TestBase):
 
@@ -276,7 +271,6 @@ class TestActions(TestBase):
         assert nf['sha'] != None,\
             "Hasher did not put sha in passed file"
 
-    """
     def testTranscoder(self):
         t = Transcoder()
         t.cleanup_handler = Mock()
@@ -291,7 +285,6 @@ class TestActions(TestBase):
         nf = t.process(self.fdata['goodmp4'])
         assert nf != None, 'Transcoding of mp4 file failed'
         assert nf['fname'] != origname, 'File did not get transcoded'
-    """
 
     def testPuidGenerator(self):
         p = PuidGenerator()
@@ -306,6 +299,17 @@ class TestActions(TestBase):
             os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
         nf = p.process(self.fdata['goodfile'])
         assert nf['puid'] == '3178113b-858c-2456-f73e-1ab929f38934'
+
+    def testTagSaver(self):
+        s = TagSaver()
+        assert s, "TagSaver not constructed"
+
+        # Test an average set of tags
+        nf = s.process(self.fdata['goodtags'])
+        assert os.path.exists(config['tagshelf']), "Did not create tagshelf"
+        shelf = open(config['tagshelf'], 'rb')
+        sf = pickle.load(shelf)
+        assert sf == nf, "Tags not properly saved off"
 
 class TestDBActions(TestBase):
     """
@@ -351,17 +355,20 @@ class TestDBActions(TestBase):
         creation stuff in dbrecorder
         """
 
-    def testDBRecorder(self):
-        r = DBRecorder()
-        c = DBChecker() #Use this instead of querying for correct results
-        assert r is not None, "DBRecorder not constructed"
-
+    def _create_user(self, key):
         # Create our DB user
         user = self.model.User()
         user.fbid = self.fdata['dbrec']['fbid']
         self.model.Session.save(user)
         self.model.Session.commit()
-        self.fdata['dbrec']['dbuser'] = user
+        self.fdata[key]['dbuser'] = user
+
+    def testDBRecorder(self):
+        r = DBRecorder()
+        c = DBChecker() #Use this instead of querying for correct results
+        assert r is not None, "DBRecorder not constructed"
+
+        self._create_user('dbrec')
 
         # Test insertion of good record
         nf = r.process(self.fdata['dbrec'])
@@ -409,8 +416,52 @@ class TestDBActions(TestBase):
 
     def testDBTagger(self):
         t = DBTagger()
+        t.cleanup_handler = Mock()
         assert t, "DBTagger not constructed"
 
+        self._create_user('dbrec')
+        # Test a record we clearly do not have
         nf = t.process(self.fdata['dbrec'])
         assert not nf.has_key('dbsongid'), \
             'DBTagger matched something it shouldn\'t have'
+
+        self._create_user('btles2')
+        # Insert a record to be matched
+        cry = self.model.Song(
+            tracknumber = self.fdata['btles2']['tracknumber'],
+            title = self.fdata['btles2']['title'],
+            length = self.fdata['btles2']['duration']
+        )
+        disc2 = self.model.Album(
+            title = self.fdata['btles2']['album'],
+            totaltracks = 11,
+            year = self.fdata['btles2']['date']
+        )
+        beatles = self.model.Artist(
+            name = self.fdata['btles2']['artist']
+        )
+        self.model.Session.add(beatles)
+        disc2.artist = beatles
+        self.model.Session.add(disc2)
+        cry.album = disc2
+        cry.artist = beatles
+        self.model.Session.add(cry)
+        self.model.Session.commit()
+        crypuid = self.model.Puid(puid = '1623d160-cc36-ea42-9d1b-a1f81058b722')
+        crypuid.song = cry
+        self.model.Session.add(crypuid)
+        self.model.Session.commit()
+
+        # Test a record we do have that should be matched
+        nf = t.process(self.fdata['btles2'])
+        assert nf == False, "DBTagger did not match"
+        newowner = self.model.Session.query(self.model.SongOwner).\
+            filter(self.model.SongOwner.song == cry).all()
+        assert newowner, "A new owner was not put in the database"
+
+        # Test a record we do have, but is not supposed to be matched
+        self.fdata['btles2']['duration'] = 10872000
+        self.fdata['btles2']['date'] = None
+        self.fdata['btles2']['totaltracks'] = 23
+        nf = t.process(self.fdata['btles2'])
+        assert nf != False, "Match returned on a non-match track"

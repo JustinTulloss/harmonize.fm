@@ -36,6 +36,7 @@ blog_table = Table("blog", metadata, autoload=True)
 spotlights_table = Table('spotlights', metadata, autoload=True)
 spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
 puids_table = Table('puids', metadata, autoload=True)
+songowners_table = Table('songowners', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -233,8 +234,6 @@ class Owner(object):
     def __init__(self, uid=None, fid=None):
         self.uid = uid
         self.fileid = fid
-        self.recommendations = 0
-        self.playcount = 0
 
 class File(object):
     def __init__(self, sha=None, songid=None):
@@ -243,12 +242,16 @@ class File(object):
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
-            length=0, tracknumber=None):
+            length=0, tracknumber=None, sha=None, size=None, bitrate=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
         self.length = length
-        self.tracknumber =tracknumber
+        self.tracknumber = tracknumber
+        self.sha = sha
+        self.size = size
+        self.bitrate = bitrate
+        self.pristine = False
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
@@ -343,6 +346,11 @@ class Puid(object):
         self.song = song
         self.puid = puid
 
+class SongOwner(object):
+    def __init__(self, song=None, user=None):
+        self.song = song
+        self.user = user
+
 def filter_user(query, uid):
     """
     Filters out any result that does not belong to you. Assumes you're joined
@@ -369,7 +377,11 @@ mapper(File, files_table, properties={
 })
 
 mapper(Owner, owners_table, properties={
-    'user': relation(User, backref='owners')
+    'user': relation(User),
+    'song': relation(Song,
+        primaryjoin = owners_table.c.songid == songs_table.c.id,
+        foreign_keys = [owners_table.c.songid]
+    )
 })
 
 mapper(Artist, artists_table, properties={
@@ -440,5 +452,10 @@ mapper(SongStat, songstats_table, properties={
 })
 
 mapper(Puid, puids_table, properties={
-    'songs': relation(Song, lazy=True)
+    'song': relation(Song, lazy=False)
+})
+
+mapper(SongOwner, songowners_table, properties={
+    'song': relation(Song, backref='owners'),
+    'user': relation(User, backref='owners')
 })

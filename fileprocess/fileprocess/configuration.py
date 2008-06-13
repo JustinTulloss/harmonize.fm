@@ -24,13 +24,15 @@ config = {
 dev_config = {
     'S3.upload': False,
     'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
+    'tagshelf': '../masterapp/tags.archive'
 }
 
 test_config = {
     'sqlalchemy.default.url': 'sqlite:///:memory:',
     'sqlalchemy.reflect.url': 'sqlite:///../../masterapp/music.db',
     'upload_dir': './test/testuploaddir',
-    'media_dir': './test/teststagingdir'
+    'media_dir': './test/teststagingdir',
+    'tagshelf': './test/tagshelf'
 }
 
 production_config = {
@@ -39,7 +41,8 @@ production_config = {
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600,
     'upload_dir': os.environ.get('UPLOADS'),
-    'media_dir': os.environ.get('MEDIA')
+    'media_dir': os.environ.get('MEDIA'),
+    'tagshelf': '/var/opt/tagshelf.archive'
 }
 
 live_config = {
