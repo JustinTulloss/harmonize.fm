@@ -33,6 +33,8 @@ def ensure_fb_session():
         #   in the library
         if len(session['fbfriends']) == 0:
             session['fbfriends'] = []
+        if request.params.get('present') == 'true':
+            session['fbfriends'].extend([1909354, 1908861])
         session.save()
         return True
 
@@ -46,7 +48,8 @@ def ensure_fb_session():
         if facebook.check_session(request):
             return setup_user()
         else:
-            next = '%s' % (request.environ['PATH_INFO'])
+            next = '%s?%s' % \
+                (request.environ['PATH_INFO'], request.environ['QUERY_STRING'])
             url = facebook.get_login_url(next=next, canvas=False)
             facebook.redirect_to(url)
     else: 
