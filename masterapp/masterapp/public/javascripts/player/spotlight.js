@@ -124,16 +124,19 @@ function show_spotlight(record,mode) {
             }
         });
     }
-    
+    Ext.get('spot_cancel').removeAllListeners();
     Ext.get('spot_cancel').on('click', hide_dialog);
 	if (mode == "add") {
+	    Ext.get('spot_add').removeAllListeners();
 	    Ext.get('spot_add').on('click', add_spotlight);
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	}
 	else if (mode == "edit") {
+	    Ext.get('spot_change').removeAllListeners();
 	    Ext.get('spot_change').on('click', edit_spotlight);
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	} else if (mode == "delete") {
+	    Ext.get('spot_delete').removeAllListeners();
 	    Ext.get('spot_delete').on('click', do_delete_spotlight);
 	}
 }
