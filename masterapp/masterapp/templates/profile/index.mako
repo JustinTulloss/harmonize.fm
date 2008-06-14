@@ -44,7 +44,7 @@ ${rightcol.render()}
 
         <%
             edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-            edit_class = 'class="profile-sp-comment comment-controls edit-spotlight"'
+            edit_class = 'class="profile-sp-comment edit-spotlight"'
         %>
         
         <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
@@ -54,7 +54,7 @@ ${rightcol.render()}
         <% 
             comment_url = c.current_url + '/spcomments/' + str(spotlight.id)
             num_comments = len(spotlight.friend_comments) 
-            aclass = 'class="profile-sp-comment comment-controls"'
+            aclass = 'class="profile-sp-comment comment-controls view-comment"'
         %>
         
         <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">

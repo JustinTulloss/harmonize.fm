@@ -11,7 +11,7 @@ var profile_handler;
 		var containers = pbody.query('.profile-sp-commentcontainer')
 		for (var i=0; i<containers.length; i++) {
 			var container = Ext.get(containers[i]);
-			container.child('.comment-controls').setDisplayed(true);
+			container.child('.view-comment').setDisplayed(true);
 			container.child('.comments-body').setDisplayed(false);
 		}
 	}
@@ -26,8 +26,9 @@ var profile_handler;
 		for (i = 0; i < edit_links.length; i++) {
 		    var spot_id = parseInt(edit_links[i].id);
             //this handler looks hackish because it solves a closure property (shudder)
+            Ext.get(edit_links[i].id).removeAllListeners();
 		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
-		        Ext.Ajax.request({
+    		    Ext.Ajax.request({
                     url: '/metadata/find_spotlight_by_id',
                     params: {id: parseInt(spot_id)},
                     success: function(response, options) {
@@ -52,9 +53,9 @@ var profile_handler;
 		if (components[1] == 'spcomments') {		 //the user must've clicked the add comment link 
 		    var target = Ext.get('spot-comment-'+spot_id);
 		    if (target) {
-    			target.child('.comment-controls').setDisplayed(false);
+    			target.child('.view-comment').setDisplayed(false);
 			    target.child('.comments-body').setDisplayed(true);
-    
+			    
 			    var button = target.child('.send-spot-comment');
 			    if (!button.managed) {
     				button.managed = true;
