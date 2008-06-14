@@ -124,6 +124,8 @@ class DBRecorder(BaseAction):
         )
         log.debug("Saving new song %s", song.title)
 
+        artist = None
+        album = None
         if file.has_key('mbartistid') and file.has_key('mbalbumid'):
             # Insert a new artist if it does not exist
             qry = self.model.Session.query(self.model.Artist).filter(
@@ -138,12 +140,15 @@ class DBRecorder(BaseAction):
             album = qry.first()
         else:
             # Without MBids, we just kind of guess with tags
-            qry = self.model.Session.query(self.model.Artist, self.model.Album).filter(
-                self.model.Artist.name == file['artist'],
-                self.model.Album.artist.name == file['artist'],
-                self.model.Album.title == file['album']
-            )
-            artist, album = qry.first()
+            qry = self.model.Session.query(self.model.Artist).\
+                filter(self.model.Artist.name == file['artist'])
+            artist = qry.first()
+            if artist:
+                qry = self.model.Session.query(self.model.Album).\
+                    join(self.model.Album.artist).\
+                    filter(self.model.Album.title == file['album']).\
+                    filter(self.model.Album.artist == artist)
+                album = qry.first()
 
         if not artist:
             artist = self.create_artist(file)

@@ -30,13 +30,13 @@ def get_default_path():
 	return paths[platform.system()]()
 
 def get_db_path():
-	if platform.system() == 'Darwin':
+	if platform.system() in ('Darwin', 'Linux'):
 		return os.path.join(os.getenv('HOME'), '.harmonize')
 	else:
 		return os.path.join(os.getenv('USERPROFILE'), '_harmonize')
 
 def get_genpuid_path():
-	if platform.system() == 'Darwin':
+	if platform.system() in ('Darwin', 'Linux'):
 		return './genpuid'
 	else:
 		return '.\\genpuid'

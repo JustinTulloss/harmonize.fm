@@ -22,13 +22,20 @@ class PuidGenerator(BaseAction):
             return file
 
         gp = subprocess.Popen(
-            ['genpuid', config['musicdns.key'], '-xml', file.get('fname')],
+            ['genpuid', config['musicdns.key'], '-xml', 
+            os.path.abspath(file['fname'])],
             stdout=subprocess.PIPE
         )
         
-        out = ElementTree.fromstring(gp.stdout.read())
-        track = out.find('track')
-        file['puid'] = track.get('puid') #This is just blank if no PUID
+        gp.wait()
+        std = gp.stdout.read()
+        try:
+            out = ElementTree.fromstring(std)
+            track = out.find('track')
+            if track != None:
+                file['puid'] = track.get('puid') #This is just blank if no PUID
+        except SyntaxError, e:
+            log.info("Could not parse %s: %s", std, e)
 
         return file
 

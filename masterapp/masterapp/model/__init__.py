@@ -392,6 +392,8 @@ mapper(Artist, artists_table, properties={
 })
 mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan'),
+    'owners': relation(SongOwner, backref='song', cascade='all, delete-orphan'),
+    'stats': relation(SongStat, backref='song', lazy=True, cascade='all, delete-orphan'),
     'artist': relation(Artist, 
         lazy = False,
         foreign_keys = [songs_table.c.artistid],
@@ -438,7 +440,6 @@ mapper(SpotlightComment, spotlight_comments_table, properties={
 })
 
 mapper(SongStat, songstats_table, properties={
-    'song': relation(Song, backref='stats', lazy=True),
     'user': relation(User, backref='songstats')
 })
 
@@ -447,6 +448,5 @@ mapper(Puid, puids_table, properties={
 })
 
 mapper(SongOwner, songowners_table, properties={
-    'song': relation(Song, backref='owners'),
     'user': relation(User, backref='owners')
 })

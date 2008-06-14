@@ -27,7 +27,11 @@ class TagGetter(BaseAction):
     def process(self, file):
         """This is rediculously easy with easyid3"""
 
-        if not os.path.exists(file.get('fname')):
+        if file.has_key('fname'):
+            if not os.path.exists(file.get('fname')):
+                self.update_tracknum(file)
+                return file
+        else:
             self.update_tracknum(file)
             return file
 
@@ -62,8 +66,11 @@ class TagGetter(BaseAction):
         if file.get('date'):
             file['date'] = file['date'].split('-')
 
-        audio.delete() #remove the ID3 tags, we don't care for them
+        #audio.delete() #remove the ID3 tags, we don't care for them
 
+        newname = '%s.%s' % (file['fname'], file['filetype'])
+        os.rename(file['fname'], newname)
+        file['fname'] = newname
         log.debug("Tagged %s: %s", file.get('title'), file)
         return file
 

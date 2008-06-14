@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 class DBTagger(BaseAction):
     def __init__(self, *args):
+        super(DBTagger, self).__init__(*args)
         # Hook up to the database
         pconfig['pylons.g'] = Mock()
         pconfig['pylons.g'].sa_engine = engine_from_config(config,
