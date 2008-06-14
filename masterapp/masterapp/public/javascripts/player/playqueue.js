@@ -21,14 +21,11 @@ function PlayQueue()
 		buffersong: true
     });
 
-    var instructions = new Ext.Template(
-		'<table id="queue-instructions"><tr><td>',
-        'Drag here to add songs',
-        '<br>-OR-<br>',
-        'Hit the <img class="middle" src="/images/enqueue.png" /> button',
+    var instructions = '<table id="queue-instructions"><tr><td>'+
+        'Drag here to add songs'+
+        '<br>-OR-<br>'+
+        'Hit the <img class="middle" src="/images/enqueue.png" /> button'+
 		'</td></tr></table>'
-    );
-    instructions = instructions.compile();
 
     my.played = new Array(); /* Just an array of all the played treenodes */
     my.playing = null;
@@ -59,20 +56,27 @@ function PlayQueue()
         border: false,
         hideBorders: true,
         header: false,
-        html: instructions.apply()
+        html: instructions
     });
 
     my.panel = new Ext.Panel({
         id: 'queuepanel',
         region: 'west',
         split: true,
-        width: '20%',
+        width: '250px',
         titlebar:false,
         layout: 'card',
         cls: 'queue',
         activeItem: 0,
         items: [my.inspanel, my.tree]
     });
+
+	function update_instructions() {
+		if (my.root.firstChild)
+			my.panel.getLayout().setActiveItem(1);
+		else
+			my.panel.getLayout().setActiveItem(0);
+	}
 
     my.enqueue = function(records) {
         for (i = 0; i < (records.length); i++) {
@@ -81,16 +85,16 @@ function PlayQueue()
         }
 
         if(my.playing == null) {
-            my.panel.getLayout().setActiveItem(1);
             my.dequeue();
         }
 		else
 			buffer_top();
+		
+		update_instructions();
     }
 
-    function newnode(config)
-    {
-        type = config.record.get('type');
+    function newnode(config) {
+        var type = config.record.get('type');
         config.queue = my;
         return new typeinfo[type].nodeclass(config);
     }
@@ -105,22 +109,23 @@ function PlayQueue()
 			node.dequeue(function(record) {
 				play(record);});
         }
-        else
+        else {
             my.fireEvent('stop');
+		}
+
+		update_instructions();
     }
 
 	function buffer_top() {	
 		var node = my.root.firstChild;
 		if (node) {
 			node.peek( function(record) {
-				//if (record)
-					my.fireEvent('buffersong', record)});
+				my.fireEvent('buffersong', record)});
 		}
 	}
 
     my.playgridrow = playgridrow
-    function playgridrow(grid, songindex, e)
-    {
+    function playgridrow(grid, songindex, e) {
         my.playnow(grid.store.getAt(songindex));
     }
 
@@ -181,6 +186,7 @@ function PlayQueue()
             p.update_text();
 
 		buffer_top();
+		update_instructions();
         /* this is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
@@ -194,9 +200,7 @@ function PlayQueue()
 		buffer_top();
     }
 
-    my.showprev = showprev;
-    function showprev()
-    {
+    my.showprev = function showprev() {
         showingprev = true;
         if (my.playing) {
             nn = new PlayingQueueNode(config = {
@@ -217,6 +221,7 @@ function PlayQueue()
             else
                 break;
         }
+		update_instructions();
     }
 
     my.hideprev = hideprev;
@@ -234,6 +239,7 @@ function PlayQueue()
             my.showingplaying = false;
         }
         showingprev = false;
+		update_instructions();
     }
 
     function paneldrop(source, e, data)
@@ -251,10 +257,10 @@ function PlayQueue()
                 }
             }
         }
+		update_instructions();
     }
 
-    function treedrop(e)
-    {
+    function treedrop(e) {
         var nodes = [];
         if (e.data.selections) {
             for (var i=0; i < e.data.selections.length; i++) {
@@ -267,6 +273,7 @@ function PlayQueue()
             e.dropNode = nodes;
             e.cancel = false;
         }
+		update_instructions();
     }
     
     my.insert = insert;
@@ -311,17 +318,20 @@ function PlayQueue()
             notifyDrop: paneldrop,
             ddGroup: 'TreeDD'
         });
-    });
-    my.inspanel.on('hide', function() {
-        dtarget.isTarget = false;
+		my.inspanel.on('show', function() {
+			dtarget.isTarget = true;
+		});
+		my.inspanel.on('hide', function() {
+			dtarget.isTarget = false;
+		});
     });
     my.tree.on('bodyresize', function(){
         if (my.tree.dropZone)
             my.tree.dropZone.setPadding(0,0,my.tree.getInnerHeight(),0);
     });
-    my.tree.on('beforenodedrop', treedrop, my);
-    my.tree.on('movenode', reorder, my);
-    my.tree.on('checkchange', remove, my);
+    my.tree.on('beforenodedrop', treedrop);
+    my.tree.on('movenode', reorder);
+    my.tree.on('checkchange', remove);
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
@@ -350,7 +360,12 @@ Ext.extend(QueueNode, Ext.tree.TreeNode);
 
 function SongQueueNode(config)
 {
-    config.text = config.record.get('Song_title');
+	if (config.record.get('Artist_name') && !config.albumNode) {
+		config.text = config.record.get('Song_title')+' - '+
+						config.record.get('Artist_name');
+	}
+	else
+		config.text = config.record.get('Song_title');
     config.checked = false;
     config.leaf = true;
     config.draggable = true;
@@ -484,7 +499,8 @@ function AlbumQueueNode(config)
         my.songs.each(function(record) {
             var nn = new SongQueueNode({
                 queue: my.queue, 
-                record: record
+                record: record,
+				albumNode: true
             });
             my.appendChild(nn);
         });

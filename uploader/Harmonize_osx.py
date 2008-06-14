@@ -1,4 +1,4 @@
-import objc, fb, itunes, thread, upload, os
+import objc, fb, itunes, thread, upload, os, db
 from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
@@ -9,6 +9,7 @@ class RubiconController(NSObject):
 	uploadOptions = objc.ivar('uploadOptions')
 	uploadFolderButton = objc.ivar('uploadFolderButton')
 	uploadITunesButton = objc.ivar('uploadITunesButton')
+	uploadFolderField = objc.ivar('uploadFolderField')
 
 	loginView = objc.ivar('loginView')
 	uploadView = objc.ivar('uploadView')
@@ -24,16 +25,15 @@ class RubiconController(NSObject):
 		NSThread.detachNewThreadSelector_toTarget_withObject_(
 				self.dummy_fn, self, None)
 
-		self.uploadPath = upload.get_default_path()
-
 		#Set up the default upload location
-		if itunes.get_library_file() != None:
-			self.uploadSrc = self.uploadITunes
-		else:
-			self.uploadSrc = self.uploadFolder
+		if itunes.get_library_file() == None:
 			self.uploadITunesButton.setEnabled_(False)
+
+		if db.get_upload_src() == 'folder':
 			self.uploadITunesButton.setState_(0)
 			self.uploadFolderButton.setState_(1)
+
+		self.uploadFolderField.setStringValue_(db.get_upload_dir())
 
 		#Set up the file chooser dialog
 		self.folderChooser = NSOpenPanel.openPanel()
@@ -67,8 +67,7 @@ class RubiconController(NSObject):
 		def uploadSongs():
 			pool = NSAutoreleasePool.alloc().init()
 
-			tracks = self.uploadSrc()
-			upload.upload_files(tracks, Receiver())
+			upload.upload_files(db.get_tracks(), Receiver())
 			del pool
 
 		thread.start_new_thread(uploadSongs, ())
@@ -77,20 +76,13 @@ class RubiconController(NSObject):
 		self.progressbar.startAnimation_(self)
 		NSApp().activateIgnoringOtherApps_(True)
 
-	#Upload selections
-	def uploadITunes(self):
-		return filter(upload.is_music_file,
-						itunes.ITunes().get_all_track_filenames())
-
-	def uploadFolder(self):
-		return upload.get_music_files(self.uploadPath)
-
 	#Controller actions:
 	def changeFolder_(self, sender):
 		res = self.folderChooser.runModalForTypes_(None)
 		
 		if res == NSOKButton and len(self.folderChooser.filenames()) > 0:
-			self.uploadPath = self.folderChooser.filenames()[0]
+			db.set_upload_dir(self.folderChooser.filenames()[0])
+			self.uploadFolderField.setStringValue_(db.get_upload_dir())
 
 	def login_(self, sender):
 		def callback(session_key):
@@ -107,10 +99,10 @@ class RubiconController(NSObject):
 		self.uploadOptions.makeKeyAndOrderFront_(self)
 
 	def setUploadFolder_(self, sender):
-		self.uploadSrc = self.uploadFolder
+		db.set_upload_src('folder')
 	
 	def setUploadITunes_(self, sender):
-		self.uploadSrc = self.uploadITunes
+		db.set_upload_src('folder')
 
 	#Upload status callbacks
 	def upload_error(self, msg):
@@ -122,6 +114,11 @@ class RubiconController(NSObject):
 		msg, songs_left = args
 		self.uploadStatus = msg
 		self.progressbar.setIndeterminate_(False)
+		if songs_left > 0:
+			self.progressbar.setDisplayedWhenStopped_(True)
+		else:
+			self.progressbar.setDisplayedWhenStopped_(False)
+			self.progressbar.stopAnimation_(self)
 		self.progressbar.setDoubleValue_(self.progressbar.maxValue()-songs_left)
 
 	def upload_init(self, args):
