@@ -150,10 +150,10 @@ function delete_spotlight(spot_id, album_title) {
                     record['id'] = spot_id;
                     record.get = (function(key) { return record[key];});
                     show_spotlight(record, "delete");
-                } else alert("error retrieving spotlight information");
+                } else show_status_msg("error parsing spotlight information");
             },        
         
-        failure: function() {alert('error retrieving spotlight information');}
+        failure: function() {show_status_msg('error retrieving spotlight information');}
     });    
 }
 
