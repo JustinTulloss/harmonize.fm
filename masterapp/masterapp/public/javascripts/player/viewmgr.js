@@ -139,9 +139,12 @@ function ViewManager(crumb, objects)
     function init_search(crumb, params, e)
     {
         if (crumb.panel) {
-            this.srchfld.validator = 
-                function(text) { 
-					return crumb.panel.search.call(crumb.panel, text)};
+            this.srchfld.allowBlank = true;
+            this.srchfld.on('keyup', 
+                function() {
+                    var text = this.getValue();                    
+					return crumb.panel.search.call(crumb.panel, text)
+			    });
             this.srchfld.on('blur', function(form){
                 crumb.panel.search.call(crumb.panel, form.getValue());
             });
