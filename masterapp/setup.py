@@ -14,7 +14,7 @@ setup(
     #url='',
     install_requires=[
         "Pylons>=0.9.6.2", 
-        "sqlalchemy>=0.4.3",
+        "sqlalchemy>=0.5beta1",
         "sqlalchemy-migrate>=0.4.4",
         "python-cjson>=1.0.5"
     ],

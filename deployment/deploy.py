@@ -17,8 +17,6 @@ to_setup = [
 
 # a list of packages to download (and the command to do so) and install
 to_fetch = [
-    ('sqlalchemy',
-    'svn checkout http://svn.sqlalchemy.org/sqlalchemy/trunk sqlalchemy')
 ]
 
 def create_production_env(root, repo):

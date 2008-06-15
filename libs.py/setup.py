@@ -12,6 +12,6 @@ setup(
     include_package_data=True,
     test_suite='nose.collector',
     ext_modules = [
-        Extension('picard.util.astrcmp',['picard/util/astrcmp.cpp'])
+        Extension('picard-utils.util.astrcmp',['picard-utils/util/astrcmp.cpp'])
     ]
 )
