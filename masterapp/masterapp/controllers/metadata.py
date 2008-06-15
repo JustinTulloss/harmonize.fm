@@ -242,14 +242,18 @@ class MetadataController(BaseController):
         
     @cjsonify
     @_build_json
-    #@_pass_user
-    def find_spotlight_by_id(self):
-        if not request.params.has_key('id'):
-            return {'success':False}
+    @_pass_user
+    def find_spotlight_by_id(self,user):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
+            return qry.all()
+        else:
+            return False
         
-        qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params['id']).filter(User.id == self._get_user().id)
-        return qry
-        
+
+    # right now this only returns true or false
+    # depending on whether or not a spotlight exists
+    # for the album    
     def find_spotlight_by_album(self):
         if not request.params.has_key('album_id'):
             return False

@@ -249,13 +249,10 @@ class PlayerController(BaseController):
         
         return True
 
-    def delete_spotlight(self):
-        if not request.params.has_key('id'):
-            return False
-        
-        spot = Session.query(Spotlight).filter(Spotlight.id == request.params.get('id'))
-        if (spot.first()):
-            Session.delete(spot.first())
+    def delete_spotlight(self,id):
+        spot = Session.query(Spotlight).get(id)
+        if (spot):
+            Session.delete(spot)
             Session.commit()
             return True
         else:

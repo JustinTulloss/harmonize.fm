@@ -104,10 +104,10 @@ function show_spotlight(record,mode) {
 	    }
 	}
 	
-	function do_delete_spotlight() {
+	function do_delete_spotlight(e) {
+	    e.preventDefault();
         Ext.Ajax.request({
-            url: 'player/delete_spotlight',
-            params: {id: record.get('id')},
+            url: 'player/delete_spotlight/'+ record.get('id'),
             success: function (response, options) {
                 if (response.responseText == "True") {
                     hide_dialog();
@@ -116,34 +116,31 @@ function show_spotlight(record,mode) {
                 } else {
                     hide_dialog();
                     show_status_msg("didnt work");
+                    alert(response.responseText);
                 }
             },
-            failure: function () {
+            failure: function (response, options) {
                 hide_dialog();
                 show_status_msg("didn't work for some reason");   
             }
         });
     }
-    Ext.get('spot_cancel').removeAllListeners();
     Ext.get('spot_cancel').on('click', hide_dialog);
 	if (mode == "add") {
-	    Ext.get('spot_add').removeAllListeners();
 	    Ext.get('spot_add').on('click', add_spotlight);
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	}
 	else if (mode == "edit") {
-	    Ext.get('spot_change').removeAllListeners();
 	    Ext.get('spot_change').on('click', edit_spotlight);
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	} else if (mode == "delete") {
-	    Ext.get('spot_delete').removeAllListeners();
 	    Ext.get('spot_delete').on('click', do_delete_spotlight);
 	}
 }
 
 function delete_spotlight(spot_id, album_title) {
     Ext.Ajax.request({
-        url: 'metadata/find_spotlight_by_id',
+        url: 'metadata/find_spotlight_by_id/',
         params: {id: spot_id},
         success: 
             function(response, options) {
