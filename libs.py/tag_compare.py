@@ -178,8 +178,11 @@ def compare_meta(file, track):
         parts.append((score, 5))
         total += 5
 
-    a = file.get('duration')
-    b = track.get('duration')
+    a = b = None
+    if file.get('duration'):
+        a = float(file['duration'])
+    if track.get('duration'):
+        b = float(track['duration'])
     if a and b:
         score = 1.0 - min(abs(a - b), 30000) / 30000.0
         parts.append((score, 15))
