@@ -67,21 +67,7 @@
     </%def>
 
     <div id="news_feed">
-        <div id="no_music">
-        <% 
-        href = None
-        if c.num_songs == 0:
-            if c.platform == 'windows':
-                href = '/uploaders/setup.exe'
-            elif c.platform == 'mac':
-                href = '/uploaders/Harmonize.dmg'
-            endif
-        endif
-        %>
-        % if href:
-            <h2>You have no music.  Download the <a href="${href}">uploader?</a></h2>
-        % endif
-        </div>
+
         <div><h1 id="news-header">Music Feed</h1></div>
     <%
         type_table = {

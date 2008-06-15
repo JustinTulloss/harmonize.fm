@@ -115,13 +115,12 @@ function show_spotlight(record,mode) {
                     urlm.invalidate_page();
                 } else {
                     hide_dialog();
-                    show_status_msg("didnt work");
-                    alert(response.responseText);
+                    show_status_msg("Error deleting spotlight: bad server response.");
                 }
             },
             failure: function (response, options) {
                 hide_dialog();
-                show_status_msg("didn't work for some reason");   
+                show_status_msg("Error deleting spotlight.");   
             }
         });
     }
