@@ -229,6 +229,7 @@ class PlayerController(BaseController):
         c.entries = self._get_feed_entries(session['userid'])
         c.main = True
         c.user = Session.query(User).get(session['userid'])
+        c.num_songs = c.user.song_count
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:

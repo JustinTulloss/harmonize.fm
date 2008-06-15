@@ -165,6 +165,12 @@ class User(object):
         query = query.group_by(Song)
         return query
     song_query = property(get_song_query)
+    
+    def get_song_count(self):
+        query = self._build_song_query()
+        query = len(query.all())
+        return query
+    song_count = property(get_song_count)
 
     def get_album_query(self):
         from masterapp.config.schema import dbfields
