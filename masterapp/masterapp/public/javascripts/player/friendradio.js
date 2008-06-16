@@ -8,7 +8,8 @@ function FriendRadio() {
 
     /* Toggle() is called when the friend_radio_link is clicked (an event, see init.js)
      */
-    my.toggle = function(){
+    my.toggle = function(e){
+        e.preventDefault();
         record = Ext.data.Record.create([]);
         record.type = "friend_radio";            
         record.get = (function(key) {return record[key];});

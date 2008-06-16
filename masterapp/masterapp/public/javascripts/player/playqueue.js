@@ -557,7 +557,9 @@ Ext.extend(ArtistQueueNode, QueueNode);
 function FriendRadioQueueNode(config)
 {
 	var my = this;
-    var next_song = null;
+	var current_song = null;
+	var next_song_g = null;
+	var peeked = false;
 
     config.text = String.format('Friend Radio');
     config.draggable = true;
@@ -567,28 +569,25 @@ function FriendRadioQueueNode(config)
     config.leaf = true;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
-    
+
     this.dequeue = function(k) {
 		//this is where we send the ajax request to find the new song.
 		//when the song is returned, call k(song) on it.
         radio_handler = function(response, options) {
-            next_song = eval('(' + response.responseText + ')');
+            var next_song = eval('(' + response.responseText + ')');
             next_song = next_song.data[0];
             next_song.get = (function(key) {return next_song[key];});
             next_song.type = "song";
             k(next_song);
-            next_song = null;
+            current_song = next_song;
+            peeked = false;
         }
         
         radio_handler_failure = function(response, options) {
             alert("next song couldn't be retrieved.  fuxx0red.");
         }
-        
-        if (next_song) {
-            k(next_song);
-        } else {
-            request_next_song(radio_handler, radio_handler_failure);
-        }
+        if (peeked) k(next_song_g);
+        else request_next_song(radio_handler, radio_handler_failure);
     }
     
     function request_next_song(success_handler, failure_handler) {
@@ -602,20 +601,23 @@ function FriendRadioQueueNode(config)
 	my.peek = function(k) {
 	    
 	    success = function(response, options) {
-	        next_song = eval('(' + response.responseText + ')');
+	        var next_song = eval('(' + response.responseText + ')');
 	        next_song = next_song.data[0];
 	        next_song.get = (function(key) { return next_song[key];});
 	        next_song.type = "song";
 	        k(next_song);
+	        next_song_g = next_song;
+	        peeked = true;
 	    }
 	    
 	    failure = function(response, options) {
             alert("retrieving next song failed for buffering purposes");	    
 	    }
 	    
-	    if (next_song) {
-	        k(next_song);
-	    } else {
+	    if (peeked) {
+	        k(next_song_g);
+        }
+        else { 
 	        request_next_song(success, failure);
 	    }
 	}
