@@ -45,8 +45,7 @@ function Browser()
         crumb.ds.load({
             params:params,
             callback: function(){this.fireEvent('chgstatus', null)},
-            scope: this,
-            add: true //this enables lazy loading
+            scope: this
         });
         this.fireEvent('chgstatus', 'Loading...');
         crumb.ds.on('loadexception', function(proxy, options,response, e){
@@ -76,7 +75,7 @@ function BaseGrid(config)
         forceFit: true,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        deferEmptyText: false
+        deferEmptyText: true
     };
 
     this.addEvents({
