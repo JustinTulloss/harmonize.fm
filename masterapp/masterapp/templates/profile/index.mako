@@ -36,17 +36,14 @@ ${rightcol.render()}
                 <img src=${spotlight.album.smallart} />
             </div>
         % endif
-        <div class="profile-sp-title"><img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
-        % if own_profile:        
-        <img src="/images/song_remove.png" onclick="delete_spotlight(${spotlight.id},'${spotlight.album.title}')" />
-        % endif
+        <div class="profile-sp-title">
+				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
                 ${spotlight.album.title}</div>
         <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
         <div class="profile-sp-review">${spotlight.comment}</div>
 
         <%
             edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-            edit_class = 'class="profile-sp-comment edit-spotlight"'
         %>
         
         <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
@@ -56,19 +53,23 @@ ${rightcol.render()}
         <% 
             comment_url = c.current_url + '/spcomments/' + str(spotlight.id)
             num_comments = len(spotlight.friend_comments) 
-            aclass = 'class="profile-sp-comment comment-controls view-comment"'
+            aclass = 'class="view-comment"'
         %>
         
         <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
-        % if own_profile:
-        <a id="${spotlight.id}" ${edit_class} href="${c.current_url}">Edit this spotlight</a><br />
-        % endif
           
         % if num_comments == 0:
             <a ${aclass} href="${comment_url}">Add comment</a>
         % else:
             <a ${aclass} href="${comment_url}">View comments (${num_comments})</a>
         % endif
+			<a class="hide-comment" href="${c.current_url}">Hide comments</a>
+
+        % if own_profile:
+        <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">Edit</a>
+		<a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">Delete</a>
+        % endif
+
         ${spotcomment.render(spotlight)}
         </div>
     </div>

@@ -25,10 +25,10 @@ var delete_spot_template = new Ext.Template(
 			'<h1 id="spot_form_title">Delete Spotlight</h1>',
 			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
-			'{current_comment}<div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
-			'<tr><td></td></tr>',
+			'<div class="spot-dlg-value">{current_comment}</div></tr></td>',
 			'<tr><td>Are you sure?</td></tr>',
-			'<tr><td><button id="spot_delete">yes</button>',
+			'<tr><td>&nbsp;</td></tr>',
+			'<tr><td><button id="spot_delete">delete</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
 		'</table></form>');			
 
@@ -137,7 +137,7 @@ function show_spotlight(record,mode) {
 	}
 }
 
-function delete_spotlight(spot_id, album_title) {
+function delete_spotlight(spot_id) {
     Ext.Ajax.request({
         url: 'metadata/find_spotlight_by_id/',
         params: {id: spot_id},
