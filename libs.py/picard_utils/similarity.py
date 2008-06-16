@@ -63,7 +63,7 @@ def similarity(a1, b1):
     #return sim
 
 
-_split_words_re = re.compile('\W+', re.UNICODE)
+_split_words_re = re.compile('\s+', re.UNICODE)
 
 def similarity2(a, b):
     """Calculates similarity of a multi-word strings."""

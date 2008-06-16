@@ -24,7 +24,7 @@ The below functions were stolen from picard, with modifications
 
 import logging
 from tag_utils import get_year, totaltracks
-from picard.similarity import similarity2
+from picard_utils.similarity import similarity2
 from musicbrainz2.webservice import Release
 
 log = logging.getLogger(__name__)
@@ -136,7 +136,6 @@ def compare_meta(file, track):
       * track placement      = 5
       * official release     = 5
       * album release        = 3
-      * cached release       = 4
 
     """
     total = 0.0
