@@ -55,22 +55,28 @@ class BrainzTagger(BaseAction):
 
         # Query the album and then see if this track belongs
         cachekey = None
-        if (file.has_key('artist') and file.has_key('album')):
+        if (file.has_key('artist') or file.has_key('album')):
             cachekey = (
-                file['album'],
-                file['artist'],
+                file.get('album'),
+                file.get('artist'),
             )
-            release = self.releasecache.get(cachekey)
-            if release:
-                mbtrack = match_file_to_release(file, release)
-                if mbtrack:
-                    if mbtrack.artist:
-                        artist = mbtrack.artist
-                    else:
-                        artist = release.artist
-                    return self._cash_out(file, mbtrack, release, artist)
+            releases = self.releasecache.get(cachekey)
+            if releases:
+                for release in releases:
+                    log.debug("Checking releasecache for %s", cachekey)
+                    mbtrack = match_file_to_release(file, release)
+                    if mbtrack:
+                        if mbtrack.artist:
+                            artist = mbtrack.artist
+                        else:
+                            artist = release.artist
+                        log.debug("Release matched! %s on %s by %s",
+                            mbtrack.title, release.title, artist.name)
+                        return self._cash_out(file, mbtrack, release, artist)
 
         # Could not match against an existing album, do a file analysis
+        log.debug("Could not match %s on %s in the release cache",
+            file['title'], file['album'])
         result = self._find_track(file)
         if not result:
             return file
@@ -92,7 +98,12 @@ class BrainzTagger(BaseAction):
             if album == False:
                 return False
             self.albumcache[mbalbumid]= album
-            self.releasecache[(file.get('album'), file.get('artist'))] = album
+            log.debug("Inserting things into the releasecache")
+            key = (file.get('album'), file.get('artist'))
+            if self.releasecache.has_key(key):
+                self.releasecache[key].append(album)
+            else:
+                self.releasecache[key] = [album]
 
         # Get info on the artist, cache it for future songs
         mbartistid = result.track.artist.id
@@ -207,5 +218,4 @@ class BrainzTagger(BaseAction):
         if result:
             return trackd[result['id']]
         else:
-            self.cleanup(file)
             return False

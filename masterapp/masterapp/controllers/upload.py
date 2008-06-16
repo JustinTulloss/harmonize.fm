@@ -170,7 +170,8 @@ class UploadController(BaseController):
             fdict = {
                 'fname': dest_path, 
                 'fbid': fbid,
-                'usersha': id
+                'usersha': id,
+                'puid': request.params.get('puid')
             }
             self._process(fdict)
         else:
@@ -206,7 +207,8 @@ class UploadController(BaseController):
                 bitrate = request.params.get('bitrate'),
                 date = request.params.get('date'),
                 tracknumber = request.params.get('tracknumber'),
-                genre = request.params.get('genre')
+                genre = request.params.get('genre'),
+                fbid = fbid
             )
 
         dbpuids = model.Session.query(model.Puid).filter(

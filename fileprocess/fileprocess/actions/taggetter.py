@@ -49,7 +49,8 @@ class TagGetter(BaseAction):
                 # EasyID3 pulls every tag out as a list, which is annoying
                 # I join the lists here for ease of processing later.
                 for key in audio.keys():
-                    file[key] = ','.join(audio[key])
+                    if isinstance(audio[key], list):
+                        file[key] = ','.join(audio[key])
             except HeaderNotFoundError:
                 log.info("A non-mp3 file was uploaded")
                 file['msg'] = "File was not an MP3 or MP4"
@@ -106,7 +107,8 @@ def update_mp4(mp4obj, tagobj):
 
     for key, field_name in valid_keys:
         if mp4obj.has_key(key):
-            tagobj[field_name] = ','.join(mp4obj[key])
+            if isinstance(mp4obj[key], list):
+                tagobj[field_name] = ','.join(mp4obj[key])
     
     if mp4obj.has_key('trkn') and len(mp4obj['trkn']) > 0:
         trkn = mp4obj['trkn'][0]

@@ -142,7 +142,7 @@ def compare_meta(file, track):
     total = 0.0
     parts = []
 
-    log.debug("Comparing %s and %s", file, track)
+    #log.debug("Comparing %s and %s", file, track)
 
     a = file.get('title')
     b = track.get('title')

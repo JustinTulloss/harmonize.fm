@@ -32,6 +32,8 @@ class DBRecorder(BaseAction):
 
     def process(self, file):
         assert file.has_key('dbuser')
+
+        self.model.Session()
         
         song = None
         puid = None
@@ -48,8 +50,8 @@ class DBRecorder(BaseAction):
             puid = self.model.Session.query(self.model.Puid).filter(
                 self.model.Puid.puid == file['puid']
             ).first()
-            if qry:
-                song = qry.song
+            if puid:
+                song = puid.song
 
         if not puid:
             song = self.create_song(file)
@@ -58,7 +60,6 @@ class DBRecorder(BaseAction):
             puid = self.model.Puid()
             puid.song = song
             puid.puid = file['puid']
-            self.model.Session.add(puid)
 
         dbfile = None
         if file.has_key('sha'):
@@ -69,32 +70,32 @@ class DBRecorder(BaseAction):
             dbfile.size = file.get('size')
             dbfile.song = song
             log.debug("New file %s added to files", file['sha'])
-            self.model.Session.save(dbfile)
 
             if dbfile.bitrate > song.bitrate and dbfile.bitrate < 256000:
                 # Found a higher quality song
                 song.sha = file.get('sha')
                 song.bitrate = file.get('bitrate')
                 song.size = file.get('size')
-                self.model.Session.add(song)
             
             # Mark the owner of this fine file
             fowner = self.model.Owner()
             fowner.file = dbfile
             fowner.user = file['dbuser']
-            self.model.Session.add(fowner)
 
         # add the file to this user's library
         owner = self.model.SongOwner()
         owner.user = file['dbuser']
-        owner.song = song
+        try:
+            owner.song = song
+        except:
+            print song.title, song.album.title
         log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
-        self.model.Session.save(owner)
 
         log.info('%s by %s successfully inserted into the database', 
             file.get('title'), file.get('artist'))
 
         try:
+            self.model.Session.add_all([song, album, artist, dbfile, fowner, owner])
             self.model.Session.commit() # Woot! Write baby, write!
 
             # Put all the database ids in the file dict
@@ -108,6 +109,7 @@ class DBRecorder(BaseAction):
             self.model.Session.rollback()
             file['msg'] = "File could not be committed to database"
             file['na'] = na.FAILURE
+            raise
         finally:
             self.model.Session.remove()
             return file
@@ -157,7 +159,6 @@ class DBRecorder(BaseAction):
 
         song.album = album
         song.artist = artist
-        self.model.Session.add(song)
 
         return song
 
@@ -183,7 +184,6 @@ class DBRecorder(BaseAction):
             artist = self.create_artist(file, albumartist=True)
         album.artist = artist
         log.debug("Saving new album %s", album.title)
-        self.model.Session.add(album)
         return album
 
     def create_artist(self, file, albumartist = False):
@@ -198,5 +198,4 @@ class DBRecorder(BaseAction):
             artist.sort = file.get('artistsort')
 
         log.debug("Saving new artist %s", artist.name)
-        self.model.Session.add(artist)
         return artist

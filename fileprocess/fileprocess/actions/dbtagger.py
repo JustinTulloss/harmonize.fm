@@ -31,6 +31,8 @@ class DBTagger(BaseAction):
 
         assert file.has_key('dbuser'), "Need a user to assign file to"
 
+        self.model.Session()
+
         # Get the songs that have this PUID
         songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
             filter(self.model.Puid.puid == file['puid']).all()
@@ -78,7 +80,13 @@ class DBTagger(BaseAction):
         nowner.song = match
         nowner.user = file['dbuser']
         self.model.Session.add(nowner)
-        self.model.Session.commit()
+        try:
+            self.model.Session.commit()
+        except:
+            self.model.Session.rollback()
+            raise
+        finally:
+            self.model.Session.remove()
 
         # We've added the file to the user's library, cleanup and leave
         log.debug('%s has added to %s library', 

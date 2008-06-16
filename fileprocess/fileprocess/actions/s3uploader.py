@@ -17,7 +17,9 @@ class S3Uploader(BaseAction):
     I'm really ok with that for now.
     """
     def process(self, file):
-        assert file.has_key('sha') and file.has_key('fname')
+        if not (file.has_key('sha') and file.has_key('fname')):
+            return file
+
         if config['S3.upload'] == False:
             log.warn("Removed %s because S3.upload flag is set to false", 
                 file['fname']

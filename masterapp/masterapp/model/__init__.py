@@ -394,6 +394,7 @@ mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan'),
     'owners': relation(SongOwner, backref='song', cascade='all, delete-orphan'),
     'stats': relation(SongStat, backref='song', lazy=True, cascade='all, delete-orphan'),
+    'puids': relation(Puid, backref='song', lazy=True, cascade='all, delete-orphan'),
     'artist': relation(Artist, 
         lazy = False,
         foreign_keys = [songs_table.c.artistid],
@@ -443,9 +444,7 @@ mapper(SongStat, songstats_table, properties={
     'user': relation(User, backref='songstats')
 })
 
-mapper(Puid, puids_table, properties={
-    'song': relation(Song, lazy=False)
-})
+mapper(Puid, puids_table)
 
 mapper(SongOwner, songowners_table, properties={
     'user': relation(User, backref='owners')

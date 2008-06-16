@@ -30,6 +30,7 @@ class DBChecker(BaseAction):
     def process(self, file):
         assert file and len(file)>0 and \
             file.has_key('fbid')
+        self.model.Session()
 
         # Get this user, create him if he doesn't exist
         qry = self.model.Session.query(self.model.User).filter(

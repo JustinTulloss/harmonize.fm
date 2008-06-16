@@ -59,7 +59,8 @@ def upload_file(filename, callback):
 
 			if response == 'upload':
 				upload_url = '/upload/file/'+file_sha + \
-								'?session_key='+fb.get_session_key()
+								'?session_key='+fb.get_session_key()+\
+                                '&puid='+puid
 				if config.current['rate_limit']:
 					response = \
 						rate_limit.post(connection, upload_url, file_contents).read()
