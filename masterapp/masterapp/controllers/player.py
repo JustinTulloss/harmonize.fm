@@ -229,8 +229,33 @@ class PlayerController(BaseController):
         c.entries = self._get_feed_entries(session['userid'])
         c.main = True
         c.user = Session.query(User).get(session['userid'])
+        c.num_songs = c.user.song_count
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:
             c.platform = 'mac'
         return render('/home.mako')
+        
+    def spotlight_album_edit(self):
+        if not request.params.has_key('comment'):
+            return False
+        elif not request.params.has_key('spot_id'):
+            return False
+        id = request.params.get('spot_id')
+        comment = request.params.get('comment')
+        spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
+        spotlight.comment = comment
+        Session.commit()
+        
+        return True
+
+    def delete_spotlight(self,id):
+        spot = Session.query(Spotlight).get(id)
+        if (spot):
+            Session.delete(spot)
+            Session.commit()
+            return True
+        else:
+            return False
+        
+        

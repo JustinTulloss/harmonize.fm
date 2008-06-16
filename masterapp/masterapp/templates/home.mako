@@ -2,8 +2,23 @@
 
 <%def name="render(entries)">
 		<div id="home">
-			<div id="home-bg">
-			<div id="home-sidebar">
+            <div id="no_music">
+            <% 
+            href = None
+            if c.num_songs == 0:
+                if c.platform == 'windows':
+                    href = '/uploaders/setup.exe'
+                elif c.platform == 'mac':
+                    href = '/uploaders/Harmonize.dmg'
+                endif
+            endif
+            %>
+            % if href:
+                <h2>You haven't added any music yet.  Install the <a href="${href}">uploader</a> to get started.</h2>
+            % endif
+            </div>					
+			<div id="home-bg">	
+			<div id="home-sidebar">			
 			<div id="home-sidebar-header">Links</div>
 			<%
 				href = None

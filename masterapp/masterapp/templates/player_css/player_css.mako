@@ -7,6 +7,23 @@ body, html {
     color: ${c.profile.primary_txt};
 }
 
+#no_music {
+    margin-left: 12px;
+}
+
+#no_music h2{
+    color: ${c.profile.dark_txt};
+    font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
+}
+
+#no_music a {
+    color: ${c.profile.dark_txt};
+}
+
+#no_music a:hover {
+    color: ${c.profile.click};
+}
+
 #mainlogo {
     position: absolute;
     right: 15px;

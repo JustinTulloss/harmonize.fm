@@ -22,7 +22,8 @@ from masterapp.model import (
     Session, 
     User, 
     Playlist, 
-    PlaylistSong
+    PlaylistSong,
+    Spotlight
 )
 from pylons import config
 from facebook import FacebookError
@@ -49,7 +50,8 @@ class MetadataController(BaseController):
             'friend': self.friends,
             'playlist': self.playlists,
             'playlistsong': self.playlistsongs,
-            'next_radio_song': self.next_radio_song
+            'next_radio_song': self.next_radio_song,
+            'find_spotlight_by_id': self.find_spotlight_by_id
         }
 
     def __before__(self):
@@ -212,8 +214,7 @@ class MetadataController(BaseController):
     @_build_json
     @_pass_user
     def next_radio_song(self,user):
-        #todo: replace this with actual randomizing
-        #      and correct record returns
+        #todo: replace this with recommendations
         
         userStore = session['fbfriends']
         users=facebook.users.getInfo(userStore)
@@ -230,12 +231,43 @@ class MetadataController(BaseController):
             temp = data.filter(User.fbid == uid)
             for record in temp:
                 songlist.append(record.Song_id)
+        
         num_songs = len(songlist)
-        song_index = random.randint(0,num_songs) #replace with a random number generator
+        song_index = random.randint(0,num_songs)
         song_id = songlist[song_index]
         
         #now grab the actual song data based on the song_id
         song = data.filter(Song.id == song_id)
-        #song = song.group_by(Song)
-        #song = song.all()
         return song
+        
+    @cjsonify
+    @_build_json
+    @_pass_user
+    def find_spotlight_by_id(self,user):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
+            return qry.all()
+        else:
+            return False
+        
+
+    # right now this only returns true or false
+    # depending on whether or not a spotlight exists
+    # for the album    
+    def find_spotlight_by_album(self):
+        if not request.params.has_key('album_id'):
+            return False
+        
+        album = Session.query(Album).filter(Album.id == request.params['album_id'])
+        if album.first():
+            qry = Session.query(Spotlight).filter(Spotlight.albumid == album[0].id).filter(Spotlight.uid == self._get_user().id).filter(Spotlight.active == 1)
+            if qry.first():
+                return True
+            else:
+                return False
+            
+        else:
+            return False
+        
+        
+    
