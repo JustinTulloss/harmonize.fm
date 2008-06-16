@@ -29,7 +29,7 @@ class PuidGenerator(BaseAction):
         puid = musicdns.lookup_fingerprint(fp[0], fp[1], config['musicdns.key'])
         
         log.debug('%s has puid %s', file.get('title'), puid)
-        if puid:
+        if puid != None:
             file['puid'] = puid
             return file
         else:

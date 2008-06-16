@@ -65,7 +65,7 @@ class TagGetter(BaseAction):
         file['bitrate'] = int(audio.info.bitrate)
         file['size'] = os.stat(file['fname'])[os.path.stat.ST_SIZE]
         if file.get('date'):
-            file['date'] = file['date'].split('-')
+            file['date'] = file['date'].split('-')[0]
 
         #audio.delete() #remove the ID3 tags, we don't care for them
 

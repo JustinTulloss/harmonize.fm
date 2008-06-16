@@ -113,12 +113,12 @@ class PlayerController(BaseController):
             if g.usedfiles.has_key(session['playing']):
                 g.usedfiles.pop(session['playing'])
 
-        files= Session.query(File).\
-            join(['owners', 'user']).filter(File.songid==int(id))
-        files = files.all()
+        song= Session.query(Song).\
+            join([Song.owners]).filter(Song.id==int(id))
+        song= song.first()
         # Update now playing
         user = Session.query(User).get(session['userid'])
-        user.nowplaying = Session.query(Song).get(id);
+        user.nowplaying = song
         Session.add(user)
         Session.commit()
         # XXX: Remove this to enable locking implemented below
@@ -127,7 +127,7 @@ class PlayerController(BaseController):
             is_secure = False
         )
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
-        return qsgen.get(config['S3.music_bucket'], files[0].sha)
+        return qsgen.get(config['S3.music_bucket'], song.sha)
         
         # TODO: Think of a more efficient way of doing this. Perhaps the inuse
         # flag should be in the database?

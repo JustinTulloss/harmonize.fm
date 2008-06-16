@@ -146,8 +146,8 @@ def compare_meta(file, track):
     a = file.get('title')
     b = track.get('title')
     if a and b:
-        parts.append((similarity2(a, b), 15))
-        total += 15
+        parts.append((similarity2(a, b), 18))
+        total += 18
 
     a = file.get('artist')
     b = track.get('artist')

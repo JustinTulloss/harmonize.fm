@@ -237,9 +237,9 @@ class User(object):
             
 
 class Owner(object):
-    def __init__(self, uid=None, fid=None):
-        self.uid = uid
-        self.fileid = fid
+    def __init__(self, user=None, file=None):
+        self.file = file
+        self.user = user
 
 class File(object):
     def __init__(self, sha=None, songid=None):
@@ -453,5 +453,5 @@ mapper(SongStat, songstats_table, properties={
 mapper(Puid, puids_table)
 
 mapper(SongOwner, songowners_table, properties={
-    'user': relation(User, backref='owners')
+    'user': relation(User, lazy=True, backref='owners')
 })

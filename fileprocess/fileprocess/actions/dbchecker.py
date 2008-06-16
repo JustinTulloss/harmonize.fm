@@ -43,7 +43,7 @@ class DBChecker(BaseAction):
             self.model.Session.save(user)
             self.model.Session.commit()
 
-        file['dbuser'] = user
+        file['dbuserid'] = user.id
 
         if not file.has_key('sha'):
             # It's not really our job to take care of this. Let's move on.
@@ -72,7 +72,7 @@ class DBChecker(BaseAction):
             owner.file = dbfile
             owner.user = user
             log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
-            songowner = self.model.SongOwner(user=user, song=song)
+            songowner = self.model.SongOwner(user=user, song=dbfile.song)
             self.model.Session.add(owner)
             self.model.Session.add(songowner)
             self.model.Session.commit()

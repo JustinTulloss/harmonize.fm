@@ -53,6 +53,9 @@ class BrainzTagger(BaseAction):
         if not file.has_key('puid'):
             return file # Just keep the tags we have
 
+        if file['puid'] == None:
+            return file
+
         # Query the album and then see if this track belongs
         cachekey = None
         if (file.has_key('artist') or file.has_key('album')):
@@ -76,7 +79,7 @@ class BrainzTagger(BaseAction):
 
         # Could not match against an existing album, do a file analysis
         log.debug("Could not match %s on %s in the release cache",
-            file['title'], file['album'])
+            file.get('title'), file.get('album'))
         result = self._find_track(file)
         if not result:
             return file

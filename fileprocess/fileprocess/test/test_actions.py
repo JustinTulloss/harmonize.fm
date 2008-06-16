@@ -23,7 +23,7 @@ from fileprocess.configuration import config, dev_config, test_config
 class TestBase(unittest.TestCase):
     def __init__(self, *args):
         super(TestBase, self).__init__(*args)
-        logging.basicConfig(level=logging.WARN)
+        logging.basicConfig(level=logging.DEBUG)
         config.update(dev_config)
         config.update(test_config)
 
@@ -61,9 +61,6 @@ class TestActions(TestBase):
     def testTagger(self):
         t = TagGetter()
         assert t is not None, "Tagger not constructed"
-
-        # Test bad file dicts
-        assert_raises(Exception, t.process, self.fdata['empty'])
 
         # Test a clearly invalid file
         self.fdata['notmp3']['fname'] = \
@@ -198,9 +195,6 @@ class TestActions(TestBase):
 
         config['S3.upload'] = True
 
-        # Test an empty file
-        assert_raises(AssertionError, s.process, self.fdata['empty'])
-
         # Test a nonexistent file
         # XXX: This doesn't actually make sense. If for some reason,
         # the file is lost, we need to undo everything we've done. It's
@@ -298,7 +292,7 @@ class TestActions(TestBase):
         self.fdata['goodfile']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodfile']['fname'])
         nf = p.process(self.fdata['goodfile'])
-        assert nf['puid'] == '3178113b-858c-2456-f73e-1ab929f38934'
+        assert nf['puid'] == '04491081-b155-4866-eb96-72adf61b4047'
 
     def testTagSaver(self):
         s = TagSaver()
@@ -345,9 +339,10 @@ class TestDBActions(TestBase):
 
         # Test creating a user and inserting a brand new file
         nf = c.process(self.fdata['dbrec'])
-        assert nf['dbuser'].id is not None,\
+        assert nf['dbuserid'] is not None,\
             "Failed to insert new user into the database"
-        assert nf['dbuser'].fbid == self.fdata['dbrec']['fbid'], \
+        user = self.model.Session.query(self.model.User).get(nf['dbuserid'])
+        assert user.fbid == self.fdata['dbrec']['fbid'], \
             "Failed to associate new user with fbid"
 
         """
@@ -361,7 +356,7 @@ class TestDBActions(TestBase):
         user.fbid = self.fdata['dbrec']['fbid']
         self.model.Session.save(user)
         self.model.Session.commit()
-        self.fdata[key]['dbuser'] = user
+        self.fdata[key]['dbuserid'] = user.id
 
     def testDBRecorder(self):
         r = DBRecorder()
@@ -390,11 +385,7 @@ class TestDBActions(TestBase):
         # Test insertion of same record with different user and sha
         self.fdata['dbrec']['sha'] = '256f863d46e7a03cc4f05bab267e313d4b258e01'
         self.fdata['dbrec']['fbid'] = 1908861 
-        user = self.model.User()
-        user.fbid = self.fdata['dbrec']['fbid']
-        self.model.Session.save(user)
-        self.model.Session.commit()
-        self.fdata['dbrec']['dbuser'] = user
+        self._create_user('dbrec')
         nf = r.process(self.fdata['dbrec'])
         assert nf['dbownerid'] and nf['dbsongid']
         assert_false(c.process(self.fdata['dbrec']),
@@ -451,10 +442,12 @@ class TestDBActions(TestBase):
         crypuid.song = cry
         self.model.Session.add(crypuid)
         self.model.Session.commit()
+        cryid = cry.id
 
         # Test a record we do have that should be matched
         nf = t.process(self.fdata['btles2'])
         assert nf == False, "DBTagger did not match"
+        cry = self.model.Session.query(self.model.Song).get(cryid)
         newowner = self.model.Session.query(self.model.SongOwner).\
             filter(self.model.SongOwner.song == cry).all()
         assert newowner, "A new owner was not put in the database"

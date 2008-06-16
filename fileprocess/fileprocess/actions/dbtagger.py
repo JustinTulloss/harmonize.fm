@@ -29,9 +29,10 @@ class DBTagger(BaseAction):
         if not file.has_key('puid'):
             return file
 
-        assert file.has_key('dbuser'), "Need a user to assign file to"
+        assert file.has_key('dbuserid'), "Need a user to assign file to"
 
         self.model.Session()
+        user = self.model.Session.query(self.model.User).get(file['dbuserid'])
 
         # Get the songs that have this PUID
         songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
@@ -65,11 +66,11 @@ class DBTagger(BaseAction):
         # Check to see if the user already owns this song
         owner = self.model.Session.query(self.model.SongOwner).\
             filter(self.model.SongOwner.song == match).\
-            filter(self.model.SongOwner.user == file['dbuser']).first()
+            filter(self.model.SongOwner.user == user).first()
         if owner:
             #Just bail now, this file's already been uploaded
             log.debug('%s has already been uploaded by %s', 
-                file.get('fname'), file.get('fbid'))
+                file.get('title'), file.get('fbid'))
             file['msg'] = "File has already been uploaded by user"
             file['na'] = na.NOTHING
             self.cleanup(file)
@@ -78,7 +79,7 @@ class DBTagger(BaseAction):
         # Create a new owner indicating they own the matched song
         nowner = self.model.SongOwner()
         nowner.song = match
-        nowner.user = file['dbuser']
+        nowner.user = user
         self.model.Session.add(nowner)
         try:
             self.model.Session.commit()

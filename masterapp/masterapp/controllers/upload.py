@@ -131,7 +131,7 @@ class UploadController(BaseController):
         fsock.close()
         
     def file(self, id):
-        """POST /uploads/id: This one uploads new songs for realsies"""
+        """POST /upload/file/id: This one uploads new songs for realsies"""
         # first get session key
         fbid = self._get_fbid(request)
         if fbid == None:
@@ -177,8 +177,8 @@ class UploadController(BaseController):
         else:
             try:
                 self.read_postdata()
-            except self.PostException:
-                pass
+            except self.PostException, e:
+                log.info("A problem occurred with the post: %s", e)
 
         return upload_response.done
         
@@ -195,6 +195,7 @@ class UploadController(BaseController):
         # Check our database for PUID
         userpuid = request.params.get('puid')
         if not userpuid:
+            log.debug("Puid was blank, upload the file")
             return upload_response.upload
 
         def build_fdict():
@@ -216,6 +217,8 @@ class UploadController(BaseController):
         ).all()
         if len(dbpuids) > 0:
             self._process(build_fdict())
+            log.debug("We have the puid for %s in our db, don't need the song",
+                request.params.get('title'))
             return upload_response.done
 
         # Check MB for puid matches, then our database for MB matches
@@ -228,12 +231,14 @@ class UploadController(BaseController):
             return upload_response.upload
 
         anyof = or_()
-        for result in results:
-            anyof.append(model.Song.mbid == result.track.id.split('/').pop())
-        checksongs = model.Session.query(model.Song).filter(anyof).all()
-        if len(checksongs)>0:
-            self._process(build_fdict())
-            return upload_response.done
+        if len(results)>0:
+            for result in results:
+                anyof.append(model.Song.mbid == result.track.id.split('/').pop())
+            checksongs = model.Session.query(model.Song).filter(anyof).all()
+            if len(checksongs)>0:
+                self._process(build_fdict())
+                log.debug("We have the mbid, don't need the song")
+                return upload_response.done
 
         # We haven't seen the song, let's get the whole file
         return upload_response.upload
