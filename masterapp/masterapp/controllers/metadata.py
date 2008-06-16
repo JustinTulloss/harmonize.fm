@@ -248,7 +248,7 @@ class MetadataController(BaseController):
             qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
             return qry.all()
         else:
-            return False
+            return "False"
         
 
     # right now this only returns true or false
@@ -256,18 +256,18 @@ class MetadataController(BaseController):
     # for the album    
     def find_spotlight_by_album(self):
         if not request.params.has_key('album_id'):
-            return False
+            return "False"
         
         album = Session.query(Album).filter(Album.id == request.params['album_id'])
         if album.first():
             qry = Session.query(Spotlight).filter(Spotlight.albumid == album[0].id).filter(Spotlight.uid == self._get_user().id).filter(Spotlight.active == 1)
             if qry.first():
-                return True
+                return "True"
             else:
-                return False
+                return "False"
             
         else:
-            return False
+            return "False"
         
         
     
