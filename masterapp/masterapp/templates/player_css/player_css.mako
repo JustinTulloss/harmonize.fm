@@ -160,11 +160,14 @@ a.bc_link:hover {
 }
 */
 
-#spot_form textarea {
+#spot_form textarea, .spot-dlg-value {
+	overflow: auto;
 	height: 72px;
 	width: 230px;
 	margin: 0;
 	margin-left: 4px;
+	border: solid 1px #AAA;
+	text-align: left;
 }
 
 #spot_comment {
