@@ -375,10 +375,6 @@ mapper(File, files_table, properties={
 
 mapper(Owner, owners_table, properties={
     'user': relation(User),
-    'song': relation(Song,
-        primaryjoin = owners_table.c.songid == songs_table.c.id,
-        foreign_keys = [owners_table.c.songid]
-    )
 })
 
 mapper(Artist, artists_table, properties={
