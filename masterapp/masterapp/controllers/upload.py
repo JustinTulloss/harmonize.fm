@@ -221,25 +221,6 @@ class UploadController(BaseController):
                 request.params.get('title'))
             return upload_response.done
 
-        # Check MB for puid matches, then our database for MB matches
-        try:
-            mbq = Query()
-            filter = TrackFilter(puid=userpuid)
-            results = mbq.getTracks(filter)
-        except WebServiceError, e:
-            log.info('Brainz error occurred, uploading the file')
-            return upload_response.upload
-
-        anyof = or_()
-        if len(results)>0:
-            for result in results:
-                anyof.append(model.Song.mbid == result.track.id.split('/').pop())
-            checksongs = model.Session.query(model.Song).filter(anyof).all()
-            if len(checksongs)>0:
-                self._process(build_fdict())
-                log.debug("We have the mbid, don't need the song")
-                return upload_response.done
-
         # We haven't seen the song, let's get the whole file
         return upload_response.upload
             

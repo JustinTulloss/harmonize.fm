@@ -12,6 +12,7 @@ var profile_handler;
 		for (var i=0; i<containers.length; i++) {
 			var container = Ext.get(containers[i]);
 			container.child('.view-comment').setDisplayed(true);
+			container.child('.hide-comment').setDisplayed(false);
 			container.child('.comments-body').setDisplayed(false);
 		}
 	}
@@ -54,6 +55,7 @@ var profile_handler;
 		    var target = Ext.get('spot-comment-'+spot_id);
 		    if (target) {
     			target.child('.view-comment').setDisplayed(false);
+				target.child('.hide-comment').setDisplayed(true);
 			    target.child('.comments-body').setDisplayed(true);
 			    
 			    var button = target.child('.send-spot-comment');

@@ -128,10 +128,10 @@ def compare_meta(file, track):
     Compare file metadata to a MusicBrainz track.
 
     Weights:
-      * title                = 15
+      * title                = 18
       * artist name          = 6
       * release name         = 8
-      * length               = 15
+      * length               = 20
       * number of tracks     = 4
       * track placement      = 5
       * official release     = 5
@@ -184,8 +184,8 @@ def compare_meta(file, track):
         b = float(track['duration'])
     if a and b:
         score = 1.0 - min(abs(a - b), 30000) / 30000.0
-        parts.append((score, 15))
-        total += 15
+        parts.append((score, 20))
+        total += 20
 
     a = file.get('totaltracks')
     b = track.get('totaltracks')
