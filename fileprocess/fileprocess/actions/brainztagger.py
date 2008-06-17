@@ -7,6 +7,7 @@
 #   3. If it doesn't match, lookup track
 #
 # Reworked 06/12/2008 to use PUIDs that are generated client-side --JMT
+# Added real caching 06/17/2008 --JMT
 
 from __future__ import with_statement
 import logging
@@ -28,20 +29,32 @@ from tag_compare import (
     match_file_to_track
 )
 
+from beaker.cache import Cache
+
 from tag_utils import totaltracks, get_year
 
 log = logging.getLogger(__name__)
+CACHE_EXPIRATION = 60*60*60
 
 class BrainzTagger(BaseAction):
     def __init__(self, *args):
         super(BrainzTagger, self).__init__(args)
 
         # Keyed by musicbrainz ids
-        self.artistcache = dict()
-        self.albumcache = dict()
+        self.artistcache = Cache(
+            namespace = 'brainz.artists',
+            expires = CACHE_EXPIRATION
+        )
+        self.albumcache = Cache(
+            namespace = 'brainz.albums',
+            expires = CACHE_EXPIRATION
+        )
 
         # Keyed by tuple(album, artist, totaltracks)
-        self.releasecache = dict()
+        self.releasecache = Cache(
+            namespace = 'brainz.releases',
+            expires = CACHE_EXPIRATION
+        )
 
         self.lastquery = 0 #time of last query
 
@@ -63,8 +76,8 @@ class BrainzTagger(BaseAction):
                 file.get('album'),
                 file.get('artist'),
             )
-            releases = self.releasecache.get(cachekey)
-            if releases:
+            if self.releasecache.has_key(cachekey):
+                releases = self.releasecache.get(cachekey)
                 for release in releases:
                     log.debug("Checking releasecache for %s", cachekey)
                     mbtrack = match_file_to_release(file, release)
@@ -86,8 +99,9 @@ class BrainzTagger(BaseAction):
 
         # Get info on the album, cache it for future songs
         mbalbumid = result.track.releases[0].id
-        album = self.albumcache.get(mbalbumid)
-        if not album:
+        if self.albumcache.has_key(mbalbumid):
+            album = self.albumcache.get(mbalbumid)
+        else:
             include = ReleaseIncludes(
                 releaseEvents=True,
                 tracks=True,
@@ -99,7 +113,7 @@ class BrainzTagger(BaseAction):
                 include = include
             )
             if album == False:
-                return False
+                return file
             self.albumcache[mbalbumid]= album
             log.debug("Inserting things into the releasecache")
             key = (file.get('album'), file.get('artist'))
@@ -110,8 +124,9 @@ class BrainzTagger(BaseAction):
 
         # Get info on the artist, cache it for future songs
         mbartistid = result.track.artist.id
-        artist = self.artistcache.get(mbartistid)
-        if not artist:
+        if self.artistcache.has_key(mbartistid):
+            artist = self.artistcache.get(mbartistid)
+        else:
             artist = self._query_brainz(file,mbquery.getArtistById, mbartistid)
             if artist == False:
                 return False

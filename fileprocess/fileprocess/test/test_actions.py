@@ -241,7 +241,7 @@ class TestActions(TestBase):
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
-        assert len(a.covercache) > 0
+        assert a.covercache.has_key(nf['asin'])
 
     def testHasher(self):
         h = Hasher()

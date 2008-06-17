@@ -53,7 +53,6 @@ class User(object):
     fbcache = None
     def __init__(self, fbid=None):
         self.fbid = fbid
-        self._create_cache()
 
     @decorator
     def fbattr (func, self, *args, **kwargs):
@@ -63,7 +62,7 @@ class User(object):
             self.fbcache[self.fbid] = self._get_fbinfo()
         self.fbinfo = self.fbcache.get_value(
             key = self.fbid,
-            expiretime = 24*60*60, # 24 hours
+            expiretime = 24*60*60*60, # 24 hours
             createfunc = self._get_fbinfo
         )
         return func(self, *args, **kwargs)

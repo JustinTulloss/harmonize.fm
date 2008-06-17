@@ -64,7 +64,9 @@ def ensure_fb_session():
         facebook.uid = session['fbuid']
         return True
 
-
+friendcache = cache.get_cache('fbfriends')
+def get_friend_ids():
+    return friendcache.get_value    
 def filter_friends(qry):
     """
     This function ensures that songs belong to you by default. If you are

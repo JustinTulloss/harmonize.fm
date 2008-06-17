@@ -217,10 +217,9 @@ class MetadataController(BaseController):
         #todo: replace this with recommendations
         
         userStore = session['fbfriends']
-        users=facebook.users.getInfo(userStore)
         fbids = []
-        for user in users:
-            fbids.append(user['uid'])
+        for user in userStore:
+            fbids.append(user)
         #songlist is a list where each element is a song id.
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        
