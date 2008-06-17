@@ -25,5 +25,7 @@ elif sys.platform == 'win32':
 		windows=[{'script':'Harmonize_win.py',
 				  'dest_base':'Harmonize'}],
 		scripts=r_scripts,
-		data_files=['Python.Runtime.dll', 'folder.bmp', 'hd.bmp', 'cd.bmp']
+		data_files=['Python.Runtime.dll', 'folder.bmp', 'hd.bmp', 'cd.bmp',
+					'genpuid\\genpuid.exe', 'genpuid\\AACTagReader.exe',
+					'genpuid\\mipcore.exe', 'genpuid\\libexpat.dll']
 	)
