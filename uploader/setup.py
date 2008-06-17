@@ -6,8 +6,9 @@ r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py',
 			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py']
 
 if sys.platform == 'darwin':
-	if not os.path.exists('genpuid_bin_osx'):
+	if not os.path.exists('genpuid'):
 		print 'genpuid directory missing, download it at musicip.com'
+		sys.exit(1)
 	import py2app
 	setup(
 		name='Harmonize',
@@ -15,8 +16,8 @@ if sys.platform == 'darwin':
 		app=['Harmonize_osx.py'],
 		scripts=r_scripts,
 		data_files=['MainMenu.nib', 
-					'genpuid_bin_osx/genpuid', 'genpuid_bin_osx/AACTagReader',
-					'genpuid_bin_osx/mipcore']
+					'genpuid/genpuid', 'genpuid/AACTagReader',
+					'genpuid/mipcore']
 	)
 elif sys.platform == 'win32':
 	import py2exe
