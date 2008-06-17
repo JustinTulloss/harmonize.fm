@@ -7,6 +7,7 @@
 
 function Browser()
 {
+    
     this.addEvents({
         newgrid: true,
         chgstatus: true
@@ -22,14 +23,11 @@ function Browser()
              */
 
             crumb.ds = new Ext.data.JsonStore({
-            //crumb.ds = new Ext.ux.grid.BufferedStore ({
-                /*reader: new Ext.ux.data.BufferedJsonReader({
-                    root: 'data'                
-                }),*/
                 url:'metadata',
                 root: 'data',
                 successProperty: 'success',
-                fields:global_config.fields[crumb.type]
+                id: 'id',
+                fields:global_config.fields[crumb.type]    
             });
         }
 
@@ -55,7 +53,7 @@ function Browser()
             callback: function(){this.fireEvent('chgstatus', null)},
             scope: this
         });
-        this.fireEvent('chgstatus', 'Loading...');
+        //this.fireEvent('chgstatus', 'Loading...');
         crumb.ds.on('loadexception', function(proxy, options,response, e){
             if (response.status == 401)
                 show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
@@ -70,8 +68,6 @@ function BaseGrid(config)
 	var my = this;
 
     config.selModel = new Ext.grid.RowSelectionModel();
-    //var bufferedSelectionModel = new Ext.ux.grid.BufferedRowSelectionModel(); 
-    //config.sm = bufferedSelectionModel;
     config.bufferResize = true;
     config.enableColLock = false;
     config.enableColumnMove = false;
@@ -79,31 +75,14 @@ function BaseGrid(config)
     config.enableDragDrop = true;
     config.ddGroup = 'TreeDD';
     config.loadMask = true;
-    //config.loadMask = {msg:'Loading...'}
     config.trackMouseOver = false;
     config.stripeRows = true;
-    //this is commented because we're using a BufferedGridView now    
     config.viewConfig = {
         forceFit: true,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         deferEmptyText: true
     };
-    /*
-    var bufferedView = new Ext.ux.grid.BufferedGridView({
-        loadMask: {msg:'Please wait...'},
-        //forceFit: true,
-        emptyText: 'There isn\'t any music here!<br>'+
-            'Upload some, or why not listen to your friends\' music?',
-        deferEmptyText: true
-    });
-    config.view = bufferedView;
-    var bufferedGridToolbar = new Ext.ux.BufferedGridToolbar({
-        view        : bufferedView,
-        displayInfo : true
-    });
-    config.bbar = bufferedGridToolbar;   
-    */
     this.addEvents({
         enqueue : true,
         chgstatus: true
