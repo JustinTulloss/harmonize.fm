@@ -9,7 +9,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
+from pylons import cache
+
 from time import sleep
+from decorator import decorator
 
 log = logging.getLogger(__name__)
 
@@ -47,19 +50,28 @@ class User(object):
     fbid = None
     fbinfo = None
     listeningto = None
-
+    fbcache = None
     def __init__(self, fbid=None):
         self.fbid = fbid
+        self._create_cache()
 
-    def fbattr(func):
-        def check_fbinfo(self, *args, **kwargs):
-            if not self.fbinfo:
-                self._get_fbinfo()
-            return func(self, *args, **kwargs)
-        return check_fbinfo
+    @decorator
+    def fbattr (func, self, *args, **kwargs):
+        if not self.fbcache:
+            self._create_cache()
+        if not self.fbcache.has_key(self.fbid):
+            self.fbcache[self.fbid] = self._get_fbinfo()
+        self.fbinfo = self.fbcache.get_value(
+            key = self.fbid,
+            expiretime = 24*60*60, # 24 hours
+            createfunc = self._get_fbinfo
+        )
+        return func(self, *args, **kwargs)
+
+    def _create_cache(self):
+        self.fbcache = cache.get_cache('fbprofile')
 
     def _get_fbinfo(self):
-        # Eventually we'll need to select on network, store locally, whatever
         info = None
         while not info:
             try:
@@ -73,10 +85,10 @@ class User(object):
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
-                log.info("Could not connect to facebook, retrying: %s", e)
+                log.warn("Could not connect to facebook, retrying: %s", e)
                 sleep(.1)
-        self.fbinfo = info
-        
+        return info
+
     @fbattr
     def get_name(self):
         return self.fbinfo['name']
