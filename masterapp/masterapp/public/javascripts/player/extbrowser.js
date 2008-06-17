@@ -35,7 +35,7 @@ function Browser()
             params.type = crumb.type;
         else
             params = {type:crumb.type};
-
+        
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
@@ -47,11 +47,35 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+        var bufferSize = 25; //how many records to grab at a time?        
+        
+        params.start = 0;
+        params.limit = bufferSize;
 
+        var lazy_load = 
+        function(r, options, success){
+            if (r.length < (params.limit - params.start)) {
+                records_remaining = false;
+            } else {
+                records_remaining = true;
+                params.start += bufferSize;
+                params.limit += bufferSize;   
+            }
+            if (records_remaining) { 
+                crumb.ds.load({
+                    params:params,
+                    callback: lazy_load,
+                    scope: this,
+                    add: true            
+                });
+            }
+            else this.fireEvent('chgstatus', null);
+        };
         crumb.ds.load({
             params:params,
-            callback: function(){this.fireEvent('chgstatus', null)},
-            scope: this
+            callback: lazy_load,
+            scope: this,
+            add: true
         });
         this.fireEvent('chgstatus', 'Loading...');
         crumb.ds.on('loadexception', function(proxy, options,response, e){
@@ -74,7 +98,7 @@ function BaseGrid(config)
     config.enableHdMenu = false;
     config.enableDragDrop = true;
     config.ddGroup = 'TreeDD';
-    config.loadMask = true;
+    config.loadMask = false;
     config.trackMouseOver = false;
     config.stripeRows = true;
     config.viewConfig = {
@@ -243,9 +267,8 @@ function FriendGrid(config)
 {
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
-
     FriendGrid.superclass.constructor.call(this, config);
-
+    
     this.search = search;
     function search(text)
     {
