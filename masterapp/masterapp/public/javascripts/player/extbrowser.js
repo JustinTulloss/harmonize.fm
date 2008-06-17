@@ -52,7 +52,7 @@ function Browser()
         function(r, options, success){
             if (r.length < (params.limit - params.start)) {
                 records_remaining = false;
-                viewmgr.get_search_field().enableKeyEvents = false;
+                viewmgr.get_search_field().enableKeyEvents = true;
             } else {
                 records_remaining = true;
                 params.start += bufferSize;
