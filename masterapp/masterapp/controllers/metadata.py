@@ -233,7 +233,7 @@ class MetadataController(BaseController):
                 songlist.append(record.Song_id)
         
         num_songs = len(songlist)
-        song_index = random.randint(0,num_songs)
+        song_index = random.randint(0,num_songs-1)
         song_id = songlist[song_index]
         
         #now grab the actual song data based on the song_id

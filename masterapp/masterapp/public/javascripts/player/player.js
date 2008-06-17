@@ -182,7 +182,7 @@ function Player()
 
 	my.buffersong = function(song) {
 		var newid = song.get('Song_id');
-		if (newid == bufferedsong)
+		if (newid == bufferedsong || newid == playingsong)
 			return;
 
 		clear_buffer();
