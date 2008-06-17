@@ -1,7 +1,7 @@
 import pythoncom
 pythoncom.CoInitialize()
 
-import fb, itunes, upload, thread, dir_browser
+import fb, itunes, upload, thread, dir_browser, hplatform
 import clr
 import System
 import System.IO
@@ -131,7 +131,7 @@ class OptionWin(winforms.Form):
 		self.uploadFolderBox = winforms.TextBox()
 		self.uploadFolderBox.Size = Size(247, 20)
 		self.uploadFolderBox.Location = Point(36, 74)
-		self.uploadFolderBox.Text = upload.get_default_path()
+		self.uploadFolderBox.Text = hplatform.get_default_path()
 		self.uploadFolderBox.ReadOnly = True
 		self.Controls.Add(self.uploadFolderBox)
 
