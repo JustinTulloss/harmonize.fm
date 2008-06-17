@@ -22,7 +22,8 @@ player_files = IncludeFiles(
         'button',
         'box',
         'form',
-        'slider'
+        'slider',
+        'ext-ux-livegrid'
     ],
     templated_stylesheets = [
         'player_css/player_css.mako',
@@ -54,7 +55,13 @@ player_files = IncludeFiles(
 		'player/spotlight.js',
 		'player/urlmanager.js',
         'player/profile.js',
-        'player/friendradio.js'
+        'player/friendradio.js',
+        'lib/ext-2.1/source/ux/grid/BufferedGridDragZone.js',
+        'lib/ext-2.1/source/ux/BufferedGridToolbar.js',
+        'lib/ext-2.1/source/ux/grid/BufferedGridView.js',
+        'lib/ext-2.1/source/ux/data/BufferedJsonReader.js',
+        'lib/ext-2.1/source/ux/grid/BufferedRowSelectionModel.js',
+        'lib/ext-2.1/source/ux/grid/BufferedStore.js'
     ]
 )
 
