@@ -88,12 +88,11 @@ function Player()
         my.fireEvent('nextsong', my.playsong);
     }
 
-    function prevclicked(e)
-    {
-        if (playingsong)
-        {
+    function prevclicked(e) {
+        if (playingsong) {
             sound = soundManager.getSoundById(playingsong);
-            if (sound.position > 1000) {
+			//sound isn't always defined when hitting prev rapidly
+            if (sound && sound.position > 1000) {
                 soundManager.setPosition(playingsong, 0);
                 return;
             }
@@ -220,6 +219,7 @@ function Player()
         }
 		set_pause(false);
 		update_now_playing({});
+		now_playing_bar.style.visibility = 'hidden';
     }
 
 	function createSound(url, id) {

@@ -35,7 +35,12 @@ fields = {
         'Artist_numalbums',
         'Artist_availsongs'
     ],
-    'playlist': [],
+    'playlist': [
+		'type',
+		'Playlist_name',
+		'Playlist_id',
+		'Friend_id'
+	],
     'friend': [
         'type',
         'Friend_id',

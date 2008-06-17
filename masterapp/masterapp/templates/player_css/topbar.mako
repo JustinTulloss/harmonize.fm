@@ -129,56 +129,6 @@
 	outline: none;
 }
 
-#feedback-link {
-	position: relative;
-}
-
-.feedbackActive {
-	background-color: #A0ACC0;
-}
-
-#feedback-content {
-	width: 14em;
-}
-
-#feedback-content td {
-	text-align: right;
-}
-
-#feedback-email {
-	width: 98%;
-}
-#feedback-textarea {
-	width: 98%;
-}
-#feedback-cancel {
-	margin-left: 5px;
-}
-
-.feedback-label {
-	padding-bottom: 9px;
-	line-height: 100%;
-}
-
-#feedbackBox {
-	padding: 5px;
-	width: 190px;
-    font-size: 13px;
-	font-family: tahoma,verdana,helvetica,sans-serif;
-    color: #FFFFFF;
-	text-align:right;
-
-	position: fixed;
-	right: 2px;
-	display: none;
-	z-index: 1
-}
-
-#feedbackContainer {
-	height: 21px;
-	vertical-align: middle;
-}
-
 #logo {
     position: absolute;
     right: 50px;

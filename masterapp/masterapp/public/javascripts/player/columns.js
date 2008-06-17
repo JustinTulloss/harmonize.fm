@@ -164,7 +164,8 @@ var ColConfig = {
         BrowserColumns['Artist_numalbums'],
         BrowserColumns['Artist_availsongs']
     ],
-    playlist: [],
+    playlist: [
+		BrowserColumns['Playlist_name']],
     friend: [
         BrowserColumns['Friend_name'],
         BrowserColumns['Friend_numalbums'],

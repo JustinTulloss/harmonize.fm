@@ -137,47 +137,12 @@ a.bc_link:hover {
 	color: red;
 }
 
-/*
-#spot_content tr {
-	text-align: center;
-}
-*/
-
-#spot_form textarea {
-	height: 72px;
-	width: 230px;
-	margin: 0;
-	margin-left: 4px;
-}
-
-#spot_comment {
-	font-size: 12px;
-	line-height: 12px;
-}
-
-#spot_form {
-	text-align: right;
-	overflow:auto;
-}
-
-#spot_art {
-	float:left;
-}
-
-#spot_controls tr {
-	text-align: right;
-}
-
 table td, table th {
 	padding: 0;
 }
 
 table {
 	border-spacing: 0;
-}
-
-#spot_cancel {
-	margin-left: 4px;
 }
 
 #news_feed {

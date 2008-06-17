@@ -48,7 +48,6 @@ class MetadataController(BaseController):
             'song': self.songs,
             'friend': self.friends,
             'playlist': self.playlists,
-            'playlistsong': self.playlistsongs,
             'next_radio_song': self.next_radio_song
         }
 
@@ -112,8 +111,9 @@ class MetadataController(BaseController):
             sort = [Song.tracknumber]
         elif request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
-        if request.params.get('playlist'):
-            qry = qry.filter(Playlist.id == request.params.get('playlist'))
+        elif request.params.get('playlist'):
+            qry = qry.reset_joinpoint().join(Song.playlistsongs).\
+                filter(PlaylistSong.playlistid==int(request.params['playlist']))
 
         qry = qry.order_by(sort)
         return qry
@@ -182,24 +182,9 @@ class MetadataController(BaseController):
     @_build_json
     @_pass_user
     def playlists(self, user):
-        qry = Session.query(Playlist).join('owner')
-        qry = filter_friends(qry)
-        qry = qry.order_by(Playlist.name)
-        results = qry.all()
-        return self._build_json(results, 'playlist')
-
-    @cjsonify
-    @_build_json
-    @_pass_user
-    def playlistsongs(self, user):
-        qry = Session.query(PlaylistSong).join('playlist').reset_joinpoint(). \
-            join('album').reset_joinpoint().join(['files', 'owners', 'user'])
-        qry = filter_friends(qry)
-        qry = qry.filter(Playlist.playlistid == request.params.get('playlist'))
-
-        qry = qry.order_by(PlaylistSong.songindex)
-        results = qry.all()
-        return self._build_json(results, 'playlistsong')
+        qry = Session.query(*dbfields['playlist']).join(Playlist.owner).\
+               filter(Playlist.ownerid == user.id).order_by(Playlist.name)
+        return qry.all()
 
     def album(self, id):
         user = self._get_user()

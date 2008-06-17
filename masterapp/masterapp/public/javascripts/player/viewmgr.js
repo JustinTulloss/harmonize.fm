@@ -31,7 +31,9 @@ function ViewManager(crumb, objects)
 	*/
 
     t_status = new Ext.Template(
-        '<div name="status">',
+        '<div id="status">',
+			'<span class="playlist-controls">',
+			'<a id="create-playlist" href="#">create playlist</a></span>',
             '<span class="uname">Welcome, {name:trim}</span>',
             '<span class="cstatus">{status}</span>',
         '</div>'
@@ -162,7 +164,45 @@ function ViewManager(crumb, objects)
         if (text == null)
             text = '<a class="logout" href="/player/logout">logout</a>';
 
-        var el= statusbar.getEl();
-        t_status.overwrite(el, {name: username, status: text});
+        var el = statusbar.getEl().child('.cstatus');
+		if (el)
+			el.innerHTML = text;
+		else
+			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
     }
+
+	var create_playlist_dialog = 
+		'<h1>Create a new Playlist</h1>' +
+		'<center><table><tr><td>'+
+		'<form><input id="playlist-name" maxlength="50" />'+
+		'<br/>playlist name<br/><br/>' +
+		'<button id="create-playlist-button">create</button>' +
+		'<button id="cancel-playlist-button">cancel</button>' +
+		'</form></td></tr></table></center>';
+	Ext.get('create-playlist').on('click', function(e, el) {
+		e.preventDefault();
+		show_dialog(create_playlist_dialog);
+		var input = Ext.get('playlist-name');
+		Ext.get('cancel-playlist-button').on('click', function(e) {
+			e.preventDefault();
+			hide_dialog();
+		});
+		Ext.get('create-playlist-button').on('click', function(e) {
+			e.preventDefault();
+			Ext.Ajax.request({
+				url: '/playlist/create',
+				params: {name: input.dom.value},
+				success: function() {
+							show_status_msg('Playlist created!');
+							playlistmgr.add_playlist(input.dom.value, true);
+							hide_dialog();
+						},
+				failure: function() {
+							show_status_msg('Error creating playlist!');
+							hide_dialog();
+						}
+			});
+		});
+
+	});
 }

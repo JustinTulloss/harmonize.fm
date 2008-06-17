@@ -6,17 +6,22 @@
     padding-top: 4px;
 }
 
-.cstatus {
-    position: absolute;
-    right: 3pt;
+.playlist-controls {
+	float: left;
+	padding-left: 3px;
 }
 
-a.logout {
+.cstatus {
+    position: absolute;
+    right: 5px;
+}
+
+.status a {
     color: ${c.profile.status_txt};
     text-decoration: none;
 }
 
-a:hover.logout{
+.status a:hover{
     color: ${c.profile.click};
     text-decoration: underline;
 }

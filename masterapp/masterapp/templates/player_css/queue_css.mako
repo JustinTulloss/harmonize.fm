@@ -4,6 +4,34 @@
 	background-color: ${c.profile.queue_bg};
 }
 
+.queuetree {
+	border-bottom: solid #999 1px;
+}
+
+.queue-instructions {
+	border-bottom: solid #999 1px;
+}
+
+.playlist {
+	background-color: ${c.profile.playlist_bg};
+}
+
+.playlist-button {
+	float: right;
+    background: url('/images/delete.png') no-repeat;
+	height: 15px;
+	width: 15px;
+}
+
+.playlist-button:hover {
+    background: url('/images/delete.png') 0 -15px no-repeat;
+}
+
+.x-panel-header {
+	border-width: 0;
+	border-bottom: solid #999 1px;
+}
+
 .dragging {
     cursor: move;
 }
@@ -45,10 +73,6 @@ a.qn-text{
     background: url('/images/delete.png') 0 -15px no-repeat;
 }
 
-#status {
-    font-size: 9px;
-}
-
 #time {
     float: left;
     margin-left: 1em;
@@ -67,7 +91,7 @@ a.qn-text{
     margin-bottom: 0;
 }
 
-#queue-instructions {
+.queue-instructions {
 	height: 100%;
 	vertical-align: center;
 	width: 100%;

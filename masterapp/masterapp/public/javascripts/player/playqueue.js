@@ -8,8 +8,7 @@
  *  Updated 05/17/08 to remove the now playing and tweak the UI --JMT
  */
 
-function PlayQueue()
-{
+function PlayQueue(config) {
     var showingprev = false;
     var my = this;
 
@@ -17,13 +16,16 @@ function PlayQueue()
         newsong : true,
         playsong: true,
         stop : true,
-		buffersong: true
+		buffersong: true,
+		beforeexpand: true,
+		beforecollapse: true
     });
 
     my.played = new Array(); /* Just an array of all the played treenodes */
     my.playing = null;
 
-	var songQueue = new SongQueue();
+	var songQueue = new SongQueue('Play Queue');
+	my.songQueue = songQueue;
 	my.panel = songQueue.panel;
 
     my.enqueue = function(records) {
@@ -34,6 +36,10 @@ function PlayQueue()
 		if (!songQueue.dequeue(playnow))
 			my.fireEvent('stop');
     }
+
+	my.insert = function(records) {
+		songQueue.insert(records);
+	}
 
 	function onreorder() {
 		if (my.playing == null) {
@@ -52,7 +58,7 @@ function PlayQueue()
     function playnow(record) {
         if (my.playing != null) {
             my.played.push(my.playing);
-			my.playing.set('type', 'prevsong');
+			//my.playing.set('type', 'prevsong');
         }
 
         play(record);
@@ -61,7 +67,7 @@ function PlayQueue()
     function play(record) {
         if (record) {
 			my.playing = record;
-			record.set('type', 'nowplayingsong');
+			//record.set('type', 'nowplayingsong');
             my.fireEvent('playsong', record);
         }
     }
@@ -73,7 +79,7 @@ function PlayQueue()
         }
 
         if (my.playing) {
-			my.playing.set('type', 'song');
+			//my.playing.set('type', 'song');
             songQueue.insert([my.playing]);
         }
 
@@ -81,6 +87,7 @@ function PlayQueue()
         if (record)
             play(record);
         else {
+			my.playing = null;
             my.fireEvent('stop');
         }
 
@@ -90,12 +97,17 @@ function PlayQueue()
     my.showprev = function showprev() {
         showingprev = true;
         if (my.playing) {
+			my.playing.set('type', 'nowplayingsong');
             songQueue.insert([my.playing]);
+			my.playing.set('type', 'song');
             my.showingplaying = true;
         }
         for (i = my.played.length-1; i>=my.played.length-5; i--) {
-            if (my.played[i]) {
-                songQueue.insert([my.played[i]]);
+			var current = my.played[i];
+            if (current) {
+				current.set('type', 'prevsong');
+                songQueue.insert([current]);
+				current.set('type', 'song');
             }
             else
                 break;
@@ -108,17 +120,25 @@ function PlayQueue()
 			songQueue.clear_inactive();
 		}
     }
+
+	my.panel.on('beforeexpand', function() {
+			return config.beforeexpand(my);
+	});
+
+	my.panel.on('beforecollapse', function() {
+			return config.beforecollapse(my);
+	});
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
-function SongQueue() {
+function SongQueue(label, is_playlist) {
 	var my = this;
 
 	my.addEvents({
         reordered : true,
 	});
 	
-    var instructions = '<table id="queue-instructions"><tr><td>'+
+    var instructions = '<table class="queue-instructions"><tr><td>'+
         'Drag here to add songs'+
         '<br>-OR-<br>'+
         'Hit the <img class="middle" src="/images/enqueue.png" /> button'+
@@ -127,7 +147,7 @@ function SongQueue() {
     my.root = new Ext.tree.TreeNode({expanded:true});
     my.tree = new Ext.tree.TreePanel({
         root: my.root,
-        id: 'queuetree',
+        cls: 'queuetree',
         rootVisible: false,
         layout: 'fit',
         height: '100%',
@@ -148,6 +168,7 @@ function SongQueue() {
         closable:false, 
         autocreate:true,
         layout: 'fit',
+		height: '100%',
         border: false,
         hideBorders: true,
         header: false,
@@ -155,14 +176,14 @@ function SongQueue() {
     });
 
     my.panel = new Ext.Panel({
-        id: 'queuepanel',
-        region: 'west',
-        split: true,
-        width: '250px',
+		title: label,
         titlebar:false,
+		width: '100%',
         layout: 'card',
-        cls: 'queue',
+        cls: is_playlist ? 'playlist' : 'queue',
         activeItem: 0,
+		hideCollapseTool: true,
+		header: true,
         items: [my.inspanel, my.tree]
     });
 
@@ -194,6 +215,9 @@ function SongQueue() {
     }
 
 	function update_instructions() {
+		if (typeof(my.panel.getLayout() == 'string'))
+			return;
+
 		if (my.root.firstChild)
 			my.panel.getLayout().setActiveItem(1);
 		else
@@ -206,7 +230,6 @@ function SongQueue() {
         if (p.update_text)
             p.update_text();
 
-		reordered();
         /* this is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
@@ -303,6 +326,7 @@ function SongQueue() {
     });
     my.tree.on('beforenodedrop', treedrop);
     my.tree.on('movenode', reordered);
+	my.tree.on('remove', reordered);
     my.tree.on('checkchange', remove);
 }
 Ext.extend(SongQueue, Ext.util.Observable);
@@ -503,7 +527,7 @@ function ArtistQueueNode(config)
         autoLoad: true,
         fields: global_config.fields.album
     });
-    albums.on('load', loaded, this);
+    albums.on('load', loaded);
 
     function loaded(store, records, options)
     {
@@ -514,6 +538,34 @@ function ArtistQueueNode(config)
     }
 }
 Ext.extend(ArtistQueueNode, QueueNode);
+
+function PlaylistQueueNode(config) {
+	var my = this;
+	config.text = 'Loading...';
+	PlaylistQueueNode.superclass.constructor.call(this, config);
+
+	function loaded(store, records) {
+		if (records.length > 0) {
+			my.queue.insert(records, my);
+		}
+		my.remove();
+	}
+
+	var songs = new Ext.data.JsonStore({
+		url: '/metadata',
+		root: 'data',
+		baseParams: {
+			type: 'song',
+			playlist: config.record.get('Playlist_id'),
+			friend: config.record.get('Friend_id')
+		},
+		successParameter: 'success',
+		autoLoad: 'true',
+		fields: global_config.fields.song
+	});
+	songs.on('load', loaded);
+}
+Ext.extend(PlaylistQueueNode, QueueNode);
 
 function FriendRadioQueueNode(config)
 {

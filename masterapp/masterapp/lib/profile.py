@@ -13,6 +13,7 @@ class Profile:
     status_txt = "#FFF"
     oddrow_bg = "#D8DEEB"
     sortoddrow_bg = "#FFDD9E"
+    playlist_bg = "#88C393"
     queue_back_txt = None
     queue_accents = None
     queue_bg = oddrow_bg

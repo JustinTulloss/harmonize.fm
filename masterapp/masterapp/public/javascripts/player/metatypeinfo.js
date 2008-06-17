@@ -109,18 +109,12 @@ var typeinfo = {
         gridclass: AlbumGrid
     }, 
     playlist:{
-        next: function (row, breadcrumb) {
-            var bc = new BcEntry(
-                'playlistsong', 
-                row.get('Playlist_name'),
-                'playlistsong'
-            );
-            breadcrumb.addbreadcrumb(bc);
-        },
+        next: 'openplaylist',
         lblindex: 'Playlist_name',
         qryindex:'Playlist_id', 
         display:'Playlists',
-        gridclass: PlaylistGrid
+        gridclass: PlaylistGrid,
+		nodeclass: PlaylistQueueNode
     },
     song:{
         next:'play', 
@@ -130,16 +124,10 @@ var typeinfo = {
         gridclass: SongGrid
     },
     nowplayingsong:{
-        next:'play', 
-        lblindex: 'Song_title',
-        display:'Songs',
         nodeclass: PlayingQueueNode,
 		inactive: true
     },
     prevsong:{
-        next:'play', 
-        lblindex: 'Song_title',
-        display:'Songs',
         nodeclass: SongQueueNode,
 		inactive: true
     },

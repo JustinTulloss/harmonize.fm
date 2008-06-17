@@ -63,6 +63,7 @@
 		<a href="#/bc/artist">artists</a>
 		<a href="#/bc/album">albums</a>
 		<a href="#/bc/song">songs</a>
+		<a href="#/bc/playlist">playlists</a>
 		<a href="#" id="friend_radio_link">radio<a>
 		<a href="#/bc/friend">friends</a>
 		<a href="#" id="feedback-link">feedback</a>

@@ -30,7 +30,8 @@ player_files = IncludeFiles(
         'player_css/album_details.mako',
         'player_css/topbar.mako',
         'player_css/statusbar.mako',
-        'profile/profile.css.mako'
+        'profile/profile.css.mako',
+		'player_css/dialog.mako.css'
     ],
     javascripts = [
         'lib/ext-2.1/adapter/ext/ext-base.js',
@@ -39,6 +40,7 @@ player_files = IncludeFiles(
         'lib/ext-2.1/source/widgets/ux/RowExpander.js',
         'lib/soundmanager2.js',
         'lib/helpers.js',
+		'lib/jquery-1.2.6.js',
         'player/errmgr.js',
         'player/viewmgr.js',
         'player/extbrowser.js',
@@ -54,7 +56,8 @@ player_files = IncludeFiles(
 		'player/spotlight.js',
 		'player/urlmanager.js',
         'player/profile.js',
-        'player/friendradio.js'
+        'player/friendradio.js',
+		'player/playlist.js'
     ]
 )
 

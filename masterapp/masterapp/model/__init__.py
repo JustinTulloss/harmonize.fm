@@ -1,3 +1,4 @@
+# vim:expandtab:smarttab
 import logging
 from pylons import config
 from datetime import datetime
@@ -273,20 +274,20 @@ class Artist(object):
             self.sort = name
 
 class Playlist(object):
-    def __init__(self, name, ownerid, *songs):
+    def __init__(self, name, ownerid):
         """
         Constructs a new playlist.
-
-        *songs should really be a list of PlaylistSong
         """
         self.name = name
         self.ownerid = ownerid
+        """ We don't have song data when a playlist is created
         Session.save(self)
         Session.commit()
 
         for song in songs:
             song.playlistid = self.id
             self.songs.append(song)
+        """
 
 class PlaylistSong(Song):
     def __init__(self, playlistid, songindex, songid):
@@ -353,7 +354,8 @@ mapper(User, users_table, allow_column_override = True, properties = {
     '_nowplaying': relation(Song,
         primaryjoin=users_table.c.nowplayingid==songs_table.c.id,
         foreign_keys = [users_table.c.nowplayingid]
-    )
+    ),
+    'playlists': relation(Playlist, order_by=playlists_table.c.name)
 })
 
 mapper(File, files_table, properties={
@@ -406,10 +408,10 @@ mapper(Album, albums_table, allow_column_override = True,
 })
 
 
-mapper(PlaylistSong, playlistsongs_table, inherits=Song)
+mapper(PlaylistSong, playlistsongs_table, inherits=Song, properties={
+    'song' : relation(Song, backref='playlistsongs')})
 
 mapper(Playlist, playlists_table, properties={
-    'playlistid': playlists_table.c.id,
     'owner': relation(User),
     'songs': relation(PlaylistSong, backref='playlist')
 })
