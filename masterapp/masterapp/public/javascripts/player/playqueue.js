@@ -557,9 +557,10 @@ Ext.extend(ArtistQueueNode, QueueNode);
 function FriendRadioQueueNode(config)
 {
 	var my = this;
-	var current_song = null;
 	var next_song_g = null;
-	var peeked = false;
+	var fetching = false;
+    var peek_k = [];
+    var dequeue_k = null;
 
     config.text = String.format('Friend Radio');
     config.draggable = true;
@@ -578,16 +579,27 @@ function FriendRadioQueueNode(config)
             next_song = next_song.data[0];
             next_song.get = (function(key) {return next_song[key];});
             next_song.type = "song";
-            k(next_song);
-            current_song = next_song;
-            peeked = false;
+            next_song_g = next_song
+            dequeue_k(next_song_g);
+            fetching = false;
         }
         
         radio_handler_failure = function(response, options) {
             alert("next song couldn't be retrieved.  fuxx0red.");
         }
-        if (peeked) k(next_song_g);
-        else request_next_song(radio_handler, radio_handler_failure);
+        
+        if (fetching) {
+            dequeue_k = k
+        }
+        else if (next_song_g == null) {
+            dequeue_k = k;            
+            request_next_song(radio_handler, radio_handler_failure);
+            fetching = true;            
+        } else if (next_song_g) {
+            k(next_song_g);
+            dequeue_k = null;
+        }
+        peek_k = [];
     }
     
     function request_next_song(success_handler, failure_handler) {
@@ -600,26 +612,30 @@ function FriendRadioQueueNode(config)
     
 	my.peek = function(k) {
 	    
-	    success = function(response, options) {
+	    var success = function(response, options) {
 	        var next_song = eval('(' + response.responseText + ')');
 	        next_song = next_song.data[0];
 	        next_song.get = (function(key) { return next_song[key];});
 	        next_song.type = "song";
-	        k(next_song);
-	        next_song_g = next_song;
-	        peeked = true;
+	        for (i = 0; i < peek_queue.length; i++) {
+	            var exc = peek_k[i];
+	            exc(next_song);
+	        }
+	        fetching = false;
 	    }
 	    
-	    failure = function(response, options) {
+	    var failure = function(response, options) {
             alert("retrieving next song failed for buffering purposes");	    
 	    }
-	    
-	    if (peeked) {
-	        k(next_song_g);
+	    if (fetching) {
+	        peek_k.push(k);
+	    } else  if (next_song_g == null) {
+            peek_k.push(k);            
+            request_next_song(success, failure);
+            fetching = true;
+        } else if (next_song_g) {
+            k(next_song_g);
         }
-        else { 
-	        request_next_song(success, failure);
-	    }
 	}
 }
 Ext.extend(FriendRadioQueueNode, QueueNode);
