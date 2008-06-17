@@ -35,7 +35,7 @@ else:
 
 def gen(filename):
 	match = re.search(r'puid: ([0-9a-z-]+)', plat_gen(filename))
-	if not match or prog.wait() != 0:
+	if not match:
 		return None
 	
 	return match.group(1)
