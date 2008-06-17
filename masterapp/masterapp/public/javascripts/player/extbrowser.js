@@ -18,10 +18,6 @@ function Browser()
     function load(crumb, params)
     {
         if(crumb.ds==null) {
-            /* we're going to try using a bufferedstore instead here
-             * 
-             */
-
             crumb.ds = new Ext.data.JsonStore({
                 url:'metadata',
                 root: 'data',
@@ -47,7 +43,7 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
-        var bufferSize = 25; //how many records to grab at a time?        
+        var bufferSize = 35; //how many records to grab at a time?        
         
         params.start = 0;
         params.limit = bufferSize;
@@ -56,6 +52,7 @@ function Browser()
         function(r, options, success){
             if (r.length < (params.limit - params.start)) {
                 records_remaining = false;
+                viewmgr.get_search_field().enableKeyEvents = false;
             } else {
                 records_remaining = true;
                 params.start += bufferSize;
@@ -71,6 +68,7 @@ function Browser()
             }
             else this.fireEvent('chgstatus', null);
         };
+        viewmgr.get_search_field().enableKeyEvents = false;
         crumb.ds.load({
             params:params,
             callback: lazy_load,
@@ -105,7 +103,7 @@ function BaseGrid(config)
         forceFit: true,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        deferEmptyText: true
+        deferEmptyText: false
     };
     this.addEvents({
         enqueue : true,
@@ -168,7 +166,7 @@ function SongGrid(config)
     }
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
-
+    
     SongGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -198,7 +196,7 @@ function AlbumGrid(config)
             config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
     }
     config.cm.defaultSortable = true;
-
+    
     AlbumGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -231,7 +229,7 @@ function ArtistGrid(config)
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     //config.autoExpandColumn='artist';
-
+    
     ArtistGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -251,7 +249,7 @@ function PlaylistGrid(config)
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
-
+    
     PlaylistGrid.superclass.constructor.call(this, config);
 }
 Ext.extend(PlaylistGrid, BaseGrid);

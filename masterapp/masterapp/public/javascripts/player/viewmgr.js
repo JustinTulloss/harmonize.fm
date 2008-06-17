@@ -168,4 +168,9 @@ function ViewManager(crumb, objects)
         var el= statusbar.getEl();
         t_status.overwrite(el, {name: username, status: text});
     }
+    
+    this.get_search_field = get_search_field;
+    function get_search_field () {
+        return this.srchfld;
+    }
 }
