@@ -98,8 +98,8 @@ class MetadataController(BaseController):
             if not (request.params.get('start') == '' or request.params.get('limit') == ''):            
                 start = int(request.params.get('start'))
                 limit = int(request.params.get('limit'))
-                qry = qry.limit(limit)
-                qry = qry.offset(start)
+                #qry = qry.offset(start).limit(limit)
+                qry = qry[start:limit]
         return qry
 
     @cjsonify
@@ -138,7 +138,7 @@ class MetadataController(BaseController):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         qry = qry.order_by([Artist.sort, Album.title])
         qry = self._apply_offset(qry)
-        results = qry.all()
+        results = qry
         return results
         
     @cjsonify
@@ -148,7 +148,7 @@ class MetadataController(BaseController):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
         qry = self._apply_offset(qry)
-        return qry.all()
+        return qry
         
     @cjsonify
     @_pass_user
@@ -163,7 +163,6 @@ class MetadataController(BaseController):
             cond.append(User.fbid == friend['uid'])
         qry = qry.filter(cond)
         qry = qry.order_by(User.fbid)
-        #qry = self._apply_offset(qry)
         results = qry.all()
 
         def _intersect(item):
@@ -200,7 +199,7 @@ class MetadataController(BaseController):
         qry = filter_friends(qry)
         qry = qry.order_by(Playlist.name)
         qry = self._apply_offset(qry)
-        results = qry.all()
+        results = qry
         return self._build_json(results, 'playlist')
 
     @cjsonify
@@ -214,7 +213,7 @@ class MetadataController(BaseController):
 
         qry = qry.order_by(PlaylistSong.songindex)
         qry = self._apply_offset(qry)
-        results = qry.all()
+        results = qry
         return self._build_json(results, 'playlistsong')
 
     def album(self, id):
