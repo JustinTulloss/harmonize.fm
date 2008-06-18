@@ -8,6 +8,10 @@
 	border-bottom: solid #999 1px;
 }
 
+.queuetree .x-panel-body {
+	position: relative;
+}
+
 .queue-instructions {
 	border-bottom: solid #999 1px;
 }
