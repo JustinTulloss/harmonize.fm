@@ -3,6 +3,7 @@ import logging
 import cjson
 import random
 from masterapp.lib.base import *
+from masterapp.lib.decorators import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
     filter_friends,
@@ -29,7 +30,6 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from operator import itemgetter
 from functools import partial
-from decimal import Decimal
 
 log = logging.getLogger(__name__)
 
@@ -69,27 +69,6 @@ class MetadataController(BaseController):
             user = Session.query(User).get(friendid)
         return user
 
-    def _build(self, results):
-        json = { "data": []}
-        for row in results:
-            lrow = {}
-            for key in row.keys():
-                value = getattr(row, key)
-                if isinstance(value, Decimal):
-                    value = int(value)
-                lrow[key] = value
-            json['data'].append(lrow)
-            json['data'][len(json['data'])-1]['type'] =\
-                request.params.get('type')
-        json['success']=True
-        return json
-        
-
-    def _build_json(func):
-        def wrapper(self, *args):
-            return self._build(func(self, *args))
-        return wrapper
-
     @cjsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
         return {'success': False, 'error': error, 'data':[]}
@@ -100,7 +79,7 @@ class MetadataController(BaseController):
         return handler()
 
     @cjsonify
-    @_build_json
+    @d_build_json
     @_pass_user
     def songs(self, user):
         qry = user.song_query
@@ -119,7 +98,7 @@ class MetadataController(BaseController):
         return qry
 
     @cjsonify
-    @_build_json
+    @d_build_json
     @_pass_user
     def albums(self, user):
         qry = user.album_query
@@ -130,7 +109,7 @@ class MetadataController(BaseController):
         return results
         
     @cjsonify
-    @_build_json
+    @d_build_json
     @_pass_user
     def artists(self, user):
         qry = user.artist_query
@@ -179,7 +158,7 @@ class MetadataController(BaseController):
         return {'success':True, 'data':data}
 
     @cjsonify
-    @_build_json
+    @d_build_json
     @_pass_user
     def playlists(self, user):
         qry = Session.query(*dbfields['playlist']).join(Playlist.owner).\
@@ -189,12 +168,12 @@ class MetadataController(BaseController):
     def album(self, id):
         user = self._get_user()
         album = user.get_album_by_id(id)
-        json = self._build([album])
+        json = self.build_json([album])
         json['data'][0]['type'] = 'album'
         return cjson.encode(json)
 
     @cjsonify
-    @_build_json
+    @d_build_json
     @_pass_user
     def next_radio_song(self,user):
         #todo: replace this with actual randomizing

@@ -192,9 +192,9 @@ function ViewManager(crumb, objects)
 			Ext.Ajax.request({
 				url: '/playlist/create',
 				params: {name: input.dom.value},
-				success: function() {
+				success: function(response) {
 							show_status_msg('Playlist created!');
-							playlistmgr.add_playlist(input.dom.value, true);
+							playlistmgr.open_playlist(untyped_record(response));
 							hide_dialog();
 						},
 				failure: function() {

@@ -8,6 +8,8 @@ import pylons
 from decorator import decorator
 from pylons.decorators import jsonify, validate
 log = logging.getLogger(__name__)
+from decimal import Decimal
+from masterapp.lib.base import request
 
 @decorator
 def cjsonify(func, *args, **kwargs):
@@ -27,3 +29,22 @@ def cjsonify(func, *args, **kwargs):
         log.warning(msg)
     return cjson.encode(data)
 
+def build_json(results):
+	json = { "data": []}
+	for row in results:
+		lrow = {}
+		for key in row.keys():
+			value = getattr(row, key)
+			if isinstance(value, Decimal):
+				value = int(value)
+			lrow[key] = value
+		json['data'].append(lrow)
+		json['data'][len(json['data'])-1]['type'] = request.params.get('type')
+	json['success']=True
+	return json
+	
+
+def d_build_json(func):
+	def wrapper(self, *args):
+		return build_json(func(self, *args))
+	return wrapper
