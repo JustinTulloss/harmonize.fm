@@ -92,7 +92,9 @@ class MetadataController(BaseController):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         elif request.params.get('playlist'):
             qry = qry.reset_joinpoint().join(Song.playlistsongs).\
-                filter(PlaylistSong.playlistid==int(request.params['playlist']))
+                filter(PlaylistSong.playlistid == 
+                        int(request.params['playlist'])).\
+                order_by(PlaylistSong.songindex)
 
         qry = qry.order_by(sort)
         return qry

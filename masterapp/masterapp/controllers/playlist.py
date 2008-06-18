@@ -6,6 +6,13 @@ from masterapp.model import User, Session, Playlist
 from masterapp.lib.decorators import *
 from masterapp.config.schema import dbfields
 
+from masterapp.model import (
+    Session, 
+    User, 
+	Song,
+	Playlist,
+    PlaylistSong)
+
 class PlaylistController(BaseController):
 	def __before__(self):
 		ensure_fb_session()
@@ -25,3 +32,25 @@ class PlaylistController(BaseController):
 			return json
 		else:
 			return ''
+
+	def save(self):
+		if not (request.params.has_key('playlist') or\
+				request.params.has_key('songs')):
+			return '' #error
+
+		playlist = int(request.params['playlist'])
+		songs = request.params['songs']
+
+		old_pl_songs = Session.query(PlaylistSong).\
+						filter(PlaylistSong.playlistid == playlist)
+		for old_pl_song in old_pl_songs:
+			Session.delete(old_pl_song)
+
+		if songs != '':
+			i=0
+			for song in songs.split(','):
+				pl_song = PlaylistSong(playlist, i, int(song))
+				Session.save(pl_song)
+				i += 1
+
+		Session.commit()

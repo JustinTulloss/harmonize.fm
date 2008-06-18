@@ -280,14 +280,6 @@ class Playlist(object):
         """
         self.name = name
         self.ownerid = ownerid
-        """ We don't have song data when a playlist is created
-        Session.save(self)
-        Session.commit()
-
-        for song in songs:
-            song.playlistid = self.id
-            self.songs.append(song)
-        """
 
 class PlaylistSong(Song):
     def __init__(self, playlistid, songindex, songid):
@@ -408,7 +400,7 @@ mapper(Album, albums_table, allow_column_override = True,
 })
 
 
-mapper(PlaylistSong, playlistsongs_table, inherits=Song, properties={
+mapper(PlaylistSong, playlistsongs_table, properties={
     'song' : relation(Song, backref='playlistsongs')})
 
 mapper(Playlist, playlists_table, properties={

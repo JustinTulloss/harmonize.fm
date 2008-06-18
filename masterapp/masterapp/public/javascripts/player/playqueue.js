@@ -211,11 +211,12 @@ function SongQueue(label, is_playlist) {
         var type = config.record.get('type');
         config.queue = my;
 		config.inactive = typeinfo[type].inactive;
+		config.flatten = is_playlist;
         return new typeinfo[type].nodeclass(config);
     }
 
 	function update_instructions() {
-		if (typeof(my.panel.getLayout() == 'string'))
+		if (typeof(my.panel.getLayout()) == 'string')
 			return;
 
 		if (my.root.firstChild)
@@ -230,6 +231,7 @@ function SongQueue(label, is_playlist) {
         if (p.update_text)
             p.update_text();
 
+		reordered();
         /* this is in here because things are weird. Not having it caused
          * the page to reload. Yeah, weird. Something to do with replacing
          * the checkbox with a link. All sorts of bad.
@@ -238,6 +240,7 @@ function SongQueue(label, is_playlist) {
     }
 
     function reordered() {
+		console.log('Firing reordered event!');
         my.fireEvent('reordered');
 		update_instructions();
     }
@@ -263,6 +266,8 @@ function SongQueue(label, is_playlist) {
     }
     
     my.insert = function insert(records, last) {
+		if (records.length === 0)
+			return;
         if (records[0].type == "friend_radio") {
             if (my.is_friend_radio()) {
                 return;    
@@ -326,7 +331,7 @@ function SongQueue(label, is_playlist) {
     });
     my.tree.on('beforenodedrop', treedrop);
     my.tree.on('movenode', reordered);
-	my.tree.on('remove', reordered);
+	//my.tree.on('remove', reordered);
     my.tree.on('checkchange', remove);
 }
 Ext.extend(SongQueue, Ext.util.Observable);
@@ -368,6 +373,8 @@ function SongQueueNode(config)
 	config.draggable = true;
 	if (config.inactive)
 		config.disabled = true;
+
+	this.songid = config.record.get('Song_id');
 
     SongQueueNode.superclass.constructor.call(this, config);
 
@@ -413,6 +420,8 @@ function AlbumQueueNode(config)
     config.allowDrop = false;
     config.expandable = true;
     config.leaf = false;
+
+	my.loading = true;
 
     this.songs = new Ext.data.JsonStore({
         url: 'metadata',
@@ -494,15 +503,24 @@ function AlbumQueueNode(config)
     }
 
     function queue_songs() {
-        my.songs.each(function(record) {
-            var nn = new SongQueueNode({
-                queue: my.queue, 
-                record: record,
-				albumNode: true
-            });
-            my.appendChild(nn);
-        });
+		if (config.flatten) {
+			my.queue.insert(my.songs.getRange(), my);
+			my.remove();
+		}
+		else {
+			my.songs.each(function(record) {
+				var nn = new SongQueueNode({
+					queue: my.queue, 
+					record: record,
+					albumNode: true
+				});
+				my.appendChild(nn);
+			});
+		}
     }
+
+	if (config.flatten)
+		ensure_loaded();
 
     this.on('expand', on_expand, this);
 }
@@ -513,6 +531,8 @@ function ArtistQueueNode(config)
     var my = this;
     config.text = 'Loading...';
     ArtistQueueNode.superclass.constructor.call(this, config);
+
+	my.loading = true;
 
     var albums = new Ext.data.JsonStore({
         url: 'metadata',
@@ -543,6 +563,8 @@ function PlaylistQueueNode(config) {
 	var my = this;
 	config.text = 'Loading...';
 	PlaylistQueueNode.superclass.constructor.call(this, config);
+
+	my.loading = true;
 
 	function loaded(store, records) {
 		if (records.length > 0) {
@@ -578,6 +600,8 @@ function FriendRadioQueueNode(config)
     config.allowDrop = true;
     config.expandable = false;
     config.leaf = true;
+
+	my.loading = true;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
 
