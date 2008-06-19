@@ -10,7 +10,7 @@ from mercurial.ui import ui
 from deploy import deploy
 
 REPOPATH = os.path.join(os.environ['REPOSITORY'], 'fileprocess')
-STAGEPATH = os.path.join(os.environ['STAGE'])
+STAGEPATH = os.path.join(os.environ['STAGING'])
 SERVER = 'stage_file_pipeline'
 
 # Change to repository
