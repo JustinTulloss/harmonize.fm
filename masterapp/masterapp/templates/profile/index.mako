@@ -17,7 +17,7 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
-        <div><a href="#/bc/friend=${c.user.id}/artist">browse ${c.user.firstname}'s music</a></div>
+        <div id="friend_music_menu_link"><a href="${c.current_url}" onclick="browse_friends_music(${c.user.id});">browse ${c.user.firstname}'s music</a></div>
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
