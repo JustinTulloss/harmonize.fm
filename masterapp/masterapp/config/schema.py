@@ -39,6 +39,8 @@ fields = {
 		'type',
 		'Playlist_name',
 		'Playlist_id',
+		'Playlist_songcount',
+		'Playlist_length',
 		'Friend_id'
 	],
     'friend': [

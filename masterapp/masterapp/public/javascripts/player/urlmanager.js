@@ -100,10 +100,28 @@ urlm = {}; //urlmanager is a singleton
 		}
 	};
 
+	var url_actions = {};
+	var url_actions_regex = RegExp('^#/action/([^/]*)(/(.*))?');
+	function init_url_actions() {
+		Ext.get(document.body).on('click', function(e, target) {
+			if (target.tagName == 'A') {
+				var match = 
+						target.getAttribute('href').match(url_actions_regex);
+				if (match) {
+					e.preventDefault();
+					if (url_actions[match[1]]) {
+						url_actions[match[1]](match[2]);
+					}
+				}
+			}
+		});
+	}
+
     /* Public functions */
 	my.init = function(moremanagers) {
 		my.register_handlers(moremanagers);
 		setInterval('check_url();', 100);
+		init_url_actions();
 	}
 
 	//submanagers should be a list of (url component, handler function) pairs
@@ -161,5 +179,13 @@ urlm = {}; //urlmanager is a singleton
 	my.invalidate_page = function() {
 		current_url = 'undefined';
 		last_url_matched = 'undefined';
+	}
+
+	my.register_action = function(action, handler) {
+		url_actions[action] = handler;
+	}
+
+	my.unregister_action = function(action) {
+		delete url_actions[action];
 	}
 })();

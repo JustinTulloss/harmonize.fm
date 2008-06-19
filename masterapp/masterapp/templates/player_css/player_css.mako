@@ -224,3 +224,8 @@ table {
     width: 646px;
     height: 436px;
 }
+
+.grid-actions > img {
+	margin-left: 1px;
+	margin-right: 1px;
+}

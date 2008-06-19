@@ -7,8 +7,9 @@
  */
 
 /* TODO: Move all the renderer stuff into its own file. */
-t_add_col = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" />');
-t_add_col_alb = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" /><img class="show_spotlight" src="/images/spotlight.png" />');
+t_add_col = new Ext.Template('<span class="grid-actions"><img class="addtoqueue" src="/images/enqueue.png" /><img class="play_record" src="/images/control_play_blue.png" /></span>');
+t_add_col_alb = new Ext.Template('<span class="grid-actions"><img class="addtoqueue" src="/images/enqueue.png" /><img class="show_spotlight" src="/images/spotlight.png" /><img class="play_record" src="/images/control_play_blue.png" /></span>');
+playlist_col = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /></span>');
 var render = {
 
     enqColumn: function (value, p, record)
@@ -18,6 +19,9 @@ var render = {
 				(record.get('Friend_id') === global_config.uid ||
 				 record.get('Friend_id') === ''))
 			return t_add_col_alb.apply();
+		else if (record.get('type') === 'playlist') {
+			return playlist_col.apply();
+		}
 		else
 			return t_add_col.apply();
     },

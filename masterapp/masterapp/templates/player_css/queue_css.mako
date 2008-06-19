@@ -22,13 +22,21 @@
 
 .playlist-button {
 	float: right;
-    background: url('/images/delete.png') no-repeat;
 	height: 15px;
 	width: 15px;
+	margin-left: 2px;
 }
 
-.playlist-button:hover {
+.close_panel:hover {
     background: url('/images/delete.png') 0 -15px no-repeat;
+}
+
+.close_panel {
+    background: url('/images/delete.png') no-repeat;
+}
+
+.play_playlist {
+	background: url('/images/control_play_blue.png');
 }
 
 .x-panel-header {

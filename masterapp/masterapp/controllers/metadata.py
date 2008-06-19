@@ -83,7 +83,7 @@ class MetadataController(BaseController):
     @_pass_user
     def songs(self, user):
         qry = user.song_query
-
+        
         sort = [Artist.sort, Album.title, Song.tracknumber]
         if request.params.get('album'):
             qry = qry.filter(Album.id== request.params.get('album'))
@@ -170,7 +170,7 @@ class MetadataController(BaseController):
     def album(self, id):
         user = self._get_user()
         album = user.get_album_by_id(id)
-        json = self.build_json([album])
+        json = build_json([album])
         json['data'][0]['type'] = 'album'
         return cjson.encode(json)
 

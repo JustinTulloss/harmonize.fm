@@ -240,7 +240,6 @@ function SongQueue(label, is_playlist) {
     }
 
     function reordered() {
-		console.log('Firing reordered event!');
         my.fireEvent('reordered');
 		update_instructions();
     }
@@ -352,6 +351,7 @@ function QueueNode(config)
     /* Prototype for QueueNodes, meant to be extended */
     this.record = config.record;
     this.queue = config.queue;
+	this.loaded = false;
 
     this.dequeue = function(k) {};
 	this.peek = function(k) {};
@@ -386,6 +386,8 @@ function SongQueueNode(config)
 	this.peek = function(k) {
 		k(this.record);
 	};
+
+	this.loaded = true;
 }
 Ext.extend(SongQueueNode, QueueNode);
 
@@ -423,7 +425,7 @@ function AlbumQueueNode(config)
 
 	my.loading = true;
 
-    this.songs = new Ext.data.JsonStore({
+    var songs = new Ext.data.JsonStore({
         url: 'metadata',
         root: 'data',
         sortInfo: {field: 'Song_tracknumber', direction: 'ASC'},
@@ -436,7 +438,6 @@ function AlbumQueueNode(config)
         autoLoad: false,
         fields: global_config.fields.song
     });
-    this.songs_loaded = false;
 
     AlbumQueueNode.superclass.constructor.call(this, config);
 
@@ -444,7 +445,7 @@ function AlbumQueueNode(config)
 		function dequeue_aux() {
 			var record = my.firstChild.record;
 			my.firstChild.remove();
-			my.update_text();
+			update_text();
 			k(record);
 		}
 
@@ -455,30 +456,24 @@ function AlbumQueueNode(config)
 		ensure_loaded(function() { k(my.firstChild.record);});
 	}
 
-    this.update_text = update_text;
-    function update_text()
-    {
-        this.setText(String.format('{0} ({1}/{2})',
-            this.record.get('Album_title'),
-            this.childNodes.length,
-            this.record.get('Album_totaltracks')
+    function update_text() {
+        my.setText(String.format('{0} ({1}/{2})',
+            config.record.get('Album_title'),
+            my.childNodes.length,
+            config.record.get('Album_totaltracks')
         ));
-        if (this.childNodes.length == 0) /* end of album */
-            this.remove();
-    }
-
-    function on_expand(node) {
-        ensure_loaded();
+        if (my.childNodes.length == 0) /* end of album */
+            my.remove();
     }
 
 	var loading = false;
 	var actions = [];
 	function ensure_loaded(k) {
-		if (!my.songs_loaded) {
+		if (!my.loaded) {
 			if (k) actions.push(k);
 			if (!loading) {
 				loading = true;
-				my.songs.load({
+				songs.load({
 					callback: songs_callback,
 				});
 			}
@@ -488,11 +483,11 @@ function AlbumQueueNode(config)
 
     function songs_callback(records, options, success) {
         if (!success) {
-            alert("Something messed up");
+            show_status_msg('Error loading album!');
             return;
         }
 
-        my.songs_loaded = true;
+        my.loaded = true;
         queue_songs();
 
 		loading = false;
@@ -504,11 +499,11 @@ function AlbumQueueNode(config)
 
     function queue_songs() {
 		if (config.flatten) {
-			my.queue.insert(my.songs.getRange(), my);
+			my.queue.insert(songs.getRange(), my);
 			my.remove();
 		}
 		else {
-			my.songs.each(function(record) {
+			songs.each(function(record) {
 				var nn = new SongQueueNode({
 					queue: my.queue, 
 					record: record,
@@ -522,7 +517,7 @@ function AlbumQueueNode(config)
 	if (config.flatten)
 		ensure_loaded();
 
-    this.on('expand', on_expand, this);
+    this.on('expand', function() {ensure_loaded();});
 }
 Ext.extend(AlbumQueueNode, QueueNode);
 
@@ -531,8 +526,6 @@ function ArtistQueueNode(config)
     var my = this;
     config.text = 'Loading...';
     ArtistQueueNode.superclass.constructor.call(this, config);
-
-	my.loading = true;
 
     var albums = new Ext.data.JsonStore({
         url: 'metadata',
@@ -561,10 +554,18 @@ Ext.extend(ArtistQueueNode, QueueNode);
 
 function PlaylistQueueNode(config) {
 	var my = this;
-	config.text = 'Loading...';
-	PlaylistQueueNode.superclass.constructor.call(this, config);
+	config.text = String.format('Playlist - {0} ({1}/{2})',
+		config.record.get('Playlist_name'),
+		config.record.get('Playlist_songcount'),
+		config.record.get('Playlist_songcount')
+	);
+	config.draggable = true;
+	config.allowDrop = false;
+	config.expandable = true;
+	config.leaf = false;
+	config.checked = false;
 
-	my.loading = true;
+	PlaylistQueueNode.superclass.constructor.call(this, config);
 
 	function loaded(store, records) {
 		if (records.length > 0) {
@@ -582,10 +583,86 @@ function PlaylistQueueNode(config) {
 			friend: config.record.get('Friend_id')
 		},
 		successParameter: 'success',
-		autoLoad: 'true',
 		fields: global_config.fields.song
 	});
-	songs.on('load', loaded);
+
+    this.dequeue = function(k) {
+		function dequeue_aux() {
+			var record = my.firstChild.record;
+			my.firstChild.remove();
+			update_text();
+			k(record);
+		}
+
+		ensure_loaded(dequeue_aux);
+    }
+
+	my.peek = function(k) {
+		ensure_loaded(function() { k(my.firstChild.record);});
+	}
+
+    function update_text() {
+        my.setText(String.format('Playlist - {0} ({1}/{2})',
+            config.record.get('Playlist_name'),
+            my.childNodes.length,
+            config.record.get('Playlist_songcount')
+        ));
+        if (my.childNodes.length == 0) /* end of album */
+            my.remove();
+    }
+
+	var loading = false;
+	var actions = [];
+	function ensure_loaded(k) {
+		if (!my.loaded) {
+			if (k) actions.push(k);
+			if (!loading) {
+				loading = true;
+				songs.load({
+					callback: songs_callback,
+				});
+			}
+		}
+		else if(k) k();
+	}
+
+    function songs_callback(records, options, success) {
+        if (!success) {
+            show_status_msg('Error loading album!');
+            return;
+        }
+
+        my.loaded = true;
+        queue_songs();
+
+		loading = false;
+		for (var i=0; i<actions.length; i++) {
+			actions[i]();
+		}
+		actions = [];
+    }
+
+    function queue_songs() {
+		if (config.flatten) {
+			my.queue.insert(songs.getRange(), my);
+			my.remove();
+		}
+		else {
+			songs.each(function(record) {
+				var nn = new SongQueueNode({
+					queue: my.queue, 
+					record: record,
+					albumNode: true
+				});
+				my.appendChild(nn);
+			});
+		}
+    }
+
+	if (config.flatten)
+		ensure_loaded();
+
+    this.on('expand', function() {ensure_loaded();});
 }
 Ext.extend(PlaylistQueueNode, QueueNode);
 
@@ -594,14 +671,12 @@ function FriendRadioQueueNode(config)
 	var my = this;
 	var current_song = null;
 
-    config.text = String.format('Friend Radio');
+    config.text = 'Friend Radio';
     config.draggable = true;
     config.checked = false;
     config.allowDrop = true;
     config.expandable = false;
     config.leaf = true;
-
-	my.loading = true;
 
     FriendRadioQueueNode.superclass.constructor.call(this, config);
 

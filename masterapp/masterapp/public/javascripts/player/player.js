@@ -13,8 +13,7 @@
  *
  */
 
-function Player()
-{
+function Player() {
 	if (this == window) alert('new not called for Player()');
 	var my = this;
 

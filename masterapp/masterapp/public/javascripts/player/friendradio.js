@@ -13,6 +13,7 @@ function FriendRadio() {
         record.type = "friend_radio";            
         record.get = (function(key) {return record[key];});
         playqueue.insert([record]);
+		playqueue.dequeue();
     }
 }
 Ext.extend(FriendRadio, Ext.util.Observable);    

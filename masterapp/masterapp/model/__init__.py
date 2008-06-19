@@ -3,7 +3,7 @@ import logging
 from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
-from sqlalchemy.sql import func, select, join, or_
+from sqlalchemy.sql import func, select, join, or_, and_
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -405,7 +405,20 @@ mapper(PlaylistSong, playlistsongs_table, properties={
 
 mapper(Playlist, playlists_table, properties={
     'owner': relation(User),
-    'songs': relation(PlaylistSong, backref='playlist')
+    'songs': relation(PlaylistSong, backref='playlist'),
+    'songcount': column_property(
+            select(
+                [func.count(playlistsongs_table.c.id)],
+                playlistsongs_table.c.playlistid == playlists_table.c.id
+            ).label('songcount')
+        ),
+    'length': column_property(
+            select(
+                [func.sum(songs_table.c.length)],
+                and_(playlistsongs_table.c.playlistid == playlists_table.c.id,
+                    songs_table.c.id == playlistsongs_table.c.songid)
+            ).label('length')
+        )
 })
 
 mapper(BlogEntry, blog_table)
