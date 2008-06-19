@@ -6,6 +6,8 @@ This deploys the stage file_pipeline
 import os, sys
 import subprocess
 import xmlrpclib
+from mercurial.localrepo import localrepository
+from mercurial.ui import ui
 
 REPOPATH = os.path.join(os.environ['REPOSITORY'], 'fileprocess')
 STAGEPATH = os.path.join(os.environ['STAGING'])
@@ -26,3 +28,9 @@ if proxy.supervisor.getProcessInfo(SERVER)['statename'] == 'RUNNING':
     proxy.supervisor.stopProcess(SERVER)
 
 proxy.supervisor.startProcess(SERVER)
+
+# Record the current version.
+repo = localrepository(ui(), os.environ['REPOSITORY'])
+fd = open(os.path.join(os.environ['STAGING'], 'pipeline-changeset'), 'w')
+fd.write(str(repo.changectx()))
+fd.close()
