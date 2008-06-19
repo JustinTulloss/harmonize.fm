@@ -42,15 +42,6 @@ class NextAction(object):
 
 class UploadStatus(object):
     def __init__(self, message=None, nextaction=None, file=None):
-        """
-        assert file.has_key('fbsession')
-
-        self.nextaction = nextaction
-        self.message = message
-        self.file = file
-
-        msgs.add(file['fbsession'], self)
-        """
         pass
 
 na = NextAction()
@@ -79,10 +70,13 @@ class FileUploadThread(object):
 
         self.handlers = [
             Mover(),
-            TagGetter(),
             Hasher(),
+            TagGetter(),
+            PuidGenerator(),
+            TagSaver(),
             Transcoder(),
             DBChecker(),
+            DBTagger(),
             BrainzTagger(),
             AmazonCovers(),
             S3Uploader(),

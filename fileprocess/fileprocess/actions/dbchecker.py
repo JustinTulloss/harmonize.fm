@@ -29,7 +29,8 @@ class DBChecker(BaseAction):
 
     def process(self, file):
         assert file and len(file)>0 and \
-            file.has_key('fbid') and file.has_key('sha')
+            file.has_key('fbid')
+        self.model.Session()
 
         # Get this user, create him if he doesn't exist
         qry = self.model.Session.query(self.model.User).filter(
@@ -42,11 +43,15 @@ class DBChecker(BaseAction):
             self.model.Session.save(user)
             self.model.Session.commit()
 
-        file['dbuser'] = user
+        file['dbuserid'] = user.id
+
+        if not file.has_key('sha'):
+            # It's not really our job to take care of this. Let's move on.
+            return file
 
         # Check to see if this file has already been uploaded by this person.
         qry = self.model.Session.query(self.model.Owner).join('file').filter(
-            and_(self.model.File.sha == file['sha'], self.model.Owner.id==user.id)
+            and_(self.model.Song.sha == file['sha'], self.model.Owner.id==user.id)
         )
         ownerfile = qry.first()
         if ownerfile != None:
@@ -62,12 +67,14 @@ class DBChecker(BaseAction):
             self.model.File.sha==file['sha']
         )
         dbfile = qry.first()
-        if dbfile is not None: #this file exists, create a owner and get out
+        if dbfile is not None: #this file exists, create an owner and get out
             owner = self.model.Owner()
             owner.file = dbfile
             owner.user = user
             log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
-            self.model.Session.save(owner)
+            songowner = self.model.SongOwner(user=user, song=dbfile.song)
+            self.model.Session.add(owner)
+            self.model.Session.add(songowner)
             self.model.Session.commit()
             log.debug('%s already uploaded, removing', file.get('fname'))
             self.cleanup(file)

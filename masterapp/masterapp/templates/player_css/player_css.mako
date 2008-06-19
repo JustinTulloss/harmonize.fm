@@ -7,6 +7,23 @@ body, html {
     color: ${c.profile.primary_txt};
 }
 
+#no_music {
+    margin-left: 12px;
+}
+
+#no_music h2{
+    color: ${c.profile.dark_txt};
+    font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
+}
+
+#no_music a {
+    color: ${c.profile.dark_txt};
+}
+
+#no_music a:hover {
+    color: ${c.profile.click};
+}
+
 #mainlogo {
     position: absolute;
     right: 15px;
@@ -14,9 +31,7 @@ body, html {
 }
 
 #blog {
-    margin-top: 5pt;
-    margin-left: 20pt;
-    width: 80%;
+    margin: 10px 20px 10px 20px;
 }
 
 #home {
@@ -44,10 +59,7 @@ body, html {
 }
 
 #home-sidebar-header {
-	border-botton: 1px solid $777;
-	font-size: 16pt;
-	color: ${c.profile.profile_subtitle};
-	border-bottom: solid 1px ${c.profile.profile_border};
+    margin-top: 0px;
 }
 
 #home-bg {
@@ -56,27 +68,19 @@ body, html {
 	padding-left: 8px;
 }
 
-.blogtitle {
-    font-size: 16pt;
-    font-weight: bold;
-    color: ${c.profile.dark_txt};
-}
-
 .blogentry {
-    padding: 10px;
+    padding-bottom: 15px;
 }
 
 .blogbyline{
     margin-left: 10px;
-}
-
-.blogauthor{
-    font-weight: bold;
+    color: ${c.profile.profile_links};
 }
 
 .blogcontent {
     padding-top: 5px;
     margin-left: 10px;
+    width: 80%;
 }
 
 a.bc_link {
@@ -120,7 +124,7 @@ a.bc_link:hover {
 	margin-top: 10px;
 	padding: 10px;
 	background-color: white;
-	border: solid 2px ${c.profile.dark_txt};
+	border: solid 1px ${c.profile.light_form};
 }
 
 #dialog-content {
@@ -131,6 +135,7 @@ a.bc_link:hover {
 	margin-top: 0px;
 	margin-bottom: 10px;
 	text-align: center;
+    color: ${c.profile.dark_txt};
 }
 
 .dialog-warning {
@@ -146,12 +151,10 @@ table {
 }
 
 #news_feed {
-	margin-left: 12px;
+	margin-left: 20px;
 }
 
 #news_feed h1 {
-	color: ${c.profile.profile_subtitle};
-	font-size: 16pt;
 	font-weight: normal;
 	border-bottom: solid 1px ${c.profile.profile_border};
 	margin: 0;

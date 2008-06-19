@@ -8,6 +8,9 @@ import time
 import xmlrpclib
 from os.path import join
 
+to_symlink = [
+    ('/var/opt/uploaders','public/uploaders')
+]
 # a list of packages to run "setup.py develop" on
 to_setup = [
     'masterapp',
@@ -17,8 +20,6 @@ to_setup = [
 
 # a list of packages to download (and the command to do so) and install
 to_fetch = [
-    ('sqlalchemy',
-    'svn checkout http://svn.sqlalchemy.org/sqlalchemy/trunk sqlalchemy')
 ]
 
 def create_production_env(root, repo):
@@ -47,6 +48,10 @@ def create_production_env(root, repo):
             'setup.py',
             'clean'
         ])
+
+    os.chdir(root)
+    for link in to_symlink:
+        subprocess.check_call(['ln', '-s', link[0], link[1]])
 
 def configure(root, repo):
     configdir = os.path.join(root, 'config')

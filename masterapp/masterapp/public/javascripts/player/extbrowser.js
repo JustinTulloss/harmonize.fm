@@ -7,6 +7,7 @@
 
 function Browser()
 {
+    
     this.addEvents({
         newgrid: true,
         chgstatus: true
@@ -21,7 +22,8 @@ function Browser()
                 url:'metadata',
                 root: 'data',
                 successProperty: 'success',
-                fields:global_config.fields[crumb.type]
+                id: 'id',
+                fields:global_config.fields[crumb.type]    
             });
         }
 
@@ -29,7 +31,7 @@ function Browser()
             params.type = crumb.type;
         else
             params = {type:crumb.type};
-
+        
         if (crumb.panel == null) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
@@ -41,11 +43,37 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+        var bufferSize = 35; //how many records to grab at a time?        
+        
+        params.start = 0;
+        params.limit = bufferSize;
 
+        var lazy_load = 
+        function(r, options, success){
+            if (r.length < (params.limit - params.start)) {
+                records_remaining = false;
+                viewmgr.search_field.enableKeyEvents = true;
+            } else {
+                records_remaining = true;
+                params.start += bufferSize;
+                params.limit += bufferSize;   
+            }
+            if (records_remaining) { 
+                crumb.ds.load({
+                    params:params,
+                    callback: lazy_load,
+                    scope: this,
+                    add: true            
+                });
+            }
+            else this.fireEvent('chgstatus', null);
+        };
+        viewmgr.search_field.enableKeyEvents = false;
         crumb.ds.load({
             params:params,
-            callback: function(){this.fireEvent('chgstatus', null)},
-            scope: this
+            callback: lazy_load,
+            scope: this,
+            add: true
         });
         this.fireEvent('chgstatus', 'Loading...');
         crumb.ds.on('loadexception', function(proxy, options,response, e){
@@ -68,16 +96,15 @@ function BaseGrid(config)
     config.enableHdMenu = false;
     config.enableDragDrop = true;
     config.ddGroup = 'TreeDD';
-    config.loadMask = true;
+    config.loadMask = false;
     config.trackMouseOver = false;
     config.stripeRows = true;
     config.viewConfig = {
         forceFit: true,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        deferEmptyText: true
+        deferEmptyText: false
     };
-
     this.addEvents({
         enqueue : true,
         chgstatus: true
@@ -85,7 +112,24 @@ function BaseGrid(config)
 
     this.actions={
         addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
-		show_spotlight: function(record) {show_spotlight(record);},
+		show_spotlight: function(record) {
+            //we need to check and make sure this spotlight doesn't already exist
+            var album_id = record.get('Album_id');
+            Ext.Ajax.request({
+                url: 'metadata/find_spotlight_by_album',
+                params: {album_id: album_id},
+                success: function(response, options) {
+                    if (response.responseText == "True") {
+                        show_status_msg("You already have a spotlight for this album.");
+                    } else {
+                        show_spotlight(record, "add");
+                    }                
+                },
+                failure: function(response, options) {
+                    show_spotlight(record, "add");                
+                }            
+            });
+		},
 		play_record: function(record) {
 							playqueue.insert([record]);
 							playqueue.dequeue();
@@ -126,7 +170,7 @@ function SongGrid(config)
     }
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
-
+    
     SongGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -156,7 +200,7 @@ function AlbumGrid(config)
             config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
     }
     config.cm.defaultSortable = true;
-
+    
     AlbumGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -189,7 +233,7 @@ function ArtistGrid(config)
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     //config.autoExpandColumn='artist';
-
+    
     ArtistGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -209,7 +253,7 @@ function PlaylistGrid(config)
 
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
-
+    
     PlaylistGrid.superclass.constructor.call(this, config);
 }
 Ext.extend(PlaylistGrid, BaseGrid);
@@ -225,9 +269,8 @@ function FriendGrid(config)
 {
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
-
     FriendGrid.superclass.constructor.call(this, config);
-
+    
     this.search = search;
     function search(text)
     {

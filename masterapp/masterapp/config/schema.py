@@ -48,6 +48,17 @@ fields = {
         'Friend_id',
         'Friend_name',
     ],
+    'spotlight': [
+        'type',
+        'Friend_id',
+        'Spotlight_id',
+        'Spotlight_comment',
+        'Album_id',
+        'Album_title',
+        'Album_smallart',
+        'Artist_id',
+        'Artist_name',
+    ],
 }
 
 dbfields = {}

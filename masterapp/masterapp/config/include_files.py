@@ -22,9 +22,11 @@ player_files = IncludeFiles(
         'button',
         'box',
         'form',
-        'slider'
+        'slider',
+        'ext-ux-livegrid'
     ],
     templated_stylesheets = [
+        'harmonize.css.mako',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',
         'player_css/album_details.mako',
@@ -57,7 +59,7 @@ player_files = IncludeFiles(
 		'player/urlmanager.js',
         'player/profile.js',
         'player/friendradio.js',
-		'player/playlist.js'
+        'player/playlist.js'
     ]
 )
 

@@ -22,12 +22,17 @@ class Transcoder(BaseAction):
                     +'&& which lame 1> /dev/null 2> /dev/null') == 0
 
     def can_skip(self, new_file):
+        if not new_file.has_key('filetype'):
+            return True
         if new_file['filetype'] == 'mp3':
             return True
         else: return False
 
     def process(self, file):
         assert file and len(file)>0
+
+        if not file.has_key('filetype'):
+            return file
 
         if file['filetype'] == 'mp3':
             return file

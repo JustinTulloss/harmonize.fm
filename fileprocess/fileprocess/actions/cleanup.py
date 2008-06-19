@@ -19,6 +19,7 @@ class Cleanup(BaseAction):
         )
         log.debug('Cleanup %s:%s', file.get('msg'), file.get('na'))
 
-        if os.path.exists(file.get('fname')):
-            log.debug('Removing %s:%s', file.get('title'), file.get('fname'))
-            os.remove(file['fname'])
+        if file.get('fname'):
+            if os.path.exists(file['fname']):
+                log.debug('Removing %s:%s', file.get('title'), file.get('fname'))
+                os.remove(file['fname'])

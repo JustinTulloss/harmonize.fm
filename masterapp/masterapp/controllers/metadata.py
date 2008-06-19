@@ -17,13 +17,14 @@ from masterapp.model import (
     Song,
     Album, 
     Artist, 
-    Owner, 
+    Owner,
+    SongOwner,
     File, 
     Session, 
     User, 
     Playlist, 
     PlaylistSong,
-    filter_user
+    Spotlight
 )
 from pylons import config
 from facebook import FacebookError
@@ -48,7 +49,8 @@ class MetadataController(BaseController):
             'song': self.songs,
             'friend': self.friends,
             'playlist': self.playlists,
-            'next_radio_song': self.next_radio_song
+            'next_radio_song': self.next_radio_song,
+            'find_spotlight_by_id': self.find_spotlight_by_id
         }
 
     def __before__(self):
@@ -68,6 +70,12 @@ class MetadataController(BaseController):
             # TODO: Make sure they're friends
             user = Session.query(User).get(friendid)
         return user
+
+    def _apply_offset(self, qry):
+        if request.params.get('start') and request.params.get('limit'):
+            qry = qry[int(request.params['start']):int(request.params['limit'])]
+
+        return qry
 
     @cjsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
@@ -97,6 +105,7 @@ class MetadataController(BaseController):
                 order_by(PlaylistSong.songindex)
 
         qry = qry.order_by(sort)
+        qry = self._apply_offset(qry)
         return qry
 
     @cjsonify
@@ -107,7 +116,8 @@ class MetadataController(BaseController):
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         qry = qry.order_by([Artist.sort, Album.title])
-        results = qry.all()
+        qry = self._apply_offset(qry)
+        results = qry
         return results
         
     @cjsonify
@@ -116,7 +126,8 @@ class MetadataController(BaseController):
     def artists(self, user):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
-        return qry.all()
+        qry = self._apply_offset(qry)
+        return qry
         
     @cjsonify
     @_pass_user
@@ -178,30 +189,59 @@ class MetadataController(BaseController):
     @d_build_json
     @_pass_user
     def next_radio_song(self,user):
-        #todo: replace this with actual randomizing
-        #      and correct record returns
+        #todo: replace this with recommendations
         
         userStore = session['fbfriends']
-        users=facebook.users.getInfo(userStore)
         fbids = []
-        for user in users:
-            fbids.append(user['uid'])
+        for user in userStore:
+            fbids.append(user)
         #songlist is a list where each element is a song id.
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        
         songlist = []
-        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(File,Owner,User)
+        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(SongOwner,User)
         for uid in fbids:
             # grab each users songs and append their song_ids to songlist
             temp = data.filter(User.fbid == uid)
             for record in temp:
                 songlist.append(record.Song_id)
+        
         num_songs = len(songlist)
-        song_index = random.randint(0,num_songs) #replace with a random number generator
+        song_index = random.randint(0,num_songs-1)
         song_id = songlist[song_index]
         
         #now grab the actual song data based on the song_id
         song = data.filter(Song.id == song_id)
-        #song = song.group_by(Song)
-        #song = song.all()
         return song
+        
+    @cjsonify
+    @d_build_json
+    @_pass_user
+    def find_spotlight_by_id(self,user):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
+            return qry.all()
+        else:
+            return "False"
+        
+
+    # right now this only returns true or false
+    # depending on whether or not a spotlight exists
+    # for the album    
+    def find_spotlight_by_album(self):
+        if not request.params.has_key('album_id'):
+            return "False"
+        
+        album = Session.query(Album).filter(Album.id == request.params['album_id'])
+        if album.first():
+            qry = Session.query(Spotlight).filter(Spotlight.albumid == album[0].id).filter(Spotlight.uid == self._get_user().id).filter(Spotlight.active == 1)
+            if qry.first():
+                return "True"
+            else:
+                return "False"
+            
+        else:
+            return "False"
+        
+        
+    

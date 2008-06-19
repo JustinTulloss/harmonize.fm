@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 setup(
     name='libs.py',
@@ -8,7 +8,11 @@ setup(
     #author_email='',
     #url='',
     packages=find_packages(),
-    py_modules=['S3', 'guid', 'mailer', 'mock', 'ecs', 'alert', 'df'],
+    py_modules=['S3', 'guid', 'mailer', 'mock', 'ecs', 'alert', 'df', 'puid',
+        'tag_compare', 'tag_utils'],
     include_package_data=True,
     test_suite='nose.collector',
+    ext_modules = [
+        Extension('picard_utils.util.astrcmp',['picard_utils/util/astrcmp.cpp'])
+    ]
 )

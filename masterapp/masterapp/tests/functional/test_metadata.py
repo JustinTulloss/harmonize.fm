@@ -1,11 +1,12 @@
 from masterapp.tests import *
-from masterapp import model
+#from masterapp import model
 
 class TestMetadataController(TestController):
 
     def test_index(self):
         """
         Testing <root>/metadata
+        """
         """
         # Test that failure is returned on bad invocation
         response = self.app.get(url_for(
@@ -26,6 +27,7 @@ class TestMetadataController(TestController):
         ]
         for type in types:
             self.check_metadata(type)
+        """
 
     def check_metadata(self, type):
         """

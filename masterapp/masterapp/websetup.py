@@ -17,6 +17,7 @@ def setup_config(command, filename, section, vars):
     load_environment(conf.global_conf, conf.local_conf)
 
     # Upgrade the database
+    """
     try:
         mg.version_control(config['migrate.url'], config['migrate.repo'])
     except DatabaseAlreadyControlledError:
@@ -33,5 +34,6 @@ def setup_config(command, filename, section, vars):
         log.info("Populating data")
         import masterapp.lib.populate_model as populate_model
         populate_model.populate()
+    """
 
     log.info("Successfully setup")

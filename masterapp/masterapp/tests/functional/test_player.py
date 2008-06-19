@@ -1,5 +1,5 @@
 from masterapp.tests import *
-from masterapp import model
+#from masterapp import model
 
 class TestPlayerController(TestController):
     def test_index(self):
@@ -9,11 +9,12 @@ class TestPlayerController(TestController):
         response = self.app.get(url_for(controller='player'))
         # Test response...
         assert response.c.profile != None
-        assert 'Rubicon Web Player' in response
+        assert 'harmonize.fm | connect with your music' in response
 
     def test_get_song_url(self):
         """
         Testing <root>/player/songurl/<songid>
+        """
         """
         response = self.app.get(url_for(
             controller='player',
@@ -41,3 +42,4 @@ class TestPlayerController(TestController):
         ))
         assert 'false' in response, \
             "file was found when it should not have been"
+        """

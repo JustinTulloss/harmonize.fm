@@ -67,7 +67,8 @@
     </%def>
 
     <div id="news_feed">
-        <div><h1 id="news-header">Music Feed</h1></div>
+
+        <div><h1 id="news-header" class="h-subtitle">Music Feed</h1></div>
     <%
         type_table = {
             BlogEntry : blog_feed,

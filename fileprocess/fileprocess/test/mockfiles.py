@@ -9,7 +9,10 @@ mockfiles = {
         u'fname': u'good.mp3',
         u'fbsession': u'08bd66d3ebc459d32391d0d2-1909354',
         u'sha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
-        u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b'
+        u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
+    },
+    'goodpuid' : {
+        u'puid': u'ba115bd0-cacb-da69-3240-4608da94e5e6',
     },
 	'goodmp4' : {
 		u'fname': u'good.m4a'
@@ -26,6 +29,7 @@ mockfiles = {
     'goodtags': {
         u'title': u'#41',
         u'album': u'Crash',
+        u'puid': u'd00fe204-528b-3972-4deb-a23d49753323',
         u'artist': u'Dave Matthews Band'
     },
     'amnesiac': {
@@ -35,19 +39,24 @@ mockfiles = {
         u'tracknumber': 11,
         u'totaltracks': 11,
         u'duration': 275025,
+        u'puid': '88101630-6ea3-e8b6-383f-26f18f546bc6'
     },
     'badtags': {
         u'title': u'Suburban Perfume',
         u'album': u'nihgt at the rit',
-        u'artist': u'Office'
+        u'artist': u'Office',
+        u'puid': u'cb015aca-4640-f886-097c-96a37cfccfd8'
     },
     'incompletetags': {
         u'title': u'Save our city',
-        u'artist': u'Ludo'
+        u'artist': u'Ludo',
+        u'puid':'90cb3bca-60cd-e567-7bdc-80b1001db5a3'
     },
     'multipleversions': {
-        u'title': u'Happiness is a Warm Gun',
-        u'artist': u'The Beatles'
+        u'title': u'Debra',
+        u'artist': u'Beck',
+        u'puid': 'ea67e6dc-7928-7965-ab3b-16fcbd6e287a',
+        u'duration': 338892.28923518286
     },
     'goodfbsession': {
         u'fbsession': u'08bd66d3ebc459d32391d0d2-1909354'
@@ -71,11 +80,13 @@ mockfiles = {
         u'artistsort': u'Ludo', 
         u'albumartistsort': u'Ludo', 
         u'mbtrackid': u'1e8ee862-a4fe-4595-9a33-b6590bbbc13a', 
-        u'tracknumber': 2
+        u'tracknumber': 2,
+        u'puid':'90cb3bca-60cd-e567-7bdc-80b1001db5a3'
     },
     'abird': {
         'album': u'The Mysterious Production of Eggs',
         'artist': u'Andrew Bird',
+        'puid': u'9db0e243-c51b-7d89-f542-ac6e55d96cb1',
         'date': u'2005',
         'duration': 68868,
         'title': u'/=/=/',
@@ -90,7 +101,8 @@ mockfiles = {
         'duration': 182076,
         'genre': u'Rock',
         'title': u'Cry Baby Cry',
-        'tracknumber': u'11'
+        'tracknumber': u'11',
+        'puid': u'1623d160-cc36-ea42-9d1b-a1f81058b722'
     },
     'btles1': {
         'album': u'The Beatles (The White Album)',
@@ -100,6 +112,7 @@ mockfiles = {
         'duration': 163513,
         'genre': u'Rock',
         'title': u'Back in the U.S.S.R.',
-        'tracknumber': u'1'
+        'tracknumber': u'1',
+        'puid': u'7a5db316-90df-69d0-8f21-626e9abbbf9d'
     }
 }

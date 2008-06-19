@@ -10,7 +10,10 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
+from pylons import cache
+
 from time import sleep
+from decorator import decorator
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +39,8 @@ blockedartists_table = Table("blockedartists", metadata, autoload=True)
 blog_table = Table("blog", metadata, autoload=True)
 spotlights_table = Table('spotlights', metadata, autoload=True)
 spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
+puids_table = Table('puids', metadata, autoload=True)
+songowners_table = Table('songowners', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -46,19 +51,27 @@ class User(object):
     fbid = None
     fbinfo = None
     listeningto = None
-
+    fbcache = None
     def __init__(self, fbid=None):
         self.fbid = fbid
 
-    def fbattr(func):
-        def check_fbinfo(self, *args, **kwargs):
-            if not self.fbinfo:
-                self._get_fbinfo()
-            return func(self, *args, **kwargs)
-        return check_fbinfo
+    @decorator
+    def fbattr (func, self, *args, **kwargs):
+        if not self.fbcache:
+            self._create_cache()
+        if not self.fbcache.has_key(self.fbid):
+            self.fbcache[self.fbid] = self._get_fbinfo()
+        self.fbinfo = self.fbcache.get_value(
+            key = self.fbid,
+            expiretime = 24*60*60*60, # 24 hours
+            createfunc = self._get_fbinfo
+        )
+        return func(self, *args, **kwargs)
+
+    def _create_cache(self):
+        self.fbcache = cache.get_cache('fbprofile')
 
     def _get_fbinfo(self):
-        # Eventually we'll need to select on network, store locally, whatever
         info = None
         while not info:
             try:
@@ -72,10 +85,10 @@ class User(object):
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
-                log.info("Could not connect to facebook, retrying: %s", e)
+                log.warn("Could not connect to facebook, retrying: %s", e)
                 sleep(.1)
-        self.fbinfo = info
-        
+        return info
+
     @fbattr
     def get_name(self):
         return self.fbinfo['name']
@@ -155,10 +168,10 @@ class User(object):
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields
-        query = Session.query(Owner.uid.label('Friend_id'), *dbfields['song'])
+        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(Song.files, Owner).filter(Owner.uid == self.id)
+        query = query.join(Song.files, SongOwner).filter(SongOwner.uid == self.id)
         return query
         
     def get_song_query(self):
@@ -166,6 +179,12 @@ class User(object):
         query = query.group_by(Song)
         return query
     song_query = property(get_song_query)
+    
+    def get_song_count(self):
+        query = self._build_song_query()
+        query = len(query.all())
+        return query
+    song_count = property(get_song_count)
 
     def get_album_query(self):
         from masterapp.config.schema import dbfields
@@ -174,16 +193,16 @@ class User(object):
         havesongs = Session.query(Album.id.label('albumid'),
             func.count(Song.id).label('Album_havesongs'),
             func.sum(Song.length).label('Album_length')
-        ).join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        ).join(Album.songs, SongOwner).filter(SongOwner.uid == self.id)
         havesongs = havesongs.group_by(Album.id).subquery()
 
-        query = Session.query(Owner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
+        query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
             havesongs.c.Album_length,
             *dbfields['album'])
         joined = join(Album, havesongs, Album.id == havesongs.c.albumid)
         query = query.select_from(joined)
         query = query.join(Album.artist).reset_joinpoint()
-        query = query.join(Album.songs, File, Owner).filter(Owner.uid == self.id)
+        query = query.join(Album.songs, SongOwner).filter(SongOwner.uid == self.id)
         query = query.group_by(Album)
         return query
     album_query = property(get_album_query)
@@ -194,7 +213,7 @@ class User(object):
         # Number of songs by this artist subquery
         numsongs = Session.query(Artist.id.label('artistid'),
             func.count(Song.id).label('Artist_availsongs')
-        ).join(Artist.songs, File, Owner).filter(Owner.uid == self.id)
+        ).join(Artist.songs, SongOwner).filter(SongOwner.uid == self.id)
         numsongs = numsongs.group_by(Artist.id).subquery()
         
         # Number of albums by this artist subquery
@@ -204,15 +223,15 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
-        query = Session.query(Owner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
+        query = Session.query(SongOwner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
             numalbums.c.Artist_numalbums,
             *dbfields['artist'])
         joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
         #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
         query = query.select_from(joined)
         query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
-        query = query.join(Artist.albums, Song, File, Owner)
-        query = query.filter(Owner.uid == self.id)
+        query = query.join(Artist.albums, Song, SongOwner)
+        query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
         return query
     artist_query = property(get_artist_query)
@@ -230,9 +249,9 @@ class User(object):
             
 
 class Owner(object):
-    def __init__(self, uid=None, fid=None):
-        self.uid = uid
-        self.fileid = fid
+    def __init__(self, user=None, file=None):
+        self.file = file
+        self.user = user
 
 class File(object):
     def __init__(self, sha=None, songid=None):
@@ -241,12 +260,16 @@ class File(object):
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
-            length=0, tracknumber=None):
+            length=0, tracknumber=None, sha=None, size=None, bitrate=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
         self.length = length
-        self.tracknumber =tracknumber
+        self.tracknumber = tracknumber
+        self.sha = sha
+        self.size = size
+        self.bitrate = bitrate
+        self.pristine = False
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
@@ -328,14 +351,15 @@ class SongStat(object):
         self.playcount = 0
         self.lastrecommended = datetime.now() #we don't currently use this
 
-def filter_user(query, uid):
-    """
-    Filters out any result that does not belong to you. Assumes you're joined
-    with song. I don't want it to assume that, but I haven't figured out a way
-    to do that yet
-    """
-    query = query.join([File, Owner, User])
-    return query.filter(User.id == uid)
+class Puid(object):
+    def __init__(self, puid = None, song = None):
+        self.song = song
+        self.puid = puid
+
+class SongOwner(object):
+    def __init__(self, song=None, user=None):
+        self.song = song
+        self.user = user
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
@@ -355,7 +379,7 @@ mapper(File, files_table, properties={
 })
 
 mapper(Owner, owners_table, properties={
-    'user': relation(User, backref='owners')
+    'user': relation(User),
 })
 
 mapper(Artist, artists_table, properties={
@@ -375,6 +399,9 @@ mapper(Artist, artists_table, properties={
 })
 mapper(Song, songs_table, properties = {
     'files': relation(File, backref='song', cascade='all, delete-orphan'),
+    'owners': relation(SongOwner, backref='song', cascade='all, delete-orphan'),
+    'stats': relation(SongStat, backref='song', lazy=True, cascade='all, delete-orphan'),
+    'puids': relation(Puid, backref='song', lazy=True, cascade='all, delete-orphan'),
     'artist': relation(Artist, 
         lazy = False,
         foreign_keys = [songs_table.c.artistid],
@@ -434,7 +461,11 @@ mapper(SpotlightComment, spotlight_comments_table, properties={
 })
 
 mapper(SongStat, songstats_table, properties={
-    'song': relation(Song, backref='stats', lazy=True),
     'user': relation(User, backref='songstats')
 })
 
+mapper(Puid, puids_table)
+
+mapper(SongOwner, songowners_table, properties={
+    'user': relation(User, lazy=True, backref='owners')
+})

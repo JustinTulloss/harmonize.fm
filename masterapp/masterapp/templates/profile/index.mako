@@ -17,14 +17,14 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
-        <div><a href="#/bc/friend=${c.user.id}/artist">browse ${c.user.firstname}'s music</a></div>
+        <div id="friend_music_menu_link"><a href="${c.current_url}" onclick="browse_friends_music(${c.user.id});">browse ${c.user.firstname}'s music</a></div>
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
     <div id="profile-spotlight">
-        <div class="profile-subtitle">Spotlight</div>
+        <div class="profile-subtitle h-subtitle">Spotlight</div>
         % for spotlight in c.user.get_active_spotlights():
-            ${build_spotlight(spotlight, False)}
+            ${build_spotlight(spotlight, c.current_uid == c.user.id)}
         % endfor
     </div>
 </div>
@@ -36,25 +36,43 @@ ${rightcol.render()}
                 <img src=${spotlight.album.smallart} />
             </div>
         % endif
-        <div class="profile-sp-title"><img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
+        <div class="h-title">
+				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
                 ${spotlight.album.title}</div>
-        <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
+        <div class="profile-sp-artist">
+            by ${spotlight.album.artist.name}
+            % if own_profile:
+                <span class="profile-right profile-stretch">
+                    <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>
+                </span>
+            % endif
+        </div>
         <div class="profile-sp-review">${spotlight.comment}</div>
 
+        <%
+            edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
+        %>
+        
+        <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
+            
+        </div>
+        
         <% 
             comment_url = c.current_url + '/spcomments/' + str(spotlight.id)
             num_comments = len(spotlight.friend_comments) 
-            aclass = 'class="profile-sp-comment comment-controls"'
+            aclass = 'class="view-comment"'
         %>
-
-        <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
-        % if num_comments == 0 and own_profile:
         
-        % elif num_comments == 0 and not own_profile:
-            <a ${aclass} href="${comment_url}">Add comment</a>
+        <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
+          
+        % if num_comments == 0:
+            <a ${aclass} href="${comment_url}">comment</a>
         % else:
-            <a ${aclass} href="${comment_url}">View comments (${num_comments})</a>
+            <a ${aclass} href="${comment_url}">comments (${num_comments})</a>
         % endif
+			<a class="hide-comment" href="${c.current_url}">hide comments</a>
+
         ${spotcomment.render(spotlight)}
         </div>
     </div>

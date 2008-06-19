@@ -17,19 +17,22 @@ config = {
     'pyfacebook.callbackpath': None,
     'pyfacebook.apikey': 'cec673d0ef3fbc12395d0d3500cd72f9',
     'pyfacebook.secret': 'a08f822bf3d7f80ee25c47414fe98be1',
-    'pyfacebook.appid': '2364724122'
+    'pyfacebook.appid': '2364724122',
+    'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1'
 }
 
 dev_config = {
     'S3.upload': False,
     'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
+    'tagshelf': '../masterapp/tags.archive'
 }
 
 test_config = {
     'sqlalchemy.default.url': 'sqlite:///:memory:',
     'sqlalchemy.reflect.url': 'sqlite:///../../masterapp/music.db',
     'upload_dir': './test/testuploaddir',
-    'media_dir': './test/teststagingdir'
+    'media_dir': './test/teststagingdir',
+    'tagshelf': './test/tagshelf'
 }
 
 production_config = {
@@ -38,7 +41,8 @@ production_config = {
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600,
     'upload_dir': os.environ.get('UPLOADS'),
-    'media_dir': os.environ.get('MEDIA')
+    'media_dir': os.environ.get('MEDIA'),
+    'tagshelf': '/var/opt/tagshelf.archive'
 }
 
 live_config = {
@@ -48,7 +52,7 @@ live_config = {
 }
 
 base_logging = {
-    'level': logging.INFO,
+    'level': logging.DEBUG,
     'format':'%(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s',
     'datefmt': '%H:%M:%S',
     'handler': logging.StreamHandler,
@@ -56,7 +60,6 @@ base_logging = {
 }
 
 dev_logging = {
-    'level': logging.INFO
 }
 
 production_logging = {

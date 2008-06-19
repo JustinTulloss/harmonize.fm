@@ -15,7 +15,7 @@ DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
 
 class AdminController(BaseController):
 
-    admin = [1908861,1909354]
+    admin = [1908861,1909354, 1932106]
 
     def __before__(self):
         ensure_fb_session()

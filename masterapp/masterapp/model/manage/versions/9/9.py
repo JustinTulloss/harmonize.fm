@@ -1,4 +1,5 @@
 from sqlalchemy import *
+from sqlalchemy.exceptions import OperationalError
 from migrate import *
 import migrate.changeset
 from migrate.changeset.exceptions import NotSupportedError
@@ -21,7 +22,10 @@ spotlight = Table('spotlights', metadata,
 spot_active = Column('active', Boolean)
 
 def upgrade():
-	migrate.changeset.create_column(spot_active, spotlight)
+    try:
+	    migrate.changeset.create_column(spot_active, spotlight)
+    except OperationalError, e:
+        print "Couldn't create new columns, already created? %s" % e
 
 def downgrade():
 	try:

@@ -40,7 +40,7 @@ def get_tags(filename, puid):
 			if type(trkn) == tuple and len(trkn) == 2:
 				tags['tracknumber'] = '%s/%s' % trkn
 	
-	tags['duration'] = song.info.length
+	tags['duration'] = int(song.info.length*1000)
 	tags['bitrate'] = song.info.bitrate
 
 	return tags

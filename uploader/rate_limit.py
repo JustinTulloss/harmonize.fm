@@ -116,7 +116,7 @@ class Pinger(object):
 			self.lock.acquire()
 			if self.idleticks == 0:
 				self.lock.release()
-				logger.debug('going to sleep...ZZZZ')
+				logging.debug('going to sleep...ZZZZ')
 				time.sleep(1)
 				continue
 			
