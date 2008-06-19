@@ -36,6 +36,12 @@ function ViewManager(crumb, objects)
             '<span class="cstatus">{status}</span>',
         '</div>'
     );
+    
+    var music_menu_link = Ext.get('music_menu_link');
+    var music_menu = new Ext.menu.Menu({
+        id: 'music_menu',
+        shadow: 'drop'
+    });        
     t_status = t_status.compile();
 
 	/*
@@ -112,7 +118,7 @@ function ViewManager(crumb, objects)
     var username=global_config.fullname;
 
     set_status(null);
-
+    set_music_menu();
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {
@@ -167,5 +173,59 @@ function ViewManager(crumb, objects)
 
         var el= statusbar.getEl();
         t_status.overwrite(el, {name: username, status: text});
+    }
+    
+    this.get_search_field = get_search_field;
+    function get_search_field () {
+        return this.srchfld;
+    }
+    
+    this.set_music_menu = set_music_menu;
+    function set_music_menu() {
+    
+        function show_menu(e) {
+            e.preventDefault();
+            music_menu.show(music_menu_link);
+            //change the music link to a white background by setting the css class
+            music_menu_link.addClass('active-menu');
+        }
+        
+        function hide_menu(e) {
+            e.preventDefault();
+            music_menu.hide();
+            music_menu_link.removeAllListeners();
+            music_menu_link.on('click',show_menu);
+        }
+        
+        function reset_menu_link(e) {
+            //reset the menu's css class information
+            music_menu_link.removeClass('active-menu');
+        }
+        music_menu.add(new Ext.menu.Item({
+            text: 'artists',
+            href: '#/bc/artist',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'albums',
+            href: '#/bc/album',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'songs',
+            href: '#/bc/song',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu_link.on('click', show_menu);
+        music_menu.on('hide',reset_menu_link);
     }
 }

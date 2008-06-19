@@ -8,6 +8,9 @@ import time
 import xmlrpclib
 from os.path import join
 
+to_symlink = [
+    ('/var/opt/uploaders','public/uploaders')
+]
 # a list of packages to run "setup.py develop" on
 to_setup = [
     'masterapp',
@@ -45,6 +48,10 @@ def create_production_env(root, repo):
             'setup.py',
             'clean'
         ])
+
+    os.chdir(root)
+    for link in to_symlink:
+        subprocess.check_call(['ln', '-s', link[0], link[1]])
 
 def configure(root, repo):
     configdir = os.path.join(root, 'config')
