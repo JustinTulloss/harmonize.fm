@@ -8,7 +8,7 @@ import xmlrpclib
 
 STAGING = os.environ['STAGING']
 PRODUCTION = os.environ['PRODUCTION']
-REPOSITORY = os.environ['REPOSITORY']
+REPOSITORY = os.join(os.environ['REPOSITORY'], 'fileprocess')
 SERVER = 'live_file_pipeline'
 
 def main():
