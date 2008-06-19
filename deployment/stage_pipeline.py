@@ -5,9 +5,7 @@ This deploys the stage file_pipeline
 """
 import os, sys
 import subprocess
-from mercurial.localrepo import localrepository
-from mercurial.ui import ui
-from deploy import deploy
+import xmlrpclib
 
 REPOPATH = os.path.join(os.environ['REPOSITORY'], 'fileprocess')
 STAGEPATH = os.path.join(os.environ['STAGING'])
