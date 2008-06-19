@@ -22,7 +22,7 @@ ${rightcol.render()}
         </a>
     </div>
     <div id="profile-spotlight">
-        <div class="profile-subtitle">Spotlight</div>
+        <div class="profile-subtitle h-subtitle">Spotlight</div>
         % for spotlight in c.user.get_active_spotlights():
             ${build_spotlight(spotlight, c.current_uid == c.user.id)}
         % endfor
@@ -36,10 +36,18 @@ ${rightcol.render()}
                 <img src=${spotlight.album.smallart} />
             </div>
         % endif
-        <div class="profile-sp-title">
+        <div class="h-title">
 				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
                 ${spotlight.album.title}</div>
-        <div class="profile-sp-artist">by ${spotlight.album.artist.name}</div>
+        <div class="profile-sp-artist">
+            by ${spotlight.album.artist.name}
+            % if own_profile:
+                <span class="profile-right profile-stretch">
+                    <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>
+                </span>
+            % endif
+        </div>
         <div class="profile-sp-review">${spotlight.comment}</div>
 
         <%
@@ -59,16 +67,11 @@ ${rightcol.render()}
         <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
           
         % if num_comments == 0:
-            <a ${aclass} href="${comment_url}">Add comment</a>
+            <a ${aclass} href="${comment_url}">comment</a>
         % else:
-            <a ${aclass} href="${comment_url}">View comments (${num_comments})</a>
+            <a ${aclass} href="${comment_url}">comments (${num_comments})</a>
         % endif
-			<a class="hide-comment" href="${c.current_url}">Hide comments</a>
-
-        % if own_profile:
-        <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">Edit</a>
-		<a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">Delete</a>
-        % endif
+			<a class="hide-comment" href="${c.current_url}">hide comments</a>
 
         ${spotcomment.render(spotlight)}
         </div>

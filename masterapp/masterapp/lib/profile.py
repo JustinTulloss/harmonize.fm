@@ -19,5 +19,6 @@ class Profile:
     click = "#FF8811" 
     select = "#A0B5DF"
     profile_subtitle = "#666"
-    profile_links = "#AAA"
+    profile_links = "#999"
     profile_border = "#DDD"
+    light_form = "#999"

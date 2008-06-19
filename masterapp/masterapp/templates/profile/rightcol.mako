@@ -1,9 +1,9 @@
 <%def name="render()">
 	<div id="profile-right">
 		<div class="profile-pic"><center><img src="${c.user.bigpicture}" /></center></div>
-		<div class="profile-subtitle">Musical Tastes</div>
+		<div class="profile-subtitle h-subtitle">Musical Tastes</div>
 		<div class="profile-right-content">${c.user.musictastes}</div>
-		<div class="profile-subtitle">Top Artists</div>
+		<div class="profile-subtitle h-subtitle">Top Artists</div>
 		${build_top_artists()}
 		</div>
 	</div>

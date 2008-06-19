@@ -138,7 +138,7 @@
 }
 
 #feedback-content {
-	width: 14em;
+    width: 100%;
 }
 
 #feedback-content td {
@@ -150,6 +150,7 @@
 }
 #feedback-textarea {
 	width: 98%;
+    height: 100pt;
 }
 #feedback-cancel {
 	margin-left: 5px;

@@ -26,6 +26,7 @@ player_files = IncludeFiles(
         'ext-ux-livegrid'
     ],
     templated_stylesheets = [
+        'harmonize.css.mako',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',
         'player_css/album_details.mako',
