@@ -38,10 +38,13 @@ class PuidGenerator(BaseAction):
         else:
             # Spin off a process to do the analysis, we don't care if it
             # succeeds or fails, we're just helping out MusicDNS
-            gp = subprocess.Popen(
-                ['genpuid', config['musicdns.key'], '-xml', 
-                os.path.abspath(file['fname'])],
-                stdout=open('/dev/null')
-            )
+            try:
+                gp = subprocess.Popen(
+                    ['genpuid', config['musicdns.key'], '-xml', 
+                    os.path.abspath(file['fname'])],
+                    stdout=open('/dev/null')
+                )
+            except Exception, e:
+                log.info("Could not generate puid: %s", e)
             return file
 
