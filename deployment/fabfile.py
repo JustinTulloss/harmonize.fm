@@ -12,3 +12,6 @@ def stage():
     "Push changes to staging server"
     sudo('python $(repo)/deployment/stage.py')
 
+def stage_pipeline():
+    "Push changes to the file_pipeline only"
+    sudo('python $(repo)/deployment/stage_pipeline.py')
