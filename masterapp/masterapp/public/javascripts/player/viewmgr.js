@@ -204,6 +204,7 @@ function ViewManager(crumb, objects)
 							show_status_msg('Playlist created!');
 							playlistmgr.open_playlist(untyped_record(response));
 							hide_dialog();
+							urlm.invalidate_page();
 						},
 				failure: function() {
 							show_status_msg('Error creating playlist!');
@@ -252,6 +253,14 @@ function ViewManager(crumb, objects)
         music_menu.add(new Ext.menu.Item({
             text: 'songs',
             href: '#/bc/song',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'playlists',
+            href: '#/bc/playlist',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',

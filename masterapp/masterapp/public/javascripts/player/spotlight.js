@@ -144,10 +144,8 @@ function delete_spotlight(spot_id) {
         success: 
             function(response, options) {
                 if (response.responseText != "False") {
-                    record = eval('(' + response.responseText + ')');
-                    record = record.data[0];
+                    record = untyped_record(response);
                     record['id'] = spot_id;
-                    record.get = (function(key) { return record[key];});
                     show_spotlight(record, "delete");
                 } else show_status_msg("error parsing spotlight information");
             },        
@@ -198,6 +196,6 @@ function hide_status_msg() {
 function prevent_default(fn) {
 	return function(e) {
 		e.preventDefault();
-		fn();
+		fn(e);
 	}
 }

@@ -38,11 +38,6 @@ function init()
     friend_radio = new FriendRadio();
     friend_radio_link = Ext.get("friend_radio_link"); 
 
-	Ext.get('music_menu_link').on('click', function(e) {
-		e.preventDefault();
-		console.log('link clicked!');
-	});
-
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);

@@ -99,7 +99,7 @@ var BrowserColumns = {
         id: 'songcount',
         header: 'Tracks',
         dataIndex: 'Playlist_songcount',
-		width: 50,
+		width: 65,
 		fixed: true
     },
     'Playlist_length': {

@@ -646,6 +646,8 @@ function PlaylistQueueNode(config) {
 		if (config.flatten) {
 			my.queue.insert(songs.getRange(), my);
 			my.remove();
+			if (songs.getRange().length === 0)
+				my.queue.fireEvent('reordered');
 		}
 		else {
 			songs.each(function(record) {
@@ -721,7 +723,6 @@ function FriendRadioQueueNode(config)
             failure: failure
         });
     }
-
 
     this.dequeue = function(k) {
         if (next_song_g) {
