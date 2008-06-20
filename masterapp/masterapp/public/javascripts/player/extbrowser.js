@@ -152,7 +152,9 @@ function BaseGrid(config)
     function search(text) { return true; }
 
     BaseGrid.superclass.constructor.call(this, config);
-
+    Ext.override(Ext.grid.GridView, {
+        scrollToTop: Ext.emptyFn    
+    });
 }
 Ext.extend(BaseGrid, Ext.grid.GridPanel);
 
