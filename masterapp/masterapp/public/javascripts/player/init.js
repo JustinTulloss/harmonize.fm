@@ -82,7 +82,7 @@ function add_grid_listeners(crumb, e)
     if (typeinfo[crumb.type].next == 'play')
         crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
 	else if (typeinfo[crumb.type].next == 'openplaylist')
-		crumb.panel.on('rowdblclick',record_handler(playlistmgr.open_playlist));
+		crumb.panel.on('rowdblclick',record_handler(playlist_dblclick));
     else
         crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
 }

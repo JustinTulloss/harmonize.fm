@@ -592,6 +592,10 @@ function PlaylistQueueNode(config) {
 
     this.dequeue = function(k) {
 		function dequeue_aux() {
+			if (!my.firstChild) {
+				my.remove();
+				return;
+			}
 			var record = my.firstChild.record;
 			my.firstChild.remove();
 			update_text();
@@ -640,10 +644,12 @@ function PlaylistQueueNode(config) {
         queue_songs();
 
 		loading = false;
-		for (var i=0; i<actions.length; i++) {
-			actions[i]();
+		if (my.firstChild) { //Don't run anything if there aren't children
+			for (var i=0; i<actions.length; i++) {
+				actions[i]();
+			}
+			actions = [];
 		}
-		actions = [];
     }
 
     function queue_songs() {

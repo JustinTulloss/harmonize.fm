@@ -174,8 +174,10 @@ class MetadataController(BaseController):
     @d_build_json
     @_pass_user
     def playlists(self, user):
-        qry = Session.query(*dbfields['playlist']).join(Playlist.owner).\
-               filter(Playlist.ownerid == user.id).order_by(Playlist.name)
+        qry = Session.query(Playlist.ownerid.label('Friend_id'), 
+                            *dbfields['playlist']).\
+                join(Playlist.owner).\
+                filter(Playlist.ownerid == user.id).order_by(Playlist.name)
         return qry.all()
 
     def album(self, id):
