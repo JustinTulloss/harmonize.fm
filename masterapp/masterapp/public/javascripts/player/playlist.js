@@ -128,6 +128,7 @@ function Playlist(config) {
 	function save_playlist() {
 		saving_playlist = true;
 
+		var i=0;
 		var current = songqueue.root.firstChild;
 		var songs = ''
 		while (current) {
@@ -141,6 +142,7 @@ function Playlist(config) {
 				songs += ','+id;
 
 			current = current.nextSibling;
+			i++;
 		}
 
 		Ext.Ajax.request({
@@ -155,6 +157,9 @@ function Playlist(config) {
 			success: function() {
 						saving_playlist = false;}
 		});
+
+		config.record.set('Playlist_songcount', i);
+
 		return true;
 	}
 
