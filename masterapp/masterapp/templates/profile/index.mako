@@ -40,7 +40,7 @@ ${rightcol.render()}
 				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
                 ${spotlight.album.title}</div>
         <div class="profile-sp-artist">
-            by ${spotlight.album.artist.name}
+            by ${spotlight.album.artist.name} <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%m/%Y")})</span>
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
