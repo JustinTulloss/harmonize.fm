@@ -43,6 +43,16 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+        //this is where we set the emptytext to whatever the correct type is
+        // for this particular panel (artist, song, album, etc.) 
+        // emptyText property is pulled from the typeinfo[] array from metatypinfo.js
+        crumb.ds.on('load', function(e) {
+            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+                crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
+            }
+        });
+    
+    
         var bufferSize = 35; //how many records to grab at a time?        
         
         params.start = 0;
@@ -80,8 +90,8 @@ function Browser()
             if (response.status == 401)
                 show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
         });
-
     }
+    
 }
 Ext.extend(Browser, Ext.util.Observable);
 
@@ -101,8 +111,7 @@ function BaseGrid(config)
     config.stripeRows = true;
     config.viewConfig = {
         forceFit: true,
-        emptyText: 'There isn\'t any music here!<br>'+
-            'Upload some, or why not listen to your friends\' music?',
+        emptyText: "Loading...",
         deferEmptyText: false
     };
     this.addEvents({
@@ -163,7 +172,7 @@ function SongGrid(config)
     this.addEvents({
         newgridleaf : true
     });
-
+    config.type = 'song';
     config.cm = new Ext.grid.ColumnModel(ColConfig.song);
     for (var i = 0; i < ColConfig.song.length; i++) {
         if (defaultWidths[ColConfig.song[i].dataIndex])
@@ -171,7 +180,6 @@ function SongGrid(config)
     }
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
-    
     SongGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -193,6 +201,7 @@ function AlbumGrid(config)
     exp = BrowserColumns.expander;
     exp.scope = this;
     exp.remoteDataMethod = load_details;
+    config.type = 'album';
     config.iconCls = 'icon-grid';
     config.plugins = exp;
     config.cm = new Ext.grid.ColumnModel(ColConfig.album);
@@ -230,7 +239,7 @@ function ArtistGrid(config)
     this.addEvents({
         newgridbranch : true
     });
-
+    config.type = 'artist';
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     //config.autoExpandColumn='artist';
@@ -251,7 +260,7 @@ function PlaylistGrid(config)
     this.addEvents({
         newgridbranch: true
     });
-
+    config.type = 'playlist';
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
     
@@ -261,6 +270,7 @@ Ext.extend(PlaylistGrid, BaseGrid);
 
 function PlaylistSongGrid(config)
 {
+    config.type = 'playlistsong';
     //TODO: Add some Playlist specific columns
     PlaylistSongGrid.superclass.constructor.call(this, config);
 }
@@ -268,6 +278,7 @@ Ext.extend(PlaylistSongGrid, SongGrid);
 
 function FriendGrid(config)
 {
+    config.type = 'friend';
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
     FriendGrid.superclass.constructor.call(this, config);

@@ -94,7 +94,9 @@ var typeinfo = {
         qryindex: 'Artist_id',
         display:'Artists',
         nodeclass: ArtistQueueNode,
-        gridclass: ArtistGrid
+        gridclass: ArtistGrid,
+        emptyText: 'There aren\'t any artists here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
     }, 
     album:{
         next: function (row, breadcrumb) {
@@ -110,7 +112,9 @@ var typeinfo = {
         qryindex:'Album_id', 
         display:'Albums',
         nodeclass: AlbumQueueNode,
-        gridclass: AlbumGrid
+        gridclass: AlbumGrid,
+        emptyText: 'There aren\'t any albums here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
     }, 
     playlist:{
         next: 'openplaylist',
@@ -118,14 +122,18 @@ var typeinfo = {
         qryindex:'Playlist_id', 
         display:'Playlists',
         gridclass: PlaylistGrid,
-		nodeclass: PlaylistQueueNode
+		nodeclass: PlaylistQueueNode,
+		emptyText: 'There aren\'t any playlists here!<br>'+
+            'Create one by clicking "create playlist" in the bottom left corner.',
     },
     song:{
         next:'play', 
         lblindex: 'Song_title',
         display:'Songs',
         nodeclass: SongQueueNode,
-        gridclass: SongGrid
+        gridclass: SongGrid,
+        emptyText: 'There isn\'t any music here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
     },
     nowplayingsong:{
         nodeclass: PlayingQueueNode,
@@ -153,7 +161,8 @@ var typeinfo = {
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
-        gridclass: FriendGrid
+        gridclass: FriendGrid,
+        emptyText: 'None of your friends are Harmonize.fm users.  Invite them!',
     },
     friend_radio:{
         display: 'FriendRadio',

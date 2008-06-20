@@ -151,5 +151,16 @@ function browse_friends_music(friend) {
     friend_music_menu.show(friend_music_menu_link);
 }
 
+function highlight_playlist_link() {
+    var el = Ext.get('create-playlist');    
+    el.shift({x: 350});
+    el.shift({x: 0});
+    
+    el.highlight("000000", {easing: 'easeIn',duration:.5});
+    el.highlight("000000", {easing: 'easeIn',duration:.5});
+    el.highlight("000000", {easing: 'easeIn',duration:.5});
+    el.highlight("000000", {easing: 'easeIn',duration:.5});
+}
+
 Ext.onReady(init);
 /****End of Initializations ****/
