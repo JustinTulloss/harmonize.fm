@@ -130,10 +130,11 @@ function BaseGrid(config)
                 }            
             });
 		},
+        recommendtofriend: friend_recommend,
 		play_record: function(record) {
-							playqueue.insert([record]);
-							playqueue.dequeue();
-					}
+                playqueue.insert([record]);
+                playqueue.dequeue();
+        }
     };
 
     my.onMouseDown = function(e, div) {
