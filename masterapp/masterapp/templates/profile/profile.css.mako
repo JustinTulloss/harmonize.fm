@@ -116,6 +116,14 @@
 	margin-bottom: 2px;
 }
 
+.spot-controls {
+	margin-left: 2px;
+}
+
+.spot-controls a {
+	margin-left: 2px;
+}
+
 .profile-right {
     text-align: right;
 }

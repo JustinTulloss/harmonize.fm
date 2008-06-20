@@ -54,13 +54,6 @@
 }
 */
 
-#spot_form textarea {
-	height: 72px;
-	width: 230px;
-	margin: 0;
-	margin-left: 4px;
-}
-
 #spot_comment {
 	font-size: 12px;
 	line-height: 12px;
@@ -72,6 +65,15 @@
 
 #spot_controls tr {
 	text-align: right;
+}
+
+.spot-dlg-value {
+	width: 230px;
+	height: 72px;
+	overflow: auto;
+	text-align: left;
+	margin-left: 4px;
+	border: solid 1px #aaa;
 }
 
 #dialog-window form {

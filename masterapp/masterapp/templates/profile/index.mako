@@ -42,7 +42,7 @@ ${rightcol.render()}
         <div class="profile-sp-artist">
             by ${spotlight.album.artist.name}
             % if own_profile:
-                <span class="profile-right profile-stretch">
+                <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
                     <a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>
                 </span>
