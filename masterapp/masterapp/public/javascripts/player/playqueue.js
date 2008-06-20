@@ -37,8 +37,11 @@ function PlayQueue(config) {
 			my.fireEvent('stop');
     }
 
-	my.insert = function(records) {
+	my.insert = function(records, playnow) {
+		var was_playing = my.playing != null;
 		songQueue.insert(records);
+		if (playnow && was_playing)
+			my.dequeue();
 	}
 
 	function onreorder() {
@@ -693,10 +696,8 @@ function FriendRadioQueueNode(config)
 	    }
 
 		function success(response) {
-			var next_song = eval('(' + response.responseText + ')');
-			next_song = next_song.data[0];
-			next_song.get = (function(key) {return next_song[key];});
-			next_song.type = "song";
+			var next_song = untyped_record(response);
+			next_song.set('type', "song");
 			next_song_g = next_song
 
 			fetching = false;

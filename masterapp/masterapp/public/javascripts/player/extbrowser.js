@@ -131,8 +131,7 @@ function BaseGrid(config)
             });
 		},
 		play_record: function(record) {
-							playqueue.insert([record]);
-							playqueue.dequeue();
+							playqueue.insert([record], true);
 					}
     };
 
