@@ -185,3 +185,13 @@ function Playlist(config) {
 	var interval = setInterval(check_dirty, 2000);
 }
 Ext.extend(Playlist, Ext.util.Observable);
+
+function playlist_dblclick(record) {
+	if (record.get('Friend_id') === undefined || 
+		record.get('Friend_id') === global_config.uid) {
+			playlistmgr.open_playlist(record);
+	}
+	else {
+		playqueue.insert([record]);
+	}
+}
