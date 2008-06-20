@@ -261,6 +261,7 @@ function SongQueue(label, is_playlist) {
             }
             e.dropNode = nodes;
             e.cancel = false;
+			reordered();
         }
     }
     
