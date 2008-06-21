@@ -15,12 +15,9 @@ var render = {
 
     enqColumn: function (value, p, record)
     {
-		var own_grid = record.get('Friend_id') === global_config.uid ||
-						record.get('Friend_id') === '';
-        id = record.id;
-		if (record.get('type') === 'album' && own_grid)
+		if (record.get('type') === 'album' && own_record(record))
 			return t_add_col_alb.apply();
-		else if (record.get('type') === 'playlist' && own_grid) {
+		else if (record.get('type') === 'playlist' && own_record(record)) {
 			return playlist_col_own.apply();
 		}
 		else if (record.get('type') === 'playlist') {

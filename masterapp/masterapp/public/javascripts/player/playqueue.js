@@ -604,7 +604,11 @@ function PlaylistQueueNode(config) {
     }
 
 	my.peek = function(k) {
-		ensure_loaded(function() { k(my.firstChild.record);});
+		ensure_loaded(function() { 
+			if (!my.firstChild)
+				return;
+			k(my.firstChild.record);
+		});
 	}
 
     function update_text() {

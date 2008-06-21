@@ -161,8 +161,24 @@ function Playlist(config) {
 		});
 	});
 
-	my.insert = songqueue.insert;
-	my.enqueue = songqueue.enqueue;
+	my.insert = function(records) {
+		if (!own_record(records[0])) {
+			show_status_msg(
+			'Cannot add other people\'s music to your playlists');
+			return;
+		}
+		else
+			songqueue.insert(records);
+	}
+	my.enqueue = function(records) {
+		if (!own_record(records[0])) {
+			show_status_msg(
+			'Cannot add other people\'s music to your playlists');
+			return;
+		}
+		else
+			songqueue.enqueue(records);
+	}
 			
 	my.panel.on('collapse', function() {
 			return config.oncollapse(my);
