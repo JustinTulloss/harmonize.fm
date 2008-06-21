@@ -31,6 +31,7 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from operator import itemgetter
 from functools import partial
+from masterapp.lib.snippets import build_json, get_user
 
 log = logging.getLogger(__name__)
 
@@ -56,25 +57,9 @@ class MetadataController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
-    def _pass_user(func):
-        def pass_user(self, *args, **kwargs):
-            user = self._get_user()
-            return func(self, user, *args, **kwargs)
-        return pass_user
-
-    def _get_user(self):
-        friendid = request.params.get('friend')
-        if not friendid:
-            user = Session.query(User).get(session['userid'])
-        else:
-            # TODO: Make sure they're friends
-            user = Session.query(User).get(friendid)
-        return user
-
     def _apply_offset(self, qry):
         if request.params.get('start') and request.params.get('limit'):
             qry = qry[int(request.params['start']):int(request.params['limit'])]
-
         return qry
 
     @cjsonify
@@ -88,7 +73,7 @@ class MetadataController(BaseController):
 
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def songs(self, user):
         qry = user.song_query
         
@@ -110,7 +95,7 @@ class MetadataController(BaseController):
 
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def albums(self, user):
         qry = user.album_query
         if request.params.get('artist'):
@@ -122,7 +107,7 @@ class MetadataController(BaseController):
         
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def artists(self, user):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
@@ -130,56 +115,60 @@ class MetadataController(BaseController):
         return qry
         
     @cjsonify
-    @_pass_user
+    @pass_user
     def friends(self, user):
         dtype = request.params.get('type')
-        userStore = session['fbfriends']
-        data=facebook.users.getInfo(userStore)
+        if request.params.get('all') == 'true':
+            users = facebook.friends.get()
+            data = facebook.users.getInfo(users)
+        else:
+            userStore = session['fbfriends']
+            data=facebook.users.getInfo(userStore)
 
-        qry = Session.query(User).join(['owners'])
-        cond = or_()
-        for friend in data:
-            cond.append(User.fbid == friend['uid'])
-        qry = qry.filter(cond)
-        qry = qry.order_by(User.fbid)
-        results = qry.all()
+            qry = Session.query(User).join(['owners'])
+            cond = or_()
+            for friend in data:
+                cond.append(User.fbid == friend['uid'])
+            qry = qry.filter(cond)
+            qry = qry.order_by(User.fbid)
+            results = qry.all()
 
-        def _intersect(item):
-            if len(results) > 0:
-                if results[0].fbid == item['uid']:
-                    item['type'] = dtype
-                    item['Friend_name'] = item['name']
-                    item['Friend_id'] = results[0].id
-                    del item['uid']
-                    del item['name']
-                    del results[0]
-                    return True
+            def _intersect(item):
+                if len(results) > 0:
+                    if results[0].fbid == item['uid']:
+                        item['type'] = dtype
+                        item['Friend_name'] = item['name']
+                        item['Friend_id'] = results[0].id
+                        del item['uid']
+                        del item['name']
+                        del results[0]
+                        return True
+                    else:
+                        return False
                 else:
                     return False
-            else:
-                return False
 
-        # This is a bit confusing. It looks at all the friends you have that own
-        # the app and then check to see if they have any songs. Those that do
-        # get passed through and their names are passed back. We do this because
-        # we fetch the name from facebook and the ownership information
-        # from our own database.
-        data = sorted(data, key=itemgetter('uid'))
-        data = filter(_intersect, data)
-        data = sorted(data, key=itemgetter('Friend_name'))
+            # This is a bit confusing. It looks at all the friends you have that own
+            # the app and then check to see if they have any songs. Those that do
+            # get passed through and their names are passed back. We do this because
+            # we fetch the name from facebook and the ownership information
+            # from our own database.
+            data = sorted(data, key=itemgetter('uid'))
+            data = filter(_intersect, data)
+            data = sorted(data, key=itemgetter('Friend_name'))
 
         return {'success':True, 'data':data}
 
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def playlists(self, user):
         qry = Session.query(*dbfields['playlist']).join(Playlist.owner).\
                filter(Playlist.ownerid == user.id).order_by(Playlist.name)
         return qry.all()
 
     def album(self, id):
-        user = self._get_user()
+        user = get_user()
         album = user.get_album_by_id(id)
         json = build_json([album])
         json['data'][0]['type'] = 'album'
@@ -187,7 +176,7 @@ class MetadataController(BaseController):
 
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def next_radio_song(self,user):
         #todo: replace this with recommendations
         
@@ -216,7 +205,7 @@ class MetadataController(BaseController):
         
     @cjsonify
     @d_build_json
-    @_pass_user
+    @pass_user
     def find_spotlight_by_id(self,user):
         if request.params.get('id') != '':
             qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)

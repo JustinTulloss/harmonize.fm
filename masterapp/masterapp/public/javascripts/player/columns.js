@@ -139,7 +139,7 @@ var BrowserColumns = {
         css:'text-align: center;',
         renderer: render.enqColumn,
         fixed: true,
-        width: 68,
+        width: 120,
         sortable: false
     },
     'expander': new Ext.grid.RowExpander()

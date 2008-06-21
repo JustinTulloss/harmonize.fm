@@ -4,23 +4,45 @@
 
 
 /* Takes a record and displays a box that you can pick a friend */
-friend_recommend(record) {
-    friendstore = new Ext.data.JsonStore({
+function friend_recommend(record) {
+    var friendstore = new Ext.data.JsonStore({
         url: '/metadata',
-        params: {type: friend},
-        fields: fields.friend,
-        autoLoad: true
+        baseParams: {
+            type: 'friend',
+            all: 'true'
+        },
+        fields: ['name', 'uid'],
+        autoLoad: true,
+        root: 'data'
     });
-    field = new Ext.form.ComboBox({
+    var field = new Ext.form.ComboBox({
         store: friendstore,
         displayField: 'name',
+        fieldLabel: 'Friend',
+        labelAlign: 'right',
+        valueField: 'uid',
         typeAhead: true,
-        emptyText: 'Select a Friend...',
+        mode: 'local',
+        emptyText: 'Select a Friend...'
     });
-    form = new Ext.form.FormPanel({
-        items: [field]
+    var id = record.get(typeinfo[record.get('type')].qryindex);
+    var url = ['recommend', record.get('type'), id].join('/');
+    var button = new Ext.Button({
+        text: 'recommend',
+    }); 
+    var win = new Ext.Window({
+        layout: 'fit',
+        items: [field],
+        buttons: [button]
     });
-    win = new Ext.Window({
-        items: [field]
-    });
+    button.setHandler(
+        handler: function() {
+            set_status_msg("Recommmending...");
+            Ext.Ajax.request({
+                url: [url, field.getValue()].join('/'),
+                success: function(options, response) {
+                    set_status_msg("Recommendation Sent");
+            });
+        }
+    win.show();
 }
