@@ -1,6 +1,6 @@
 function PlaylistMgr() {
 	var my = this;
-
+    
 	function beforeexpand(playlist) {
 		if (expanded_playlist != playlist)
 			last_expanded_playlist = expanded_playlist;
@@ -111,6 +111,9 @@ function PlaylistMgr() {
 				url: '/playlist/delete/' + del_match[1],
 				success: function() {
 					show_status_msg('Playlist deleted!');
+					//remove the playlist from the playqueue and refresh the breadcrumb gridpanel
+					// (only if its currently displaying the playlist grid)
+					onremove(open_playlists[del_match[1]]);
 					bread_crumb.reload_playlist();
 				},
 				failure: function() {
