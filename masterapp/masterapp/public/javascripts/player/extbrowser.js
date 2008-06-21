@@ -186,15 +186,9 @@ function BaseGrid(config)
 		},
         recommendtofriend: friend_recommend,
 		play_record: function(record) {
-<<<<<<< local
-                playqueue.insert([record]);
-                playqueue.dequeue();
-        }
-=======
 							playqueue.insert([record], true);
 		},
 		delete_playlist: playlistmgr.delete_playlist
->>>>>>> other
     };
 
     my.onMouseDown = function(e, div) {

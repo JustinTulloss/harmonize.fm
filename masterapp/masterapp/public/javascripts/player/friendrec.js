@@ -28,7 +28,7 @@ function friend_recommend(record) {
     var id = record.get(typeinfo[record.get('type')].qryindex);
     var url = ['recommend', record.get('type'), id].join('/');
     var button = new Ext.Button({
-        text: 'recommend',
+        text: 'recommend'
     }); 
     var win = new Ext.Window({
         layout: 'fit',
@@ -36,13 +36,15 @@ function friend_recommend(record) {
         buttons: [button]
     });
     button.setHandler(
-        handler: function() {
+        function() {
             set_status_msg("Recommmending...");
             Ext.Ajax.request({
                 url: [url, field.getValue()].join('/'),
                 success: function(options, response) {
                     set_status_msg("Recommendation Sent");
+                }
             });
         }
+    );
     win.show();
 }
