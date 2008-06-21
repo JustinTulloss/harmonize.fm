@@ -6,6 +6,8 @@ from masterapp.model import User, Session, Playlist
 from masterapp.lib.decorators import *
 from masterapp.config.schema import dbfields
 
+from sqlalchemy.sql import or_, and_
+
 from masterapp.model import (
     Session, 
     User, 
@@ -36,14 +38,15 @@ class PlaylistController(BaseController):
 	def save(self):
 		if not (request.params.has_key('playlist') or\
 				request.params.has_key('songs')):
-			return '' #error
+			abort(400, 'playlist or songs parameter not provided')
 
 		playlist = int(request.params['playlist'])
-		playlistobj = Session.query(Playlist).get(playlist)
+		playlistobj = Session.query(Playlist).\
+						filter(and_(Playlist.id == playlist, 
+								Playlist.ownerid == session['userid'])).one()
 		songs = request.params['songs']
 
-		old_pl_songs = Session.query(PlaylistSong).\
-						filter(PlaylistSong.playlistid == playlist)
+		old_pl_songs = playlistobj.songs
 		for old_pl_song in old_pl_songs:
 			Session.delete(old_pl_song)
 

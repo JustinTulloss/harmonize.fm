@@ -176,8 +176,7 @@ class User(object):
         
     def get_song_query(self):
         query = self._build_song_query()
-        query = query.group_by(Song)
-        return query
+        return query.distinct()
     song_query = property(get_song_query)
     
     def get_song_count(self):

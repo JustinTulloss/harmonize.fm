@@ -129,6 +129,10 @@ function PlayQueue(config) {
 	my.panel.on('collapse', function() {
 			return config.oncollapse(my);
 	});
+
+	my.panel.on('expand', function() {
+		my.panel.doLayout();
+	});
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
