@@ -23,3 +23,4 @@ class Profile:
     profile_links = "#999"
     profile_border = "#DDD"
     light_form = "#999"
+    font_family = '"Lucida Sans Unicode","Lucida Grande","Lucida Sans","Lucida",sans-serif'

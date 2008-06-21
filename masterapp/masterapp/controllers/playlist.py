@@ -54,3 +54,4 @@ class PlaylistController(BaseController):
 				i += 1
 
 		Session.commit()
+		return ''

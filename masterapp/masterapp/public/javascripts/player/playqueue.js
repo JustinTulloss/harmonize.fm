@@ -17,8 +17,6 @@ function PlayQueue(config) {
         playsong: true,
         stop : true,
 		buffersong: true,
-		beforeexpand: true,
-		beforecollapse: true
     });
 
     my.played = new Array(); /* Just an array of all the played treenodes */
@@ -128,8 +126,8 @@ function PlayQueue(config) {
 			return config.beforeexpand(my);
 	});
 
-	my.panel.on('beforecollapse', function() {
-			return config.beforecollapse(my);
+	my.panel.on('collapse', function() {
+			return config.oncollapse(my);
 	});
 }
 Ext.extend(PlayQueue, Ext.util.Observable);

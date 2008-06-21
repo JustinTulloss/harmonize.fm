@@ -20,6 +20,13 @@
 	background-color: ${c.profile.playlist_bg};
 }
 
+#queuepanel .x-panel-header-text {
+	font-size: 10pt;
+	color: #333;
+	font-weight: normal;
+	font-family: ${c.profile.font_family};
+}
+
 .playlist-button {
 	float: right;
 	height: 15px;
