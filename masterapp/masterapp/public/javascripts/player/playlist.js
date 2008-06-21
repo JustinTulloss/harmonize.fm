@@ -89,6 +89,37 @@ function PlaylistMgr() {
 	my.enqueue = function(records) {
 		expanded_playlist.enqueue(records);
 	}
+
+	var delete_dlg = new Ext.Template(
+		'<h1>Delete Playlist</h1>',
+		'<h2>{name}</h2>',
+		'<br />',
+		'<a href="#/action/playlist/delete/{id}" class="a-button">delete</a>',
+		'<a href="#/action/dlg/hide" class="a-button">cancel</a>');
+									
+	my.delete_playlist = function(record) {
+		show_dialog(delete_dlg.apply({
+			name: record.get('Playlist_name'),
+			id: record.get('Playlist_id')
+		}));
+	}
+
+	urlm.register_action('playlist', function(rest) {
+		var del_match = rest.match(/^delete\/(\d+)$/);
+		if (del_match) {
+			Ext.Ajax.request({
+				url: '/playlist/delete/' + del_match[1],
+				success: function() {
+					show_status_msg('Playlist deleted!');
+				},
+				failure: function() {
+					show_status_msg('Error deleting playlist');
+				}
+			});
+			hide_dialog();
+			return;
+		}
+	});
 }
 
 function Playlist(config) {

@@ -132,7 +132,8 @@ function BaseGrid(config)
 		},
 		play_record: function(record) {
 							playqueue.insert([record], true);
-					}
+		},
+		delete_playlist: playlistmgr.delete_playlist
     };
 
     my.onMouseDown = function(e, div) {

@@ -10,15 +10,19 @@
 t_add_col = new Ext.Template('<span class="grid-actions"><img class="addtoqueue" src="/images/enqueue.png" /><img class="play_record" src="/images/control_play_blue.png" /></span>');
 t_add_col_alb = new Ext.Template('<span class="grid-actions"><img class="addtoqueue" src="/images/enqueue.png" /><img class="show_spotlight" src="/images/spotlight.png" /><img class="play_record" src="/images/control_play_blue.png" /></span>');
 playlist_col = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /></span>');
+playlist_col_own = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /><img class="delete_playlist" src="/images/cross.png" /></span>');
 var render = {
 
     enqColumn: function (value, p, record)
     {
+		var own_grid = record.get('Friend_id') === global_config.uid ||
+						record.get('Friend_id') === '';
         id = record.id;
-		if (record.get('type') === 'album' && 
-				(record.get('Friend_id') === global_config.uid ||
-				 record.get('Friend_id') === ''))
+		if (record.get('type') === 'album' && own_grid)
 			return t_add_col_alb.apply();
+		else if (record.get('type') === 'playlist' && own_grid) {
+			return playlist_col_own.apply();
+		}
 		else if (record.get('type') === 'playlist') {
 			return playlist_col.apply();
 		}

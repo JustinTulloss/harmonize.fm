@@ -55,3 +55,11 @@ class PlaylistController(BaseController):
 
 		Session.commit()
 		return ''
+
+	def delete(self, id):
+		playlist = Session.query(Playlist).get(int(id))
+		if playlist.ownerid != session['userid']:
+			abort(406, 'Cannot delete another man\'s playlist!')
+		Session.delete(playlist)
+		Session.commit()
+		return ''
