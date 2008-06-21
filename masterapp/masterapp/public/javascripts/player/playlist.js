@@ -113,7 +113,7 @@ function PlaylistMgr() {
 					show_status_msg('Playlist deleted!');
 					//remove the playlist from the playqueue and refresh the breadcrumb gridpanel
 					// (only if its currently displaying the playlist grid)
-					onremove(open_playlists[del_match[1]]);
+					playlist.fireEvent('remove',open_playlists[del_match[1]]);
 					bread_crumb.reload_playlist();
 				},
 				failure: function() {
