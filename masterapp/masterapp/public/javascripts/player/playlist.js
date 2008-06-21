@@ -111,6 +111,7 @@ function PlaylistMgr() {
 				url: '/playlist/delete/' + del_match[1],
 				success: function() {
 					show_status_msg('Playlist deleted!');
+					bread_crumb.reload_playlist();
 				},
 				failure: function() {
 					show_status_msg('Error deleting playlist');
