@@ -131,3 +131,7 @@
 .profile-stretch {
     width: 100%;
 }
+
+.spotlight-timestamp {
+    font-size: 10px;
+}

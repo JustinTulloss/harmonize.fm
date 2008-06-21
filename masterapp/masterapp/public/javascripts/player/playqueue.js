@@ -17,8 +17,6 @@ function PlayQueue(config) {
         playsong: true,
         stop : true,
 		buffersong: true,
-		beforeexpand: true,
-		beforecollapse: true
     });
 
     my.played = new Array(); /* Just an array of all the played treenodes */
@@ -37,8 +35,11 @@ function PlayQueue(config) {
 			my.fireEvent('stop');
     }
 
-	my.insert = function(records) {
+	my.insert = function(records, playnow) {
+		var was_playing = my.playing != null;
 		songQueue.insert(records);
+		if (playnow && was_playing)
+			my.dequeue();
 	}
 
 	function onreorder() {
@@ -125,8 +126,8 @@ function PlayQueue(config) {
 			return config.beforeexpand(my);
 	});
 
-	my.panel.on('beforecollapse', function() {
-			return config.beforecollapse(my);
+	my.panel.on('collapse', function() {
+			return config.oncollapse(my);
 	});
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
@@ -261,6 +262,7 @@ function SongQueue(label, is_playlist) {
             }
             e.dropNode = nodes;
             e.cancel = false;
+			reordered();
         }
     }
     
@@ -588,6 +590,10 @@ function PlaylistQueueNode(config) {
 
     this.dequeue = function(k) {
 		function dequeue_aux() {
+			if (!my.firstChild) {
+				my.remove();
+				return;
+			}
 			var record = my.firstChild.record;
 			my.firstChild.remove();
 			update_text();
@@ -598,7 +604,11 @@ function PlaylistQueueNode(config) {
     }
 
 	my.peek = function(k) {
-		ensure_loaded(function() { k(my.firstChild.record);});
+		ensure_loaded(function() { 
+			if (!my.firstChild)
+				return;
+			k(my.firstChild.record);
+		});
 	}
 
     function update_text() {
@@ -636,10 +646,12 @@ function PlaylistQueueNode(config) {
         queue_songs();
 
 		loading = false;
-		for (var i=0; i<actions.length; i++) {
-			actions[i]();
+		if (my.firstChild) { //Don't run anything if there aren't children
+			for (var i=0; i<actions.length; i++) {
+				actions[i]();
+			}
+			actions = [];
 		}
-		actions = [];
     }
 
     function queue_songs() {
@@ -692,10 +704,8 @@ function FriendRadioQueueNode(config)
 	    }
 
 		function success(response) {
-			var next_song = eval('(' + response.responseText + ')');
-			next_song = next_song.data[0];
-			next_song.get = (function(key) {return next_song[key];});
-			next_song.type = "song";
+			var next_song = untyped_record(response);
+			next_song.set('type', "song");
 			next_song_g = next_song
 
 			fetching = false;

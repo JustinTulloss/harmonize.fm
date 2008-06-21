@@ -204,7 +204,7 @@ function ViewManager(crumb, objects)
 							show_status_msg('Playlist created!');
 							playlistmgr.open_playlist(untyped_record(response));
 							hide_dialog();
-							urlm.invalidate_page();
+							bread_crumb.reload_playlist();
 						},
 				failure: function() {
 							show_status_msg('Error creating playlist!');

@@ -39,6 +39,7 @@ class PlaylistController(BaseController):
 			return '' #error
 
 		playlist = int(request.params['playlist'])
+		playlistobj = Session.query(Playlist).get(playlist)
 		songs = request.params['songs']
 
 		old_pl_songs = Session.query(PlaylistSong).\
@@ -50,7 +51,17 @@ class PlaylistController(BaseController):
 			i=0
 			for song in songs.split(','):
 				pl_song = PlaylistSong(playlist, i, int(song))
+				pl_song.playlist = playlistobj
 				Session.save(pl_song)
 				i += 1
 
 		Session.commit()
+		return ''
+
+	def delete(self, id):
+		playlist = Session.query(Playlist).get(int(id))
+		if playlist.ownerid != session['userid']:
+			abort(406, 'Cannot delete another man\'s playlist!')
+		Session.delete(playlist)
+		Session.commit()
+		return ''

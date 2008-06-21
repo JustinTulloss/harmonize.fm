@@ -13,8 +13,8 @@ function FriendRadio() {
         record = Ext.data.Record.create([]);
         record.type = "friend_radio";            
         record.get = (function(key) {return record[key];});
-        playqueue.insert([record]);
-		playqueue.dequeue();
+		record.set = function(key, val) {return record[key] = value;};
+        playqueue.insert([record], true);
     }
 }
 Ext.extend(FriendRadio, Ext.util.Observable);    

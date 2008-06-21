@@ -432,7 +432,8 @@ mapper(PlaylistSong, playlistsongs_table, properties={
 
 mapper(Playlist, playlists_table, properties={
     'owner': relation(User),
-    'songs': relation(PlaylistSong, backref='playlist'),
+    'songs': relation(PlaylistSong, backref='playlist', 
+                        cascade='all, delete-orphan'),
     'songcount': column_property(
             select(
                 [func.count(playlistsongs_table.c.id)],

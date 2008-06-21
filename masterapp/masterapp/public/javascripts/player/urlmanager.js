@@ -110,7 +110,7 @@ urlm = {}; //urlmanager is a singleton
 				if (match) {
 					e.preventDefault();
 					if (url_actions[match[1]]) {
-						url_actions[match[1]](match[2]);
+						url_actions[match[1]](match[3]);
 					}
 				}
 			}

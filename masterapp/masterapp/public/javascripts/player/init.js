@@ -82,7 +82,7 @@ function add_grid_listeners(crumb, e)
     if (typeinfo[crumb.type].next == 'play')
         crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
 	else if (typeinfo[crumb.type].next == 'openplaylist')
-		crumb.panel.on('rowdblclick',record_handler(playlistmgr.open_playlist));
+		crumb.panel.on('rowdblclick',record_handler(playlist_dblclick));
     else
         crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
 }
@@ -105,50 +105,6 @@ function enqueue_album(albumid, friendid) {
 		success: enqueue_result,
         params: {friend: friendid}
     });
-}
-
-var friend_music_menu_link = null;
-var friend_music_menu = null;
-
-function browse_friends_music(friend) {
-    if (friend == null) return;
-    
-    friend_music_menu_link = Ext.get('friend_music_menu_link');
-    friend_music_menu = new Ext.menu.Menu();
-    
-    friend_music_menu.add(new Ext.menu.Item({
-        text: 'artists',
-        href: '#/bc/friend=' + friend + '/artist',
-        itemCls: 'music-menu-item',
-        overCls: 'music-menu-item-over',
-        activeClass: 'music-menu-item-active',
-        iconCls: 'no_icon'
-    }));
-    friend_music_menu.add(new Ext.menu.Item({
-        text: 'albums',
-        href: '#/bc/friend=' + friend + '/album',
-        itemCls: 'music-menu-item',
-        overCls: 'music-menu-item-over',
-        activeClass: 'music-menu-item-active',
-        iconCls: 'no_icon'
-    }));
-    friend_music_menu.add(new Ext.menu.Item({
-        text: 'songs',
-        href: '#/bc/friend=' + friend + '/song',
-        itemCls: 'music-menu-item',
-        overCls: 'music-menu-item-over',
-        activeClass: 'music-menu-item-active',
-        iconCls: 'no_icon'    
-    }));
-    friend_music_menu.add(new Ext.menu.Item({
-        text: 'playlists',
-        href: '#/bc/friend=' + friend + '/playlist',
-        itemCls: 'music-menu-item',
-        overCls: 'music-menu-item-over',
-        activeClass: 'music-menu-item-active',
-        iconCls: 'no_icon'    
-    }));
-    friend_music_menu.show(friend_music_menu_link);
 }
 
 Ext.onReady(init);

@@ -30,3 +30,9 @@ function untyped_record(response) {
 	record.set = function(key, val) {record[key] = val;};
 	return record;
 }
+
+//Determines whether the current user is the owner of a given record
+function own_record(record) {
+	return record.get('Friend_id') === global_config.uid ||
+			record.get('Friend_id') === '';
+}

@@ -43,6 +43,16 @@ function Browser()
 
             this.fireEvent('newgrid', crumb);
         }
+        //this is where we set the emptytext to whatever the correct type is
+        // for this particular panel (artist, song, album, etc.) 
+        // emptyText property is pulled from the typeinfo[] array from metatypinfo.js
+        crumb.ds.on('load', function(e) {
+            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+                crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
+            }
+        });
+    
+    
         var bufferSize = 35; //how many records to grab at a time?        
         
         params.start = 0;
@@ -80,8 +90,53 @@ function Browser()
             if (response.status == 401)
                 show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
         });
-
     }
+    
+    var friend_music_menu_link = null;
+    var friend_music_menu = null;
+
+    this.browse_friends_music = browse_friends_music;
+    function browse_friends_music(friend) {
+        if (friend == null) return;
+        
+        friend_music_menu_link = Ext.get('friend_music_menu_link');
+        friend_music_menu = new Ext.menu.Menu();
+        
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'artists',
+            href: '#/bc/friend=' + friend + '/artist',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'albums',
+            href: '#/bc/friend=' + friend + '/album',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'songs',
+            href: '#/bc/friend=' + friend + '/song',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'    
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'playlists',
+            href: '#/bc/friend=' + friend + '/playlist',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'    
+        }));
+        friend_music_menu.show(friend_music_menu_link);
+    }
+    
 }
 Ext.extend(Browser, Ext.util.Observable);
 
@@ -101,8 +156,7 @@ function BaseGrid(config)
     config.stripeRows = true;
     config.viewConfig = {
         forceFit: true,
-        emptyText: 'There isn\'t any music here!<br>'+
-            'Upload some, or why not listen to your friends\' music?',
+        emptyText: "Loading...",
         deferEmptyText: false
     };
     this.addEvents({
@@ -132,9 +186,15 @@ function BaseGrid(config)
 		},
         recommendtofriend: friend_recommend,
 		play_record: function(record) {
+<<<<<<< local
                 playqueue.insert([record]);
                 playqueue.dequeue();
         }
+=======
+							playqueue.insert([record], true);
+		},
+		delete_playlist: playlistmgr.delete_playlist
+>>>>>>> other
     };
 
     my.onMouseDown = function(e, div) {
@@ -154,7 +214,9 @@ function BaseGrid(config)
     function search(text) { return true; }
 
     BaseGrid.superclass.constructor.call(this, config);
-
+    Ext.override(Ext.grid.GridView, {
+        scrollToTop: Ext.emptyFn    
+    });
 }
 Ext.extend(BaseGrid, Ext.grid.GridPanel);
 
@@ -163,7 +225,7 @@ function SongGrid(config)
     this.addEvents({
         newgridleaf : true
     });
-
+    config.type = 'song';
     config.cm = new Ext.grid.ColumnModel(ColConfig.song);
     for (var i = 0; i < ColConfig.song.length; i++) {
         if (defaultWidths[ColConfig.song[i].dataIndex])
@@ -171,7 +233,6 @@ function SongGrid(config)
     }
     config.cm.defaultSortable = true;
     config.autoExpandColumn='title';
-    
     SongGrid.superclass.constructor.call(this, config);
 
     this.search = search;
@@ -193,6 +254,7 @@ function AlbumGrid(config)
     exp = BrowserColumns.expander;
     exp.scope = this;
     exp.remoteDataMethod = load_details;
+    config.type = 'album';
     config.iconCls = 'icon-grid';
     config.plugins = exp;
     config.cm = new Ext.grid.ColumnModel(ColConfig.album);
@@ -230,7 +292,7 @@ function ArtistGrid(config)
     this.addEvents({
         newgridbranch : true
     });
-
+    config.type = 'artist';
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     //config.autoExpandColumn='artist';
@@ -251,7 +313,7 @@ function PlaylistGrid(config)
     this.addEvents({
         newgridbranch: true
     });
-
+    config.type = 'playlist';
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
     
@@ -261,6 +323,7 @@ Ext.extend(PlaylistGrid, BaseGrid);
 
 function PlaylistSongGrid(config)
 {
+    config.type = 'playlistsong';
     //TODO: Add some Playlist specific columns
     PlaylistSongGrid.superclass.constructor.call(this, config);
 }
@@ -268,6 +331,7 @@ Ext.extend(PlaylistSongGrid, SongGrid);
 
 function FriendGrid(config)
 {
+    config.type = 'friend';
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
     FriendGrid.superclass.constructor.call(this, config);

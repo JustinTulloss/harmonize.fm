@@ -241,7 +241,13 @@ function BreadCrumb()
         }
         return params;
     }
-
+    
+    my.reload_playlist = reload_playlist;
+    function reload_playlist() {
+        if (bclist[current].type == 'playlist') {
+            bclist[current].ds.reload({add: false });
+        }
+    }
 }
 
 Ext.extend(BreadCrumb, Ext.util.Observable);

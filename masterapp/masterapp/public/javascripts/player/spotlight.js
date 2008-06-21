@@ -199,3 +199,12 @@ function prevent_default(fn) {
 		fn(e);
 	}
 }
+
+function basic_dialog_actions(rest) {
+	if (rest == 'hide')
+		hide_dialog();
+}
+
+Ext.onReady(function() {
+	urlm.register_action('dlg', basic_dialog_actions);
+});

@@ -17,7 +17,7 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
-        <div id="friend_music_menu_link"><a href="${c.current_url}" onclick="browse_friends_music(${c.user.id});">browse ${c.user.firstname}'s music</a></div>
+        <div id="friend_music_menu_link"><a href="${c.current_url}" onclick="browser.browse_friends_music(${c.user.id});">browse ${c.user.firstname}'s music</a></div>
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
@@ -40,7 +40,7 @@ ${rightcol.render()}
 				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
                 ${spotlight.album.title}</div>
         <div class="profile-sp-artist">
-            by ${spotlight.album.artist.name}
+            by ${spotlight.album.artist.name} <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
