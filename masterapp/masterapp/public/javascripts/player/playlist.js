@@ -123,6 +123,22 @@ function PlaylistMgr() {
 			hide_dialog();
 			return;
 		}
+		else if (rest == 'create') {
+			var input= Ext.get('playlist-name');
+			Ext.Ajax.request({
+				url: '/playlist/create',
+				params: {name: input.dom.value},
+				success: function(response) {
+					show_status_msg('Playlist created!');
+					playlistmgr.open_playlist(untyped_record(response));
+					bread_crumb.reload_playlist();
+				},
+				failure: function() {
+					show_status_msg('Error creating playlist!');
+				}
+			});
+			hide_dialog();
+		}
 	});
 }
 

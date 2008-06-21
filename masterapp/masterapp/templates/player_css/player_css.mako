@@ -236,13 +236,8 @@ table {
 .a-button {
 	background-color: ${c.profile.top_bg};
 	color: white;
-	/*
-	background-color: ${c.profile.oddrow_bg};
-	color: #333;
-	*/
 	padding: 4px 5px 4px 5px;
-	margin-left: 5px;
-	margin-right: 5px;
+	margin: 0 3px;
 	text-decoration: none;
 	border-right: solid 1px #aaa;
 	border-bottom: solid 1px #aaa;
