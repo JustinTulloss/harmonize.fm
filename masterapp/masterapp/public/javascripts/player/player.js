@@ -13,8 +13,7 @@
  *
  */
 
-function Player()
-{
+function Player() {
 	if (this == window) alert('new not called for Player()');
 	var my = this;
 
@@ -22,7 +21,7 @@ function Player()
     var position;
     var state = 0; //stopped, paused, or playing (0, 1, 2)
     var volume = 80;
-    var playingsong;
+    var playingsong = null;
 	var bufferedsong;
 	var buffer_onload; //Should be a fn to call when a song finishes loading
 	var buffer_loaded;
@@ -88,12 +87,11 @@ function Player()
         my.fireEvent('nextsong', my.playsong);
     }
 
-    function prevclicked(e)
-    {
-        if (playingsong)
-        {
+    function prevclicked(e) {
+        if (playingsong) {
             sound = soundManager.getSoundById(playingsong);
-            if (sound.position > 1000) {
+			//sound isn't always defined when hitting prev rapidly
+            if (sound && sound.position > 1000) {
                 soundManager.setPosition(playingsong, 0);
                 return;
             }
@@ -220,6 +218,7 @@ function Player()
         }
 		set_pause(false);
 		update_now_playing({});
+		now_playing_bar.style.visibility = 'hidden';
     }
 
 	function createSound(url, id) {
@@ -227,10 +226,6 @@ function Player()
             id: id,
             url: url,
             volume: volume,
-            whileplaying: function(){
-				update_duration(this);
-                update_progress_bar(this.position);
-            },
             onfinish: nextclicked,
 			onload: function() {
 				if (buffer_onload)
@@ -299,6 +294,16 @@ function Player()
 		update_progress_bar(0);
 	}
 
+	function update_progress() {
+		if (playingsong !== null) {
+			var sound = soundManager.getSoundById(playingsong);
+			if (sound) {
+				update_duration(sound);
+				update_progress_bar(sound.position);
+			}
+		}
+    }
+
 	function update_progress_bar(elapsed) {
 		duration = get_duration()
 		now_playing_time.innerHTML=
@@ -365,5 +370,7 @@ function Player()
 		if (playingsong)
 			return "You will lose your currently playing song.";
 	};
+
+	setInterval(update_progress, 300);
 }
 Ext.extend(Player, Ext.util.Observable);

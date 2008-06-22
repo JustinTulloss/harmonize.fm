@@ -95,15 +95,20 @@ var BrowserColumns = {
         header: "Name",
         dataIndex: 'Playlist_name'
     },
-    'Playlist_numtracks': {
-        id: 'numtracks',
+    'Playlist_songcount': {
+        id: 'songcount',
         header: 'Tracks',
-        dataIndex: 'Playlist_numtracks'
+        dataIndex: 'Playlist_songcount',
+		width: 65,
+		fixed: true
     },
     'Playlist_length': {
         id:'length',
         header: 'Length',
-        dataIndex: 'Playlist_length'
+        dataIndex: 'Playlist_length',
+		width: 65,
+        renderer: render.lengthColumn,
+		fixed: true
     },
     'Friend_name': {
         id:'friend',
@@ -134,7 +139,7 @@ var BrowserColumns = {
         css:'text-align: center;',
         renderer: render.enqColumn,
         fixed: true,
-        width: 58,
+        width: 120,
         sortable: false
     },
     'expander': new Ext.grid.RowExpander()
@@ -164,7 +169,11 @@ var ColConfig = {
         BrowserColumns['Artist_numalbums'],
         BrowserColumns['Artist_availsongs']
     ],
-    playlist: [],
+    playlist: [
+		BrowserColumns['actions'],
+		BrowserColumns['Playlist_name'],
+		BrowserColumns['Playlist_songcount'],
+		BrowserColumns['Playlist_length']],
     friend: [
         BrowserColumns['Friend_name'],
         BrowserColumns['Friend_numalbums'],

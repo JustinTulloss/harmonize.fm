@@ -13,11 +13,14 @@ class Profile:
     status_txt = "#FFF"
     oddrow_bg = "#D8DEEB"
     sortoddrow_bg = "#FFDD9E"
+    playlist_bg = "#D7EADA"
     queue_back_txt = None
     queue_accents = None
     queue_bg = oddrow_bg
     click = "#FF8811" 
     select = "#A0B5DF"
     profile_subtitle = "#666"
-    profile_links = "#AAA"
+    profile_links = "#999"
     profile_border = "#DDD"
+    light_form = "#999"
+    font_family = '"Lucida Sans Unicode","Lucida Grande","Lucida Sans","Lucida",sans-serif'

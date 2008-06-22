@@ -4,10 +4,9 @@
             ${render_comment(spot_comment)}
         % endfor
 
-        <div class="profile-sp-comment">
+        <div class="profile-sp-comment h-light-form">
         <textarea class="spot-comment-textarea"></textarea>
-        <br />
-        <button class="send-spot-comment">post</button>
+        <div class="profile-right"><button class="send-spot-comment">post</button></div>
         </div>
     </div>
 </%def>

@@ -5,6 +5,7 @@ from baseaction import BaseAction
 import fileprocess
 from fileprocess.configuration import config
 from fileprocess.processingthread import na
+from socket import sslerror
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +50,11 @@ class S3Uploader(BaseAction):
                 bytes = fo.read(readbytes)
             fo.close()
 
-            response=conn.put(config['S3.music_bucket'], file['sha'], data)
+            try:
+                response=conn.put(config['S3.music_bucket'], file['sha'], data)
+            except sslerror, e:
+                log.info("SSL error uploading %s, trying again: %s",
+                    file['title'], e)
             return response
 
         message = ''
@@ -57,7 +62,10 @@ class S3Uploader(BaseAction):
             try:
                 response = upload_file()
                 if response:
-                    message = response.message
+                    if hasattr(response, 'message'):
+                        message = response.message
+                    else:
+                        message = 'tryingagain'
                 else:
                     return False
             except S3.httplib.HTTPException:

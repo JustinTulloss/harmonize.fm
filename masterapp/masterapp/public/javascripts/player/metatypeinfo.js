@@ -7,17 +7,31 @@
  */
 
 /* TODO: Move all the renderer stuff into its own file. */
-t_add_col = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" />');
-t_add_col_alb = new Ext.Template('<img class="addtoqueue" src="/images/enqueue.png" /><img class="show_spotlight" src="/images/spotlight.png" />');
+t_add_col = new Ext.Template('<span class="grid-actions">',
+        '<img class="addtoqueue" src="/images/enqueue.png" />',
+        '<img class="recommendtofriend" src="/images/enqueue.png" />',
+        '<img class="play_record" src="/images/control_play_blue.png" />',
+    '</span>');
+t_add_col_alb = new Ext.Template('<span class="grid-actions">',
+        '<img class="addtoqueue" src="/images/enqueue.png" />',
+        '<img class="recommendtofriend" src="/images/enqueue.png" />',
+        '<img class="show_spotlight" src="/images/spotlight.png" />',
+        '<img class="play_record" src="/images/control_play_blue.png" />',
+    '</span>');
+playlist_col = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /></span>');
+playlist_col_own = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /><img class="delete_playlist" src="/images/cross.png" /></span>');
 var render = {
 
     enqColumn: function (value, p, record)
     {
-        id = record.id;
-		if (record.get('type') === 'album' && 
-				(record.get('Friend_id') === global_config.uid ||
-				 record.get('Friend_id') === ''))
+		if (record.get('type') === 'album' && own_record(record))
 			return t_add_col_alb.apply();
+		else if (record.get('type') === 'playlist' && own_record(record)) {
+			return playlist_col_own.apply();
+		}
+		else if (record.get('type') === 'playlist') {
+			return playlist_col.apply();
+		}
 		else
 			return t_add_col.apply();
     },
@@ -90,7 +104,9 @@ var typeinfo = {
         qryindex: 'Artist_id',
         display:'Artists',
         nodeclass: ArtistQueueNode,
-        gridclass: ArtistGrid
+        gridclass: ArtistGrid,
+        emptyText: 'There aren\'t any artists here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
     }, 
     album:{
         next: function (row, breadcrumb) {
@@ -106,28 +122,36 @@ var typeinfo = {
         qryindex:'Album_id', 
         display:'Albums',
         nodeclass: AlbumQueueNode,
-        gridclass: AlbumGrid
+        gridclass: AlbumGrid,
+        emptyText: 'There aren\'t any albums here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
     }, 
     playlist:{
-        next: function (row, breadcrumb) {
-            var bc = new BcEntry(
-                'playlistsong', 
-                row.get('Playlist_name'),
-                'playlistsong'
-            );
-            breadcrumb.addbreadcrumb(bc);
-        },
+        next: 'openplaylist',
         lblindex: 'Playlist_name',
         qryindex:'Playlist_id', 
         display:'Playlists',
-        gridclass: PlaylistGrid
+        gridclass: PlaylistGrid,
+		nodeclass: PlaylistQueueNode,
+		emptyText: 'There aren\'t any playlists here!<br>'+
+            'Create one by clicking "create playlist" in the bottom left corner.',
     },
     song:{
         next:'play', 
         lblindex: 'Song_title',
         display:'Songs',
         nodeclass: SongQueueNode,
-        gridclass: SongGrid
+        gridclass: SongGrid,
+        emptyText: 'There isn\'t any music here!<br>'+
+            'Upload some, or why not listen to your friends\' music?',
+    },
+    nowplayingsong:{
+        nodeclass: PlayingQueueNode,
+		inactive: true
+    },
+    prevsong:{
+        nodeclass: SongQueueNode,
+		inactive: true
     },
     playlistsong:{
         next:'play', 
@@ -147,7 +171,8 @@ var typeinfo = {
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
-        gridclass: FriendGrid
+        gridclass: FriendGrid,
+        emptyText: 'None of your friends are Harmonize.fm users.  Invite them!',
     },
     friend_radio:{
         display: 'FriendRadio',

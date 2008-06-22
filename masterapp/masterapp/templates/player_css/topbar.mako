@@ -117,7 +117,8 @@
     font-size: 13px;
     color: #FFFFFF;
 	text-decoration: none;
-	margin-right: 5px;
+	padding-left: 3px;
+	padding-right: 3px;
 }
 
 #topmenu *:hover {
@@ -127,56 +128,6 @@
 
 #topmenu *:focus {
 	outline: none;
-}
-
-#feedback-link {
-	position: relative;
-}
-
-.feedbackActive {
-	background-color: #A0ACC0;
-}
-
-#feedback-content {
-	width: 14em;
-}
-
-#feedback-content td {
-	text-align: right;
-}
-
-#feedback-email {
-	width: 98%;
-}
-#feedback-textarea {
-	width: 98%;
-}
-#feedback-cancel {
-	margin-left: 5px;
-}
-
-.feedback-label {
-	padding-bottom: 9px;
-	line-height: 100%;
-}
-
-#feedbackBox {
-	padding: 5px;
-	width: 190px;
-    font-size: 13px;
-	font-family: tahoma,verdana,helvetica,sans-serif;
-    color: #FFFFFF;
-	text-align:right;
-
-	position: fixed;
-	right: 2px;
-	display: none;
-	z-index: 1
-}
-
-#feedbackContainer {
-	height: 21px;
-	vertical-align: middle;
 }
 
 #logo {
@@ -254,4 +205,73 @@
 	width: 19px;
 }
 
+/***************************
+ * this is the beginning of the css
+ * for the music menu
+ ***************************/
+.no_icon {
+    /* used to remove the icon from the list in the music menu */
+    height: 0px;
+    width: 0px;
+}
 
+.music-menu-item:hover {
+    border: 0 none;
+    background: #d8deeb; /* same as the alternating background grid colors */
+    outline: none;
+}
+
+.music-menu-item-active {
+    outline: none;
+}
+
+.music-menu-item {
+    font:normal 13px tahoma,arial, sans-serif;
+    white-space: nowrap;
+    -moz-user-select: none;
+	-khtml-user-select: none;
+	display:block;
+	padding:0;
+	padding-left: 1px;
+	margin: 0;
+	color: ${c.profile.dark_txt};
+	border: 0px none;
+	outline: none;
+}
+
+.x-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: #FFFFFF;
+}
+
+.x-menu li:hover {
+    border: 0 none;
+    outline: none;
+}
+
+.x-menu li {
+    border: 0 none;
+    outline: none;
+}
+
+#topmenu a.active-menu {
+    background-color: #FFFFFF;
+    color: ${c.profile.dark_txt};
+}
+
+#topmenu a.active-menu:hover {
+    outline: none;
+}
+
+body .x-menu {
+    /* used to override the default Ext.menu.Menu styling */
+    border: 0px;
+    background: #FFFFFF;
+    border-right: 1px solid ${c.profile.dark_txt};
+    border-bottom: 1px solid ${c.profile.dark_txt};
+}
+/*********************************************
+ * this is the end of the css for the music menu
+ *********************************************/

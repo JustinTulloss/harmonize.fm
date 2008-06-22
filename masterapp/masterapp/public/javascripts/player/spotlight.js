@@ -3,7 +3,7 @@ var spot_template = new Ext.Template(
 			'<h1 id="spot_form_title">Add Album to your Spotlight</h1>',
 			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
-			'<textarea id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<textarea class="spot-dlg-value" id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
 			'<tr><td><button id="spot_add">add</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
@@ -14,7 +14,7 @@ var edit_spot_template = new Ext.Template(
 			'<h1 id="spot_form_title">Edit Spotlight</h1>',
 			'<h2>{album_name}&nbsp;-&nbsp;{artist_name}</h2>',
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
-			'<textarea id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<textarea class="spot-dlg-value" id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
 			'<tr><td><button id="spot_change">change</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
@@ -124,16 +124,16 @@ function show_spotlight(record,mode) {
             }
         });
     }
-    Ext.get('spot_cancel').on('click', hide_dialog);
+    Ext.get('spot_cancel').on('click', prevent_default(hide_dialog));
 	if (mode == "add") {
-	    Ext.get('spot_add').on('click', add_spotlight);
+	    Ext.get('spot_add').on('click', prevent_default(add_spotlight));
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	}
 	else if (mode == "edit") {
-	    Ext.get('spot_change').on('click', edit_spotlight);
+	    Ext.get('spot_change').on('click', prevent_default(edit_spotlight));
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	} else if (mode == "delete") {
-	    Ext.get('spot_delete').on('click', do_delete_spotlight);
+	    Ext.get('spot_delete').on('click', prevent_default(do_delete_spotlight));
 	}
 }
 
@@ -144,10 +144,8 @@ function delete_spotlight(spot_id) {
         success: 
             function(response, options) {
                 if (response.responseText != "False") {
-                    record = eval('(' + response.responseText + ')');
-                    record = record.data[0];
+                    record = untyped_record(response);
                     record['id'] = spot_id;
-                    record.get = (function(key) { return record[key];});
                     show_spotlight(record, "delete");
                 } else show_status_msg("error parsing spotlight information");
             },        
@@ -172,6 +170,10 @@ function show_dialog(content) {
 		var contentDiv = document.getElementById('dialog-content');
 	}
 	contentDiv.innerHTML = content;
+	var focus = Ext.get(contentDiv).child('.dlg-focus');
+	if (focus)
+		focus.focus();
+	
 }
 
 function hide_dialog() {
@@ -194,3 +196,19 @@ function hide_status_msg() {
 	el = document.getElementById('status-box').firstChild;
 	el.style.visibility = 'hidden';
 }
+
+function prevent_default(fn) {
+	return function(e) {
+		e.preventDefault();
+		fn(e);
+	}
+}
+
+function basic_dialog_actions(rest) {
+	if (rest == 'hide')
+		hide_dialog();
+}
+
+Ext.onReady(function() {
+	urlm.register_action('dlg', basic_dialog_actions);
+});

@@ -2,7 +2,7 @@ var init_feedback;
 (function() {
 	var feedback_active = false;
 	var feedback_template =
-		'<h1>Send us your Feedback</h1><center><table id="feedback-content"><tr><td><textarea id="feedback-textarea"></textarea></td></tr><tr><td class="feedback-label">comment</td></tr><tr><td><input id="feedback-email"></input></td></tr><tr><td class="feedback-label">your email</td></tr><tr><td><button id="feedback-send">send</button><button id="feedback-cancel">cancel</button></td></tr></table></center>';
+		'<h1>Send us your Feedback</h1><center><table id="feedback-content"><tr><td class="h-light-form"><textarea id="feedback-textarea" class="dlg-focus"></textarea></td></tr><tr><td class="feedback-label">comment</td></tr><tr><td class="h-light-form"><input id="feedback-email"></input></td></tr><tr><td class="feedback-label">your email</td></tr><tr><td><button id="feedback-send">send</button><button id="feedback-cancel">cancel</button></td></tr></table></center>';
 	function show_feedback(e) {
 		e.preventDefault();
 

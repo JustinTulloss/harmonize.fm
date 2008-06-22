@@ -23,7 +23,7 @@
                 added a Spotlight on ${entry.album.title}</a></h4>
             <table class="spotlight_feed_info"><tr>
                 <!--td><img src="/images/enqueue.png" /></td-->
-                <td><img src="${entry.album.smallart}" /></td>
+                <td>${h.p_image_tag(entry.album.smallart)}</td>
                 <td class="spotlight_feed_comment">
                 ${quote_comment(entry.comment, 175)}
                 </td>
@@ -68,7 +68,7 @@
 
     <div id="news_feed">
 
-        <div><h1 id="news-header">Music Feed</h1></div>
+        <div><h1 id="news-header" class="h-subtitle">Music Feed</h1></div>
     <%
         type_table = {
             BlogEntry : blog_feed,

@@ -17,6 +17,7 @@ player_files = IncludeFiles(
         'dd',
         'borders',
         'panel',
+        'window',
         'toolbar',
         'menu',
         'button',
@@ -26,12 +27,14 @@ player_files = IncludeFiles(
         'ext-ux-livegrid'
     ],
     templated_stylesheets = [
+        'harmonize.css.mako',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',
         'player_css/album_details.mako',
         'player_css/topbar.mako',
         'player_css/statusbar.mako',
-        'profile/profile.css.mako'
+        'profile/profile.css.mako',
+		'player_css/dialog.mako.css'
     ],
     javascripts = [
         'lib/ext-2.1/adapter/ext/ext-base.js',
@@ -40,8 +43,10 @@ player_files = IncludeFiles(
         'lib/ext-2.1/source/widgets/ux/RowExpander.js',
         'lib/soundmanager2.js',
         'lib/helpers.js',
+		'lib/jquery-1.2.6.js',
         'player/errmgr.js',
         'player/viewmgr.js',
+        'player/friendrec.js',
         'player/extbrowser.js',
         'player/bcmgr.js',
         'player/settingspanel.js',
@@ -56,12 +61,7 @@ player_files = IncludeFiles(
 		'player/urlmanager.js',
         'player/profile.js',
         'player/friendradio.js',
-        'lib/ext-2.1/source/ux/grid/BufferedGridDragZone.js',
-        'lib/ext-2.1/source/ux/BufferedGridToolbar.js',
-        'lib/ext-2.1/source/ux/grid/BufferedGridView.js',
-        'lib/ext-2.1/source/ux/data/BufferedJsonReader.js',
-        'lib/ext-2.1/source/ux/grid/BufferedRowSelectionModel.js',
-        'lib/ext-2.1/source/ux/grid/BufferedStore.js'
+        'player/playlist.js'
     ]
 )
 

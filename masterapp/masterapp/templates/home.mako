@@ -19,7 +19,7 @@
             </div>					
 			<div id="home-bg">	
 			<div id="home-sidebar">			
-			<div id="home-sidebar-header">Links</div>
+			<div id="home-sidebar-header" class="h-subtitle">Links</div>
 			<%
 				href = None
 				if c.platform == 'windows':

@@ -22,16 +22,18 @@ var bread_crumb = null;
 var settingspanel = null;
 var errmgr = null;
 var friend_radio = null;
+var playlistmgr = null;
 
 /******* Initialization functions ********/
 function init()
 {
     bread_crumb = new BreadCrumb();
     player = new Player();
-    playqueue = new PlayQueue();
+	playlistmgr = new PlaylistMgr();
+	playqueue = playlistmgr.playqueue;
     browser = new Browser();
     settingspanel = new SettingsPanel();
-    viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playqueue});
+    viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playlistmgr});
     errmgr = new ErrorManager();
     friend_radio = new FriendRadio();
     friend_radio_link = Ext.get("friend_radio_link"); 
@@ -70,10 +72,17 @@ function init()
 
 function add_grid_listeners(crumb, e)
 {
-    crumb.panel.on('enqueue', playqueue.enqueue, playqueue);
+	function record_handler(handler) {
+		return function(grid, songindex, e) {
+			return handler(grid.store.getAt(songindex));
+		};
+	}
+    crumb.panel.on('enqueue', playlistmgr.enqueue);
     crumb.panel.on('chgstatus', viewmgr.set_status, viewmgr);
     if (typeinfo[crumb.type].next == 'play')
         crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
+	else if (typeinfo[crumb.type].next == 'openplaylist')
+		crumb.panel.on('rowdblclick',record_handler(playlist_dblclick));
     else
         crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
 }
@@ -87,10 +96,8 @@ function enqueue(recordid)
 
 function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
-		var result = eval('('+response.responseText+')');
-		var record = result.data[0];
-		record.Friend_id = friendid;
-		record.get = (function(key) {return record[key];});
+		var record = untyped_record(response);
+		record.set('Friend_id',  friendid);
 		playqueue.enqueue([record]);
 	}
 	Ext.Ajax.request({

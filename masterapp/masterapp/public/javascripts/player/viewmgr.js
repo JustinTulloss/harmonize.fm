@@ -31,7 +31,9 @@ function ViewManager(crumb, objects)
 	*/
 
     t_status = new Ext.Template(
-        '<div name="status">',
+        '<div id="status">',
+			'<span class="playlist-controls">',
+			'<a id="create-playlist" href="#">create playlist</a></span>',
             '<span class="uname">Welcome, {name:trim}</span>',
             '<span class="cstatus">{status}</span>',
         '</div>'
@@ -43,7 +45,7 @@ function ViewManager(crumb, objects)
         crumb.panel = homepanel;
 	*/
 
-    this.srchfld = new Ext.form.TextField({
+    my.search_field = new Ext.form.TextField({
         emptyText: "Search...",
         enableKeyEvents: true,
         cls: 'searchfield'
@@ -58,7 +60,7 @@ function ViewManager(crumb, objects)
         anchor: '100%',
         header: false,
         layout: 'fit',
-        items: [Ext.get('bccontent'), this.srchfld]
+        items: [Ext.get('bccontent'), my.search_field]
     });
 
     var gridstack = new Ext.Panel({
@@ -113,6 +115,14 @@ function ViewManager(crumb, objects)
 
     set_status(null);
 
+    var music_menu_link = Ext.get('music_menu_link');
+    var music_menu = new Ext.menu.Menu({
+        id: 'music_menu',
+        shadow: 'drop'
+    });        
+
+	set_music_menu();
+
     this.set_panel= set_panel;
     function set_panel(crumb, params, e)
     {
@@ -139,13 +149,10 @@ function ViewManager(crumb, objects)
     function init_search(crumb, params, e)
     {
         if (crumb.panel) {
-            this.srchfld.allowBlank = true;
-            this.srchfld.on('keyup', 
-                function() {
-                    var text = this.getValue();                    
-					return crumb.panel.search.call(crumb.panel, text)
-			    });
-            this.srchfld.on('blur', function(form){
+            my.search_field.validator = 
+                function(text) { 
+					return crumb.panel.search.call(crumb.panel, text)};
+            my.search_field.on('blur', function(form){
                 crumb.panel.search.call(crumb.panel, form.getValue());
             });
         }
@@ -165,7 +172,79 @@ function ViewManager(crumb, objects)
         if (text == null)
             text = '<a class="logout" href="/player/logout">logout</a>';
 
-        var el= statusbar.getEl();
-        t_status.overwrite(el, {name: username, status: text});
+        var el = statusbar.getEl().child('.cstatus');
+		if (el)
+			el.innerHTML = text;
+		else
+			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
+    }
+
+	var create_playlist_dialog = 
+		'<h1>Create a new Playlist</h1>' +
+		'<center><table><tr>'+
+		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
+		'<input id="playlist-name" maxlength="50" class="dlg-focus" />'+
+		'<br/>playlist name<br/><br/>' +
+		'<a class="a-button" href="#/action/playlist/create">create</a>' +
+		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
+		'</td></tr></table></center>';
+	Ext.get('create-playlist').on('click', function(e, el) {
+		e.preventDefault();
+		show_dialog(create_playlist_dialog);
+	});
+
+    function set_music_menu() {
+        function show_menu(e) {
+            e.preventDefault();
+            music_menu.show(music_menu_link);
+            //change the music link to a white background by setting the css class
+            music_menu_link.addClass('active-menu');
+        }
+        
+        function hide_menu(e) {
+            e.preventDefault();
+            music_menu.hide();
+            music_menu_link.removeAllListeners();
+            music_menu_link.on('click',show_menu);
+        }
+        
+        function reset_menu_link(e) {
+            //reset the menu's css class information
+            music_menu_link.removeClass('active-menu');
+        }
+        music_menu.add(new Ext.menu.Item({
+            text: 'artists',
+            href: '#/bc/artist',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'albums',
+            href: '#/bc/album',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'songs',
+            href: '#/bc/song',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu.add(new Ext.menu.Item({
+            text: 'playlists',
+            href: '#/bc/playlist',
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        music_menu_link.on('click', show_menu);
+        music_menu.on('hide',reset_menu_link);
     }
 }

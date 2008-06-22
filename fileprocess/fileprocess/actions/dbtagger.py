@@ -9,6 +9,7 @@ from tag_compare import (
 from pylons import config as pconfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
+from sqlalchemy.exceptions import OperationalError
 from fileprocess.configuration import config
 from fileprocess.processingthread import na
 log = logging.getLogger(__name__)
@@ -32,59 +33,60 @@ class DBTagger(BaseAction):
         assert file.has_key('dbuserid'), "Need a user to assign file to"
 
         self.model.Session()
-        user = self.model.Session.query(self.model.User).get(file['dbuserid'])
+        try:
+            user = self.model.Session.query(self.model.User).get(file['dbuserid'])
 
-        # Get the songs that have this PUID
-        songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
+            # Get the songs that have this PUID
+            songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
             filter(self.model.Puid.puid == file['puid']).all()
 
-        # Make sure this file matches one of the songs with this PUID
-        trackl = []
-        trackd = {}
-        for track in songmatches:
-            trackd[track.id] = track
-            trackl.append({
-                'songid': track.id,
-                'id': track.mbid,
-                'releaseid': track.album.mbid,
-                'title': track.title,
-                'album': track.album.title,
-                'artist': track.album.artist.name,
-                'duration': track.length,
-                'tracknumber': track.tracknumber,
-                'totaltracks': track.album.totaltracks,
-                'date': track.album.year,
-            })
+            # Make sure this file matches one of the songs with this PUID
+            trackl = []
+            trackd = {}
+            for track in songmatches:
+                trackd[track.id] = track
+                trackl.append({
+                    'songid': track.id,
+                    'id': track.mbid,
+                    'releaseid': track.album.mbid,
+                    'title': track.title,
+                    'album': track.album.title,
+                    'artist': track.album.artist.name,
+                    'duration': track.length,
+                    'tracknumber': track.tracknumber,
+                    'totaltracks': track.album.totaltracks,
+                    'date': track.album.year,
+                })
+                
+            result = match_file_to_track(file, trackl)
+            if result:
+                match = trackd[result['songid']]
+            else:
+                # Didn't find any tracks in the current db that match this one
+                return file
             
-        result = match_file_to_track(file, trackl)
-        if result:
-            match = trackd[result['songid']]
-        else:
-            # Didn't find any tracks in the current db that match this one
-            return file
-        
-        # Check to see if the user already owns this song
-        owner = self.model.Session.query(self.model.SongOwner).\
-            filter(self.model.SongOwner.song == match).\
-            filter(self.model.SongOwner.user == user).first()
-        if owner:
-            #Just bail now, this file's already been uploaded
-            log.debug('%s has already been uploaded by %s', 
-                file.get('title'), file.get('fbid'))
-            file['msg'] = "File has already been uploaded by user"
-            file['na'] = na.NOTHING
-            self.cleanup(file)
-            return False
+            # Check to see if the user already owns this song
+            owner = self.model.Session.query(self.model.SongOwner).\
+                filter(self.model.SongOwner.song == match).\
+                filter(self.model.SongOwner.user == user).first()
+            if owner:
+                #Just bail now, this file's already been uploaded
+                log.debug('%s has already been uploaded by %s', 
+                    file.get('title'), file.get('fbid'))
+                file['msg'] = "File has already been uploaded by user"
+                file['na'] = na.NOTHING
+                self.cleanup(file)
+                return False
 
-        # Create a new owner indicating they own the matched song
-        nowner = self.model.SongOwner()
-        nowner.song = match
-        nowner.user = user
-        self.model.Session.add(nowner)
-        try:
+            # Create a new owner indicating they own the matched song
+            nowner = self.model.SongOwner()
+            nowner.song = match
+            nowner.user = user
+            self.model.Session.add(nowner)
             self.model.Session.commit()
-        except:
+        except OperationalError:
             self.model.Session.rollback()
+            log.warn("Database error occurred, bailing on %s", file)
             raise
         finally:
             self.model.Session.remove()

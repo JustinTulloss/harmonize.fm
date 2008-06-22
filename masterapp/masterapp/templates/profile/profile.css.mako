@@ -30,17 +30,6 @@
     color: ${c.profile.click}
 }
 
-.profile-subtitle {
-    font-size: 14pt;
-    border-bottom: 1px solid ${c.profile.profile_border};
-	padding-top: 10px;
-    padding-left: 5px;
-    padding-bottom: 2px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    color: ${c.profile.profile_subtitle};
-}
-
 #profile-spotlight .profile-subtitle {
 	margin-left: 25px;
 }
@@ -80,14 +69,13 @@
 	margin-left: 3px;
 }
 
-.profile-sp-title {
-    font-size: 16pt;
-    color: ${c.profile.dark_txt};
-}
-
 .profile-sp-artist {
     color: ${c.profile.profile_links};
 	margin-left: 28px;
+}
+
+.profile-sp-artist a {
+    text-align: right;
 }
 
 .profile-sp-review {
@@ -106,7 +94,7 @@
 
 .profile-sp-comment > div {
 	padding-left: 8px;
-	color: black;
+	color: ${c.profile.primary_txt};
 }
 
 .profile-sp-commentcontainer {
@@ -122,7 +110,28 @@
 }
 
 .spot-comment-textarea {
-	width: 250px;
+	/*width: 250px;*/
+    width: 100%;
 	height: 65px;
 	margin-bottom: 2px;
+}
+
+.spot-controls {
+	margin-left: 2px;
+}
+
+.spot-controls a {
+	margin-left: 2px;
+}
+
+.profile-right {
+    text-align: right;
+}
+
+.profile-stretch {
+    width: 100%;
+}
+
+.spotlight-timestamp {
+    font-size: 10px;
 }

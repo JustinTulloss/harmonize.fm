@@ -4,10 +4,17 @@ import ecs
 from time import sleep
 from fileprocess.configuration import config
 
+from beaker.cache import Cache
+
 log = logging.getLogger(__name__)
 
+CACHE_EXPIRATION = 60*60*60
+
 class AmazonCovers(BaseAction):
-    covercache = {}
+    covercache = Cache(
+        namespace = 'amazon.covers',
+        expires = CACHE_EXPIRATION
+    )
 
     def process(self, file):
         if not file.has_key(u'asin'):

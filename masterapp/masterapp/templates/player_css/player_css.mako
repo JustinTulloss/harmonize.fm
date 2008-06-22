@@ -31,9 +31,7 @@ body, html {
 }
 
 #blog {
-    margin-top: 5pt;
-    margin-left: 20pt;
-    width: 80%;
+    margin: 10px 20px 10px 20px;
 }
 
 #home {
@@ -61,10 +59,7 @@ body, html {
 }
 
 #home-sidebar-header {
-	border-botton: 1px solid $777;
-	font-size: 16pt;
-	color: ${c.profile.profile_subtitle};
-	border-bottom: solid 1px ${c.profile.profile_border};
+    margin-top: 0px;
 }
 
 #home-bg {
@@ -73,27 +68,19 @@ body, html {
 	padding-left: 8px;
 }
 
-.blogtitle {
-    font-size: 16pt;
-    font-weight: bold;
-    color: ${c.profile.dark_txt};
-}
-
 .blogentry {
-    padding: 10px;
+    padding-bottom: 15px;
 }
 
 .blogbyline{
     margin-left: 10px;
-}
-
-.blogauthor{
-    font-weight: bold;
+    color: ${c.profile.profile_links};
 }
 
 .blogcontent {
     padding-top: 5px;
     margin-left: 10px;
+    width: 80%;
 }
 
 a.bc_link {
@@ -137,7 +124,7 @@ a.bc_link:hover {
 	margin-top: 10px;
 	padding: 10px;
 	background-color: white;
-	border: solid 2px ${c.profile.dark_txt};
+	border: solid 1px ${c.profile.light_form};
 }
 
 #dialog-content {
@@ -148,44 +135,11 @@ a.bc_link:hover {
 	margin-top: 0px;
 	margin-bottom: 10px;
 	text-align: center;
+    color: ${c.profile.dark_txt};
 }
 
 .dialog-warning {
 	color: red;
-}
-
-/*
-#spot_content tr {
-	text-align: center;
-}
-*/
-
-#spot_form textarea, .spot-dlg-value {
-	overflow: auto;
-	height: 72px;
-	width: 230px;
-	margin: 0;
-	margin-left: 4px;
-	border: solid 1px #AAA;
-	text-align: left;
-}
-
-#spot_comment {
-	font-size: 12px;
-	line-height: 12px;
-}
-
-#spot_form {
-	text-align: right;
-	overflow:auto;
-}
-
-#spot_art {
-	float:left;
-}
-
-#spot_controls tr {
-	text-align: right;
 }
 
 table td, table th {
@@ -196,17 +150,11 @@ table {
 	border-spacing: 0;
 }
 
-#spot_cancel {
-	margin-left: 4px;
-}
-
 #news_feed {
-	margin-left: 12px;
+	margin-left: 20px;
 }
 
 #news_feed h1 {
-	color: ${c.profile.profile_subtitle};
-	font-size: 16pt;
 	font-weight: normal;
 	border-bottom: solid 1px ${c.profile.profile_border};
 	margin: 0;
@@ -278,4 +226,24 @@ table {
 .fblogin {
     width: 646px;
     height: 436px;
+}
+
+.grid-actions > img {
+	margin-left: 1px;
+	margin-right: 1px;
+}
+
+.a-button {
+	background-color: ${c.profile.top_bg};
+	color: white;
+	padding: 4px 5px 4px 5px;
+	margin: 0 3px;
+	text-decoration: none;
+	border-right: solid 1px #aaa;
+	border-bottom: solid 1px #aaa;
+}
+
+.a-button:hover {
+	background-color: ${c.profile.oddrow_bg};
+	color: #333;
 }

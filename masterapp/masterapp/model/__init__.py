@@ -1,15 +1,19 @@
+# vim:expandtab:smarttab
 import logging
 from pylons import config
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
-from sqlalchemy.sql import func, select, join, or_
+from sqlalchemy.sql import func, select, join, or_, and_
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
+from pylons import cache
+
 from time import sleep
+from decorator import decorator
 
 log = logging.getLogger(__name__)
 
@@ -47,19 +51,27 @@ class User(object):
     fbid = None
     fbinfo = None
     listeningto = None
-
+    fbcache = None
     def __init__(self, fbid=None):
         self.fbid = fbid
 
-    def fbattr(func):
-        def check_fbinfo(self, *args, **kwargs):
-            if not self.fbinfo:
-                self._get_fbinfo()
-            return func(self, *args, **kwargs)
-        return check_fbinfo
+    @decorator
+    def fbattr (func, self, *args, **kwargs):
+        if not self.fbcache:
+            self._create_cache()
+        if not self.fbcache.has_key(self.fbid):
+            self.fbcache[self.fbid] = self._get_fbinfo()
+        self.fbinfo = self.fbcache.get_value(
+            key = self.fbid,
+            expiretime = 24*60*60*60, # 24 hours
+            createfunc = self._get_fbinfo
+        )
+        return func(self, *args, **kwargs)
+
+    def _create_cache(self):
+        self.fbcache = cache.get_cache('fbprofile')
 
     def _get_fbinfo(self):
-        # Eventually we'll need to select on network, store locally, whatever
         info = None
         while not info:
             try:
@@ -73,10 +85,10 @@ class User(object):
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
-                log.info("Could not connect to facebook, retrying: %s", e)
+                log.warn("Could not connect to facebook, retrying: %s", e)
                 sleep(.1)
-        self.fbinfo = info
-        
+        return info
+
     @fbattr
     def get_name(self):
         return self.fbinfo['name']
@@ -164,8 +176,7 @@ class User(object):
         
     def get_song_query(self):
         query = self._build_song_query()
-        query = query.group_by(Song)
-        return query
+        return query.distinct()
     song_query = property(get_song_query)
     
     def get_song_count(self):
@@ -285,20 +296,12 @@ class Artist(object):
             self.sort = name
 
 class Playlist(object):
-    def __init__(self, name, ownerid, *songs):
+    def __init__(self, name, ownerid):
         """
         Constructs a new playlist.
-
-        *songs should really be a list of PlaylistSong
         """
         self.name = name
         self.ownerid = ownerid
-        Session.save(self)
-        Session.commit()
-
-        for song in songs:
-            song.playlistid = self.id
-            self.songs.append(song)
 
 class PlaylistSong(Song):
     def __init__(self, playlistid, songindex, songid):
@@ -366,7 +369,8 @@ mapper(User, users_table, allow_column_override = True, properties = {
     '_nowplaying': relation(Song,
         primaryjoin=users_table.c.nowplayingid==songs_table.c.id,
         foreign_keys = [users_table.c.nowplayingid]
-    )
+    ),
+    'playlists': relation(Playlist, order_by=playlists_table.c.name)
 })
 
 mapper(File, files_table, properties={
@@ -422,12 +426,26 @@ mapper(Album, albums_table, allow_column_override = True,
 })
 
 
-mapper(PlaylistSong, playlistsongs_table, inherits=Song)
+mapper(PlaylistSong, playlistsongs_table, properties={
+    'song' : relation(Song, backref='playlistsongs')})
 
 mapper(Playlist, playlists_table, properties={
-    'playlistid': playlists_table.c.id,
     'owner': relation(User),
-    'songs': relation(PlaylistSong, backref='playlist')
+    'songs': relation(PlaylistSong, backref='playlist', 
+                        cascade='all, delete-orphan'),
+    'songcount': column_property(
+            select(
+                [func.count(playlistsongs_table.c.id)],
+                playlistsongs_table.c.playlistid == playlists_table.c.id
+            ).label('songcount')
+        ),
+    'length': column_property(
+            select(
+                [func.sum(songs_table.c.length)],
+                and_(playlistsongs_table.c.playlistid == playlists_table.c.id,
+                    songs_table.c.id == playlistsongs_table.c.songid)
+            ).label('length')
+        )
 })
 
 mapper(BlogEntry, blog_table)
