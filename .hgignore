@@ -13,3 +13,4 @@ masterapp/media
 masterapp/tmp
 */dist/*
 */build/*
+uploader/genpuid
