@@ -170,6 +170,10 @@ function show_dialog(content) {
 		var contentDiv = document.getElementById('dialog-content');
 	}
 	contentDiv.innerHTML = content;
+	var focus = Ext.get(contentDiv).child('.dlg-focus');
+	if (focus)
+		focus.focus();
+	
 }
 
 function hide_dialog() {

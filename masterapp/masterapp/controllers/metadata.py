@@ -10,7 +10,7 @@ from masterapp.lib.fbauth import (
     filter_sql_friends,
     filter_any_friend
 )
-from sqlalchemy import sql, or_
+from sqlalchemy import sql, or_, and_
 from masterapp import model
 from masterapp.config.schema import dbfields
 from masterapp.model import (
@@ -225,7 +225,10 @@ class MetadataController(BaseController):
         
         album = Session.query(Album).filter(Album.id == request.params['album_id'])
         if album.first():
-            qry = Session.query(Spotlight).filter(Spotlight.albumid == album[0].id).filter(Spotlight.uid == self._get_user().id).filter(Spotlight.active == 1)
+            qry = Session.query(Spotlight).filter(and_(
+                    Spotlight.albumid == album[0].id,
+                    Spotlight.uid == get_user().id,
+                    Spotlight.active == 1))
             if qry.first():
                 return "True"
             else:

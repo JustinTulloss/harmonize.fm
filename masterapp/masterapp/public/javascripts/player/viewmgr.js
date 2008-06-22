@@ -181,8 +181,9 @@ function ViewManager(crumb, objects)
 
 	var create_playlist_dialog = 
 		'<h1>Create a new Playlist</h1>' +
-		'<center><table><tr><td id="create-playlist-form" class="dlg-form">'+
-		'<input id="playlist-name" maxlength="50" />'+
+		'<center><table><tr>'+
+		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
+		'<input id="playlist-name" maxlength="50" class="dlg-focus" />'+
 		'<br/>playlist name<br/><br/>' +
 		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
