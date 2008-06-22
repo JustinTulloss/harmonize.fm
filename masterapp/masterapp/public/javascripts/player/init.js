@@ -36,7 +36,6 @@ function init()
     viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playlistmgr});
     errmgr = new ErrorManager();
     friend_radio = new FriendRadio();
-    friend_radio_link = Ext.get("friend_radio_link"); 
 
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
@@ -56,7 +55,7 @@ function init()
     playqueue.on('stop', player.stop);
 	playqueue.on('buffersong', player.buffersong);
 	
-	friend_radio_link.on('click', friend_radio.toggle, friend_radio);
+	Ext.get("friend_radio_link").on('click', friend_radio.toggle, friend_radio);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);

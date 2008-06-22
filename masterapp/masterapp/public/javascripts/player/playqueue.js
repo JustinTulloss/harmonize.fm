@@ -16,7 +16,7 @@ function PlayQueue(config) {
         newsong : true,
         playsong: true,
         stop : true,
-		buffersong: true,
+		buffersong: true
     });
 
     my.played = new Array(); /* Just an array of all the played treenodes */
@@ -140,7 +140,7 @@ function SongQueue(label, is_playlist) {
 	var my = this;
 
 	my.addEvents({
-        reordered : true,
+        reordered : true
 	});
 	
     var instructions = '<table class="queue-instructions"><tr><td>'+
@@ -459,7 +459,11 @@ function AlbumQueueNode(config)
     }
 
 	my.peek = function(k) {
-		ensure_loaded(function() { k(my.firstChild.record);});
+		ensure_loaded(function() { 
+			if (!my.firstChild)
+				return;
+			k(my.firstChild.record);
+		});
 	}
 
     function update_text() {
@@ -480,7 +484,7 @@ function AlbumQueueNode(config)
 			if (!loading) {
 				loading = true;
 				songs.load({
-					callback: songs_callback,
+					callback: songs_callback
 				});
 			}
 		}
@@ -633,7 +637,7 @@ function PlaylistQueueNode(config) {
 			if (!loading) {
 				loading = true;
 				songs.load({
-					callback: songs_callback,
+					callback: songs_callback
 				});
 			}
 		}

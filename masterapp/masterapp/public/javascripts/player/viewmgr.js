@@ -90,7 +90,7 @@ function ViewManager(crumb, objects)
         id: 'centerpanel',
         layout: 'card',
         activeItem: 0,
-        items: [browserpanel],
+        items: [browserpanel]
     });
 
     bigshow = new Ext.Viewport({

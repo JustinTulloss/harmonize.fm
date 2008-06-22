@@ -1,6 +1,4 @@
 // vim:noexpandtab
-var check_url; //assigned in init_url_manager
-
 urlm = {}; //urlmanager is a singleton
 
 (function() {
@@ -101,7 +99,7 @@ urlm = {}; //urlmanager is a singleton
 	};
 
 	var url_actions = {};
-	var url_actions_regex = RegExp('^#/action/([^/]*)(/(.*))?');
+	var url_actions_regex = RegExp('#/action/([^/]*)(/(.*))?$');
 	function init_url_actions() {
 		Ext.get(document.body).on('click', function(e, target) {
 			if (target.tagName == 'A') {
