@@ -242,9 +242,3 @@ table {
 #music_menu_link:hover {
     background-position: 0 -11px;
 }
-
-#music_menu_link img {
-    border: none;
-    height: 10px;
-    width: 14px;
-}

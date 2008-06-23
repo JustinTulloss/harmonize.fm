@@ -272,6 +272,34 @@ body .x-menu {
     border-right: 1px solid ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.dark_txt};
 }
+
+.menu_link {
+	position: relative;
+	padding-right: 4px;
+}
+
+.menu_link:hover {
+	color: ${c.profile.click} !important;
+}
+
+#music_menu_link img {
+	height: 5px;
+	width: 9px;
+}
+
+#music_menu_link {
+	pointer: cursor;
+	top: 7px;
+	right: 2px;
+	background: url(/images/menu_arrows.png) no-repeat 0 -15px;
+	display: inline;
+	width: 9px;
+	height: 5px;
+}
+
+#music_menu_link:hover {
+	background-position: 0 -8px;
+}
 /*********************************************
  * this is the end of the css for the music menu
  *********************************************/

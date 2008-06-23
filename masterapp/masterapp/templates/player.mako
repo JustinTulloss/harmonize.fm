@@ -60,10 +60,10 @@
 	<div id="topmenu">
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
-        <span class="h-menu-a">
-            <a href="#/bc/artist">music</a>
-            <span id="music_menu_link"></span>
-        </span>
+		<span class="menu_link">
+			<a href="#/bc/artist">music</a>
+			<div id="music_menu_link"><img src="/images/s.gif" /></div>
+		</span>
 		<a href="#" id="friend_radio_link">radio</a>
 		<a href="#/bc/friend">friends</a>
 		<a href="#" id="feedback-link">feedback</a>

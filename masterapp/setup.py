@@ -16,7 +16,7 @@ setup(
         "Pylons>=0.9.6.2", 
         "sqlalchemy>=0.5beta1",
         "sqlalchemy-migrate>=0.4.4",
-        "python-cjson>=1.0.5"
+        "python-cjson>=1.0.3"
     ],
     packages=find_packages(exclude=[
         'ez_setup', 
