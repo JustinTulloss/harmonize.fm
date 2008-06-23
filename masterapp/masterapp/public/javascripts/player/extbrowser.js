@@ -95,12 +95,14 @@ function Browser()
     var friend_music_menu_link = null;
     var friend_music_menu = null;
 
-    this.browse_friends_music = browse_friends_music;
-    function browse_friends_music(friend) {
+    function browse_friends_music(friend, target) {
         if (friend == null) return;
         
-        friend_music_menu_link = Ext.get('friend_music_menu_link');
-        friend_music_menu = new Ext.menu.Menu();
+        //friend_music_menu_link = Ext.get('friend_music_menu_link');
+        friend_music_menu = new Ext.menu.Menu({
+            width: target.offsetWidth,
+            defaultAlign: 'tr-br'
+        });
         
         friend_music_menu.add(new Ext.menu.Item({
             text: 'artists',
@@ -134,8 +136,10 @@ function Browser()
             activeClass: 'music-menu-item-active',
             iconCls: 'no_icon'    
         }));
-        friend_music_menu.show(friend_music_menu_link);
+        friend_music_menu.show(target);
     }
+
+    urlm.register_action('browse_friend', browse_friends_music);
     
 }
 Ext.extend(Browser, Ext.util.Observable);
