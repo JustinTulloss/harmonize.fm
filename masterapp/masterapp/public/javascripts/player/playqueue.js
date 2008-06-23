@@ -134,7 +134,7 @@ function PlayQueue(config) {
 	my.shuffle = shuffle;
 	function shuffle(e) {
 	    e.preventDefault();
-	    //songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
+	    songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
     }
     
     my.finish_shuffle = finish_shuffle;
@@ -362,22 +362,22 @@ function SongQueue(label, is_playlist) {
     
     my.shuffle = shuffle;
     function shuffle() {
-        alert('starting shuffle');
         var num_songs = my.root.childNodes.length;
         while (num_songs > 1) {
             var rand = Math.floor(Math.random()*num_songs);
             --num_songs;
             swap(rand, num_songs);
         }
-        //my.fireEvent('reordered');
     }
     
     function swap(a,b) {
-        alert(my.root.childNodes[a].text + ' <-> ' + my.root.childNodes[b].text);
-        var atemp = my.root.childNodes[a].remove();
-        my.root.insertBefore(atemp,my.root.item(b));
-        var btemp = my.root.childNodes[b].remove();   
-        my.root.insertBefore(btemp,my.root.item(a));   
+        if (a == b) return;
+        
+        var atemp = my.root.item(a);
+        var btemp = my.root.item(b);
+        
+        my.root.insertBefore(btemp,my.root.item(a-2));
+        my.root.insertBefore(atemp,my.root.item(b-1));
     }
 }
 Ext.extend(SongQueue, Ext.util.Observable);
@@ -405,7 +405,9 @@ function QueueNode(config)
     this.update_text = function () {};
 	this.is_active = function() { return !(this.config.inactive); }
 	
-	this.flatten = function() {};
+	this.flatten = function() {
+        playqueue.finish_shuffle();	
+	};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
 
