@@ -9,6 +9,7 @@
 .playlist-controls {
 	float: left;
 	padding-left: 3px;
+    padding-right: 10px;
 }
 
 .cstatus {
