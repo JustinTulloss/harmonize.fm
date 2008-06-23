@@ -62,7 +62,9 @@
 		<a href="#/people/profile/${c.user.id}">profile</a>
 		<a id="music_link" href="#/bc/artist">
             music
-		    <div id="music_menu_link"><img src="/images/s.gif" /></div>
+		    <span id="music_menu_link">
+                <img id="music_menu_img" src="/images/s.gif" />
+            </span>
         </a>
 		<a href="#" id="friend_radio_link">radio</a>
 		<a href="#/bc/friend">friends</a>

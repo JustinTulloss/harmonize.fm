@@ -232,13 +232,3 @@ table {
 	margin-left: 1px;
 	margin-right: 1px;
 }
-
-#music_menu_link{ 
-    background: url(/images/menu_arrows.png) no-repeat 0 -21px;
-    height: 10px;
-    width: 14px;
-}
-
-#music_menu_link:hover {
-    background-position: 0 -11px;
-}
