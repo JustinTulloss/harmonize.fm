@@ -18,7 +18,6 @@ player_files = IncludeFiles(
         'borders',
         'panel',
         'toolbar',
-        'menu',
         'box',
         'slider'
     ],
@@ -27,6 +26,7 @@ player_files = IncludeFiles(
         'form.css.mako',
         'button.css.mako',
         'combo.css.mako',
+        'menu.mako.css',
         'harmonize.css.mako',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',

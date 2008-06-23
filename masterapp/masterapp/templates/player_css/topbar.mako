@@ -217,7 +217,7 @@
 
 .music-menu-item:hover {
     border: 0 none;
-    background: #d8deeb; /* same as the alternating background grid colors */
+    background: ${c.profile.oddrow_bg};
     outline: none;
 }
 
@@ -265,13 +265,14 @@
     outline: none;
 }
 
+/*
 body .x-menu {
-    /* used to override the default Ext.menu.Menu styling */
     border: 0px;
     background: #FFFFFF;
     border-right: 1px solid ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.dark_txt};
 }
+*/
 
 #music_menu_link:hover #music_menu_img{
 	background-position: 0 -8px;

@@ -86,10 +86,6 @@ function Browser()
             add: true
         });
         this.fireEvent('chgstatus', 'Loading...');
-        crumb.ds.on('loadexception', function(proxy, options,response, e){
-            if (response.status == 401)
-                show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
-        });
     }
     
     var friend_music_menu_link = null;
@@ -98,7 +94,6 @@ function Browser()
     function browse_friends_music(friend, target) {
         if (friend == null) return;
         
-        //friend_music_menu_link = Ext.get('friend_music_menu_link');
         friend_music_menu = new Ext.menu.Menu({
             width: target.offsetWidth,
             defaultAlign: 'tr-br'
