@@ -106,5 +106,18 @@ function enqueue_album(albumid, friendid) {
     });
 }
 
+function enqueue_playlist(playlistid, friendid) {
+	function enqueue_result(response) {
+		var record = untyped_record(response);
+		record.set('Friend_id',  friendid);
+		playqueue.enqueue([record]);
+	}
+	Ext.Ajax.request({
+		url:'/metadata/playlist/'+playlistid,
+		success: enqueue_result,
+        params: {friend: friendid}
+    });
+}
+
 Ext.onReady(init);
 /****End of Initializations ****/
