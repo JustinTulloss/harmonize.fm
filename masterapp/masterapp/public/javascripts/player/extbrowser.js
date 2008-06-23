@@ -184,6 +184,7 @@ function BaseGrid(config)
                 }            
             });
 		},
+        recommendtofriend: friend_recommend,
 		play_record: function(record) {
 							playqueue.insert([record], true);
 		},

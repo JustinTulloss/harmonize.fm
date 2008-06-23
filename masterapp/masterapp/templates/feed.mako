@@ -23,7 +23,7 @@
                 added a Spotlight on ${entry.album.title}</a></h4>
             <table class="spotlight_feed_info"><tr>
                 <!--td><img src="/images/enqueue.png" /></td-->
-                <td><img src="${entry.album.smallart}" /></td>
+                <td>${h.p_image_tag(entry.album.smallart)}</td>
                 <td class="spotlight_feed_comment">
                 ${quote_comment(entry.comment, 175)}
                 </td>

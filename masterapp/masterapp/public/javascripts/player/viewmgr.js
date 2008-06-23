@@ -91,7 +91,7 @@ function ViewManager(crumb, objects)
         id: 'centerpanel',
         layout: 'card',
         activeItem: 0,
-        items: [browserpanel],
+        items: [browserpanel]
     });
 
     bigshow = new Ext.Viewport({
@@ -182,38 +182,16 @@ function ViewManager(crumb, objects)
 
 	var create_playlist_dialog = 
 		'<h1>Create a new Playlist</h1>' +
-		'<center><table><tr><td>'+
-		'<form><input id="playlist-name" maxlength="50" />'+
+		'<center><table><tr>'+
+		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
+		'<input id="playlist-name" maxlength="50" class="dlg-focus" />'+
 		'<br/>playlist name<br/><br/>' +
-		'<button id="create-playlist-button">create</button>' +
-		'<button id="cancel-playlist-button">cancel</button>' +
-		'</form></td></tr></table></center>';
+		'<a class="a-button" href="#/action/playlist/create">create</a>' +
+		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
+		'</td></tr></table></center>';
 	Ext.get('create-playlist').on('click', function(e, el) {
 		e.preventDefault();
 		show_dialog(create_playlist_dialog);
-		var input = Ext.get('playlist-name');
-		Ext.get('cancel-playlist-button').on('click', function(e) {
-			e.preventDefault();
-			hide_dialog();
-		});
-		Ext.get('create-playlist-button').on('click', function(e) {
-			e.preventDefault();
-			Ext.Ajax.request({
-				url: '/playlist/create',
-				params: {name: input.dom.value},
-				success: function(response) {
-							show_status_msg('Playlist created!');
-							playlistmgr.open_playlist(untyped_record(response));
-							hide_dialog();
-							bread_crumb.reload_playlist();
-						},
-				failure: function() {
-							show_status_msg('Error creating playlist!');
-							hide_dialog();
-						}
-			});
-		});
-
 	});
     
     Ext.get('shuffle-playqueue').on('click',playqueue.shuffle);    
