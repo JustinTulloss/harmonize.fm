@@ -356,7 +356,7 @@ function SongQueue(label, is_playlist) {
         for (i = (len - 1); i >=0; --i) {
             if (!my.root.item(i).isLeaf())
                 ++flattened;
-                my.root.item(i).flatten(); //this calls playqueue.finish_shuffle() when all flattens return
+            my.root.item(i).flatten(); //this calls playqueue.finish_shuffle() when all flattens return
         }
     }
     
@@ -577,7 +577,12 @@ function AlbumQueueNode(config)
     my.flatten = flatten;
     function flatten() {
         ensure_loaded(function() {
-            my.queue.insert(songs.getRange(), my);
+            var nodes = my.childNodes;
+            var records = [];
+            for (i = 0; i < nodes.length; i++) {
+                records.push(nodes[i].record);
+            }
+            my.queue.insert(records, my);
 			my.remove();
 			--flattened;
 			playqueue.finish_shuffle();
@@ -719,7 +724,12 @@ function PlaylistQueueNode(config) {
 
     function queue_songs() {
 		if (config.flatten) {
-			my.queue.insert(songs.getRange(), my);
+			var nodes = my.childNodes;
+            var records = [];
+            for (i = 0; i < nodes.length; i++) {
+                records.push(nodes[i].record);
+            }
+            my.queue.insert(records, my);
 			my.remove();
 			if (songs.getRange().length === 0)
 				my.queue.fireEvent('reordered');
