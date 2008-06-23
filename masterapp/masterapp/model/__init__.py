@@ -66,7 +66,18 @@ class User(object):
             expiretime = 24*60*60*60, # 24 hours
             createfunc = self._get_fbinfo
         )
-        return func(self, *args, **kwargs)
+        try:
+            return func(self, *args, **kwargs)
+        except:
+            self.fbcache.remove_value(self.fbid)
+            self.fbcache[self.fbid] = self._get_fbinfo()
+            self.fbinfo = self.fbcache.get_value(
+                key = self.fbid,
+                expiretime = 24*60*60*60, # 24 hours
+                createfunc = self._get_fbinfo
+            )
+            return func(self, *args, **kwargs)
+            
 
     def _create_cache(self):
         self.fbcache = cache.get_cache('fbprofile')
@@ -80,6 +91,7 @@ class User(object):
                     'first_name',
                     'pic',
                     'pic_big',
+                    'pic_square',
                     'music',
                     'sex'
                 ]
@@ -108,6 +120,11 @@ class User(object):
     def get_bigpicture(self):
         return self.fbinfo['pic_big']
     bigpicture = property(get_bigpicture)
+
+    @fbattr
+    def get_swatch(self):
+        return self.fbinfo['pic_square']
+    swatch = property(get_swatch)
 
     @fbattr
     def get_musictastes(self):

@@ -93,8 +93,13 @@
 }
 
 .profile-sp-comment > div {
-	padding-left: 8px;
+    margin-top: 2px;
+}
+
+.profile-sp-comment-text {
+	padding-left: 3px;
 	color: ${c.profile.primary_txt};
+    vertical-align: top;
 }
 
 .profile-sp-commentcontainer {
@@ -107,6 +112,10 @@
 .profile-sp-commentcontainer > a {
 	margin-right: 2px;
     line-height: 13pt;
+}
+
+.profile-sp-comment-pic {
+    padding-left: 8px;
 }
 
 .spot-comment-textarea {
