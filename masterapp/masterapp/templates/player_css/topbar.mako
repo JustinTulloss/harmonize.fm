@@ -277,12 +277,20 @@ body .x-menu {
 	background-position: 0 -8px;
 }
 
+#music_menu_link {
+    padding-right: 3px;
+}
+
 #music_menu_img {
     width: 9px;
     height: 5px;
 	background: url(/images/menu_arrows.png) no-repeat 0 -15px;
     border: none;
     vertical-align: middle;
+}
+
+#music_link {
+    padding-right: 0 !important;
 }
 /*********************************************
  * this is the end of the css for the music menu

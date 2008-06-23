@@ -119,6 +119,7 @@ function ViewManager(crumb, objects)
     var music_menu_link = Ext.get('music_menu_link');
     var music_menu = new Ext.menu.Menu({
         id: 'music_menu',
+        defaultAlign: 'tr-br',
         shadow: 'drop'
     });        
 
