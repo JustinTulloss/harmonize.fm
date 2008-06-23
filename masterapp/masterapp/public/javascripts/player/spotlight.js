@@ -30,7 +30,18 @@ var delete_spot_template = new Ext.Template(
 			'<tr><td>&nbsp;</td></tr>',
 			'<tr><td><button id="spot_delete">delete</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
-		'</table></form>');			
+		'</table></form>');
+		
+var playlist_spot_template = new Ext.Template(
+		'<form id="spot_form">',
+			'<h1 id="spot_form_title">Add Playlist to your Spotlight</h1>',
+			'<center><table id="spot_controls"><tr><td>',
+			'<textarea class="spot-dlg-value" id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
+			'<tr><td></td></tr>',
+			'<tr><td><button id="spot_add">add</button>',
+			'<button id="spot_cancel">cancel</button></center></td></tr>',
+		'</table></form>');
+			
 
 function show_spotlight(record,mode) {
     var spotlight;    
@@ -54,6 +65,8 @@ function show_spotlight(record,mode) {
                     }     
                 );
         
+    } else if (mode == "add_playlist") {
+        spotlight = playlist_spot_template.apply({});
     }
 	show_dialog(spotlight);
 
@@ -80,6 +93,30 @@ function show_spotlight(record,mode) {
 			warning.innerHTML = 'Your comment is too long, please shorten it';
 		}
 	}
+	
+	function add_spotlight_playlist(e) {
+	    e.preventDefault();
+	    var comment = document.getElementById('spot_textarea').value;
+		if (comment.length <= 255) {
+			Ext.Ajax.request({
+				url:'/player/spotlight_playlist/'+record.get('Playlist_id'),
+				success: function(response, options) {
+				    if (response.responseText == "1") {
+							hide_dialog(); 
+							show_status_msg("Spotlight Added!");
+					} else {
+					    hide_dialog();
+					    show_status_msg("Spotlight was NOT added.");
+					}
+				},
+				failure: hide_dialog,
+				params: {comment: comment}});
+		}
+		else {
+			var warning = document.getElementById('spot-error');
+			warning.innerHTML = 'Your comment is too long, please shorten it';
+		}
+    }
 	
 	function edit_spotlight(e) {
 	    e.preventDefault();
@@ -134,6 +171,8 @@ function show_spotlight(record,mode) {
 	    Ext.get('spot_textarea').focus(); //This doesn't work the first time
 	} else if (mode == "delete") {
 	    Ext.get('spot_delete').on('click', prevent_default(do_delete_spotlight));
+	} else if (mode == "add_playlist") {
+	    Ext.get('spot_add').on('click', prevent_default(add_spotlight_playlist));
 	}
 }
 

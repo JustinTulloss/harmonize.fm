@@ -169,12 +169,19 @@ class MetadataController(BaseController):
                 join(Playlist.owner).\
                 filter(Playlist.ownerid == user.id).order_by(Playlist.name)
         return qry.all()
-
+        
     def album(self, id):
         user = get_user()
         album = user.get_album_by_id(id)
         json = build_json([album])
         json['data'][0]['type'] = 'album'
+        return cjson.encode(json)
+        
+    def playlist(self, id):
+        user = get_user()
+        playlist = user.get_playlist_by_id(id)
+        json = build_json([playlist])
+        json['data'][0]['type'] = 'playlist'
         return cjson.encode(json)
 
     @cjsonify
@@ -237,6 +244,23 @@ class MetadataController(BaseController):
             
         else:
             return "False"
+
+    #this returns true or false depending on whether or not the spotlight already exists
+    def find_spotlight_by_playlist(self):
+        if not request.params.has_key('playlist_id'):
+            return "False"
         
-        
-    
+        playlist = Session.query(Playlist).filter(Playlist.id == request.params['playlist_id'])
+        if playlist.first():
+            qry = Session.query(Spotlight).filter(and_(
+                    Spotlight.playlistid == playlist[0].id,
+                    Spotlight.uid == get_user().id,
+                    Spotlight.active == 1))
+            if qry.first():
+                return "True"
+            else:
+                return "False"
+            
+        else:
+            return "False"
+            

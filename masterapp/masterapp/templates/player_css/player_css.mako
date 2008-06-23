@@ -232,3 +232,7 @@ table {
 	margin-left: 1px;
 	margin-right: 1px;
 }
+
+#shuffle-playqueue {
+    margin-left: 15px;
+}
