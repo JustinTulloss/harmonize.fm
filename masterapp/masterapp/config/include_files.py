@@ -43,7 +43,6 @@ player_files = IncludeFiles(
         'lib/ext-2.1/source/widgets/ux/RowExpander.js',
         'lib/soundmanager2.js',
         'lib/helpers.js',
-		'lib/jquery-1.2.6.js',
         'player/errmgr.js',
         'player/viewmgr.js',
         'player/friendrec.js',

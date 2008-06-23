@@ -48,23 +48,19 @@
     cursor:pointer;
 }
 .x-window-tc {
-	background: transparent url(../images/default/window/top-bottom.png) repeat-x 0 0;
 	overflow:hidden;
     zoom:1;
 }
 .x-window-tl {
-	background: transparent url(../images/default/window/left-corners.png) no-repeat 0 0;
 	padding-left:6px;
     zoom:1;
     z-index:1;
     position:relative;
 }
 .x-window-tr {
-	background: transparent url(../images/default/window/right-corners.png) no-repeat right 0;
 	padding-right:6px;
 }
 .x-window-bc {
-	background: transparent url(../images/default/window/top-bottom.png) repeat-x 0 bottom;
     zoom:1;
 }
 .x-window-bc .x-window-footer {
@@ -74,12 +70,10 @@
     line-height:0;
 }
 .x-window-bl {
-	background: transparent url(../images/default/window/left-corners.png) no-repeat 0 bottom;
 	padding-left:6px;
     zoom:1;
 }
 .x-window-br {
-	background: transparent url(../images/default/window/right-corners.png) no-repeat right bottom;
 	padding-right:6px;
     zoom:1;
 }
@@ -92,12 +86,10 @@
 
 
 .x-window-ml {
-	background: transparent url(../images/default/window/left-right.png) repeat-y 0 0;
 	padding-left:6px;
     zoom:1;
 }
 .x-window-mr {
-	background: transparent url(../images/default/window/left-right.png) repeat-y right 0;
 	padding-right:6px;
     zoom:1;
 }
@@ -207,5 +199,5 @@ body.ext-ie6.x-body-masked .x-window select {
 }
 
 body.x-body-masked .x-window-plain .x-window-mc {
-    background: #C7D6E9;
+    background: ${c.profile.queue_bg};
 }

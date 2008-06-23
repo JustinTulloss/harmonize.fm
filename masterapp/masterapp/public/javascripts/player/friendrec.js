@@ -36,6 +36,7 @@ function friend_recommend(record) {
     var entity = record.get(typeinfo[record.get('type')].lblindex);
     var win = new Ext.Window({
         layout: 'fit',
+        resizable: false,
         items: [field],
         buttons: [cancel, button],
         title: 'Recommend "' + entity +'" to a friend'

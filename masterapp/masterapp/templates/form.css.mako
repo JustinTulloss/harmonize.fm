@@ -15,7 +15,7 @@
 /* ---- text fields ---- */
 .x-form-text, textarea.x-form-field{
     padding: 1px 3px;
-    background:#fff url(../images/default/form/text-bg.gif) repeat-x 0 0;
+    /*background:#fff url(../images/default/form/text-bg.gif) repeat-x 0 0;*/
     border: 1px solid #B5B8C8;
 }
 .x-form-text {

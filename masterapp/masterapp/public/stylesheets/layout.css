@@ -102,7 +102,7 @@
 	padding-bottom:3px;
 	border-top:0 none;
     font-weight:normal;
-    background: transparent url(../images/default/panel/light-hd.gif) repeat-x 0 -9px;
+    /*background: transparent url(../images/default/panel/light-hd.gif) repeat-x 0 -9px;*/
 }
 
 .x-layout-collapsed{
