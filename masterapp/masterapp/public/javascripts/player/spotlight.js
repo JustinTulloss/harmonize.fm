@@ -154,32 +154,26 @@ function delete_spotlight(spot_id) {
     });    
 }
 
-//Use a table to shrinkwrap content
-var dialog_template = '<center><table id="dialog-window"><tr><td id="dialog-content"></td></tr></table></center>';
-
-//Takes a string that consists of the dialogs content
+var dialog_window = null;
+//Takes a string that consists of the dialog's content
 function show_dialog(content) {
-	var mainDiv = document.getElementById('dialog-bg');
-	if (mainDiv) 
-		var contentDiv = document.getElementById('dialog-content');
-	else {
-		var mainDiv = document.createElement('div');
-		mainDiv.id = 'dialog-bg';
-		mainDiv.innerHTML = dialog_template;
-		document.getElementById('centerpanel').appendChild(mainDiv);
-		var contentDiv = document.getElementById('dialog-content');
-	}
-	contentDiv.innerHTML = content;
-	var focus = Ext.get(contentDiv).child('.dlg-focus');
-	if (focus)
-		focus.focus();
-	
+    dialog_window = new Ext.Window({
+        layout: 'fit',
+        shadow: true,
+        resizable: false,
+        draggable: false,
+        header: false,
+        cls: 'dialog-content',
+        renderTo: 'centerpanel',
+        modal: true,
+        html: content
+    });
+    dialog_window.show();
 }
 
 function hide_dialog() {
-	var dlg = Ext.get('dialog-bg');
-	if (dlg)
-		dlg.remove();
+    if (dialog_window)
+        dialog_window.destroy();
 	//Not clear this is necessary in any cases now so it won't be the default
 	//urlm.invalidate_page(); 
 }

@@ -80,10 +80,7 @@
 .x-window-mc {
     padding:0;
     margin:0;
-    font: normal 11px tahoma,arial,helvetica,sans-serif;
-    background:#dfe8f6;
 }
-
 
 .x-window-ml {
 	padding-left:6px;

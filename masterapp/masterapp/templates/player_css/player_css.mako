@@ -131,7 +131,7 @@ a.bc_link:hover {
 	text-align: center;
 }
 
-#dialog-content h1, #dialog-content h2 {
+.dialog-content h1, .dialog-content h2 {
 	margin-top: 0px;
 	margin-bottom: 10px;
 	text-align: center;
