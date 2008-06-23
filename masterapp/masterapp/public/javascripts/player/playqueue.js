@@ -405,7 +405,9 @@ function QueueNode(config)
     this.update_text = function () {};
 	this.is_active = function() { return !(this.config.inactive); }
 	
-	this.flatten = function() {};
+	this.flatten = function() {
+        playqueue.finish_shuffle();	
+	};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
 
