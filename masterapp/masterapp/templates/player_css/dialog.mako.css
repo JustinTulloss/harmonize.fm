@@ -67,6 +67,15 @@
 	text-align: right;
 }
 
+.dlg-form {
+	text-align: right;
+}
+
+#create-playlist-form a {
+	margin-right: 0;
+	margin-left: 6px;
+}
+
 .spot-dlg-value {
 	width: 230px;
 	height: 72px;

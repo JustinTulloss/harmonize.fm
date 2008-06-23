@@ -53,7 +53,10 @@ def upload_file(filename, callback):
 				puid_url = '/upload/tags'+'?session_key='+fb.get_session_key()
 				connection.request('POST', puid_url, body, headers)
 
-				response = connection.getresponse().read()
+				responseobj = connection.getresponse()
+				if responseobj.status != 200:
+					raise Exception('Bad status code received from server')
+				response = responseobj.read()
 			else:
 				response = 'upload'
 
@@ -63,8 +66,11 @@ def upload_file(filename, callback):
 				if puid:
 					upload_url = upload_url + '&puid=' + puid
 				if config.current['rate_limit']:
-					response = \
-						rate_limit.post(connection, upload_url, file_contents).read()
+					responseobj = \
+						rate_limit.post(connection, upload_url, file_contents)
+					if responseobj.status != 200:
+						raise Exception('Error status code returned')
+					response = responseobj.read()
 				else:
 					connection.request('POST', upload_url, file_contents, 
 										{'Content-type':'audio/x-mpeg-3'})

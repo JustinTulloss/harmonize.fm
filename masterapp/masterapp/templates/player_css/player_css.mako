@@ -233,22 +233,12 @@ table {
 	margin-right: 1px;
 }
 
-.a-button {
-	background-color: ${c.profile.top_bg};
-	color: white;
-	/*
-	background-color: ${c.profile.oddrow_bg};
-	color: #333;
-	*/
-	padding: 4px 5px 4px 5px;
-	margin-left: 5px;
-	margin-right: 5px;
-	text-decoration: none;
-	border-right: solid 1px #aaa;
-	border-bottom: solid 1px #aaa;
+#music_menu_link{ 
+    background: url(/images/menu_arrows.png) no-repeat 0 -21px;
+    height: 10px;
+    width: 14px;
 }
 
-.a-button:hover {
-	background-color: ${c.profile.oddrow_bg};
-	color: #333;
+#music_menu_link:hover {
+    background-position: 0 -11px;
 }

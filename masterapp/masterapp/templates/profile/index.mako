@@ -33,7 +33,7 @@ ${rightcol.render()}
     <div class="profile-sp">
         % if spotlight.album.smallart:
             <div class="profile-sp-albumart">
-                <img src=${spotlight.album.smallart} />
+                ${h.p_image_tag(spotlight.album.smallart)}
             </div>
         % endif
         <div class="h-title">

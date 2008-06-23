@@ -1,6 +1,6 @@
 /*
- * Ext JS Library 2.0
- * Copyright(c) 2006-2007, Ext JS, LLC.
+ * Ext JS Library 2.1
+ * Copyright(c) 2006-2008, Ext JS, LLC.
  * licensing@extjs.com
  * 
  * http://extjs.com/license
@@ -21,7 +21,7 @@
     border:1px solid #99bbe8;
 }
 
-.ext-ie .x-grid3 table,.ext-safari .x-grid3 table {
+.x-grid3 table {
     table-layout:fixed;
 }
 .x-grid3-viewport{
@@ -142,11 +142,16 @@
 }
 .x-grid3-focus {
 	position:absolute;
+	left:0;
 	top:0;
-	-moz-outline:0 none;
+	width:1px;
+	height:1px;
+    line-height:1px;
+    font-size:1px;
+    -moz-outline:0 none;
     outline:0 none;
     -moz-user-select: normal;
-    -khtml-user-select: normal;
+    -khtml-user-select: normal;  
 }
 
 /* header styles */
@@ -237,7 +242,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 	padding: 3px 5px 3px 5px;
 	-moz-user-select: none;
 	-khtml-user-select: none;
-	color:/*black;*/
+	/*color:black;*/
 }
 .x-grid3-split {
 	background-image: url(/images/grid/grid-split.gif);
@@ -343,7 +348,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 	padding:1px;
 }
 .x-props-grid .x-grid3-td-name .x-grid3-cell-inner{
-	background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y -16px !important;
+	/*background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y -16px !important;*/
     padding-left:12px;
     color:black !important;
 }
@@ -406,7 +411,7 @@ a.x-grid3-hd-btn:hover {
 /* Expanders */
 
 .x-grid3-body .x-grid3-td-expander {
-    background:transparent url(/images/grid3-special-col-bg.gif) repeat-y right;
+    /*background:transparent url(/images/grid3-special-col-bg.gif) repeat-y right;*/
 }
 .x-grid3-body .x-grid3-td-expander .x-grid3-cell-inner {
     padding:0 !important;
@@ -436,7 +441,7 @@ a.x-grid3-hd-btn:hover {
 /* Checkers */
 
 .x-grid3-body .x-grid3-td-checker {
-    background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y right;
+    /*background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y right;*/
 }
 
 .x-grid3-body .x-grid3-td-checker .x-grid3-cell-inner, .x-grid3-header .x-grid3-td-checker .x-grid3-hd-inner {
@@ -468,7 +473,7 @@ a.x-grid3-hd-btn:hover {
 /* Numberer */
 
 .x-grid3-body .x-grid3-td-numberer {
-    background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y right;
+    /*background:transparent url(/images/grid/grid3-special-col-bg.gif) repeat-y right;*/
 }
 .x-grid3-body .x-grid3-td-numberer .x-grid3-cell-inner {
     padding:3px 5px 0 0 !important;
@@ -481,7 +486,7 @@ a.x-grid3-hd-btn:hover {
 .x-grid3-body .x-grid3-row-selected .x-grid3-td-numberer,
 .x-grid3-body .x-grid3-row-selected .x-grid3-td-checker,
 .x-grid3-body .x-grid3-row-selected .x-grid3-td-expander {
-	background:transparent url(/images/grid/grid3-special-col-sel-bg.gif) repeat-y right;
+	/*background:transparent url(/images/grid/grid3-special-col-sel-bg.gif) repeat-y right;*/
 }
 .x-grid3-body .x-grid3-check-col-td .x-grid3-cell-inner {
     padding: 1px 0 0 0 !important;
@@ -540,6 +545,10 @@ a.x-grid3-hd-btn:hover {
 .ext-ie .x-grid3 .x-editor .x-form-text { /* ie  bug */
     position:relative;
     top:-1px;
+}
+.ext-ie .x-props-grid .x-editor .x-form-text {
+    position:static;
+    top:0;
 }
 
 .x-grid-empty {

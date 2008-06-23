@@ -272,6 +272,26 @@ body .x-menu {
     border-right: 1px solid ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.dark_txt};
 }
+
+#music_menu_link img {
+	height: 5px;
+	width: 9px;
+    border: none;
+}
+
+#music_menu_link {
+    vertical-align: middle;
+	top: 7px;
+	right: 2px;
+	background: url(/images/menu_arrows.png) no-repeat 0 -15px;
+	display: inline;
+	width: 9px;
+	height: 5px;
+}
+
+#music_menu_link:hover {
+	background-position: 0 -8px;
+}
 /*********************************************
  * this is the end of the css for the music menu
  *********************************************/

@@ -13,7 +13,4 @@ masterapp/media
 masterapp/tmp
 */dist/*
 */build/*
-
-syntax: glob
-uploader/mipcore
-genpuid
+uploader/genpuid
