@@ -242,3 +242,7 @@ table {
 #music_menu_link:hover {
     background-position: 0 -11px;
 }
+
+#shuffle-playqueue {
+    margin-left: 15px;
+}
