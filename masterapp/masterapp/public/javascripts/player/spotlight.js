@@ -166,6 +166,7 @@ function show_dialog(content) {
         cls: 'dialog-content',
         renderTo: 'centerpanel',
         modal: true,
+        y: 30,
         html: content
     });
     dialog_window.show();
