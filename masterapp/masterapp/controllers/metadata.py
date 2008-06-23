@@ -209,7 +209,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def find_spotlight_by_id(self,user):
+    def find_spotlight_by_id(self,user, **kwargs):
         if request.params.get('id') != '':
             qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
             return qry.all()
