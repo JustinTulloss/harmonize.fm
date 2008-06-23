@@ -1,4 +1,4 @@
-import objc, fb, itunes, thread, upload, os, db
+import objc, fb, itunes, thread, upload, os, db, osx_options
 from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
@@ -6,10 +6,7 @@ from PyObjCTools import NibClassBuilder, AppHelper
 NibClassBuilder.extractClasses('MainMenu')
 
 class RubiconController(NSObject):
-	uploadOptions = objc.ivar('uploadOptions')
-	uploadFolderButton = objc.ivar('uploadFolderButton')
-	uploadITunesButton = objc.ivar('uploadITunesButton')
-	uploadFolderField = objc.ivar('uploadFolderField')
+	optionsWindow = objc.ivar('optionsWindow')
 
 	loginView = objc.ivar('loginView')
 	uploadView = objc.ivar('uploadView')
@@ -24,21 +21,6 @@ class RubiconController(NSObject):
 	def awakeFromNib(self):
 		NSThread.detachNewThreadSelector_toTarget_withObject_(
 				self.dummy_fn, self, None)
-
-		#Set up the default upload location
-		if itunes.get_library_file() == None:
-			self.uploadITunesButton.setEnabled_(False)
-
-		if db.get_upload_src() == 'folder':
-			self.uploadITunesButton.setState_(0)
-			self.uploadFolderButton.setState_(1)
-
-		self.uploadFolderField.setStringValue_(db.get_upload_dir())
-
-		#Set up the file chooser dialog
-		self.folderChooser = NSOpenPanel.openPanel()
-		self.folderChooser.setCanChooseFiles_(False)
-		self.folderChooser.setCanChooseDirectories_(True)
 
 		#Have the loginView display on startup
 		self.mainWindow.setContentView_(self.loginView)
@@ -77,13 +59,6 @@ class RubiconController(NSObject):
 		NSApp().activateIgnoringOtherApps_(True)
 
 	#Controller actions:
-	def changeFolder_(self, sender):
-		res = self.folderChooser.runModalForTypes_(None)
-		
-		if res == NSOKButton and len(self.folderChooser.filenames()) > 0:
-			db.set_upload_dir(self.folderChooser.filenames()[0])
-			self.uploadFolderField.setStringValue_(db.get_upload_dir())
-
 	def login_(self, sender):
 		def callback(session_key):
 			pool = NSAutoreleasePool.alloc().init()
@@ -96,13 +71,8 @@ class RubiconController(NSObject):
 		fb.login(callback)
 
 	def options_(self, sender):
-		self.uploadOptions.makeKeyAndOrderFront_(self)
+		self.optionsWindow.makeKeyAndOrderFront_(self)
 
-	def setUploadFolder_(self, sender):
-		db.set_upload_src('folder')
-	
-	def setUploadITunes_(self, sender):
-		db.set_upload_src('folder')
 
 	#Upload status callbacks
 	def upload_error(self, msg):

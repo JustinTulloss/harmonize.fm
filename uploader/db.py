@@ -22,16 +22,18 @@ def set_upload_src(value):
 	c.execute('update upload_src set src=?', (value,))
 	conn.commit()
 
-def set_upload_dir(value):
+def set_upload_dirs(values):
 	conn = get_conn()
+	data = [(val,) for val in values]
 	c = conn.cursor()
 	c.execute('delete from upload_dirs')
-	c.execute('insert into upload_dirs values (?)', (value,))
+	c.executemany('insert into upload_dirs values (?)', data)
 	conn.commit()
 
-def get_upload_dir():
+def get_upload_dirs():
 	c = get_cursor()
-	return c.execute('select dir from upload_dirs').fetchone()[0]
+	values = c.execute('select dir from upload_dirs').fetchall()
+	return [val[0] for val in values]
 
 def get_tracks():
 	def filter_fn(song):
@@ -41,7 +43,24 @@ def get_tracks():
 		return filter(filter_fn,
 					  ITunes().get_all_track_filenames())
 	elif src == 'folder':
-		return filter(filter_fn, get_music_files(get_upload_dir()))
+		tracks = []
+		for dir in unique_dirs(get_upload_dirs()):
+			tracks.extend(filter(filter_fn, get_music_files(dir)))
+		return tracks
+
+def unique_dirs(dirs):
+	unique_dirs = []
+	dirs.sort()
+	for dir in dirs:
+		child_dir = False
+		for pdir in unique_dirs:
+			if os.path.commonprefix([pdir, dir]) == pdir:
+				child_dir = True
+				break
+		if not child_dir:
+			unique_dirs.append(dir)
+	
+	return unique_dirs
 
 def set_file_uploaded(filename, puid=None, sha=None):
 	conn = get_conn()
