@@ -121,6 +121,7 @@ class MetadataController(BaseController):
         if request.params.get('all') == 'true':
             users = facebook.friends.get()
             data = facebook.users.getInfo(users)
+            data = sorted(data, key=itemgetter('name'))
         else:
             userStore = session['fbfriends']
             data=facebook.users.getInfo(userStore)
@@ -179,7 +180,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def next_radio_song(self,user):
+    def next_radio_song(self,user, **kwargs):
         #todo: replace this with recommendations
         
         userStore = session['fbfriends']

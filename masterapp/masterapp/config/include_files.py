@@ -17,16 +17,16 @@ player_files = IncludeFiles(
         'dd',
         'borders',
         'panel',
-        'window',
         'toolbar',
         'menu',
-        'button',
         'box',
-        'form',
-        'slider',
-        'ext-ux-livegrid'
+        'slider'
     ],
     templated_stylesheets = [
+        'window.css.mako',
+        'form.css.mako',
+        'button.css.mako',
+        'combo.css.mako',
         'harmonize.css.mako',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',
