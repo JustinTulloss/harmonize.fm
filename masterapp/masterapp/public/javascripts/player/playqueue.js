@@ -7,7 +7,8 @@
  *  Updated 04/08/08 (r548b875ae2a9) to support custom Node UIs --JMT
  *  Updated 05/17/08 to remove the now playing and tweak the UI --JMT
  */
-
+var flattened = 0;
+var async_act = 0;
 function PlayQueue(config) {
     var showingprev = false;
     var my = this;
@@ -129,6 +130,20 @@ function PlayQueue(config) {
 	my.panel.on('collapse', function() {
 			return config.oncollapse(my);
 	});
+	
+	my.shuffle = shuffle;
+	function shuffle(e) {
+	    e.preventDefault();
+	    //songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
+    }
+    
+    my.finish_shuffle = finish_shuffle;
+    function finish_shuffle() {
+        //need to see if anything still hasn't been flattened
+        if (flattened != 0) 
+            return;    
+        songQueue.shuffle();
+    }
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
@@ -334,6 +349,36 @@ function SongQueue(label, is_playlist) {
     my.tree.on('movenode', reordered);
 	//my.tree.on('remove', reordered);
     my.tree.on('checkchange', remove);
+    
+    my.flatten = flatten;
+    function flatten() {
+        var len = my.root.childNodes.length;
+        for (i = (len - 1); i >=0; --i) {
+            if (!my.root.item(i).isLeaf())
+                ++flattened;
+                my.root.item(i).flatten(); //this calls playqueue.finish_shuffle() when all flattens return
+        }
+    }
+    
+    my.shuffle = shuffle;
+    function shuffle() {
+        alert('starting shuffle');
+        var num_songs = my.root.childNodes.length;
+        while (num_songs > 1) {
+            var rand = Math.floor(Math.random()*num_songs);
+            --num_songs;
+            swap(rand, num_songs);
+        }
+        //my.fireEvent('reordered');
+    }
+    
+    function swap(a,b) {
+        alert(my.root.childNodes[a].text + ' <-> ' + my.root.childNodes[b].text);
+        var atemp = my.root.childNodes[a].remove();
+        my.root.insertBefore(atemp,my.root.item(b));
+        var btemp = my.root.childNodes[b].remove();   
+        my.root.insertBefore(btemp,my.root.item(a));   
+    }
 }
 Ext.extend(SongQueue, Ext.util.Observable);
 
@@ -359,6 +404,8 @@ function QueueNode(config)
 	this.peek = function(k) {};
     this.update_text = function () {};
 	this.is_active = function() { return !(this.config.inactive); }
+	
+	this.flatten = function() {};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
 
@@ -520,6 +567,16 @@ function AlbumQueueNode(config)
 		ensure_loaded();
 
     this.on('expand', function() {ensure_loaded();});
+    
+    my.flatten = flatten;
+    function flatten() {
+        ensure_loaded(function() {
+            my.queue.insert(songs.getRange(), my);
+			my.remove();
+			--flattened;
+			playqueue.finish_shuffle();
+        });
+    }
 }
 Ext.extend(AlbumQueueNode, QueueNode);
 
@@ -677,6 +734,16 @@ function PlaylistQueueNode(config) {
 		ensure_loaded();
 
     this.on('expand', function() {ensure_loaded();});
+    
+    my.flatten = flatten;
+    function flatten() {
+        ensure_loaded(function(){
+            my.queue.insert(songs.getRange(), my);
+			my.remove();     
+			--flattened;  
+			playqueue.finish_shuffle();
+        });
+    }
 }
 Ext.extend(PlaylistQueueNode, QueueNode);
 

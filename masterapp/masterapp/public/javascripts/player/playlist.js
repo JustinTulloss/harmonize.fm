@@ -55,6 +55,7 @@ function PlaylistMgr() {
 		}
 		else
 			my.panel.doLayout(true);
+	    bread_crumb.reload_playlist();
 	}
 
 	var open_playlists = {};
