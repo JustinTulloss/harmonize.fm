@@ -247,3 +247,4 @@ table {
 	background-color: ${c.profile.oddrow_bg};
 	color: #333;
 }
+
