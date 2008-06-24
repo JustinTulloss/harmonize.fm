@@ -1,124 +1,116 @@
 import os, re, hashlib, httplib, sys, time, urllib
 import os.path as path
 from thread import start_new_thread
-import config, tags, rate_limit, fb, genpuid
-#some imports at end of file
+import config, rate_limit, fb, db
+from db import is_file_uploaded, is_sha_uploaded
+from hfile import HFile
+from httplib import HTTPConnection
+from decorator import decorator
 
-def get_music_files(dir):
-	music_files = []
-	
-	for root, dirs, files in os.walk(dir):
-		for file in files:
-			if is_music_file(file):
-				#trying to catch the special case in Ubuntu where $HOME/Network
-				#maps to every network share. You can still upload that dir if
-				#you select it explicitly, but it won't descend automatically.
-				if not(root == os.getenv('HOME') and file == 'Network' 
-					   and os.name == 'posix'):
-					music_files.append(os.path.join(root, file))
-	
-	return music_files
+class RetryException(Exception):
+	pass
 
-def is_music_file(file):
-	return file.endswith('.mp3') or file.endswith('.m4a')
+class WaitException(Exception):
+	pass
 
-def reauthenticate(callback_obj):
-	callback_obj.error("facebook login expired, please log in again")
-	fb.synchronous_login()
-	callback_obj.error("Login complete, uploading will resume shortly")
+class ReauthenticateException(Exception):
+	pass
 
-def upload_file(filename, callback):
-	try:
-		file_contents = open(filename, 'rb').read()
-		if file_contents == '': return
-		file_sha = hashlib.sha1(file_contents).hexdigest()
-		if db.is_sha_uploaded(file_sha):
-			return
-		puid = genpuid.gen(filename)
-	except IOError, e:
-		if config.current['debug']:
-			sys.stderr.write('Unable to read file %s, skipping.\n' % filename)
-		return
+response_switch = {
+	'retry': RetryException,
+	'wait': WaitException,
+	'reauthenticate': ReauthenticateException
+}
 
-	uploaded = False
-	while not uploaded:
-		try:
-			connection = httplib.HTTPConnection(
-					config.current['server_addr'],
-					config.current['server_port'])
-			if puid:
-				song_tags = tags.get_tags(filename, puid)
-				body = urllib.urlencode(song_tags)
-				headers = {"Content-type": "application/x-www-form-urlencoded"}
-				puid_url = '/upload/tags'+'?session_key='+fb.get_session_key()
-				connection.request('POST', puid_url, body, headers)
+def check_response(response):
+	response_body = response.read()
 
-				responseobj = connection.getresponse()
-				if responseobj.status != 200:
-					raise Exception('Bad status code received from server')
-				response = responseobj.read()
-			else:
-				response = 'upload'
+	if response.status != 200:
+		raise Exception('Server returned status code %s!' % response.status)
+	elif response_switch.has_key(response_body):
+		raise response_switch[response_body]
+	return response_body
 
-			if response == 'upload':
-				upload_url = '/upload/file/'+file_sha + \
-								'?session_key='+fb.get_session_key()
-				if puid:
-					upload_url = upload_url + '&puid=' + puid
-				if config.current['rate_limit']:
-					responseobj = \
-						rate_limit.post(connection, upload_url, file_contents)
-					if responseobj.status != 200:
-						raise Exception('Error status code returned')
-					response = responseobj.read()
-				else:
-					connection.request('POST', upload_url, file_contents, 
-										{'Content-type':'audio/x-mpeg-3'})
-					response = connection.getresponse().read()
-				
-				if response == 'reauthenticate':
-					reauthenticate(callback)
-					#Going to retry request
-				elif response == 'retry':
-					pass #This will just retry
-				elif response =='wait':
-					time.sleep(60)
-				elif response == 'done':
-					db.set_file_uploaded(filename, sha=file_sha)
-					uploaded = True
-				else:
-					raise Exception('Unknown response from server received')
-			elif response == 'reauthenticate':
-				reauthenticate(callback)
-			elif response == 'wait':
-				time.sleep(60)
-			elif response == 'done':
-				db.set_file_uploaded(filename, puid, file_sha)
-				uploaded = True 
-			else:
-				raise Exception('Unknown response from server received')
-		except Exception, e:
+def upload_files(song_list, callback):
+	def reauthenticate():
+		callback.error("facebook login expired, please log in again")
+		fb.synchronous_login()
+		callback.error("Login complete, uploading will resume shortly")
+
+	def retry_fn(fn):
+		def default_action():
 			if config.current['debug']:
 				import pdb; pdb.set_trace()
 			callback.error('Error connecting to server, \nWill try again')
-			time.sleep(20) #This is a little safer than inside the exception
 
-def upload_files(song_list, callback):
-	songs_left = len(song_list)	
-	callback.init('%s songs remaining' % songs_left, songs_left)
-
-	#Initialize rate limiting algorithm
+		def wrapper(*args, **kws):
+			while True:
+				try:
+					return fn(*args, **kws)
+				except WaitException, e:
+					default_action()
+					time.sleep(120)
+				except RetryException, e:
+					default_action()
+				except ReauthenticateException, e:
+					reauthenticate()
+				except Exception, e:
+					default_action()
+					time.sleep(20)
+		return wrapper
+	
+	@retry_fn
 	def start_rate_limit():
 		rate_limit.establish_baseline(config.current['server_addr'],
-									  config.current['server_port'])
-	retry_fn(start_rate_limit, callback)
-
-	def reset_rate_limit():
-		rate_limit.reestablish_baseline(config.current['server_addr'],
 										config.current['server_port'])
 
+	@retry_fn
+	def is_puid_uploaded(hfile):
+		conn = get_conn()
+		body = urllib.urlencode(hfile.tags)
+		headers = {'Content-type': 'application/x-www-form-urlencoded'}
+		url = get_url('/upload/tags')
+		conn.request('POST', url, body, headers)
+		response =  check_response(conn.getresponse())
+		if response == 'done':
+			return True
+		else: return False
+
+	@retry_fn
+	def upload_file(hfile):
+		url = get_url('/upload/file/' + hfile.sha)
+		conn = get_conn()
+		if hfile.puid:
+			url += '&puid=' + hfile.puid
+		if config.current['rate_limit']:
+			response = rate_limit.post(conn, url, hfile.contents)
+		else:
+			conn.request('POST', url, hfile.contents, 
+							{'Content-Type':'audio/x-mpeg-3'})
+			response = conn.getresponse()
+		check_response(response)
+
+	upload_list = [] #a list of hfiles
 	for song in song_list:
-		upload_file(song, callback)
+		hfile = HFile(song)
+		try:
+			if not hfile.contents: continue
+		except IOError:
+			#Todo: add error indicator to uploader
+			continue
+
+		if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
+			continue
+		elif hfile.puid:
+			if not is_puid_uploaded(hfile):
+				upload_list.append(hfile)
+		else:
+			upload_list.append(hfile)
+
+	songs_left = len(upload_list)
+	callback.init('%s songs remaining' % songs_left, songs_left)
+	for hfile in upload_list:
+		upload_file(hfile)
 		songs_left -= 1
 		callback.update('%s songs remaining' % songs_left, songs_left)
 
@@ -128,17 +120,12 @@ def upload_files(song_list, callback):
 	
 	callback.update('Upload complete!', 0)
 
-def retry_fn(fn, callback):
-	success = False
-	while not success:
-		try:
-			res = fn()
-			success = True
-		except Exception, e:
-			if config.current['debug']:
-				import pdb; pdb.set_trace()
-			callback.error('Error connecting to server, \nWill try again')
-			time.sleep(20)
-	return res
+def get_conn():
+	return HTTPConnection(
+			config.current['server_addr'], config.current['server_port'])
 
-import db
+def get_url(base_url):
+	if '?' not in base_url:
+		return base_url + '?session_key=' + fb.get_session_key()
+	else:
+		return base_url + '&session_key=' + fb.get_session_key()

@@ -3,6 +3,24 @@ from itunes import get_library_file, ITunes
 from hplatform import get_db_path, get_default_path
 #some imports at end of program
 
+def get_music_files(dir):
+	music_files = []
+	
+	for root, dirs, files in os.walk(dir):
+		for file in files:
+			if is_music_file(file):
+				#trying to catch the special case in Ubuntu where $HOME/Network
+				#maps to every network share. You can still upload that dir if
+				#you select it explicitly, but it won't descend automatically.
+				if not(root == os.getenv('HOME') and file == 'Network' 
+					   and os.name == 'posix'):
+					music_files.append(os.path.join(root, file))
+	
+	return music_files
+
+def is_music_file(file):
+	return file.endswith('.mp3') or file.endswith('.m4a')
+
 def get_conn():
 	global db_dir
 	return sqlite3.connect(db_dir)
@@ -99,8 +117,6 @@ def init_db():
 		c.execute('insert into upload_src values (?)', ('folder',))
 	
 	conn.commit()
-
-from upload import is_music_file, get_music_files
 
 db_dir = get_db_path()
 

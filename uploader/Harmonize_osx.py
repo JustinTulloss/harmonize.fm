@@ -30,7 +30,7 @@ class RubiconController(NSObject):
 		pass
 
 	def loginCallbackSync(self):
-		self.uploadOptions.close()
+		self.optionsWindow.close()
 
 		target = self
 		class Receiver(object):
