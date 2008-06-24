@@ -223,7 +223,17 @@ class MetadataController(BaseController):
         else:
             return "False"
         
-
+    @cjsonify
+    @d_build_json
+    @pass_user
+    def find_playlist_spotlight_by_id(self, user, **kwargs):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.playlist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id).limit(1)
+            return qry.all()
+        else:
+            return "False"    
+        
+    
     # right now this only returns true or false
     # depending on whether or not a spotlight exists
     # for the album    

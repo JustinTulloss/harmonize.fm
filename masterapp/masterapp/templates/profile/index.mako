@@ -94,10 +94,10 @@ ${rightcol.render()}
         <div class="profile-sp-artist">
             by ${spotlight.user.name} <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
-                <!--<span class="spot-controls">
-                    <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>
-                </span>-->
+                <span class="spot-controls">
+                    <a id="${spotlight.id}" class="edit-playlist-spotlight" href="${c.current_url}">edit</a>
+                    <!--<a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>-->
+                </span>
             % endif
         </div>
         <div class="profile-sp-review">${spotlight.comment}</div>
