@@ -51,7 +51,20 @@ var edit_playlist_spot_template = new Ext.Template(
 			'<tr><td></td></tr>',
 			'<tr><td><button id="spot_change">change</button>',
 			'<button id="spot_cancel">cancel</button></center></td></tr>',
-		'</table></form>');		
+		'</table></form>');	
+		
+		
+var delete_playlist_spot_template = new Ext.Template(
+		'<form id="spot_form">',
+			'<h1 id="spot_form_title">Delete Spotlight</h1>',
+			'<h2>{playlist_name}</h2>',
+			'<center><table id="spot_controls"><tr><td>',
+			'<div class="spot-dlg-value">{current_comment}</div></tr></td>',
+			'<tr><td>Are you sure?</td></tr>',
+			'<tr><td>&nbsp;</td></tr>',
+			'<tr><td><button id="spot_delete">delete</button>',
+			'<button id="spot_cancel">cancel</button></center></td></tr>',
+		'</table></form>');
 			
 
 function show_spotlight(record,mode) {
@@ -79,6 +92,10 @@ function show_spotlight(record,mode) {
         spotlight = edit_playlist_spot_template.apply({ 
                 playlist_name: record.get('Playlist_name'),
                 current_comment: record.get('Spotlight_comment')});
+    } else if (mode == "delete_playlist") {
+        spotlight = delete_playlist_spot_template.apply({
+            playlist_name: record.get('Playlist_name'),
+            current_comment: record.get('Spotlight_comment')});
     }
 	show_dialog(spotlight);
 
@@ -189,24 +206,32 @@ function show_spotlight(record,mode) {
 	    Ext.get('spot_add').on('click', prevent_default(add_spotlight_playlist));
 	} else if (mode == "edit_playlist") {
 	    Ext.get('spot_change').on('click', prevent_default(edit_spotlight))
-	}
+	} else if (mode == "delete_playlist") {
+	    Ext.get('spot_delete').on('click', prevent_default(do_delete_spotlight));
+    }
 }
 
-function delete_spotlight(spot_id) {
-    Ext.Ajax.request({
-        url: 'metadata/find_playlist_spotlight_by_id/',
-        params: {id: spot_id},
-        success: 
-            function(response, options) {
-                if (response.responseText != "False") {
-                    record = untyped_record(response);
-                    record['id'] = spot_id;
-                    show_spotlight(record, "delete");
-                } else show_status_msg("error parsing spotlight information");
-            },        
-        
-        failure: function() {show_status_msg('error retrieving spotlight information');}
-    });    
+function delete_spotlight(spot_id,type) {
+    if (type) {
+        Ext.Ajax.request({
+            url: 'metadata/find_playlist_spotlight_by_id/',
+            params: {id: spot_id},
+            success: 
+                function(response, options) {
+                    if (response.responseText != "False") {
+                        record = untyped_record(response);
+                        record['id'] = spot_id;
+                        if (type == "album") {
+                            show_spotlight(record, "delete");
+                        } else if (type == "playlist") {
+                            show_spotlight(record, "delete_playlist");
+                        }
+                    } else show_status_msg("error parsing spotlight information");
+                },        
+            
+            failure: function() {show_status_msg('error retrieving spotlight information');}
+        });    
+    }
 }
 
 var dialog_window = null;

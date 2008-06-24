@@ -52,7 +52,7 @@ ${rightcol.render()}
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id},'album'); return false;">delete</a>
                 </span>
             % endif
         </div>
@@ -96,7 +96,7 @@ ${rightcol.render()}
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-playlist-spotlight" href="${c.current_url}">edit</a>
-                    <!--<a href="#" onclick="delete_spotlight(${spotlight.id}); return false;">delete</a>-->
+                    <a href="#" onclick="delete_spotlight(${spotlight.id},'playlist'); return false;">delete</a>
                 </span>
             % endif
         </div>
