@@ -10,7 +10,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
-from pylons import cache
+from pylons import cache, request
 
 from time import sleep
 from decorator import decorator
@@ -165,6 +165,10 @@ class User(object):
         Session.add(stats)
     nowplaying = property(get_nowplaying, set_nowplaying)
 
+    def get_url(self):
+        return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
+    url = property(get_url)
+
     def get_from_fbid(fbid, create=False):
         """
         Fetches a user by facebook id. Set create to true to create it if it
@@ -282,6 +286,7 @@ class User(object):
         return Session.query(Spotlight).filter(sql.and_(\
                 Spotlight.uid==self.id, Spotlight.active==True)).\
                 order_by(sql.desc(Spotlight.timestamp))
+    active_spotlights = property(get_active_spotlights)
         
     def get_playlist_by_id(self, id):
         qry = self.playlist_query

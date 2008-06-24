@@ -1,6 +1,7 @@
 # vim:expandtab:smarttab
 import logging
 import time
+import os
 
 import S3
 import masterapp.controllers.metadata
@@ -121,6 +122,7 @@ class PlayerController(BaseController):
         user.nowplaying = song
         Session.add(user)
         Session.commit()
+        self.update_fbml()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
         config['S3.accesskey'], config['S3.secret'],
@@ -154,18 +156,6 @@ class PlayerController(BaseController):
     def album_details(self):
         c.album = Session.query(Album).get(request.params.get('album'))
         return render('/album_details.mako')
-
-    def recommend_to_fbfriend(self, id):
-        """
-        Recommends music to a friend based on their facebook id
-        """
-        # Set up the correct informatio to pass to the notification template
-        c.recommender = session['user'].fbid
-        c.recommendee = id
-        c.recommended = request.params.get('recommended')
-        c.playlink = request.params.get('playlink')
-        notification = render('/fbprofile/recnotif.mako')
-        facebook.notifications.send([id], notification)
 
     def username(self):
         return get_user_info()['name']
@@ -217,6 +207,8 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, albumid, comment)
         Session.save(spotlight)
         Session.commit()
+
+        self.update_fbml()
         
         return '1'
 
@@ -272,3 +264,15 @@ class PlayerController(BaseController):
         Session.commit()
         
         return '1'
+
+    def update_fbml(self):
+        c.user = Session.query(User).get(session['userid'])
+        """
+        path = 'stylesheets/fbprofile.css'
+        modified = os.stat(
+            os.path.join(config['pylons.paths']['static_files'], path)
+        )[os.path.stat.ST_MTIME]
+        c.stylesheet = 'http://%s/%s?v=%d' % (request.host, path, modified)
+        """
+        fbml = render('facebook/profile.mako.fbml')
+        facebook.profile.setFBML(fbml)
