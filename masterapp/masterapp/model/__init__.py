@@ -93,7 +93,8 @@ class User(object):
                     'pic_big',
                     'pic_square',
                     'music',
-                    'sex'
+                    'sex',
+                    'has_added_app'
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
@@ -135,6 +136,11 @@ class User(object):
     def get_sex(self):
         return self.fbinfo['sex']
     sex = property(get_sex)
+
+    @fbattr
+    def get_hasfbapp(self):
+        return self.fbinfo['has_added_app']
+    hasfbapp = property(get_hasfbapp)
 
     def are_friends(self, user):
         return user in self.friends

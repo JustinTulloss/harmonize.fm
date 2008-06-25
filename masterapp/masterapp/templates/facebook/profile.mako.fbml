@@ -34,8 +34,8 @@ clear:right">
 
 
 <%def name="build_spotlight(light)" >
+    <li style="margin-bottom:5px;">
     % if light.album:
-        <li style="margin-bottom:5px;">
             % if light.album.swatch:
                 <img src="${light.album.swatch}" 
                 style="border:none;vertical-align:middle;"/>
@@ -44,6 +44,10 @@ clear:right">
             title="${light.album.title} by ${light.album.artist.name}">
                 ${light.album.title}
             </a>
-        </li>
+    % elif light.playlist:
+        <a href="${c.user.url}">
+            ${light.playlist.name}
+        </a>
     % endif
+    </li>
 </%def>

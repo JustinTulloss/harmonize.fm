@@ -222,6 +222,8 @@ class PlayerController(BaseController):
         c.main = True
         c.user = Session.query(User).get(session['userid'])
         c.num_songs = c.user.song_count
+        c.fbapp_href = "http://www.facebook.com/apps/application.php?id=%s" % \
+            config['pyfacebook.appid']
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:
@@ -246,6 +248,7 @@ class PlayerController(BaseController):
         if (spot):
             Session.delete(spot)
             Session.commit()
+            self.update_fbml()
             return "True"
         else:
             return "False"
@@ -262,6 +265,8 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, None, comment, True, playlistid)
         Session.save(spotlight)
         Session.commit()
+
+        self.update_fbml()
         
         return '1'
 
