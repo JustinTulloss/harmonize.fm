@@ -12,6 +12,9 @@ var async_act = 0;
 function PlayQueue(config) {
     var showingprev = false;
     var my = this;
+    
+    var is_queue_active = true;
+    my.is_queue_active = is_queue_active;
 
     my.addEvents({
         newsong : true,
@@ -124,16 +127,19 @@ function PlayQueue(config) {
     }
 
 	my.panel.on('beforeexpand', function() {
+	        my.is_queue_active = true;
 			return config.beforeexpand(my);
 	});
 
 	my.panel.on('collapse', function() {
+	        my.is_queue_active = false;
 			return config.oncollapse(my);
 	});
 	
 	my.shuffle = shuffle;
 	function shuffle(e) {
 	    e.preventDefault();
+	    if (my.is_queue_active == false) return;
 	    songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
     }
     
