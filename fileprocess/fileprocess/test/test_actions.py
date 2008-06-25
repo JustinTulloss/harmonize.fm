@@ -390,7 +390,7 @@ class TestDBActions(TestBase):
         self.fdata['dbrec']['fbid'] = 1908861 
         self._create_user('dbrec')
         nf = r.process(self.fdata['dbrec'])
-        assert nf['dbownerid'] and nf['dbsongid']
+        assert nf != False
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song insertion")
         nf.pop('dbownerid')

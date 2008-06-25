@@ -33,7 +33,6 @@ class DBRecorder(DBChecker):
                 self.cleanup(file)
                 return False
             
-            raise RuntimeError()
             song = self.create_song(file)
             if file.has_key('puid'):
                 if file['puid']:
