@@ -294,9 +294,11 @@ class Owner(object):
         self.user = user
 
 class File(object):
-    def __init__(self, sha=None, songid=None):
+    def __init__(self, sha=None, song=None, bitrate=None, size=None):
         self.sha = sha
-        self.songid = songid
+        self.bitrate = bitrate
+        self.size = size
+        self.song = song
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 

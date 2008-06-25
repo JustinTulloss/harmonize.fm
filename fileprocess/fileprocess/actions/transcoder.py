@@ -48,7 +48,7 @@ class Transcoder(BaseAction):
             new_fname = path.join(config['media_dir'], guid.generate())
 
             res = os.system(
-               'nice -n +17 faad -q -o - %s | nice -n +17 lame --quiet -b 128 - %s' %
+               'nice -n +17 faad -q -o - %s 2>/dev/null | nice -n +17 lame --quiet -b 128 - %s' %
                                 (file['fname'], new_fname))
             if res != 0:
                 log.info('Error transcoding mp4 file')

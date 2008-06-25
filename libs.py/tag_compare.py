@@ -29,7 +29,7 @@ from musicbrainz2.webservice import Release
 
 log = logging.getLogger(__name__)
 
-TRACK_THRESHOLD = .70
+TRACK_THRESHOLD = .85
 def compare_to_release(file, release):
     """
     Compare cluster metadata to a MusicBrainz release.

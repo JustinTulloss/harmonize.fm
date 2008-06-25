@@ -33,6 +33,12 @@ class S3Uploader(BaseAction):
             config['S3.secret']
         )
 
+        # Check to see if this file already exists
+        exists = conn.list_bucket(config['S3.music_bucket'],
+            {'prefix': file['sha']}).entries
+        if exists:
+            return file
+
         def upload_file():
             try:
                 fo = open(file['fname'],'rb')

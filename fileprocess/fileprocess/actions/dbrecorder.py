@@ -2,14 +2,14 @@ import logging
 import os
 from mock import Mock
 from ..processingthread import na
-from baseaction import BaseAction
+from dbchecker import DBChecker
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
 from fileprocess.configuration import config
 
 log = logging.getLogger(__name__)
 
-class DBRecorder(BaseAction):
+class DBRecorder(DBChecker):
     """
     This action takes a dictionary of music data and inserts it into the database
 
@@ -20,75 +20,58 @@ class DBRecorder(BaseAction):
     correct metadata in place.
     """
 
-    def __init__(self, *arg, **kwargs):
-        super(DBRecorder, self).__init__(*arg, **kwargs)
-        pconfig['pylons.g'] = Mock()
-        pconfig['pylons.g'].sa_engine = engine_from_config(config,
-            prefix = 'sqlalchemy.default.'
-        )
-        from masterapp import model
-        self.model = model
-
-
     def process(self, file):
         assert file.has_key('dbuserid')
 
-        self.model.Session()
-        user = self.model.Session.query(self.model.User).get(file['dbuserid'])
-        
-        song = None
-        puid = None
-        if file.has_key('mbtrackid'):
-            #Insert a new song if it does not exist
-            qry = self.model.Session.query(self.model.Song).filter(
-                self.model.Song.mbid==file["mbtrackid"]
-            )
-            song = qry.first()
-        elif file.has_key('puid'):
-            if file['puid']:
-                # If it has a puid but isn't in MB, assume that anything we get is
-                # the same song since it's not reasonable to assume that an unknown
-                # song is on multiple releases
-                puid = self.model.Session.query(self.model.Puid).filter(
-                    self.model.Puid.puid == file['puid']
-                ).first()
-                if puid:
-                    song = puid.song
-
-        if not song:
-            song = self.create_song(file)
-
-        if not puid and file.has_key('puid'):
-            if file['puid']:
-                puid = self.model.Puid()
-                puid.song = song
-                puid.puid = file['puid']
-
-        dbfile = None
-        if file.has_key('sha'):
-            # Create a new file associated with the song we found or created
-            dbfile = self.model.File()
-            dbfile.sha = file['sha']
-            dbfile.bitrate = file.get('bitrate')
-            dbfile.size = file.get('size')
-            dbfile.song = song
-            log.debug("New file %s added to files", file['sha'])
-
-            if dbfile.bitrate > song.bitrate and dbfile.bitrate < 256000:
-                # Found a higher quality song
-                song.sha = file.get('sha')
-                song.bitrate = file.get('bitrate')
-                song.size = file.get('size')
-            
-            # Mark the owner of this fine file
-            fowner = self.model.Owner(file=dbfile, user=user)
-            self.model.Session.add_all([dbfile, fowner])
-
-        # add the file to this user's library
-        owner = self.model.SongOwner(user = user, song = song)
-        log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
-
         try:
+            self.model.Session()
+            user = self.model.Session.query(self.model.User).get(file['dbuserid'])
+
+            # This checks based on the raw tags. If they match, it does everything i
+            # need and returns False. If they don't match, i need to create the song
+            if not self._check(file, user):
+                self.cleanup(file)
+                return False
+            
+            raise RuntimeError()
+            song = self.create_song(file)
+            if file.has_key('puid'):
+                if file['puid']:
+                    puid = self.model.Session.query(self.model.Puid).filter(
+                        self.model.Puid.puid == file['puid']
+                    ).first()
+                    if file.get('puid'):
+                        puid = self.model.Puid()
+                        puid.song = song
+                        puid.puid = file['puid']
+
+
+            dbfile = None
+            if file.has_key('sha'):
+                # Create a new file associated with the song we found or created
+                dbfile = self.model.File(
+                    sha = file['sha'],
+                    bitrate = file.get('bitrate'),
+                    size = file.get('size'),
+                    song = song
+                )
+                log.debug("New file %s added to files", file['sha'])
+
+                if dbfile.bitrate > song.bitrate and \
+                        dbfile.bitrate < config['maxkbps']:
+                    # Found a higher quality song
+                    song.sha = file.get('sha')
+                    song.bitrate = file.get('bitrate')
+                    song.size = file.get('size')
+                
+                # Mark the owner of this fine file
+                fowner = self.model.Owner(file=dbfile, user=user)
+                self.model.Session.add_all([dbfile, fowner])
+
+            # add the file to this user's library
+            owner = self.model.SongOwner(user = user, song = song)
+            log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
+
             self.model.Session.add_all([song, owner])
             self.model.Session.commit() # Woot! Write baby, write!
 
@@ -125,22 +108,7 @@ class DBRecorder(BaseAction):
 
         artist = None
         album = None
-        """
-        MBIDs just create a world of trouble, go by names
-        if file.has_key('mbartistid') and file.has_key('mbalbumid'):
-            # Insert a new artist if it does not exist
-            qry = self.model.Session.query(self.model.Artist).filter(
-                self.model.Artist.mbid == file['mbartistid']
-            )
-            artist = qry.first()
-
-            # Insert a new album if it does not exist
-            qry = self.model.Session.query(self.model.Album).filter(
-                self.model.Album.mbid == file['mbalbumid']
-            )
-            album = qry.first()
-        """
-        # Without MBids, we just kind of guess with tags
+        # Guess if we have seen this before based on tags
         qry = self.model.Session.query(self.model.Artist).\
             filter(self.model.Artist.name == file['artist'])
         artist = qry.first()
