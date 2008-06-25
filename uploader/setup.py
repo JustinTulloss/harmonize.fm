@@ -14,7 +14,7 @@ if sys.platform == 'darwin':
 		name='Harmonize',
 		setup_requires=['py2app'],		
 		app=['Harmonize_osx.py'],
-		scripts=r_scripts + ['osx_options.py'],
+		scripts=r_scripts + ['osx_options.py', 'osx_upload.py'],
 		data_files=['MainMenu.nib', 
 					'genpuid/genpuid', 'genpuid/AACTagReader',
 					'genpuid/mipcore']
