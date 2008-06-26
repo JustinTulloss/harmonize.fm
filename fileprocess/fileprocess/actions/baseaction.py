@@ -32,6 +32,8 @@ class BaseAction(object):
 
             if nextfile and self.nextaction:
                 self.nextaction.put(nextfile)
+            else:
+                self.cleanup(nf)
     
     def stop(self):
         self._running = 0

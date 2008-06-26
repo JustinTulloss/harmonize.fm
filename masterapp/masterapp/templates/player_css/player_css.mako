@@ -131,7 +131,7 @@ a.bc_link:hover {
 	text-align: center;
 }
 
-#dialog-content h1, #dialog-content h2 {
+.dialog-content h1, .dialog-content h2 {
 	margin-top: 0px;
 	margin-bottom: 10px;
 	text-align: center;
@@ -233,17 +233,6 @@ table {
 	margin-right: 1px;
 }
 
-.a-button {
-	background-color: ${c.profile.top_bg};
-	color: white;
-	padding: 4px 5px 4px 5px;
-	margin: 0 3px;
-	text-decoration: none;
-	border-right: solid 1px #aaa;
-	border-bottom: solid 1px #aaa;
-}
-
-.a-button:hover {
-	background-color: ${c.profile.oddrow_bg};
-	color: #333;
+#shuffle-playqueue {
+    margin-left: 15px;
 }

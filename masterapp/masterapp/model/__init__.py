@@ -63,10 +63,21 @@ class User(object):
             self.fbcache[self.fbid] = self._get_fbinfo()
         self.fbinfo = self.fbcache.get_value(
             key = self.fbid,
-            expiretime = 24*60*60*60, # 24 hours
+            expiretime = 24*60*60, # 24 hours
             createfunc = self._get_fbinfo
         )
-        return func(self, *args, **kwargs)
+        try:
+            return func(self, *args, **kwargs)
+        except:
+            self.fbcache.remove_value(self.fbid)
+            self.fbcache[self.fbid] = self._get_fbinfo()
+            self.fbinfo = self.fbcache.get_value(
+                key = self.fbid,
+                expiretime = 24*60*60*60, # 24 hours
+                createfunc = self._get_fbinfo
+            )
+            return func(self, *args, **kwargs)
+            
 
     def _create_cache(self):
         self.fbcache = cache.get_cache('fbprofile')
@@ -80,6 +91,7 @@ class User(object):
                     'first_name',
                     'pic',
                     'pic_big',
+                    'pic_square',
                     'music',
                     'sex'
                 ]
@@ -108,6 +120,11 @@ class User(object):
     def get_bigpicture(self):
         return self.fbinfo['pic_big']
     bigpicture = property(get_bigpicture)
+
+    @fbattr
+    def get_swatch(self):
+        return self.fbinfo['pic_square']
+    swatch = property(get_swatch)
 
     @fbattr
     def get_musictastes(self):
@@ -205,6 +222,27 @@ class User(object):
         query = query.group_by(Album)
         return query
     album_query = property(get_album_query)
+    
+    def get_playlist_query(self):
+        from masterapp.config.schema import dbfields
+
+        # Number of songs available on this album subquery
+        havesongs = Session.query(Playlist.id.label('playlistid'),
+            func.count(Song.id).label('Playlist_havesongs'),
+            func.sum(Song.length).label('Playlist_length')
+        )
+        havesongs = havesongs.group_by(Playlist.id).subquery()
+
+        query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Playlist_havesongs,
+            havesongs.c.Playlist_length,
+            *dbfields['playlist'])
+        joined = join(Playlist, havesongs, Playlist.id == havesongs.c.playlistid)
+        query = query.select_from(joined)
+        # the following line is throwing all sorts of fits, not sure why
+        # query = query.join(Song.artist).reset_joinpoint()
+        query = query.group_by(Playlist)
+        return query
+    playlist_query = property(get_playlist_query)
 
     def get_artist_query(self):
         from masterapp.config.schema import dbfields
@@ -245,7 +283,10 @@ class User(object):
                 Spotlight.uid==self.id, Spotlight.active==True)).\
                 order_by(sql.desc(Spotlight.timestamp))
         
-            
+    def get_playlist_by_id(self, id):
+        qry = self.playlist_query
+        qry = qry.filter(Playlist.id == id)
+        return qry.first()            
 
 class Owner(object):
     def __init__(self, user=None, file=None):
@@ -253,9 +294,11 @@ class Owner(object):
         self.user = user
 
 class File(object):
-    def __init__(self, sha=None, songid=None):
+    def __init__(self, sha=None, song=None, bitrate=None, size=None):
         self.sha = sha
-        self.songid = songid
+        self.bitrate = bitrate
+        self.size = size
+        self.song = song
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
@@ -317,12 +360,13 @@ class BlogEntry(object):
         self.timestamp = datetime.now()
 
 class Spotlight(object):
-    def __init__(self, uid, albumid, comment=None, active=True):
+    def __init__(self, uid, albumid, comment=None, active=True, playlistid=None):
         self.uid = uid
         self.albumid = albumid
         self.comment = comment[:255]
         self.timestamp = datetime.now()
         self.active = active
+        self.playlistid = playlistid
         if active:
             self._unactivate_lru()
 
@@ -452,7 +496,8 @@ mapper(BlogEntry, blog_table)
 
 mapper(Spotlight, spotlights_table, properties={
     'album': relation(Album, lazy=False),
-    'user' : relation(User, lazy=False, backref='spotlights')
+    'user' : relation(User, lazy=False, backref='spotlights'),
+    'playlist' : relation(Playlist, foreign_keys = [spotlights_table.c.playlistid], primaryjoin = playlists_table.c.id == spotlights_table.c.playlistid),
 })
 
 mapper(SpotlightComment, spotlight_comments_table, properties={

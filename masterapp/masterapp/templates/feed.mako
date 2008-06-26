@@ -15,20 +15,33 @@
     </%def>
 
     <%def name="spotlight_feed(entry)">
-
-        <img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
-        <div class="feed_content">
-            <h4><a href="#/people/profile/${entry.user.id}">
-                ${entry.user.get_firstname()} 
-                added a Spotlight on ${entry.album.title}</a></h4>
-            <table class="spotlight_feed_info"><tr>
-                <!--td><img src="/images/enqueue.png" /></td-->
-                <td>${h.p_image_tag(entry.album.smallart)}</td>
-                <td class="spotlight_feed_comment">
-                ${quote_comment(entry.comment, 175)}
-                </td>
-            </tr></table>
-        </div>
+        % if entry.album != None:
+            <img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
+            <div class="feed_content">
+                <h4><a href="#/people/profile/${entry.user.id}">
+                    ${entry.user.get_firstname()} 
+                    added a Spotlight on ${entry.album.title}</a></h4>
+                <table class="spotlight_feed_info"><tr>
+                    <!--td><img src="/images/enqueue.png" /></td-->
+                    <td>${h.p_image_tag(entry.album.smallart)}</td>
+                    <td class="spotlight_feed_comment">
+                    ${quote_comment(entry.comment, 175)}
+                    </td>
+                </tr></table>
+            </div>
+        % elif entry.playlist != None:
+            <img src="/images/enqueue.png" onclick="enqueue_playlist(${entry.playlist.id}, ${entry.uid});" />
+            <div class="feed_content">
+                <h4><a href="#/people/profile/${entry.user.id}">
+                    ${entry.user.get_firstname()} 
+                    added a Spotlight on a playlist: ${entry.playlist.name}</a></h4>
+                <table class="spotlight_feed_info"><tr>
+                    <td class="spotlight_feed_comment">
+                    ${quote_comment(entry.comment, 175)}
+                    </td>
+                </tr></table>
+            </div>
+        % endif
     </%def>
 
     <%def name="comment_feed(entry)">

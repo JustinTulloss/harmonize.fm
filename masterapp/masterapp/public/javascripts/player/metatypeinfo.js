@@ -9,17 +9,17 @@
 /* TODO: Move all the renderer stuff into its own file. */
 t_add_col = new Ext.Template('<span class="grid-actions">',
         '<img class="addtoqueue" src="/images/enqueue.png" />',
-        '<img class="recommendtofriend" src="/images/enqueue.png" />',
+        //'<img class="recommendtofriend" src="/images/enqueue.png" />',
         '<img class="play_record" src="/images/control_play_blue.png" />',
     '</span>');
 t_add_col_alb = new Ext.Template('<span class="grid-actions">',
         '<img class="addtoqueue" src="/images/enqueue.png" />',
-        '<img class="recommendtofriend" src="/images/enqueue.png" />',
+        //'<img class="recommendtofriend" src="/images/enqueue.png" />',
         '<img class="show_spotlight" src="/images/spotlight.png" />',
         '<img class="play_record" src="/images/control_play_blue.png" />',
     '</span>');
 playlist_col = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /></span>');
-playlist_col_own = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /><img class="delete_playlist" src="/images/cross.png" /></span>');
+playlist_col_own = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /><img class="delete_playlist" src="/images/cross.png" /><img class="show_spotlight" src="/images/spotlight.png" /></span>');
 var render = {
 
     enqColumn: function (value, p, record)

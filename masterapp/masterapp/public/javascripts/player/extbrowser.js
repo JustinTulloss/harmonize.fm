@@ -86,21 +86,18 @@ function Browser()
             add: true
         });
         this.fireEvent('chgstatus', 'Loading...');
-        crumb.ds.on('loadexception', function(proxy, options,response, e){
-            if (response.status == 401)
-                show_dialog('<iframe height="436px" width="646px" src="'+global_config.fburl+'" />');
-        });
     }
     
     var friend_music_menu_link = null;
     var friend_music_menu = null;
 
-    this.browse_friends_music = browse_friends_music;
-    function browse_friends_music(friend) {
+    function browse_friends_music(friend, target) {
         if (friend == null) return;
         
-        friend_music_menu_link = Ext.get('friend_music_menu_link');
-        friend_music_menu = new Ext.menu.Menu();
+        friend_music_menu = new Ext.menu.Menu({
+            width: target.offsetWidth,
+            defaultAlign: 'tr-br'
+        });
         
         friend_music_menu.add(new Ext.menu.Item({
             text: 'artists',
@@ -134,8 +131,10 @@ function Browser()
             activeClass: 'music-menu-item-active',
             iconCls: 'no_icon'    
         }));
-        friend_music_menu.show(friend_music_menu_link);
+        friend_music_menu.show(target);
     }
+
+    urlm.register_action('browse_friend', browse_friends_music);
     
 }
 Ext.extend(Browser, Ext.util.Observable);
@@ -169,20 +168,38 @@ function BaseGrid(config)
 		show_spotlight: function(record) {
             //we need to check and make sure this spotlight doesn't already exist
             var album_id = record.get('Album_id');
-            Ext.Ajax.request({
-                url: 'metadata/find_spotlight_by_album',
-                params: {album_id: album_id},
-                success: function(response, options) {
-                    if (response.responseText == "True") {
-                        show_status_msg("You already have a spotlight for this album.");
-                    } else {
-                        show_spotlight(record, "add");
+            var playlist_id = record.get('Playlist_id');
+            if (album_id) {
+                Ext.Ajax.request({
+                    url: 'metadata/find_spotlight_by_album',
+                    params: {album_id: album_id},
+                    success: function(response, options) {
+                        if (response.responseText == "True") {
+                            show_status_msg("You already have a spotlight for this album.");
+                        } else {
+                            show_spotlight(record, "add");
+                        }                
+                    },
+                    failure: function(response, options) {
+                        show_spotlight(record, "add");                
+                    }            
+                });
+            } else if (playlist_id) {
+                Ext.Ajax.request({
+                    url: 'metadata/find_spotlight_by_playlist',
+                    params: {playlist_id: playlist_id},
+                    success: function(response, options) {
+                        if (response.responseText == "True") {
+                            show_status_msg("You already have a spotlight for this playlist.");
+                        } else {
+                            show_spotlight(record, "add_playlist");
+                        }
+                    },
+                    failure: function(response, options) {
+                        show_spotlight(record, "add_playlist");
                     }                
-                },
-                failure: function(response, options) {
-                    show_spotlight(record, "add");                
-                }            
-            });
+                });
+            }
 		},
         recommendtofriend: friend_recommend,
 		play_record: function(record) {

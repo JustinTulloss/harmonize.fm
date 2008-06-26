@@ -236,7 +236,7 @@ class PlayerController(BaseController):
             c.platform = 'mac'
         return render('/home.mako')
         
-    def spotlight_album_edit(self):
+    def spotlight_edit(self):
         if not request.params.has_key('comment'):
             return "False"
         elif not request.params.has_key('spot_id'):
@@ -259,3 +259,16 @@ class PlayerController(BaseController):
             return "False"
         
         
+    def spotlight_playlist(self, id):
+        if not request.params.has_key('comment'):
+            return '0'
+
+        playlistid = id
+        comment = request.params['comment']
+        uid = session['userid']
+
+        spotlight = Spotlight(uid, None, comment, True, playlistid)
+        Session.save(spotlight)
+        Session.commit()
+        
+        return '1'

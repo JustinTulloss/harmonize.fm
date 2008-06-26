@@ -29,11 +29,17 @@ function friend_recommend(record) {
     var url = ['recommend', record.get('type'), id].join('/');
     var button = new Ext.Button({
         text: 'recommend'
-    }); 
+    });
+    var cancel = new Ext.Button({
+        text:'cancel'
+    });
+    var entity = record.get(typeinfo[record.get('type')].lblindex);
     var win = new Ext.Window({
         layout: 'fit',
+        resizable: false,
         items: [field],
-        buttons: [button]
+        buttons: [cancel, button],
+        title: 'Recommend "' + entity +'" to a friend'
     });
     button.setHandler(
         function() {
@@ -44,7 +50,9 @@ function friend_recommend(record) {
                     set_status_msg("Recommendation Sent");
                 }
             });
+            win.close();
         }
     );
+    cancel.setHandler(function(){win.close()});
     win.show();
 }

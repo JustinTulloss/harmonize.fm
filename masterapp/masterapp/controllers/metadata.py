@@ -121,6 +121,7 @@ class MetadataController(BaseController):
         if request.params.get('all') == 'true':
             users = facebook.friends.get()
             data = facebook.users.getInfo(users)
+            data = sorted(data, key=itemgetter('name'))
         else:
             userStore = session['fbfriends']
             data=facebook.users.getInfo(userStore)
@@ -168,18 +169,25 @@ class MetadataController(BaseController):
                 join(Playlist.owner).\
                 filter(Playlist.ownerid == user.id).order_by(Playlist.name)
         return qry.all()
-
+        
     def album(self, id):
         user = get_user()
         album = user.get_album_by_id(id)
         json = build_json([album])
         json['data'][0]['type'] = 'album'
         return cjson.encode(json)
+        
+    def playlist(self, id):
+        user = get_user()
+        playlist = user.get_playlist_by_id(id)
+        json = build_json([playlist])
+        json['data'][0]['type'] = 'playlist'
+        return cjson.encode(json)
 
     @cjsonify
     @d_build_json
     @pass_user
-    def next_radio_song(self,user):
+    def next_radio_song(self,user, **kwargs):
         #todo: replace this with recommendations
         
         userStore = session['fbfriends']
@@ -208,14 +216,24 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def find_spotlight_by_id(self,user):
+    def find_spotlight_by_id(self,user, **kwargs):
         if request.params.get('id') != '':
             qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
             return qry.all()
         else:
             return "False"
         
-
+    @cjsonify
+    @d_build_json
+    @pass_user
+    def find_playlist_spotlight_by_id(self, user, **kwargs):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.playlist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id).limit(1)
+            return qry.all()
+        else:
+            return "False"    
+        
+    
     # right now this only returns true or false
     # depending on whether or not a spotlight exists
     # for the album    
@@ -236,6 +254,23 @@ class MetadataController(BaseController):
             
         else:
             return "False"
+
+    #this returns true or false depending on whether or not the spotlight already exists
+    def find_spotlight_by_playlist(self):
+        if not request.params.has_key('playlist_id'):
+            return "False"
         
-        
-    
+        playlist = Session.query(Playlist).filter(Playlist.id == request.params['playlist_id'])
+        if playlist.first():
+            qry = Session.query(Spotlight).filter(and_(
+                    Spotlight.playlistid == playlist[0].id,
+                    Spotlight.uid == get_user().id,
+                    Spotlight.active == 1))
+            if qry.first():
+                return "True"
+            else:
+                return "False"
+            
+        else:
+            return "False"
+            

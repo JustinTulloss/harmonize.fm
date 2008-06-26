@@ -23,7 +23,7 @@ function Player() {
     var volume = 80;
     var playingsong = null;
 	var bufferedsong;
-	var buffer_onload; //Should be a fn to call when a song finishes loading
+	var buffer_onload; //Should be a fn to call when a song finishes 	loading
 	var buffer_loaded;
     var slider;
     var shuttle;
@@ -35,15 +35,15 @@ function Player() {
         showprev: true
     });
 
-	/* We don't have a seekbar right now
-    function init_seekbar()
+	
+    function init_seekbar() 
     {
         slider = new Ext.ux.SlideZone('timeline', {
             type: 'horizontal',
-            size:100,
+            size:250,
             sliderWidth: 13,
-            //sliderHeight: 13,
-            maxValue: 100,
+            sliderHeight: 13,
+            maxValue: 250,
             minValue: 0,
             sliderSnap: 1,
             sliders: [{
@@ -55,17 +55,17 @@ function Player() {
         shuttle = slider.getSlider('shuttle');
         shuttle.on('drag',
             function() {
-                player.seek(this.value/100)
+                player.seek(this.value/250)
             });
     }
-	*/
-
+    init_seekbar();
+    
     /* Event handlers */
     this.seek = seek;
     function seek(percent)
     {
         sound = soundManager.getSoundById(playingsong);
-        time = soundduration(sound);
+        time = get_duration();
         soundManager.setPosition(playingsong, time*percent);
     }
 
@@ -231,7 +231,12 @@ function Player() {
 				if (buffer_onload)
 					buffer_onload();
 			},
-			multishot: false
+			multishot: false,
+						whileloading: function () {
+			    if (id == playingsong) {
+			        update_loading_bar(this.bytesLoaded, this.bytesTotal);
+			    }
+			}
         });
 	}
 
@@ -246,6 +251,12 @@ function Player() {
     function updateseekbar(percentage)
     {
         progressbar.updateProgress(percentage);
+        shuttle.setPosition(percentage * 250);
+    }
+
+    function update_loading_bar(loaded, total) 
+    {
+        now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
     }
 
     function badsongurl(response, options)
@@ -288,6 +299,7 @@ function Player() {
 	var now_playing_bar = document.getElementById('now-playing-bar');
 	var now_playing_time = document.getElementById('now-playing-time');
 	var now_playing_progress = document.getElementById('now-playing-progress');
+	var now_playing_loading = document.getElementById('now-playing-loading');
 	function reset_progress_bar(new_song_length) {
 		now_playing_bar.style.visibility = 'visible';
 		reset_duration(new_song_length);
@@ -311,6 +323,7 @@ function Player() {
 		if (duration > 0) {
 			now_playing_progress.style.width = 
 					String(elapsed/duration*100, 10) + '%';
+		    shuttle.setPosition([(elapsed/duration)*250]);
 		}
 		else
 			now_playing_progress.style.width = 0;

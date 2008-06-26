@@ -34,6 +34,7 @@ function ViewManager(crumb, objects)
         '<div id="status">',
 			'<span class="playlist-controls">',
 			'<a id="create-playlist" href="#">create playlist</a></span>',
+			'<span class="playlist-controls"><a id="shuffle-playqueue" href="#">shuffle</a></span>',
             '<span class="uname">Welcome, {name:trim}</span>',
             '<span class="cstatus">{status}</span>',
         '</div>'
@@ -118,6 +119,7 @@ function ViewManager(crumb, objects)
     var music_menu_link = Ext.get('music_menu_link');
     var music_menu = new Ext.menu.Menu({
         id: 'music_menu',
+        defaultAlign: 'tr-br',
         shadow: 'drop'
     });        
 
@@ -192,7 +194,9 @@ function ViewManager(crumb, objects)
 		e.preventDefault();
 		show_dialog(create_playlist_dialog);
 	});
-
+    
+    Ext.get('shuffle-playqueue').on('click',playqueue.shuffle);    
+    
     function set_music_menu() {
         function show_menu(e) {
             e.preventDefault();
