@@ -56,12 +56,9 @@ class DBRecorder(DBChecker):
                 )
                 log.debug("New file %s added to files", file['sha'])
 
-                if dbfile.bitrate > song.bitrate and \
-                        dbfile.bitrate < config['maxkbps']:
-                    # Found a higher quality song
-                    song.sha = file.get('sha')
-                    song.bitrate = file.get('bitrate')
-                    song.size = file.get('size')
+                song.sha = file.get('sha')
+                song.bitrate = file.get('bitrate')
+                song.size = file.get('size')
                 
                 # Mark the owner of this fine file
                 fowner = self.model.Owner(file=dbfile, user=user)
