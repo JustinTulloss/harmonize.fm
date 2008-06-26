@@ -119,6 +119,9 @@ def match_file_to_track(file, tracks):
     matches.sort(reverse=True)
     log.debug('Track matches: %r', matches)
 
+    #if file['title'] == '/=/=/':
+    #    raise RuntimeError()
+
     if matches[0][0] > TRACK_THRESHOLD:
         return matches[0][1]
     return False
@@ -128,9 +131,9 @@ def compare_meta(file, track):
     Compare file metadata to a MusicBrainz track.
 
     Weights:
-      * title                = 18
+      * title                = 5 Not that important, the puid knows best
       * artist name          = 6
-      * release name         = 8
+      * release name         = 10
       * length               = 20
       * number of tracks     = 4
       * track placement      = 5
@@ -146,8 +149,8 @@ def compare_meta(file, track):
     a = file.get('title')
     b = track.get('title')
     if a and b:
-        parts.append((similarity2(a, b), 18))
-        total += 18
+        parts.append((similarity2(a, b), 5))
+        total += 5
 
     a = file.get('artist')
     b = track.get('artist')
@@ -158,8 +161,8 @@ def compare_meta(file, track):
     a = file.get('album')
     b = track.get('album')
     if a and b:
-        parts.append((similarity2(a, b), 8))
-        total += 8
+        parts.append((similarity2(a, b), 10))
+        total += 10
 
     a = file.get('date')
     b = track.get('date')

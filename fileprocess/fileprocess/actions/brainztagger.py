@@ -205,8 +205,6 @@ class BrainzTagger(BaseAction):
 
         trackl = []
         trackd = {}
-        track_queried = False
-        include = ReleaseIncludes(releaseEvents = True)
         for track in result:
             trackd[track.track.id] = track
 
@@ -214,25 +212,16 @@ class BrainzTagger(BaseAction):
                 track.track.title,
                 track.score
             )
-            release = self._query_brainz(
-                file, 
-                mbquery.getReleaseById, 
-                track.track.releases[0].id,
-                include = include
-            )
             trackl.append({
                 'id': track.track.id,
                 'title': track.track.title,
-                'album': release.title,
+                'album': track.track.releases[0].title,
                 'artist': track.track.artist.name,
                 'duration': track.track.duration,
                 'releaseid': track.track.releases[0].id,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
                 'totaltracks': track.track.releases[0].tracksCount,
-                'date': get_year(release),
-                'types': release.types,
             })
-            track_queried = True
 
         result = match_file_to_track(file, trackl)
         if result:
