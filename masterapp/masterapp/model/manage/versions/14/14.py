@@ -39,8 +39,8 @@ def upgrade():
 
         smbid.drop()
         smbid.create() #keep the index, it used to be unique
-    except OperationalError:
-        print "Could not upgrade everything, some existed?"
+    except OperationalError, e:
+        print "Could not upgrade everything, some existed?: %s", e
 
 def downgrade():
     try:
@@ -48,5 +48,5 @@ def downgrade():
         stitle.drop()
         aname.drop()
 
-    except OperationalError:
-        print "Could not downgrade everything, did some indices not exist?"
+    except OperationalError, e:
+        print "Could not downgrade everything, did some indices not exist?, %s", e
