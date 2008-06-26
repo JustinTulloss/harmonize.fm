@@ -56,10 +56,6 @@ class DBRecorder(DBChecker):
                 )
                 log.debug("New file %s added to files", file['sha'])
 
-                song.sha = file.get('sha')
-                song.bitrate = file.get('bitrate')
-                song.size = file.get('size')
-                
                 # Mark the owner of this fine file
                 fowner = self.model.Owner(file=dbfile, user=user)
                 self.model.Session.add_all([dbfile, fowner])
