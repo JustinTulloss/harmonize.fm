@@ -53,7 +53,7 @@ function Player() {
         });
 
         shuttle = slider.getSlider('shuttle');
-        shuttle.on('dragend',
+        shuttle.on('drag',
             function() {
                 player.seek(this.value/250)
             });
