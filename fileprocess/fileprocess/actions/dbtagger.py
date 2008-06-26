@@ -37,7 +37,8 @@ class DBTagger(BaseAction):
             user = self.model.Session.query(self.model.User).get(file['dbuserid'])
 
             # Get the songs that have this PUID
-            songmatches = self.model.Session.query(self.model.Song).join(self.model.Puid).\
+            songmatches = self.model.Session.query(self.model.Song).\
+            join(self.model.Puid).\
             filter(self.model.Puid.puid == file['puid']).all()
 
             # Make sure this file matches one of the songs with this PUID

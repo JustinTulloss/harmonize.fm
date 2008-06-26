@@ -29,7 +29,7 @@ from musicbrainz2.webservice import Release
 
 log = logging.getLogger(__name__)
 
-TRACK_THRESHOLD = .70
+TRACK_THRESHOLD = .85
 def compare_to_release(file, release):
     """
     Compare cluster metadata to a MusicBrainz release.
@@ -128,11 +128,11 @@ def compare_meta(file, track):
     Compare file metadata to a MusicBrainz track.
 
     Weights:
-      * title                = 18
+      * title                = 5 Not that important, the puid knows best
       * artist name          = 6
-      * release name         = 8
-      * length               = 20
-      * number of tracks     = 4
+      * release name         = 5
+      * length               = 7
+      * number of tracks     = 7
       * track placement      = 5
       * official release     = 5
       * album release        = 3
@@ -146,8 +146,8 @@ def compare_meta(file, track):
     a = file.get('title')
     b = track.get('title')
     if a and b:
-        parts.append((similarity2(a, b), 18))
-        total += 18
+        parts.append((similarity2(a, b), 5))
+        total += 5
 
     a = file.get('artist')
     b = track.get('artist')
@@ -158,8 +158,8 @@ def compare_meta(file, track):
     a = file.get('album')
     b = track.get('album')
     if a and b:
-        parts.append((similarity2(a, b), 8))
-        total += 8
+        parts.append((similarity2(a, b), 5))
+        total += 5
 
     a = file.get('date')
     b = track.get('date')
@@ -184,8 +184,8 @@ def compare_meta(file, track):
         b = float(track['duration'])
     if a and b:
         score = 1.0 - min(abs(a - b), 30000) / 30000.0
-        parts.append((score, 20))
-        total += 20
+        parts.append((score, 7))
+        total += 7
 
     a = file.get('totaltracks')
     b = track.get('totaltracks')
@@ -199,8 +199,8 @@ def compare_meta(file, track):
                 score = 0.3
             else:
                 score = 1.0
-            parts.append((score, 4))
-            total += 4
+            parts.append((score, 7))
+            total += 7
         except ValueError:
             pass
 

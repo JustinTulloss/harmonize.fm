@@ -18,7 +18,8 @@ config = {
     'pyfacebook.apikey': 'cec673d0ef3fbc12395d0d3500cd72f9',
     'pyfacebook.secret': 'a08f822bf3d7f80ee25c47414fe98be1',
     'pyfacebook.appid': '2364724122',
-    'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1'
+    'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1',
+    'maxkbps': 192000
 }
 
 dev_config = {
@@ -52,7 +53,7 @@ live_config = {
 }
 
 base_logging = {
-    'level': logging.DEBUG,
+    'level': logging.INFO,
     'format':'%(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s',
     'datefmt': '%H:%M:%S',
     'handler': logging.StreamHandler,

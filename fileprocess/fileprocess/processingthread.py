@@ -71,15 +71,14 @@ class FileUploadThread(object):
         self.handlers = [
             Mover(),
             Hasher(),
-            TagGetter(),
             PuidGenerator(),
+            TagGetter(),
             TagSaver(),
             Transcoder(),
+            S3Uploader(),
             DBChecker(),
-            DBTagger(),
             BrainzTagger(),
             AmazonCovers(),
-            S3Uploader(),
             DBRecorder(),
             Cleanup()
         ]

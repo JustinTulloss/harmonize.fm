@@ -178,7 +178,7 @@ class UploadController(BaseController):
             try:
                 self.read_postdata()
             except self.PostException, e:
-                log.info("A problem occurred with the post: %s", e)
+                log.warn("A problem occurred with the post: %s", e)
 
         return upload_response.done
         
