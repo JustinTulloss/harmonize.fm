@@ -3,6 +3,24 @@ from itunes import get_library_file, ITunes
 from hplatform import get_db_path, get_default_path
 #some imports at end of program
 
+def get_music_files(dir):
+	music_files = []
+	
+	for root, dirs, files in os.walk(dir):
+		for file in files:
+			if is_music_file(file):
+				#trying to catch the special case in Ubuntu where $HOME/Network
+				#maps to every network share. You can still upload that dir if
+				#you select it explicitly, but it won't descend automatically.
+				if not(root == os.getenv('HOME') and file == 'Network' 
+					   and os.name == 'posix'):
+					music_files.append(os.path.join(root, file))
+	
+	return music_files
+
+def is_music_file(file):
+	return file.endswith('.mp3') or file.endswith('.m4a')
+
 def get_conn():
 	global db_dir
 	return sqlite3.connect(db_dir)
@@ -22,26 +40,52 @@ def set_upload_src(value):
 	c.execute('update upload_src set src=?', (value,))
 	conn.commit()
 
-def set_upload_dir(value):
+def set_upload_dirs(values):
 	conn = get_conn()
+	data = [(val,) for val in values]
 	c = conn.cursor()
 	c.execute('delete from upload_dirs')
-	c.execute('insert into upload_dirs values (?)', (value,))
+	c.executemany('insert into upload_dirs values (?)', data)
 	conn.commit()
 
-def get_upload_dir():
+def get_upload_dirs():
 	c = get_cursor()
-	return c.execute('select dir from upload_dirs').fetchone()[0]
+	values = c.execute('select dir from upload_dirs').fetchall()
+	return [val[0] for val in values]
 
 def get_tracks():
-	def filter_fn(song):
-		return is_music_file(song) and not is_file_uploaded(song)
 	src = get_upload_src()
 	if src == 'itunes':
-		return filter(filter_fn,
+		tracks =  filter(is_music_file,
 					  ITunes().get_all_track_filenames())
 	elif src == 'folder':
-		return filter(filter_fn, get_music_files(get_upload_dir()))
+		tracks = []
+		for dir in unique_dirs(get_upload_dirs()):
+			tracks.extend(get_music_files(dir))
+
+	if tracks == []:
+		return None
+	else:
+		return filter(lambda x: not is_file_uploaded(x), tracks)
+
+def total_uploaded_tracks():
+	c = get_cursor()
+	val = c.execute('select count(*) from files_uploaded').fetchone()
+	return val[0]
+
+def unique_dirs(dirs):
+	unique_dirs = []
+	dirs.sort()
+	for dir in dirs:
+		child_dir = False
+		for pdir in unique_dirs:
+			if os.path.commonprefix([pdir, dir]) == pdir:
+				child_dir = True
+				break
+		if not child_dir:
+			unique_dirs.append(dir)
+	
+	return unique_dirs
 
 def set_file_uploaded(filename, puid=None, sha=None):
 	conn = get_conn()
@@ -80,8 +124,6 @@ def init_db():
 		c.execute('insert into upload_src values (?)', ('folder',))
 	
 	conn.commit()
-
-from upload import is_music_file, get_music_files
 
 db_dir = get_db_path()
 

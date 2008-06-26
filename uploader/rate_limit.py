@@ -6,7 +6,7 @@ import logging, config
 logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger()
 
-def post(connection, url, contents):
+def post(connection, url, contents, callback=None):
 	global pinger
 	#connection.set_debuglevel(1)
 	if pinger == None: raise Exception()
@@ -17,6 +17,10 @@ def post(connection, url, contents):
 	connection.endheaders()
 
 	interval = 1.0
+
+	if callback:
+		total_len = float(len(contents))
+		callback.set_progress(False, 0.0)
 
 	while contents != '':
 		amount = pinger.get_rate()*1024
@@ -32,6 +36,9 @@ def post(connection, url, contents):
 			time.sleep(interval-elapsed)
 		else:
 			logger.debug('Interval exceeded, ran for %s seconds' % elapsed)
+
+		if callback:
+			callback.set_progress(False, (total_len-len(contents))/total_len)
 	
 	return connection.getresponse()
 

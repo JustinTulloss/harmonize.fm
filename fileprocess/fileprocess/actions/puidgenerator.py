@@ -4,17 +4,27 @@ import subprocess
 from baseaction import BaseAction
 from fileprocess.processingthread import na
 from fileprocess.configuration import config
-import musicdns
+try:
+    import musicdns
+except ImportError:
+    active = False
+
 import fileprocess
 
 log = logging.getLogger(__name__)
 
 class PuidGenerator(BaseAction):
     def __init__(self, *args, **kwargs):
+        global active
         super(PuidGenerator, self).__init__(*args, **kwargs)
-        musicdns.initialize()
+        if active:
+            musicdns.initialize()
 
     def process(self, file):
+        global active
+        if not active:
+            return file
+
         if file.get('puid'):
             return file
 

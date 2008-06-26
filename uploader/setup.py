@@ -3,7 +3,8 @@ from distutils.core import setup
 import os
 
 r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py', 
-			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py']
+			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py', 'hfile.py',
+			 'singleton.py']
 
 if sys.platform == 'darwin':
 	if not os.path.exists('genpuid'):
@@ -14,10 +15,11 @@ if sys.platform == 'darwin':
 		name='Harmonize',
 		setup_requires=['py2app'],		
 		app=['Harmonize_osx.py'],
-		scripts=r_scripts,
+		scripts=r_scripts + ['osx_options.py', 'osx_upload.py'],
 		data_files=['MainMenu.nib', 
 					'genpuid/genpuid', 'genpuid/AACTagReader',
-					'genpuid/mipcore']
+					'genpuid/mipcore'],
+		options=dict(py2app=dict(plist=dict(LSUIElement=True)))
 	)
 elif sys.platform == 'win32':
 	import py2exe
