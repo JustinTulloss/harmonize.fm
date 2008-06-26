@@ -54,17 +54,24 @@ def get_upload_dirs():
 	return [val[0] for val in values]
 
 def get_tracks():
-	def filter_fn(song):
-		return is_music_file(song) and not is_file_uploaded(song)
 	src = get_upload_src()
 	if src == 'itunes':
-		return filter(filter_fn,
+		tracks =  filter(is_music_file,
 					  ITunes().get_all_track_filenames())
 	elif src == 'folder':
 		tracks = []
 		for dir in unique_dirs(get_upload_dirs()):
-			tracks.extend(filter(filter_fn, get_music_files(dir)))
-		return tracks
+			tracks.extend(get_music_files(dir))
+
+	if tracks == []:
+		return None
+	else:
+		return filter(lambda x: not is_file_uploaded(x), tracks)
+
+def total_uploaded_tracks():
+	c = get_cursor()
+	val = c.execute('select count(*) from files_uploaded').fetchone()
+	return val[0]
 
 def unique_dirs(dirs):
 	unique_dirs = []

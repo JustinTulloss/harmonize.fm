@@ -50,7 +50,8 @@ class ITunes(object):
 		for item in playlist['Playlist Items']:
 			track_id = item['Track ID']
 			track = self.get_track(track_id)
-			filename = track['Location']
+			filename = track.get('Location')
+			if not filename: continue
 			#for right now, only upload local files
 			if filename[:16] == 'file://localhost':
 				track_filenames.append(url2pathname(str(filename)[16:]))

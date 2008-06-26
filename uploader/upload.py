@@ -5,7 +5,63 @@ import config, rate_limit, fb, db
 from db import is_file_uploaded, is_sha_uploaded, set_file_uploaded
 from hfile import HFile
 from httplib import HTTPConnection
-from decorator import decorator
+from Queue import Queue
+
+actionq = Queue()
+actions = set(['login_complete', 'options_changed'])
+def get_action():
+	action = actionq.get()
+	if action not in actions:
+		raise Exception('Unknown action added: %s' % action)
+	return action
+
+def login_callback(session_key=None):
+	actionq.put('login_complete')
+
+def options_changed():
+	actionq.put('options_changed')
+
+def empty_actions():
+	while not actionq.empty():
+		actionq.get()
+
+class Callback(object):
+	def __init__(self, base_callback):
+		self.base = base_callback
+
+	def __getattr__(self, name):
+		if hasattr(self.base.a, name):
+			def wrapper(*args):
+				fn = getattr(self.base.a, name)
+				self.base.do_action(fn, args)
+			return wrapper
+		else: raise ValueError, name
+
+	def error(self, msg):
+		base = self.base
+		base.add_action(base.a.set_msg, (msg,))
+		base.add_action(base.a.set_progress, (True,))
+		base.complete_actions()
+
+	def start_reauth(self, msg):
+		self.set_msg(msg)
+		self.set_progress(True)
+		self.loginEnabled(True)
+
+	def end_reauth(self, msg):
+		self.set_msg(msg)
+		self.loginEnabled(False)
+
+	def start_auth(self):
+		if db.get_upload_src() == 'itunes':
+			msg = 'Click Login to start uploading your iTunes library'
+		else:
+			msg = 'Click Login to start uploading your music'
+		self.set_msg(msg)
+		self.loginEnabled(True)
+
+	def end_auth(self):
+		self.loginEnabled(False)
 
 class RetryException(Exception):
 	pass
@@ -31,7 +87,9 @@ def check_response(response):
 		raise response_switch[response_body]
 	return response_body
 
-def upload_files(callback):
+def start_uploader(base_callback):
+	callback = Callback(base_callback)
+
 	def reauthenticate():
 		callback.start_reauth('You need to re-login to continue\nClick "Save my login" on login page to stay logged in')
 		fb.synchronous_login()
@@ -79,8 +137,8 @@ def upload_files(callback):
 
 	@retry_fn
 	def upload_file(hfile):
-		callback.set_msg('Uploading file:\n%s - %s' % 
-							(hfile.tags['title'], hfile.tags['artist']))
+		callback.set_msg('Uploading file:\n%s' % hfile.ppname)
+		callback.set_progress(False, 0.0)
 
 		url = get_url('/upload/file/' + hfile.sha)
 		conn = get_conn()
@@ -95,56 +153,85 @@ def upload_files(callback):
 		check_response(response)
 		set_file_uploaded(hfile.name, hfile.puid, hfile.sha)
 
-	callback.init_status('Finding music...')
-	song_list = db.get_tracks()
-	total_tracks = float(len(song_list))
-	tracks_analyzed = 0
-	callback.set_msg('Analyzing library...')
-	callback.set_progress(False, 0.0)
+	callback.init()
+	callback.set_totalUploaded(db.total_uploaded_tracks())
 
-	upload_list = [] #a list of hfiles
-	for song in song_list:
-		hfile = HFile(song)
-		try:
-			if not hfile.contents: 
+	while True:
+		callback.loginEnabled(False)
+		callback.optionsEnabled(True)
+		callback.set_msg('Searching for music...')
+
+		song_list = db.get_tracks()
+		if song_list == None:
+			callback.set_msg('No music found!\nClick options to add some')
+			while get_action() != 'options_changed': pass
+			continue
+		elif song_list == []:
+			callback.set_msg('No new music to upload...')
+			#time.sleep(300)
+			time.sleep(10)
+			continue
+
+		if not fb.get_session_key():
+			callback.start_auth()
+			action = get_action()
+			if action == 'options_changed':
+				continue
+			elif action != 'login_complete':
+				raise Exception('Unknown action received')
+			callback.end_auth()
+		
+		#Start uploading process
+		total_tracks = float(len(song_list))
+		tracks_analyzed = 0
+		callback.set_msg('Analyzing library...')
+		callback.set_progress(False, 0.0)
+		callback.optionsEnabled(False)
+
+		upload_list = [] #a list of hfiles
+		for song in song_list:
+			hfile = HFile(song)
+			try:
+				if not hfile.contents: 
+					callback.inc_skipped()
+					continue
+			except IOError:
 				callback.inc_skipped()
 				continue
-		except IOError:
-			callback.inc_skipped()
-			continue
 
-		if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
-			continue
-		elif hfile.puid:
-			if not is_puid_uploaded(hfile):
+			if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
+				continue
+			elif hfile.puid:
+				if not is_puid_uploaded(hfile):
+					upload_list.append(hfile)
+					callback.inc_remaining()
+				else:
+					callback.inc_totalUploaded()
+			else:
 				upload_list.append(hfile)
 				callback.inc_remaining()
-			else:
-				callback.inc_totalUploaded()
-		else:
-			upload_list.append(hfile)
-			callback.inc_remaining()
 
-		tracks_analyzed += 1
-		callback.set_progress(False, tracks_analyzed/total_tracks)
+			tracks_analyzed += 1
+			callback.set_progress(False, tracks_analyzed/total_tracks)
 
-	songs_left = len(upload_list)
+		songs_left = len(upload_list)
 
-	start_rate_limit()
+		start_rate_limit()
 
-	for hfile in upload_list:
-		upload_file(hfile)
-		songs_left -= 1
+		for hfile in upload_list:
+			upload_file(hfile)
+			songs_left -= 1
 
-		callback.dec_remaining()
-		callback.inc_totalUploaded()
+			callback.dec_remaining()
+			callback.inc_totalUploaded()
 
-		'''
-		if songs_left % 15 == 0:
-			retry_fn(reset_rate_limit, callback)
-		'''
-	
-	callback.set_msg('Upload complete!')
+			'''
+			if songs_left % 15 == 0:
+				retry_fn(reset_rate_limit, callback)
+			'''
+		
+		callback.set_msg('Upload complete!')
+		time.sleep(30)
 
 def get_conn():
 	return HTTPConnection(

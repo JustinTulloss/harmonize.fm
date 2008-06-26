@@ -1,16 +1,9 @@
-import upload
+import upload, fb
 import objc, thread
 from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
-from decorator import decorator
-
-def mainThread(fn):
-	def wrapper(self, *args):
-		import pdb; pdb.set_trace()
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			getattr(self, fn.__name__), args, False)
-	return wrapper
+from Queue import Queue
 
 class UploadController(NSObject):
 	information = objc.ivar('information')
@@ -19,103 +12,99 @@ class UploadController(NSObject):
 	skipped = objc.ivar('skipped')
 	totalUploaded =  objc.ivar('totalUploaded')
 	window = objc.ivar('window')
-	button = objc.ivar('button')
+	optionsWindow = objc.ivar('optionsWindow')
+	loginButton = objc.ivar('loginButton')
+	optionsButton = objc.ivar('optionsButton')
+	optionsMenu = objc.ivar('optionsMenu')
+	introView = objc.ivar('introView')
 
-	def start(self):
+	def awakeFromNib(self):
 		self.window.makeKeyAndOrderFront_(self)
+		NSApp().activateIgnoringOtherApps_(True)
+		self.actions = Queue()
+
+		my = self
+		class Actions(object):
+			def init(self):
+				my.remaining = str(0)
+				my.skipped = str(0)
+				my.progress.setDoubleValue_(0.0)
+
+			def inc_totalUploaded(self):
+				my.totalUploaded = str(int(my.totalUploaded) + 1)
+
+			def set_totalUploaded(self, val):
+				my.totalUploaded = str(val)
+
+			def inc_skipped(self):
+				my.skipped = str(int(my.skipped) + 1)
+
+			def dec_remaining(self):
+				my.remaining = str(int(my.remaining) - 1)
+
+			def inc_remaining(self):
+				my.remaining = str(int(my.remaining) + 1)
+
+			def set_progress(self, spinning, val=None):
+				my.progress.setIndeterminate_(spinning)
+				if not spinning:
+					my.progress.setDoubleValue_(val)
+
+			def set_msg(self, msg):
+				my.information = msg
+
+			def loginEnabled(self, val):
+				my.loginButton.setEnabled_(val)
+
+			def optionsEnabled(self, val):
+				my.optionsButton.setEnabled_(val)
+				my.optionsMenu.setEnabled_(val)
+
+			def activate(self):
+				my.window.activateIgnoringOtherApps_(True)
+
+		self.a = Actions()
+		self.uploadView = self.window.contentView()
+		self.uploadView.retain()
+		"""
+		self.introView.setFrame_(self.uploadView.frame())
+		self.introView.setBounds_(self.uploadView.bounds())
+		"""
+		self.window.setContentView_(self.introView)
+
+	#actions
+	def login_(self, sender):
+		fb.login(upload.login_callback)
+
+	def options_(self, sender):
+		NSApp().activateIgnoringOtherApps_(True)
+		self.optionsWindow.makeKeyAndOrderFront_(self)
+
+	def next_(self, sender):
+		self.window.setContentView_(self.uploadView)
 
 		def uploadSongs():
 			pool = NSAutoreleasePool.alloc().init()
 
-			upload.upload_files(self)
+			upload.start_uploader(self)
 			del pool
 
 		thread.start_new_thread(uploadSongs, ())
 
-		self.progress.startAnimation_(self)
-
-	#actions
-	def buttonPress_(self, sender):
-		fb.login(None)
-
 	#Upload status callbacks
-	def init_status(self, msg):
+	def complete_actions(self):
 		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._init_status, msg, False)
-
-
-	def _init_status(self, msg):
-		self.totalUploaded = str(0)
-		self.remaining = str(0)
-		self.skipped = str(0)
-
-		self.progress.setDoubleValue_(0.0)
-		self.progress.setIndeterminate_(True)
-
-		self.information = msg
-
-	def inc_totalUploaded(self):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._inc_totalUploaded, None, False)
-
-	def _inc_totalUploaded(self, args):
-		self.totalUploaded = str(int(self.totalUploaded) + 1)
-
-	def inc_skipped(self):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._inc_skipped, None, False)
-
-	def _inc_skipped(self):
-		self.skipped = str(int(self.skipped) + 1)
-
-	def dec_remaining(self):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._dec_remaining, None, False)
-
-	def _dec_remaining(self):
-		self.remaining = str(int(self.remaining) + 1)
-
-	def inc_remaining(self):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._inc_remaining, None, False)
-
-	def _inc_remaining(self):
-		self.remaining = str(int(self.remaining) + 1)
-
-	def set_progress(self, spinning, val):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._set_progress, (spinning, val), False)
-
-	def _set_progress(self, args):
-		spinning, val = args
-		self.progress.setIndeterminate_(spinning)
-		if not spinning:
-			self.progress.setDoubleValue_(val)
-
-	def set_msg(self, msg):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._set_msg, msg, False)
-
-	def _set_msg(self, msg):
-		self.information = msg
-
-	def start_reauth(self, msg):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._start_reauth, msg, False)
+			self._complete_actions, None, False)
 		
-	def _start_reauth(self, msg):
-		self._set_msg(msg)
-		self._set_progress(True)
-		self.button.setHidden_(True)
+	def _complete_actions(self):
+		while not self.actions.empty():
+			fn, params = self.actions.get()
+			fn(*params)
 
-	def end_reauth(self, msg):
-		self.performSelectorOnMainThread_withObject_waitUntilDone_(
-			self._end_reauth, msg, False)
+	def add_action(self, fn, params):
+		self.actions.put((fn, params))
 
-	def _end_reauth(self, msg):
-		self._set_msg(msg)
-		self.button.setHidden_(False)
+	def do_action(self, fn, params):
+		self.add_action(fn, params)
+		self.complete_actions()
 
-	def error(self, msg):
-		self.set_msg(msg)
-		self.set_progress(True, None)

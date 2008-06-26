@@ -23,22 +23,30 @@
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {login = id; options = id; }; 
+            ACTIONS = {options = id; quit = id; upload = id; }; 
             CLASS = RubiconController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                mainWindow = NSWindow; 
                 optionsWindow = NSWindow; 
-                progressbar = NSProgressIndicator; 
+                statusMenu = NSMenu; 
                 uploadController = UploadController; 
+                uploadWindow = NSWindow; 
             }; 
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {buttonPress = id; }; 
+            ACTIONS = {login = id; next = id; options = id; }; 
             CLASS = UploadController; 
             LANGUAGE = ObjC; 
-            OUTLETS = {button = NSButton; progress = NSProgressIndicator; window = NSWindow; }; 
+            OUTLETS = {
+                introView = NSView; 
+                loginButton = NSButton; 
+                optionsButton = NSButton; 
+                optionsMenu = NSMenuItem; 
+                optionsWindow = NSWindow; 
+                progress = NSProgressIndicator; 
+                window = NSWindow; 
+            }; 
             SUPERCLASS = NSObject; 
         }, 
         {CLASS = UploadFolders; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
