@@ -39,8 +39,10 @@
         <div id="now-playing-title">&nbsp;</div>
         <div id="now-playing-artist">&nbsp;</div>
         <div id="now-playing-bar">
+            <div id="now-playing-loading"></div>            
             <div id="now-playing-progress"></div>
             <div id="now-playing-time"></div>
+            <div id="timeline"></div>
         </div>
         <div id="playcontrols">
             <div id="playbutton" class="pcontrol">

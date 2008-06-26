@@ -45,6 +45,31 @@ var profile_handler;
                 });
 		    };})(spot_id));
 		}
+		
+		edit_links = Ext.query('.edit-playlist-spotlight');
+		for (i = 0; i < edit_links.length; i++) {
+		    var spot_id = parseInt(edit_links[i].id);
+            //this handler looks hackish because it solves a closure property (shudder)
+            Ext.get(edit_links[i].id).removeAllListeners();
+		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
+    		    Ext.Ajax.request({
+                    url: '/metadata/find_playlist_spotlight_by_id',
+                    params: {id: parseInt(spot_id)},
+                    success: function(response, options) {
+                        record = eval('(' + response.responseText + ')');
+                        record = record.data[0];
+                        record['id'] = spot_id;
+                        record.get = (function(key) { return record[key];});
+                        show_spotlight(record, "edit_playlist");
+                    },
+                    failure: function(response, options) {
+                        alert("failed to lookup spotlight");                
+                    }
+                });
+		    };})(spot_id));
+		}
+		
+		
 		if (components.length != 3 || components[1] != 'spcomments') {
 			return;
 		}

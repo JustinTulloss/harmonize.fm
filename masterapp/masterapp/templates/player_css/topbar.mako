@@ -174,6 +174,13 @@
 	position: absolute;
 }
 
+#now-playing-loading {
+    width: 0;
+    height: 100%;
+    background-color: #E5E9F0;
+    position: absolute;
+}
+
 #now-playing-time {
 	font-size: 10px;
 	line-height: 11px;

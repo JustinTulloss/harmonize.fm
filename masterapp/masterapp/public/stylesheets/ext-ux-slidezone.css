@@ -1,10 +1,9 @@
 .x-slide-zone-horizontal {
 	height: 13px;
 	background-repeat: no-repeat;
-	background-image: url('/images/timeline-bg.png');
+	/*background-image: url('/images/timeline-bg.png');*/
     background-position: center center;
 	z-index: 30;
-
 }
 
 .x-thumb-slider-horizontal {
@@ -15,6 +14,7 @@
 	/*top: 11px; */
 	background: url('/images/shuttle.png') no-repeat;
 	z-index: 35;
+	cursor: pointer;
 }
 
 .x-range-slider-horizontal {

@@ -348,7 +348,7 @@ Ext.ux.Slider = function(config) {
 		"drag" : true,
 		"mouseover":true, 
 		"mouseout":true
-	});	
+	});
 }
 
 Ext.extend(Ext.ux.Slider, Ext.BoxComponent, {
@@ -479,14 +479,14 @@ Ext.extend(Ext.ux.ThumbSlider, Ext.ux.Slider, {
 
 		this.el.on('mouseover', function() {
 			sliderInstance.fireEvent('mouseover', sliderInstance);
-			sliderInstance.el.setStyle('cursor', sliderInstance.pointer); 
+			//sliderInstance.el.setStyle('cursor', sliderInstance.pointer); 
 		}); 
 		this.el.on('mouseout', function() { 
 			sliderInstance.fireEvent('mouseout', sliderInstance);
-			sliderInstance.el.setStyle('cursor', 'default'); 
+			//sliderInstance.el.setStyle('cursor', 'default'); 
 		}); 
 		this.ddEl.onMouseDown = function(x, y) { 
-			sliderInstance.fireEvent('dragstart', sliderInstance);
+			//sliderInstance.fireEvent('dragstart', sliderInstance);
 		}; 
 		this.ddEl.onMouseUp = function(x, y) { 
 			slideZoneInstance.updateConstraints();
