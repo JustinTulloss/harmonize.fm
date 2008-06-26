@@ -119,9 +119,6 @@ def match_file_to_track(file, tracks):
     matches.sort(reverse=True)
     log.debug('Track matches: %r', matches)
 
-    #if file['title'] == '/=/=/':
-    #    raise RuntimeError()
-
     if matches[0][0] > TRACK_THRESHOLD:
         return matches[0][1]
     return False

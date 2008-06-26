@@ -22,10 +22,9 @@ class S3Uploader(BaseAction):
             return file
 
         if config['S3.upload'] == False:
-            log.warn("Removed %s because S3.upload flag is set to false", 
+            log.warn("Not uploading %s because S3.upload flag is set to false", 
                 file['fname']
             )
-            self.cleanup(file)
             return file
 
         conn = S3.AWSAuthConnection(
