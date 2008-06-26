@@ -232,8 +232,10 @@ function Player() {
 					buffer_onload();
 			},
 			multishot: false,
-			whileloading: function () {
-			    update_loading_bar(this.bytesLoaded, this.bytesTotal);
+						whileloading: function () {
+			    if (id == playingsong) {
+			        update_loading_bar(this.bytesLoaded, this.bytesTotal);
+			    }
 			}
         });
 	}
@@ -254,7 +256,11 @@ function Player() {
 
     function update_loading_bar(loaded, total) 
     {
-            
+        if (now_playing_loading.style.width != "100%") {
+            now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
+        } else {
+            now_playing_loading.style.width = "0";
+        }
     }
 
     function badsongurl(response, options)
@@ -297,6 +303,7 @@ function Player() {
 	var now_playing_bar = document.getElementById('now-playing-bar');
 	var now_playing_time = document.getElementById('now-playing-time');
 	var now_playing_progress = document.getElementById('now-playing-progress');
+	var now_playing_loading = document.getElementById('now-playing-loading');
 	function reset_progress_bar(new_song_length) {
 		now_playing_bar.style.visibility = 'visible';
 		reset_duration(new_song_length);
