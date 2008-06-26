@@ -34,7 +34,7 @@
             <div class="feed_content">
                 <h4><a href="#/people/profile/${entry.user.id}">
                     ${entry.user.get_firstname()} 
-                    added a Spotlight on ${entry.playlist.name}</a></h4>
+                    added a Spotlight on a playlist: ${entry.playlist.name}</a></h4>
                 <table class="spotlight_feed_info"><tr>
                     <td class="spotlight_feed_comment">
                     ${quote_comment(entry.comment, 175)}

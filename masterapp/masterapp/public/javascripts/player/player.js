@@ -23,7 +23,7 @@ function Player() {
     var volume = 80;
     var playingsong = null;
 	var bufferedsong;
-	var buffer_onload; //Should be a fn to call when a song finishes loading
+	var buffer_onload; //Should be a fn to call when a song finishes 	loading
 	var buffer_loaded;
     var slider;
     var shuttle;
@@ -53,7 +53,7 @@ function Player() {
         });
 
         shuttle = slider.getSlider('shuttle');
-        shuttle.on('dragend',
+        shuttle.on('drag',
             function() {
                 player.seek(this.value/250)
             });
@@ -256,11 +256,7 @@ function Player() {
 
     function update_loading_bar(loaded, total) 
     {
-        if (now_playing_loading.style.width != "100%") {
-            now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
-        } else {
-            now_playing_loading.style.width = "0";
-        }
+        now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
     }
 
     function badsongurl(response, options)
