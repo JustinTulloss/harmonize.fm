@@ -1,17 +1,17 @@
 .x-slide-zone-horizontal {
 	height: 13px;
-	background-repeat: no-repeat;
-	/*background-image: url('/images/timeline-bg.png');*/
-    background-position: center center;
+	/*background-repeat: no-repeat;
+	background-image: url('/images/timeline-bg.png');
+    background-position: center center;*/
 	z-index: 30;
 }
 
 .x-thumb-slider-horizontal {
 	width: 18px;
-	height: 13px;
+	height: 14px;
 	/* Using margin-top in Safari applies the style twice after 
 	  the first drag start. Use top instead. */
-	/*top: 11px; */
+	/*top: 11px;*/ 
 	background: url('/images/shuttle.png') no-repeat;
 	z-index: 35;
 	cursor: pointer;
@@ -19,9 +19,9 @@
 
 .x-range-slider-horizontal {
 	top: 0px;
-	height: 10px;
-	background: url('slider-range-h.gif') repeat-x;
-	/*opacity: .25*/;
+	height: 13px;
+	/*background: url('slider-range-h.gif') repeat-x;*/
+	opacity: .75;
 }
 
 
@@ -48,21 +48,21 @@
 
 
 .x-slide-zone-area {
-	border-left: 1px solid #999;
+	/*border-left: 1px solid #999;
 	border-top: 1px solid #999;
-	background-image: url('slider-bg-a2.gif');
+	background-image: url('slider-bg-a2.gif');*/
 	z-index: 1;
 }
 
 .x-thumb-slider-area {
-	background: url('slider-a.gif') no-repeat;
+	/*background: url('slider-a.gif') no-repeat;*/
 	width: 16px;
 	height: 18px;
 	z-index: 10;
 }
 
 .x-range-slider-area {
-	background-color: #453854;
+	/*background-color: #453854;*/
 	opacity: 0.50;
 	filter: alpha(opacity=50);
 	-moz-opacity: 0.50

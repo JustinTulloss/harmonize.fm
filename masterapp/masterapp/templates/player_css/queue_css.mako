@@ -101,7 +101,7 @@ a.qn-text{
 #timeline {
     position: relative;
     height: 10px;
-    border: solid 1px ${c.profile.top_bg};
+    /*border: solid 1px ${c.profile.top_bg};*/
 }
 
 #time2 {

@@ -177,7 +177,7 @@
 #now-playing-loading {
     width: 0;
     height: 100%;
-    background-color: #E5E9F0;
+    background-color: #DDDDDD;
     position: absolute;
 }
 
