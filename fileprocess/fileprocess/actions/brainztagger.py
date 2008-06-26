@@ -205,7 +205,7 @@ class BrainzTagger(BaseAction):
 
         trackl = []
         trackd = {}
-        include = ReleaseIncludes(releaseEvents = True, counts = True)
+        include = ReleaseIncludes(releaseEvents = True, tracks = True)
         for track in result:
             trackd[track.track.id] = track
 
@@ -227,7 +227,8 @@ class BrainzTagger(BaseAction):
                 'duration': track.track.duration,
                 'releaseid': track.track.releases[0].id,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
-                'totaltracks': release.tracksCount,
+                'totaltracks': len(release.tracks),
+                'date': get_year(release),
                 'types': release.types
             })
 

@@ -403,6 +403,8 @@ class TestDBActions(TestBase):
         # Test insertion of incomplete record
         assert_raises(AssertionError, r.process,  self.fdata['goodtags'])
 
+    """
+    Not using dbtagger anymore
     def testDBTagger(self):
         t = DBTagger()
         t.cleanup_handler = Mock()
@@ -456,3 +458,4 @@ class TestDBActions(TestBase):
         self.fdata['btles2']['totaltracks'] = 23
         nf = t.process(self.fdata['btles2'])
         assert nf != False, "Match returned on a non-match track"
+    """
