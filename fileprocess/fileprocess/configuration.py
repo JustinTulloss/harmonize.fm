@@ -53,7 +53,7 @@ live_config = {
 }
 
 base_logging = {
-    'level': logging.DEBUG,
+    'level': logging.INFO,
     'format':'%(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s',
     'datefmt': '%H:%M:%S',
     'handler': logging.StreamHandler,

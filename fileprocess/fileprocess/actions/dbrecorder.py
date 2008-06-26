@@ -111,17 +111,41 @@ class DBRecorder(DBChecker):
         qry = self.model.Session.query(self.model.Artist).\
             filter(self.model.Artist.name == file['artist'])
         artist = qry.first()
+        albumartist = artist
+        if file.get('albumartist'):
+            if file['albumartist'] != file['artist']:
+                qry = self.model.Session.query(self.model.Artist).\
+                    filter(self.model.Artist.name == file['albumartist'])
+                albumartist = qry.first()
+
         if artist:
             qry = self.model.Session.query(self.model.Album).\
                 join(self.model.Album.artist).\
                 filter(self.model.Album.title == file['album']).\
-                filter(self.model.Album.artist == artist)
+                filter(self.model.Album.artist == albumartist)
             album = qry.first()
 
         if not artist:
             artist = self.create_artist(file)
+        else:
+            if not artist.mbid and file.get('mbartistid'):
+                artist.mbid = file.get('mbartistid')
+                self.model.Session.add(artist)
         if not album:
             album = self.create_album(file, artist)
+        else:
+            if not album.mbid and file.get('mbalbumid'):
+                album.mbid = file.get('mbalbumid')
+            if not album.asin and file.get('asin'):
+                album.asin = file.get('asin')
+            if not album.smallart and file.get('smallart'):
+                album.smallart = file.get('smallart')
+            if not album.medart and file.get('medart'):
+                album.medart = file.get('medart')
+            if not album.swatch and file.get('swatch'):
+                album.swatch = file['swatch']
+            if not album.year and file.get('year'):
+                album.year = file['year']
 
         song.album = album
         song.artist = artist
