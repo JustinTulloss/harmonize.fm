@@ -30,7 +30,7 @@
                 </tr></table>
             </div>
         % elif entry.playlist != None:
-            <img src="/images/enqueue.png" onclick="enqueue_playlist(${entry.album.id}, ${entry.uid});" />
+            <img src="/images/enqueue.png" onclick="enqueue_playlist(${entry.playlist.id}, ${entry.uid});" />
             <div class="feed_content">
                 <h4><a href="#/people/profile/${entry.user.id}">
                     ${entry.user.get_firstname()} 
