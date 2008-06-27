@@ -14,14 +14,11 @@ def ensure_fb_session():
     c.facebook = facebook
 
     def setup_user():
+        
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
         user = Session.query(User).filter(
-            User.fbid==facebook.uid).first()
-        
-        if not qualified_for_login(facebook.uid,1):
-            redirect_to("http://harmonize.fm")
-            return False
+            User.fbid==facebook.uid).first()        
 
         if not user:
             # First time visitor, set up an account for them
@@ -68,6 +65,9 @@ def ensure_fb_session():
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
+        if not qualified_for_login(facebook.uid, 1):
+            redirect_to("/")
+            return False
         return True
 
 friendcache = cache.get_cache('fbfriends')
