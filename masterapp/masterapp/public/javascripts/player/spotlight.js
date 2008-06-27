@@ -261,6 +261,11 @@ function show_dialog(content) {
         html: content
     });
     dialog_window.show();
+
+    var focusel=Ext.DomQuery.selectNode(
+        'input[class=dlg-focus]', dialog_window.id);
+    if (focusel)
+        focusel.focus();
 }
 
 function hide_dialog() {
