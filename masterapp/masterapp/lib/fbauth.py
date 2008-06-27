@@ -19,8 +19,8 @@ def ensure_fb_session():
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()
         
-        if !qualified_for_login(facebook.uid,1):
-            redirect_to("/")
+        if not qualified_for_login(facebook.uid,1):
+            redirect_to("http://harmonize.fm")
             return False
 
         if not user:
