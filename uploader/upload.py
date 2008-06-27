@@ -163,7 +163,7 @@ def start_uploader(base_callback):
 
 		song_list = db.get_tracks()
 		if song_list == None:
-			callback.set_msg('No music found!\nClick options to add some')
+			callback.set_msg('No music found!\nClick Options to add some')
 			while get_action() != 'options_changed': pass
 			continue
 		elif song_list == []:
@@ -194,9 +194,11 @@ def start_uploader(base_callback):
 			try:
 				if not hfile.contents: 
 					callback.inc_skipped()
+					db.add_skipped(hfile.name)
 					continue
 			except IOError:
 				callback.inc_skipped()
+				db.add_skipped(hfile.name)
 				continue
 
 			if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
