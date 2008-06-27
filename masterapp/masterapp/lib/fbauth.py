@@ -19,16 +19,16 @@ def ensure_fb_session():
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()
         
+        if !qualified_for_login(facebook.uid,1):
+            redirect_to("/")
+            return False
+
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
-            if qualified_for_login(user.fbid,1):
-                Session.add(user)
-                Session.commit()
-            else: # can't login yet, no access, redirect to request an account
-                redirect_to("http://harmonize.fm")
-                return False
-
+            Session.add(user)
+            Session.commit()
+            
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
         session['userid'] = user.id
