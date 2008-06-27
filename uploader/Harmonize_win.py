@@ -194,17 +194,9 @@ This program will synchronize your music library with our servers so you can lis
 			winforms.Application.Exit()
 		exitMenuItem.Click += EventHandler(exit)
 			
-
 		self.appIcon.ContextMenu = menu
 		self.appIcon.Visible = True
 	
-	"""
-	def exit(self, sender, args):
-		#self.appIcon.Visible = False
-		self.appIcon.Dispose()
-		winforms.Application.Exit()
-	"""
-
 	def add_action(self, fn, params):
 		self.actions.put((fn, params))
 
