@@ -31,7 +31,7 @@ class HFile(object):
 	def get_contents(self):
 		if HFile.cached_name != self.name:
 			if HFile.cached_contents != None:
-				del HFile.cached_contents
+				HFile.cached_contents = None
 			HFile.cached_name = self.name
 			HFile.cached_contents = open(self.name, 'rb').read() 
 		return self.cached_contents
