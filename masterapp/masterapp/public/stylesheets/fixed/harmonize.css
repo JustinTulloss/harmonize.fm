@@ -1,0 +1,60 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
+    font-size: 12px;
+    color: #333;
+    background: #DDD;
+}
+
+#header {
+    background: #334466;
+    color: white;
+    height: 75px;
+    position: relative;
+}
+
+#header a {
+    color: white;
+    text-decoration: none;
+}
+
+#header a:hover {
+    color: #FF8811;
+}
+
+#signin {
+    text-align: right;
+    padding-right: 3px;
+    font-size: 10px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+#content-table {
+    width: 100%;
+    border: none;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#content-table td {
+    padding: 0;
+    margin: 0;
+}
+
+#page {
+    width: 800px;
+    background: white;
+    text-align: left;
+    border-left: solid 1px #AAA;
+    border-right: solid 1px #AAA;
+}
+
+#side {
+    width: 266px;
+    background: #D8DEEB;
+}
