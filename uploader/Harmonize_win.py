@@ -1,6 +1,7 @@
 import pythoncom
 pythoncom.CoInitialize()
 
+import os
 import fb, itunes, upload, thread, dir_browser, hplatform, db, singleton
 from Queue import Queue
 import clr
@@ -338,7 +339,7 @@ class OptionWin(winforms.Form):
 
 		if not itunes.get_library_file():
 			self.radioITunes.Enabled = False
-			self.set_upload_src('folder')
+			db.set_upload_src('folder')
 
 		if db.get_upload_src() == 'itunes':
 			self.radioITunes.Checked = True
@@ -404,20 +405,28 @@ class FolderBrowserWin(winforms.Form):
 		self.Controls.Add(treeview)
 
 		def add_children(node):
-			if node.Nodes.Count != 0:
+			if node.Nodes.Count != 1 or node.Nodes[0].Text != 'harmonize_dummy':
 				return
 			try:
+				node.Nodes.Clear()
 				children = dir_browser.get_dir_listing(node.FullPath + '\\')
 				for child in children:
-					node.Nodes.Add(child, child)
+					new_node = node.Nodes.Add(child, child)
+					if os.path.isdir(new_node.FullPath):
+						new_node.Nodes.Add('harmonize_dummy')
+				if len(self.path_list) == 1:
+					treeview.SelectedNode = \
+						node.Nodes[node.Nodes.IndexOfKey(self.path_list.pop(0))]
+				elif self.path_list != []:
+					node.Nodes[node.Nodes.IndexOfKey(self.path_list.pop(0))].\
+						Expand()
 			except WindowsError:
 				pass #This is an access denied error
 
 		def onBeforeExpand(sender, args):
 			node = args.Node
 
-			for childNode in node.Nodes:
-				add_children(childNode)
+			add_children(node)
 
 		def onAfterSelect(sender, args):
 			add_children(args.Node)
@@ -442,18 +451,14 @@ class FolderBrowserWin(winforms.Form):
 			elif driveInfo.DriveType == System.IO.DriveType.CDRom:
 				node.ImageIndex = 2
 				node.SelectedImageIndex = 2
-
-		def getNode(path):
-			path_list = path.split('\\')
-			node = treeview
-			for next_node in path_list:
-				node = node.Nodes[node.Nodes.IndexOfKey(next_node)]
-				add_children(node)
-			
-			return node
+			node.Nodes.Add('harmonize_dummy')
 
 		treeview.BeginUpdate()
-		treeview.SelectedNode = getNode(self.uploadFolder)
+		
+		self.path_list = self.uploadFolder.split('\\')
+		treeview.Nodes[treeview.Nodes.IndexOfKey(self.path_list.pop(0))].\
+			Expand()
+		
 		treeview.EndUpdate()
 		treeview.Focus()
 
