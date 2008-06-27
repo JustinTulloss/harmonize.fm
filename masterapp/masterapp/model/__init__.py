@@ -41,6 +41,7 @@ spotlights_table = Table('spotlights', metadata, autoload=True)
 spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
 puids_table = Table('puids', metadata, autoload=True)
 songowners_table = Table('songowners', metadata, autoload=True)
+whitelists_table = Table('whitelists', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -404,6 +405,11 @@ class SongOwner(object):
         self.song = song
         self.user = user
 
+class Whitelist(object):
+    def __init__(self, fbid=None, registered=False):
+        self.fbid = fbid
+        self.registered = registered
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -514,3 +520,5 @@ mapper(Puid, puids_table)
 mapper(SongOwner, songowners_table, properties={
     'user': relation(User, lazy=True, backref='owners')
 })
+
+mapper(Whitelist, whitelists_table)

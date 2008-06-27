@@ -5,7 +5,7 @@ import socket
 import cPickle as pickle
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
-from masterapp.model import Session, File, Song, Album, BlogEntry, User
+from masterapp.model import Session, File, Song, Album, BlogEntry, User, Whitelist
 from mako.template import Template
 from pylons import config
 
@@ -105,3 +105,22 @@ class AdminController(BaseController):
 
         c.status = pickle.loads(msg)
         return render('/admin/monitor_pipeline.mako')
+
+    def manage_whitelist(self):
+        c.whitelists = Session.query(Whitelist).all()
+        return render('/admin/manage_whitelist.mako')
+
+    def remove_from_whitelist(self):
+        for id in request.params.iterkeys():
+            entry = Session.query(Whitelist).get(id)
+            if entry:
+                Session.delete(entry)
+            Session.commit()
+            redirect_to(action='manage_whitelist')
+
+    def add_to_whitelist(self):
+        fbid = request.params.get('fbid')
+        w = Whitelist(fbid=fbid, registered=False)
+        Session.save(w)
+        Session.commit()
+        redirect_to(action='manage_whitelist')
