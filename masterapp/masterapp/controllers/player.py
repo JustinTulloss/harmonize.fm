@@ -41,8 +41,8 @@ class PlayerController(BaseController):
         self.email_regex = re.compile("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,6}$")
 
     def __before__(self):
-        if not (ensure_fb_session()):
-            redirect_to("/")
+        if not ensure_fb_session():
+                redirect_to("/")
 
     def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]

@@ -19,7 +19,9 @@ def ensure_fb_session():
         session['fbuid']= facebook.uid
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()        
-
+        #raise RuntimeError()
+        if not qualified_for_login(facebook.uid, 1):
+            return False
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
@@ -50,7 +52,7 @@ def ensure_fb_session():
         return setup_user()
 
     if not session.has_key('fbsession'):
-        if facebook.check_session(request):
+        if facebook.check_session(request):            
             return setup_user()
         else:
             qry_string = request.environ['QUERY_STRING']
@@ -65,9 +67,6 @@ def ensure_fb_session():
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
-        if not qualified_for_login(facebook.uid, 1):
-            redirect_to("/")
-            return False
         return True
 
 friendcache = cache.get_cache('fbfriends')
@@ -133,7 +132,9 @@ def qualified_for_login(user, breadth):
         if base_users.count(user) != 0:
                 return True
 	for b in base_users:
-                if (facebook.friends.areFriends([user],[b])):
+                r = facebook.friends.areFriends([user],[b])
+                
+                if r[0]['are_friends']:
                         return True
         # next see if this user is on the whitelist
         qry = Session.query(Whitelist).filter(Whitelist.fbid == user)
