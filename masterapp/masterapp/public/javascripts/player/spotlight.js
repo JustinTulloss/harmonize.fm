@@ -212,7 +212,22 @@ function show_spotlight(record,mode) {
 }
 
 function delete_spotlight(spot_id,type) {
-    if (type) {
+    if (type == "album") {
+        Ext.Ajax.request({
+            url: 'metadata/find_spotlight_by_id/',
+            params: {id: spot_id},
+            success: 
+                function(response, options) {
+                    if (response.responseText != "False") {
+                        record = untyped_record(response);
+                        record['id'] = spot_id;
+                        show_spotlight(record, "delete");
+                    } else show_status_msg("error parsing spotlight information");
+                },        
+            
+            failure: function() {show_status_msg('error retrieving spotlight information');}
+        });    
+    } else if (type == "playlist") {
         Ext.Ajax.request({
             url: 'metadata/find_playlist_spotlight_by_id/',
             params: {id: spot_id},
@@ -221,16 +236,12 @@ function delete_spotlight(spot_id,type) {
                     if (response.responseText != "False") {
                         record = untyped_record(response);
                         record['id'] = spot_id;
-                        if (type == "album") {
-                            show_spotlight(record, "delete");
-                        } else if (type == "playlist") {
-                            show_spotlight(record, "delete_playlist");
-                        }
+                        show_spotlight(record, "delete_playlist");
                     } else show_status_msg("error parsing spotlight information");
                 },        
             
             failure: function() {show_status_msg('error retrieving spotlight information');}
-        });    
+        });
     }
 }
 

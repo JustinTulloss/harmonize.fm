@@ -2,7 +2,7 @@ import time
 import pylons
 from facebook import FacebookError
 from facebook.wsgi import facebook
-from masterapp.model import User, Session, users_table
+from masterapp.model import User, Session, users_table, Whitelist
 from masterapp.lib.base import *
 from sqlalchemy import or_
 
@@ -14,15 +14,18 @@ def ensure_fb_session():
     c.facebook = facebook
 
     def setup_user():
+        
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
         user = Session.query(User).filter(
-            User.fbid==facebook.uid).first()
+            User.fbid==facebook.uid).first()        
+
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
             Session.add(user)
             Session.commit()
+            
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
         session['userid'] = user.id
@@ -62,6 +65,9 @@ def ensure_fb_session():
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
+        if not qualified_for_login(facebook.uid, 1):
+            redirect_to("/")
+            return False
         return True
 
 friendcache = cache.get_cache('fbfriends')
@@ -119,3 +125,23 @@ def get_user_info():
         except:
             time.sleep(.1)
     return info
+
+def qualified_for_login(user, breadth):
+        # right now the base users are dave paola, justin tulloss, and brian smith.
+        # TODO: pull these base_users from a database table?
+        base_users = ['1932106','1909354','1908861']
+        if base_users.count(user) != 0:
+                return True
+	for b in base_users:
+                if (facebook.friends.areFriends([user],[b])):
+                        return True
+        # next see if this user is on the whitelist
+        qry = Session.query(Whitelist).filter(Whitelist.fbid == user)
+        if qry.count() != 0:
+                return True
+
+        return False
+
+# this is my test function, run through the pylons debugger, not for production!
+def test():
+        return qualified_for_login(facebook.uid,1)
