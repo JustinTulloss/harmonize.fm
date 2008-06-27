@@ -165,6 +165,7 @@ def start_uploader(base_callback):
 		if song_list == None:
 			callback.set_msg('No music found!\nClick Options to add some')
 			while get_action() != 'options_changed': pass
+			callback.activate()
 			continue
 		elif song_list == []:
 			callback.set_msg('No new music to upload...')
@@ -176,6 +177,7 @@ def start_uploader(base_callback):
 			callback.start_auth()
 			action = get_action()
 			if action == 'options_changed':
+				callback.activate()
 				continue
 			elif action != 'login_complete':
 				raise Exception('Unknown action received')

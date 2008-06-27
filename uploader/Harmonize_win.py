@@ -109,7 +109,7 @@ This program will synchronize your music library with our servers so you can lis
 		self.optionsButton.Click += EventHandler(optionsClicked)
 		self.Controls.Add(self.optionsButton)
 
-		self.optionWin = OptionWin()
+		self.optionWin = OptionWin(self)
 
 		self.progress = winforms.ProgressBar()
 		self.progress.Location = Point(16, 78)
@@ -166,7 +166,7 @@ This program will synchronize your music library with our servers so you can lis
 				my.optionsMenuItem.Enabled = val
 
 			def activate(self):
-				pass
+				my.activate()
 
 		self.a = Actions()
 		self.actions = Queue()
@@ -182,6 +182,10 @@ This program will synchronize your music library with our servers so you can lis
 			if self.WindowState == winforms.FormWindowState.Minimized:
 				self.WindowState = winforms.FormWindowState.Normal
 			self.Activate()
+		self.activate = lambda: statusClicked(None, None)
+
+		self.appIcon.DoubleClick += EventHandler(statusClicked)
+
 		statusMenuItem.Click += EventHandler(statusClicked)
 		menu.MenuItems.Add(statusMenuItem)
 		my.optionsMenuItem = winforms.MenuItem('Options')
@@ -226,7 +230,7 @@ This program will synchronize your music library with our servers so you can lis
 			self.appIcon.Dispose()
 
 class OptionWin(winforms.Form):
-	def __init__(self):
+	def __init__(self, statusForm):
 		global icon
 		formSize = Size(352, 273)
 		self.Size = formSize
