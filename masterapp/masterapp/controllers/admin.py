@@ -18,7 +18,9 @@ class AdminController(BaseController):
     admin = [1908861,1909354, 1932106]
 
     def __before__(self):
-        ensure_fb_session()
+        if not ensure_fb_session():
+                redirect_to("/")
+
         user = Session.query(User).get(session['userid'])
         if not user.fbid in self.admin:
             redirect_to('/')
