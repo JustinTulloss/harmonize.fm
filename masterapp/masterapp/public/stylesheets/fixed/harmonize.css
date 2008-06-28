@@ -5,14 +5,31 @@ body, html {
     font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
     font-size: 12px;
     color: #333;
-    background: #DDD;
+    background: white;
+}
+
+.fixed {
+    width: 700px;
+}
+
+#banner {
+    background: #334466;
+    color: white;
+}
+
+#color {
+    background: #D8DEEB;
+    height: 10px;
 }
 
 #header {
-    background: #334466;
-    color: white;
-    height: 75px;
     position: relative;
+    height: 70px;
+    text-align: left;
+}
+
+#header img {
+    margin-top: 18px;
 }
 
 #header a {
@@ -33,12 +50,47 @@ body, html {
     right: 0;
 }
 
+#connect {
+    text-align: center;
+    padding-top: 30px;
+}
+
+.aspect {
+    padding: 15px;
+    margin: 15px;
+}
+
+.aspect-title {
+    font-size: 16pt;
+    color: #999;
+    padding-bottom: 5px;
+}
+
+.aspect-link {
+    text-align: center;
+    text-decoration: underline;
+    padding-top: 10px;
+}
+
+.aspect-link a{
+    color: #333;
+}
+
+.aspect-link img {
+    border: none;
+}
+
+.aspect-link a:hover {
+    color: #ff8811;
+}
+
 #content-table {
-    width: 100%;
     border: none;
     border-spacing: 0;
     margin: 0;
     padding: 0;
+    font-size: 12pt;
+    border-bottom: 1px solid #999;
 }
 
 #content-table td {
@@ -46,15 +98,26 @@ body, html {
     margin: 0;
 }
 
-#page {
-    width: 800px;
-    background: white;
-    text-align: left;
-    border-left: solid 1px #AAA;
-    border-right: solid 1px #AAA;
+#side {
+    vertical-align: top;
+    width: 95px;
+    font-size: 10pt;
 }
 
-#side {
-    width: 266px;
-    background: #D8DEEB;
+#side a {
+    color: #999;
+}
+
+#side a:hover {
+    text-decoration: underline;
+    color: #ff8811;
+}
+
+#side-content {
+    margin-top: 10px;
+}
+
+#copyright {
+    text-align: center;
+    font-size: 8pt;
 }
