@@ -138,6 +138,9 @@ class Pinger(object):
 				continue
 
 			self.lock.acquire()
+			if pingtime == 0.0:
+				self.lock.release()
+				continue
 			error = (pingtime - self.baseline) / pingtime
 			if error < -.2:
 				self.update_rate('fast')

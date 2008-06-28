@@ -6,6 +6,9 @@ server_url = 'http://'+config.current['server_addr']+':'+ \
 		str(config.current['server_port'])+'/desktop_login'
 thread_started = False
 
+def listen_now():
+	webbrowser.open('http://harmonize.fm/player')
+
 def login(callback):
 	"""A non-blocking function that handles facebook login through a web
 	browser. callback should be a function that takes the session key as an

@@ -1,192 +1,389 @@
 import pythoncom
 pythoncom.CoInitialize()
 
-import fb, itunes, upload, thread, dir_browser, hplatform
+import os
+import fb, itunes, upload, thread, dir_browser, hplatform, db, singleton
+from Queue import Queue
 import clr
 import System
 import System.IO
 import System.Windows.Forms as winforms
-from System.Drawing import Size, Point, Image
+from System.Drawing import Size, Point, Image, ContentAlignment, Bitmap, Icon
 from System import EventHandler
+
+icon = Icon.FromHandle(Bitmap('icon.bmp').GetHicon())
 
 class MainWin(winforms.Form):
 	def __init__(self):
-		formSize = Size(173, 102)
+		global icon
+
+		formSize = Size(308, 213)
 		self.Size = formSize
 		self.MinimumSize = formSize
 		self.MaximumSize = formSize
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
-		self.Text = 'Harmonize'
+		self.Text = 'Harmonizer'
+		self.Icon = icon
+		self.MaximizeBox = False
 
-		self.mainLabel = winforms.Label()
-		self.mainLabel.AutoSize = True
-		self.mainLabel.Location = Point(12, 9)
-		self.mainLabel.Text = 'Click Login to start uploading'
-		self.Controls.Add(self.mainLabel)
+		self.FormClosing += EventHandler(self.formClosing)
 
-		loginButton = winforms.Button()
-		loginButton.Size = Size(65, 23)
-		loginButton.Location = Point(15, 26)
-		loginButton.Text = 'Login'
-		loginButton.Click += EventHandler(self.loginClicked)
-		self.Controls.Add(loginButton)
+		self.components = System.ComponentModel.Container()
 
-		def optionClicked(sender, args):
+		intro = winforms.Panel()
+		intro.Size = formSize
+
+		introText = winforms.Label()
+		introText.Location = Point(13, 13)
+		introText.Size = Size(275, 125)
+		introText.Text = \
+'''Welcome to the Harmonizer.
+
+This program will synchronize your music library with our servers so you can listen to your music anywhere and share music with your friends.'''
+		intro.Controls.Add(introText)
+
+		def nextClicked(sender, args):
+			self.Controls.Remove(intro)
+			thread.start_new_thread(
+					lambda x: upload.start_uploader(self), (None,))
+		
+		nextButton = winforms.Button()
+		nextButton.Location = Point(233, 144)
+		nextButton.Size = Size(54, 23)
+		nextButton.Text = 'Next'
+		nextButton.Click += EventHandler(nextClicked)
+		intro.Controls.Add(nextButton)
+
+		self.Controls.Add(intro)
+
+		totalUploadedLabel = winforms.Label()
+		totalUploadedLabel.AutoSize = True
+		totalUploadedLabel.Location = Point(13, 13)
+		totalUploadedLabel.Text = 'Total Uploaded:'
+		self.Controls.Add(totalUploadedLabel)
+
+		remainingLabel = winforms.Label()
+		remainingLabel.AutoSize = True
+		remainingLabel.Location = Point(13, 33)
+		remainingLabel.Text = 'Remaining:'
+		self.Controls.Add(remainingLabel)
+
+		skippedLabel = winforms.Label()
+		skippedLabel.AutoSize = True
+		skippedLabel.Location = Point(13, 53)
+		skippedLabel.Text = 'Skipped:'
+		self.Controls.Add(skippedLabel)
+
+		self.totalUploaded = winforms.Label()
+		self.totalUploaded.Location = Point(187, 13)
+		self.totalUploaded.Size = Size(100, 13)
+		self.totalUploaded.TextAlign = ContentAlignment.TopRight
+		self.Controls.Add(self.totalUploaded)
+
+		self.remaining = winforms.Label()
+		self.remaining.Location = Point(187, 33)
+		self.remaining.Size = Size(100, 13)
+		self.remaining.TextAlign = ContentAlignment.TopRight
+		self.Controls.Add(self.remaining)
+
+		self.skipped = winforms.Label()
+		self.skipped.Location = Point(187, 53)
+		self.skipped.Size = Size(100, 13)
+		self.skipped.TextAlign = ContentAlignment.TopRight
+		self.Controls.Add(self.skipped)
+
+		self.loginButton = winforms.Button()
+		self.loginButton.Location = Point(233, 144)
+		self.loginButton.Size = Size(54, 23)
+		self.loginButton.Text = 'Login'
+		self.loginButton.Click += EventHandler(self.loginClicked)
+		self.Controls.Add(self.loginButton)
+
+		def optionsClicked(sender, args):
 			self.AddOwnedForm(self.optionWin)
 			self.optionWin.ShowDialog()
 
 		self.optionsButton = winforms.Button()
-		self.optionsButton.Size = Size(65, 23)
-		self.optionsButton.Location = Point(86, 26)
-		self.optionsButton.Text = 'Options...'
-		self.optionsButton.Click += EventHandler(optionClicked)
+		self.optionsButton.Size = Size(54, 23)
+		self.optionsButton.Location = Point(173, 144)
+		self.optionsButton.Text = 'Options'
+		self.optionsButton.Click += EventHandler(optionsClicked)
 		self.Controls.Add(self.optionsButton)
 
-		self.optionWin = OptionWin()
+		self.optionWin = OptionWin(self)
 
-	def loginClicked(self, sender, args):
-		def callback(session_key):
-			self.Invoke(winforms.MethodInvoker(self.startUploading))
+		def listenClicked(s, e):
+			fb.listen_now()
 
-		fb.login(callback)	
+		self.listenButton = winforms.Button()
+		self.listenButton.Location = Point(16, 144)
+		self.listenButton.Size = Size(54, 23)
+		self.listenButton.Text = 'Listen'
+		self.listenButton.Enabled = False
+		self.listenButton.Click += EventHandler(listenClicked)
+		self.Controls.Add(self.listenButton)
+
+		self.progress = winforms.ProgressBar()
+		self.progress.Location = Point(16, 78)
+		self.progress.Minimum = 0
+		self.progress.Maximum = 100
+		self.progress.Size = Size(271, 23)
+		self.Controls.Add(self.progress)
+
+		self.info = winforms.Label()
+		self.info.Location = Point(16, 110)
+		self.info.Size = Size(271, 28)
+		self.Controls.Add(self.info)
+
+		my = self
+		class Actions(object):
+			def init(self):
+				my.remaining.Text = str(0)
+				my.skipped.Text = str(0)
+				my.progress.Value = 0.0
+
+			def inc_totalUploaded(self):
+				my.totalUploaded.Text = str(int(my.totalUploaded.Text) + 1)
+
+			def set_totalUploaded(self, val):
+				my.totalUploaded.Text = str(val)
+
+			def inc_skipped(self):
+				my.skipped.Text = str(int(my.skipped.Text) + 1)
+
+			def dec_remaining(self):
+				my.remaining.Text = str(int(my.remaining.Text) - 1)
+
+			def inc_remaining(self):
+				my.remaining.Text = str(int(my.remaining.Text) + 1)
+
+			def set_progress(self, spinning, val=None):
+				if spinning:
+					my.progress.Style = winforms.ProgressBarStyle.Marquee
+				else:
+					my.progress.Style = winforms.ProgressBarStyle.Continuous
+
+				if val != None:
+					my.progress.Value = int(val*100)
+
+			def set_msg(self, msg):
+				my.info.Text = msg
+
+			def loginEnabled(self, val):
+				my.loginButton.Enabled = val
+
+			def optionsEnabled(self, val):
+				my.optionsButton.Enabled = val
+				my.optionsMenuItem.Enabled = val
+
+			def listenEnabled(self, val):
+				my.listenButton.Enabled = val
+
+			def activate(self):
+				my.activate()
+
+		self.a = Actions()
+		self.actions = Queue()
+		#icon = Icon.FromHandle(Bitmap('icon.bmp').GetHicon())
+		self.appIcon = winforms.NotifyIcon()
+		self.appIcon.Icon = icon
+		self.appIcon.Text = 'Harmonizer'
+
+		menu = winforms.ContextMenu()
+		statusMenuItem = winforms.MenuItem('Status')
+		def statusClicked(s, e):
+			self.Show()
+			if self.WindowState == winforms.FormWindowState.Minimized:
+				self.WindowState = winforms.FormWindowState.Normal
+			self.Activate()
+		self.activate = lambda: statusClicked(None, None)
+
+		self.appIcon.DoubleClick += EventHandler(statusClicked)
+
+		statusMenuItem.Click += EventHandler(statusClicked)
+		menu.MenuItems.Add(statusMenuItem)
+		my.optionsMenuItem = winforms.MenuItem('Options')
+		my.optionsMenuItem.Click += optionsClicked
+		menu.MenuItems.Add(my.optionsMenuItem)
+		exitMenuItem = winforms.MenuItem('Exit')
+		menu.MenuItems.Add(exitMenuItem)
+		self.exitClicked = False
+		def exit(s, e):
+			self.exitClicked = True
+			winforms.Application.Exit()
+		exitMenuItem.Click += EventHandler(exit)
+			
+		self.appIcon.ContextMenu = menu
+		self.appIcon.Visible = True
+
+		singleton.set_callback(self.activate)
 	
-	def startUploading(self):
-		self.Controls.Clear()
+	def add_action(self, fn, params):
+		self.actions.put((fn, params))
 
-		self.mainLabel = winforms.Label()
-		self.mainLabel.Location = Point(12, 9)
-		self.mainLabel.AutoSize = True
-		self.mainLabel.Text = 'Upload starting...'
-		self.Controls.Add(self.mainLabel)
+	def complete_actions(self):
+		def complete_actions_aux():
+			while not self.actions.empty():
+				fn, params = self.actions.get()
+				fn(*params)
 
-		self.progressbar = winforms.ProgressBar()
-		self.Controls.Add(self.progressbar)
-		self.progressbar.Size = Size(133, 14)
-		self.progressbar.Location = Point(12, 42)
-		self.progressbar.Style = winforms.ProgressBarStyle.Marquee
+		#Don't want to keep updating UI after the app has closed
+		if not self.exitClicked:
+			self.Invoke(winforms.MethodInvoker(complete_actions_aux))
 
-		thread.start_new_thread(self.uploader, ())
+	def do_action(self, fn, params):
+		self.add_action(fn, params)
+		self.complete_actions()	
+			
+	def loginClicked(self, sender, args):
+		fb.login(upload.login_callback)	
 
-	def uploader(self):
-		tracks = self.optionWin.get_tracks()
-
-		def main_thread_delegated(fn):
-			def wrapper(*args):
-				delegate = winforms.MethodInvoker(lambda: fn(*args))
-				self.Invoke(delegate)
-
-			return wrapper
-
-		textbox = self.mainLabel
-		progressbar = self.progressbar
-
-		class Callback(object):
-			@main_thread_delegated
-			def init(self, msg, total_songs):
-				textbox.Text = msg
-				progressbar.Maximum = total_songs
-				progressbar.Style = winforms.ProgressBarStyle.Blocks
-
-			@main_thread_delegated
-			def update(self, msg, songs_left):
-				textbox.Text = msg
-				progressbar.Style = winforms.ProgressBarStyle.Blocks
-				progressbar.Value = progressbar.Maximum - songs_left
-
-			@main_thread_delegated
-			def error(self, msg):
-				textbox.Text = msg
-				progressbar.Style = winforms.ProgressBarStyle.Marquee
-
-		callback = Callback()
-
-		upload.upload_files(tracks, callback)
+	def formClosing(self, sender, e):
+		if not self.exitClicked:
+			e.Cancel = True
+			self.Hide()
+		else:
+			self.appIcon.Dispose()
 
 class OptionWin(winforms.Form):
-	def __init__(self):
-		formSize = Size(367, 184)
+	def __init__(self, statusForm):
+		global icon
+		formSize = Size(352, 273)
 		self.Size = formSize
 		self.MinimumSize = formSize
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
 		self.Text = 'Options'
+		self.Icon = icon
 
 		label = winforms.Label()
 		label.AutoSize = True
-		label.Location = Point(12, 9)
-		label.Text = 'Select where you would like to upload from'
+		label.Location = Point(12, 13)
+		label.Text = 'Select where you would like to upload music from'
 		self.Controls.Add(label)
+
+		self.changed = False
+
+		def onITunesChecked(sender, args):
+			if self.radioITunes.Checked:
+				db.set_upload_src('itunes')
+				self.changed = True
 
 		self.radioITunes = winforms.RadioButton()
 		self.radioITunes.AutoSize = True
-		self.radioITunes.Location = Point(16, 27)
+		self.radioITunes.Location = Point(12, 33)
 		self.radioITunes.Text = 'iTunes'
+		self.radioITunes.CheckedChanged += EventHandler(onITunesChecked)
 		self.Controls.Add(self.radioITunes)
+
+		def onFolderChecked(sender, args):
+			if self.radioFolder.Checked:
+				db.set_upload_src('folder')
+				self.changed = True
 
 		self.radioFolder = winforms.RadioButton()
 		self.radioFolder.AutoSize = True
-		self.radioFolder.Location = Point(16, 51)
+		self.radioFolder.Location = Point(12, 56)
 		self.radioFolder.Text = 'Folder:'
+		self.radioFolder.CheckedChanged += EventHandler(onFolderChecked)
 		self.Controls.Add(self.radioFolder)
 
-		self.uploadFolderBox = winforms.TextBox()
-		self.uploadFolderBox.Size = Size(247, 20)
-		self.uploadFolderBox.Location = Point(36, 74)
-		self.uploadFolderBox.Text = hplatform.get_default_path()
-		self.uploadFolderBox.ReadOnly = True
-		self.Controls.Add(self.uploadFolderBox)
+		folderList = winforms.ListBox()
+		folderList.Location = Point(31, 79)
+		folderList.SelectionMode = winforms.SelectionMode.MultiExtended
+		folderList.Size = Size(301, 121)
+		folderList.Anchor = \
+			winforms.AnchorStyles.Top | winforms.AnchorStyles.Bottom | \
+			winforms.AnchorStyles.Left | winforms.AnchorStyles.Right
+		self.Controls.Add(folderList)
 
-		def browseClicked(sender, args):
-			browser = FolderBrowserWin(self.selected_folder())
+		for dir in db.get_upload_dirs():
+			folderList.Items.Add(dir)
+
+		def addClicked(sender, args):
+			upload_dirs = db.get_upload_dirs()
+			if upload_dirs:
+				start_dir = upload_dirs[-1]
+			else:
+				start_dir = hplatform.get_default_path()
+			browser = FolderBrowserWin(start_dir)
 			if browser.ShowDialog() == winforms.DialogResult.OK:
-				self.set_selected_folder(browser.uploadFolder)
+				upload_dirs.append(browser.uploadFolder)
+				db.set_upload_dirs(upload_dirs)
+				folderList.Items.Add(browser.uploadFolder)
+				self.changed = True
 			browser.Dispose()
 
-		browseButton = winforms.Button()
-		browseButton.Size = Size(61, 23)
-		browseButton.Location = Point(287, 72)
-		browseButton.Text = 'Browse...'
-		browseButton.Click += EventHandler(browseClicked)
-		self.Controls.Add(browseButton)
+		addButton = winforms.Button()
+		addButton.Location = Point(31, 208)
+		addButton.Size = Size(62, 23)
+		addButton.Text = 'Add...'
+		addButton.Click += EventHandler(addClicked)
+		addButton.Anchor = \
+			winforms.AnchorStyles.Left | winforms.AnchorStyles.Bottom
+		self.Controls.Add(addButton)
+
+		def removeClicked(sender, args):
+			upload_dirs = db.get_upload_dirs()
+			new_upload_dirs = []
+			i=0
+			for dir in upload_dirs:
+				if i not in folderList.SelectedIndices:
+					new_upload_dirs.append(dir)
+				i += 1
+			db.set_upload_dirs(new_upload_dirs)
+			folderList.Items.Clear()
+			for dir in new_upload_dirs:
+				folderList.Items.Add(dir)
+			self.changed = True
+
+		removeButton = winforms.Button()
+		removeButton.Location = Point(99, 208)
+		removeButton.Text = 'Remove'
+		removeButton.Click += EventHandler(removeClicked)
+		removeButton.Anchor = \
+			winforms.AnchorStyles.Left | winforms.AnchorStyles.Bottom
+		self.Controls.Add(removeButton)
 
 		def okClicked(sender, args):
 			self.Hide()
 			self.DialogResult = winforms.DialogResult.OK
 
 		okButton = winforms.Button()
-		okButton.Size = Size(61, 23)
-		okButton.Location = Point(287, 115)
+		okButton.Size = Size(62, 23)
+		okButton.Location = Point(270, 208)
 		okButton.Text = 'OK'
 		okButton.Click += EventHandler(okClicked)
+		okButton.Anchor = \
+			winforms.AnchorStyles.Right | winforms.AnchorStyles.Bottom 
 		self.Controls.Add(okButton)
 
-		if itunes.get_library_file() != None:
+		if not itunes.get_library_file():
+			self.radioITunes.Enabled = False
+			db.set_upload_src('folder')
+
+		if db.get_upload_src() == 'itunes':
 			self.radioITunes.Checked = True
+			self.radioFolder.Checked = False
 		else:
 			self.radioITunes.Checked = False
-			self.radioITunes.Enabled = False
 			self.radioFolder.Checked = True
 
-	def get_tracks(self):
-		if self.radioITunes.Checked:
-			return filter(upload.is_music_file,
-							itunes.ITunes().get_all_track_filenames())
-		else:
-			return upload.get_music_files(self.selected_folder())
+		def formClosed(sender, args):
+			if self.changed:
+				upload.options_changed()
+				self.changed = False
+		self.FormClosed += EventHandler(formClosed)
 
-	def selected_folder(self):
-		return self.uploadFolderBox.Text
-	
-	def set_selected_folder(self, value):
-		self.uploadFolderBox.Text = value
-		
 
 class FolderBrowserWin(winforms.Form):
 	def __init__(self, uploadFolder):
+		global icon
 		formSize = Size(367, 367)
 		self.Size = formSize
 		self.MinimumSize = formSize
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
 		self.Text = 'Folder Select'
+		self.Icon = icon
 
 		self.uploadFolder = uploadFolder
 
@@ -199,6 +396,8 @@ class FolderBrowserWin(winforms.Form):
 		okButton.Location = Point(190, 298)
 		okButton.Text = 'OK'
 		okButton.Click += EventHandler(okClicked)
+		okButton.Anchor = \
+			winforms.AnchorStyles.Right | winforms.AnchorStyles.Bottom 
 		self.Controls.Add(okButton)
 
 		def cancelClicked(sender, args):
@@ -210,6 +409,8 @@ class FolderBrowserWin(winforms.Form):
 		cancelButton.Location = Point(271, 298)
 		cancelButton.Text = 'Cancel'
 		cancelButton.Click += EventHandler(cancelClicked)
+		cancelButton.Anchor = \
+			winforms.AnchorStyles.Right | winforms.AnchorStyles.Bottom 
 		self.Controls.Add(cancelButton)
 
 		imageList = winforms.ImageList()
@@ -228,20 +429,28 @@ class FolderBrowserWin(winforms.Form):
 		self.Controls.Add(treeview)
 
 		def add_children(node):
-			if node.Nodes.Count != 0:
+			if node.Nodes.Count != 1 or node.Nodes[0].Text != 'harmonize_dummy':
 				return
 			try:
+				node.Nodes.Clear()
 				children = dir_browser.get_dir_listing(node.FullPath + '\\')
 				for child in children:
-					node.Nodes.Add(child, child)
+					new_node = node.Nodes.Add(child, child)
+					if os.path.isdir(new_node.FullPath):
+						new_node.Nodes.Add('harmonize_dummy')
+				if len(self.path_list) == 1:
+					treeview.SelectedNode = \
+						node.Nodes[node.Nodes.IndexOfKey(self.path_list.pop(0))]
+				elif self.path_list != []:
+					node.Nodes[node.Nodes.IndexOfKey(self.path_list.pop(0))].\
+						Expand()
 			except WindowsError:
 				pass #This is an access denied error
 
 		def onBeforeExpand(sender, args):
 			node = args.Node
 
-			for childNode in node.Nodes:
-				add_children(childNode)
+			add_children(node)
 
 		def onAfterSelect(sender, args):
 			add_children(args.Node)
@@ -266,20 +475,19 @@ class FolderBrowserWin(winforms.Form):
 			elif driveInfo.DriveType == System.IO.DriveType.CDRom:
 				node.ImageIndex = 2
 				node.SelectedImageIndex = 2
+			node.Nodes.Add('harmonize_dummy')
 
-		def getNode(path):
-			path_list = path.split('\\')
-			node = treeview
-			for next_node in path_list:
-				node = node.Nodes[node.Nodes.IndexOfKey(next_node)]
-				add_children(node)
-			
-			return node
-
-		treeview.SelectedNode = getNode(self.uploadFolder)
+		treeview.BeginUpdate()
+		
+		self.path_list = self.uploadFolder.split('\\')
+		treeview.Nodes[treeview.Nodes.IndexOfKey(self.path_list.pop(0))].\
+			Expand()
+		
+		treeview.EndUpdate()
 		treeview.Focus()
 
 winforms.Application.EnableVisualStyles()
 
 if __name__ == '__main__':
-	winforms.Application.Run(MainWin())
+	if not singleton.running():
+		winforms.Application.Run(MainWin())

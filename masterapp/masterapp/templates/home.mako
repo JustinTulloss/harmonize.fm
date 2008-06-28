@@ -7,7 +7,7 @@
             href = None
             if c.num_songs == 0:
                 if c.platform == 'windows':
-                    href = '/uploaders/setup.exe'
+                    href = '/uploaders/Harmonizer Setup.exe'
                 elif c.platform == 'mac':
                     href = '/uploaders/Harmonize.dmg'
                 endif

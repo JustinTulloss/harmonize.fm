@@ -35,11 +35,12 @@
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {login = id; next = id; options = id; }; 
+            ACTIONS = {listen = id; login = id; next = id; options = id; }; 
             CLASS = UploadController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
                 introView = NSView; 
+                listenButton = NSButton; 
                 loginButton = NSButton; 
                 optionsButton = NSButton; 
                 optionsMenu = NSMenuItem; 

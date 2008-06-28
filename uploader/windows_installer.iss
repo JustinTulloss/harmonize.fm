@@ -15,7 +15,7 @@ AppUpdatesURL=http://harmonize.fm
 DefaultDirName={pf}\Harmonize
 DisableDirPage=yes
 DefaultGroupName=Harmonize
-OutputBaseFilename=setup
+OutputBaseFilename=Harmonizer Setup
 Compression=lzma
 SolidCompression=yes
 
@@ -109,7 +109,7 @@ begin
     if downloadNeeded then begin
 
       isxdl_SetOption('label', 'Downloading Microsoft .NET Framework 2.0');
-      isxdl_SetOption('description', 'Image Gallery Designer 0.9 needs to install the Microsoft .NET Framework 2.0. Please wait while Setup is downloading extra files to your computer.');
+      isxdl_SetOption('description', 'Harmonizer needs to install the Microsoft .NET Framework 2.0. Please wait while Setup is downloading extra files to your computer.');
       if isxdl_DownloadFiles(hWnd) = 0 then Result := false;
     end;
     if (Result = true) and (dotNetNeeded = true) then begin
