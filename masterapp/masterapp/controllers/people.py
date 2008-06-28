@@ -44,11 +44,11 @@ class PeopleController(BaseController):
         else:
             return '0'
 
-    def invite(self, ids):
+    def invite(self,**kwargs):
         fbml = '<fb:notif-page> invited you as a private beta user to <a href="http://harmonize.fm/player">Harmonize.fm</a></fb:notif-page>'
         # TODO: right now, we only have one id coming in.  when we change this, we need to
         # split them up into an array and pass that to the send() function below.
-        response = facebook.notifications.send([ids],fbml)
+        response = facebook.notifications.send(kwargs['id'],fbml)
         # CANNOT find a way to get any sort of response from this call, for now just assume it worked
         # :-/
         return '1'
