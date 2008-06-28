@@ -24,6 +24,7 @@ class MainWin(winforms.Form):
 		self.StartPosition = winforms.FormStartPosition.CenterScreen
 		self.Text = 'Harmonizer'
 		self.Icon = icon
+		self.MaximizeBox = False
 
 		self.FormClosing += EventHandler(self.formClosing)
 
@@ -111,6 +112,17 @@ This program will synchronize your music library with our servers so you can lis
 
 		self.optionWin = OptionWin(self)
 
+		def listenClicked(s, e):
+			fb.listen_now()
+
+		self.listenButton = winforms.Button()
+		self.listenButton.Location = Point(16, 144)
+		self.listenButton.Size = Size(54, 23)
+		self.listenButton.Text = 'Listen'
+		self.listenButton.Enabled = False
+		self.listenButton.Click += EventHandler(listenClicked)
+		self.Controls.Add(self.listenButton)
+
 		self.progress = winforms.ProgressBar()
 		self.progress.Location = Point(16, 78)
 		self.progress.Minimum = 0
@@ -121,7 +133,6 @@ This program will synchronize your music library with our servers so you can lis
 		self.info = winforms.Label()
 		self.info.Location = Point(16, 110)
 		self.info.Size = Size(271, 28)
-		self.info.Text = 'info'
 		self.Controls.Add(self.info)
 
 		my = self
@@ -165,6 +176,9 @@ This program will synchronize your music library with our servers so you can lis
 				my.optionsButton.Enabled = val
 				my.optionsMenuItem.Enabled = val
 
+			def listenEnabled(self, val):
+				my.listenButton.Enabled = val
+
 			def activate(self):
 				my.activate()
 
@@ -201,6 +215,8 @@ This program will synchronize your music library with our servers so you can lis
 			
 		self.appIcon.ContextMenu = menu
 		self.appIcon.Visible = True
+
+		singleton.set_callback(self.activate)
 	
 	def add_action(self, fn, params):
 		self.actions.put((fn, params))
@@ -380,6 +396,8 @@ class FolderBrowserWin(winforms.Form):
 		okButton.Location = Point(190, 298)
 		okButton.Text = 'OK'
 		okButton.Click += EventHandler(okClicked)
+		okButton.Anchor = \
+			winforms.AnchorStyles.Right | winforms.AnchorStyles.Bottom 
 		self.Controls.Add(okButton)
 
 		def cancelClicked(sender, args):
@@ -391,6 +409,8 @@ class FolderBrowserWin(winforms.Form):
 		cancelButton.Location = Point(271, 298)
 		cancelButton.Text = 'Cancel'
 		cancelButton.Click += EventHandler(cancelClicked)
+		cancelButton.Anchor = \
+			winforms.AnchorStyles.Right | winforms.AnchorStyles.Bottom 
 		self.Controls.Add(cancelButton)
 
 		imageList = winforms.ImageList()
