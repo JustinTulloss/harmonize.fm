@@ -98,14 +98,21 @@ def set_file_uploaded(filename, puid=None, sha=None):
 def is_file_uploaded(filename):
 	c = get_cursor()
 	return c.execute(
-				'select count(filename) from files_uploaded where filename=?',
-				(filename,)).fetchone()[0] > 0
+				'''select filename from files_uploaded where filename=? union
+				   select filename from files_skipped where filename=?''',
+				(filename,filename)).fetchone() != None
 
 def is_sha_uploaded(sha):
 	c = get_cursor()
 	return c.execute(
 				'select count(sha) from files_uploaded where sha=?', (sha,)).\
 				fetchone()[0] > 0
+
+def add_skipped(filename):
+	conn = get_conn()
+	c = conn.cursor()
+	c.execute('insert into files_skipped values(?)', (filename,))
+	conn.commit()
 
 def init_db():
 	global db_dir
@@ -115,6 +122,7 @@ def init_db():
 	c.execute('create table upload_src (src text)')
 	c.execute('create table upload_dirs (dir text)')
 	c.execute('create table files_uploaded (puid text, filename text,sha text)')
+	c.execute('create table files_skipped (filename text)')
 
 	c.execute('insert into upload_dirs values (?)', (get_default_path(),))
 

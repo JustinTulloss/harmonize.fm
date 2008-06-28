@@ -17,6 +17,7 @@ class UploadController(NSObject):
 	optionsButton = objc.ivar('optionsButton')
 	optionsMenu = objc.ivar('optionsMenu')
 	introView = objc.ivar('introView')
+	listenButton = objc.ivar('listenButton')
 
 	def awakeFromNib(self):
 		self.window.makeKeyAndOrderFront_(self)
@@ -63,13 +64,12 @@ class UploadController(NSObject):
 			def activate(self):
 				my.window.activateIgnoringOtherApps_(True)
 
+			def listenEnabled(self, val):
+				my.listenButton.setEnabled_(val)
+
 		self.a = Actions()
 		self.uploadView = self.window.contentView()
 		self.uploadView.retain()
-		"""
-		self.introView.setFrame_(self.uploadView.frame())
-		self.introView.setBounds_(self.uploadView.bounds())
-		"""
 		self.window.setContentView_(self.introView)
 
 	#actions
@@ -90,6 +90,9 @@ class UploadController(NSObject):
 			del pool
 
 		thread.start_new_thread(uploadSongs, ())
+
+	def listen_(self, sender):
+		fb.listen_now()
 
 	#Upload status callbacks
 	def complete_actions(self):

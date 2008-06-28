@@ -12,5 +12,6 @@
         <li><a href='admin/monitor'>Monitor Server Status</a></li>
         <li><a href='admin/blog'>Post Blog Entry</a></li>
         <li><a href='admin/monitor_pipeline'>Monitor Pipeline</a></li>
+        <li><a href='admin/manage_whitelist'>Manage Whitelist</a></li>
     </ul>
 </%def>

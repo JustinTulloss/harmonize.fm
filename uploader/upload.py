@@ -60,8 +60,18 @@ class Callback(object):
 		self.set_msg(msg)
 		self.loginEnabled(True)
 
+	def track_uploaded(self):
+		self.inc_totalUploaded()
+		self.listenEnabled(True)
+
 	def end_auth(self):
 		self.loginEnabled(False)
+
+	def start(self, total_uploaded):
+		self.init()
+		self.set_totalUploaded(total_uploaded)
+		if total_uploaded > 0:
+			self.listenEnabled(True)
 
 class RetryException(Exception):
 	pass
@@ -153,8 +163,8 @@ def start_uploader(base_callback):
 		check_response(response)
 		set_file_uploaded(hfile.name, hfile.puid, hfile.sha)
 
-	callback.init()
-	callback.set_totalUploaded(db.total_uploaded_tracks())
+	listen_enabled = False
+	callback.start(db.total_uploaded_tracks())
 
 	while True:
 		callback.loginEnabled(False)
@@ -163,19 +173,21 @@ def start_uploader(base_callback):
 
 		song_list = db.get_tracks()
 		if song_list == None:
-			callback.set_msg('No music found!\nClick options to add some')
+			callback.set_msg('No music found!\nClick Options to add some')
 			while get_action() != 'options_changed': pass
+			callback.activate()
 			continue
 		elif song_list == []:
 			callback.set_msg('No new music to upload...')
-			#time.sleep(300)
-			time.sleep(10)
+			time.sleep(300)
+			#time.sleep(10)
 			continue
 
 		if not fb.get_session_key():
 			callback.start_auth()
 			action = get_action()
 			if action == 'options_changed':
+				callback.activate()
 				continue
 			elif action != 'login_complete':
 				raise Exception('Unknown action received')
@@ -194,9 +206,11 @@ def start_uploader(base_callback):
 			try:
 				if not hfile.contents: 
 					callback.inc_skipped()
+					db.add_skipped(hfile.name)
 					continue
 			except IOError:
 				callback.inc_skipped()
+				db.add_skipped(hfile.name)
 				continue
 
 			if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
@@ -206,7 +220,7 @@ def start_uploader(base_callback):
 					upload_list.append(hfile)
 					callback.inc_remaining()
 				else:
-					callback.inc_totalUploaded()
+					callback.track_uploaded()
 			else:
 				upload_list.append(hfile)
 				callback.inc_remaining()
@@ -223,7 +237,7 @@ def start_uploader(base_callback):
 			songs_left -= 1
 
 			callback.dec_remaining()
-			callback.inc_totalUploaded()
+			callback.track_uploaded()
 
 			'''
 			if songs_left % 15 == 0:
