@@ -8,6 +8,18 @@ body, html {
     background: white;
 }
 
+a {
+    color: #333;
+}
+
+a:hover {
+    color: #FF8811;
+}
+
+img {
+    border: none;
+}
+
 .fixed {
     width: 700px;
 }
@@ -89,6 +101,7 @@ body, html {
     border-spacing: 0;
     margin: 0;
     padding: 0;
+    padding-bottom: 10px;
     font-size: 12pt;
     border-bottom: 1px solid #999;
 }
@@ -96,6 +109,10 @@ body, html {
 #content-table td {
     padding: 0;
     margin: 0;
+}
+
+#content {
+    margin-left: 10px;
 }
 
 #side {
@@ -115,9 +132,30 @@ body, html {
 
 #side-content {
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #copyright {
     text-align: center;
     font-size: 8pt;
+}
+
+.title {
+    padding-top: 15px;
+    padding-bottom: 5px;
+    font-size: 18pt;
+    border-bottom: 1px solid #999;
+    color: #334466;
+}
+
+.question {
+    color: #888;
+    padding-top: 5px;
+    padding-bottom:5px;
+    font-size: 15pt;
+}
+
+.answer {
+    margin-bottom: 5px;
+    padding-left: 5px;
 }

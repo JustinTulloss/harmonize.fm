@@ -3,10 +3,26 @@
 <%!
     # Importing simplejson at the module level
     import simplejson
+    from masterapp.config.include_files import IncludeFiles
 %>
 
 <%def name="head_tags()">
-    <title>harmonize.fm | connect with your music</title>
+    ${parent.head_tags()}
+    % if c.include_files != None:
+        % for sheet in c.include_files.stylesheets:
+            ${h.stylesheet_link_tag(sheet)}
+        % endfor
+
+        <style type="text/css">
+        % for template in c.include_files.templated_stylesheets:
+            <%include file="${template}" />
+        % endfor
+        </style>
+
+        % for script in c.include_files.javascripts:
+            ${h.javascript_include_tag(script)}
+        % endfor
+    % endif
 
     <script type="text/javascript">
         var global_config = {
@@ -16,7 +32,6 @@
 			uid: ${c.user.id}
         };
     </script>
-    ${parent.head_tags()}
     <script>
 	// Soundmanager configuration
         var soundManager = new SoundManager();
@@ -30,8 +45,6 @@
 			alert ('An error occurred loading the soundmanager');
         }
     </script>
-
-
 </%def>
 
 <div id="header">
