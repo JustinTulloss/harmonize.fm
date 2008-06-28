@@ -118,7 +118,7 @@ function PlaylistMgr() {
 					bread_crumb.reload_playlist();
 				},
 				failure: function() {
-					show_status_msg('Error deleting playlist');
+					show_status_msg('Error deleting playlist. Try again later.');
 				}
 			});
 			hide_dialog();
