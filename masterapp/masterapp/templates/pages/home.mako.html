@@ -1,4 +1,5 @@
 <%inherit file="pagebase.mako.html" />
+<%namespace file="/helpers.mako" import="dl_harmonizer_a"/>
 
 <div id="connect">
     <img src="/images/connect.png" alt="Connect with your music" />
@@ -10,7 +11,9 @@
         All you need to do is download a little program we call the "harmonizer". 
         It ensures that your library is always in sync with our site.
         <div class="aspect-link">
-            <a href="harmonizer"><img src="/images/dlharmonizerlong.png" /></a>
+            <%call expr="dl_harmonizer_a()">
+                <img src="/images/dlharmonizerlong.png" />
+            </%call>
         </div>
     </div>
 </div>
@@ -35,11 +38,15 @@
     </div>
 </div>
 <div class="aspect">
-    <div class="aspect-title">Get started now.</div>
+    <div class="aspect-title">Get started soon.</div>
     <div class="aspect-text">
-        All you need is a facebook account.
+        harmonize.fm is in private beta right now. When we release, all you'll
+        need to get started is a facebook account.
+        <!-- TODO: Put a link to some sort of expressing interest form here
         <div class="aspect-link">
-            <a href="player">Sign in to harmonize.fm using facebook</a>
+            <a href="player">Let us know you're interested</a>
+        </div>
+        -->
         <div class="aspect-link">
             <a href="http://www.facebook.com">Get a facebook account</a>
         </div>

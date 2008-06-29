@@ -1,43 +1,56 @@
 <%inherit file="pagebase.mako.html" />
+<%namespace file="/helpers.mako" import="dl_harmonizer_a"/>
 
 <div class="title"> Frequently Asked Questions</div>
-<div class="question">How do I listen to my music on harmonize.fm?</div>
-<div class="answer">
-    It's easy! First, <a href='harmonizer'>download the harmonizer</a>. This
-    program runs in the background and synchronizes the music on your computer
-    with us. Then all you have to do is log in to <a href="player"> the
-    player</a> with your facebook account and click on "music" in the top 
-    right menu. From there you can put artists, albums, and songs into the
-    queue on the lefthand side.
+<div class="aspect">
+    <div class="aspect-title">How do I listen to my music on harmonize.fm?</div>
+    <div class="answer">
+        It's easy! First, <%call expr="dl_harmonizer_a()">download the
+        harmonizer</%call>. This
+        program runs in the background and synchronizes the music on your computer
+        with us. Then all you have to do is log in to <a href="player"> the
+        player</a> with your facebook account and click on "music" in the top 
+        right menu. From there you can put artists, albums, and songs into the
+        queue on the lefthand side.
+    </div>
 </div>
 
-<div class="question">How does harmonize.fm know who my friends are?</div>
-<div class="answer">
-    harmonize.fm is connected to your facebook account and uses your facebook
-    friends as your friends. Currently you must have a facebook account to use
-    harmonize.fm.
+<div class="aspect">
+    <div class="aspect-title">How does harmonize.fm know who my friends are?</div>
+    <div class="answer">
+        harmonize.fm is connected to your facebook account and uses your facebook
+        friends as your friends. Currently you must have a facebook account to use
+        harmonize.fm.
+    </div>
 </div>
 
-<div class="question">Will harmonize.fm ever support other social networks?</div>
-<div class="answer">
-    We certainly hope to. Ideally you will be able to link into any number of
-    social networks on harmonize.fm, but for now we are focusing on
-    facebook.
+<div class="aspect">
+    <div class="aspect-title">Will harmonize.fm ever support other social networks?</div>
+    <div class="answer">
+        We certainly hope to. Ideally you will be able to link into any number of
+        social networks on harmonize.fm, but for now we are focusing on
+        facebook.
+    </div>
 </div>
 
-<div class="question">How do I listen to my friends' music on harmonize.fm?</div>
-<div class="answer">
-    Log in to the player, click on friends in the top right menu, and double
-    click on a friend. From their profile, you can queue up any of their
-    spotlights and listen to them in their entirety. If you're a premium user,
-    you can click the browse link to view and listen to their entire library.
+<div class="aspect">
+    <div class="aspect-title">How do I listen to my friends' music on harmonize.fm?</div>
+    <div class="answer">
+        <a href="player">Log in to the player</a>, click on friends in the top right menu, 
+        and double
+        click on a friend. From their profile, you can queue up any of their
+        spotlights and listen to them in their entirety. If you're a premium user,
+        you can click the browse link to view and listen to their entire library.
+    </div>
 </div>
 
-<div class="question">Is this legal?</div>
-<div class="answer">
-    Yeeeee... no. Listening to your music online is fine, but listening to a
-    friends' without paying the artist is not. We're in active talks with a
-    number of labels and distributors and will have the proper deals in place
-    before we allow the general public to use the product.
+<div class="aspect">
+    <div class="aspect-title">Is this legal?</div>
+    <div class="answer">
+        Yeeeee... no. Listening to your music online is fine, but listening to a
+        friends' without paying the artist is not. We're in active talks with a
+        number of labels and distributors and will have the proper deals in place
+        before we allow the general public to use the product.
+    </div>
 </div>
 
