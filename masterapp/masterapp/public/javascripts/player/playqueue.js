@@ -32,11 +32,20 @@ function PlayQueue(config) {
 
     my.enqueue = function(records) {
 		songQueue.enqueue(records);
+		/*
+		if (my.playing === null)
+			my.dequeue();
+		*/
     }
 
     my.dequeue = function () {
-		if (!songQueue.dequeue(playnow))
+		if (!songQueue.dequeue(playnow)) {
 			my.fireEvent('stop');
+			if (my.playing !== null) {
+				my.played.push(my.playing);
+				my.playing = null;
+			}
+		}
     }
 
 	my.insert = function(records, playnow) {
