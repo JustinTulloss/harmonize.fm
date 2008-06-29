@@ -2,6 +2,7 @@ import config, fb
 import httplib, time, thread, threading, math
 from httplib import HTTPConnection
 import logging, config
+from excepthandler import exception_managed
 
 logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger()
