@@ -1,7 +1,7 @@
 <%!
     from pylons import request
 %>
-<%def name="dl_harmonizer_a()">
+<%def name="dl_harmonizer_a(target=None)">
     <%
         if 'Windows' in request.headers['User-Agent']:
             href = '/uploaders/Harmonizer Setup.exe'
@@ -11,6 +11,10 @@
             href = '/harmonizer-not-supported'
     %>
     % if href:
-        <a href="${href}">${caller.body()}</a>
+        <a href="${href}"
+		% if target != None:
+			target="${target}"
+		% endif
+		>${caller.body()}</a>
     % endif
 </%def>

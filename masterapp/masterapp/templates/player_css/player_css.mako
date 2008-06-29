@@ -215,7 +215,9 @@ table {
 	position: absolute;
 	width: 100%;
 	margin-top: 3px;
-	text-align: center;
+    text-align: center;
+    top: 30px;
+    left: 0;
 }
 
 #status-box span {
