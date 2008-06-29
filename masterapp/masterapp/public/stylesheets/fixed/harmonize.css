@@ -84,10 +84,6 @@ img {
     padding-top: 10px;
 }
 
-.aspect-link a{
-    color: #333;
-}
-
 .aspect-link img {
     border: none;
 }
@@ -138,6 +134,7 @@ img {
 #copyright {
     text-align: center;
     font-size: 8pt;
+    margin: 5px;
 }
 
 .title {
