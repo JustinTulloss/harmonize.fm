@@ -5,7 +5,8 @@
 
 
 /* Takes a record and displays a box that you can pick a friend */
-function invite_friend() {
+function invite_friend(e) {
+    e.preventDefault();
     var friendstore = new Ext.data.JsonStore({
         url: '/metadata',
         baseParams: {
