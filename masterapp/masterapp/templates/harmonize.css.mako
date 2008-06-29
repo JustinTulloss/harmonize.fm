@@ -52,6 +52,7 @@ h-menu-a a {
 	background-color: ${c.profile.top_bg};
 	color: white;
 	padding: 4px 5px 4px 5px;
+    line-height: 25px;
 	margin: 0 3px;
 	text-decoration: none;
 	border-right: solid 1px #aaa;

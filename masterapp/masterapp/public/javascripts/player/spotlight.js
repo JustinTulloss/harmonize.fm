@@ -246,26 +246,43 @@ function delete_spotlight(spot_id,type) {
 }
 
 var dialog_window = null;
-//Takes a string that consists of the dialog's content
-function show_dialog(content) {
-    dialog_window = new Ext.Window({
-        layout: 'fit',
-        shadow: true,
-        resizable: false,
-        draggable: false,
-        header: false,
-        cls: 'dialog-content',
-        renderTo: 'centerpanel',
-        modal: true,
-        y: 30,
-        html: content
-    });
-    dialog_window.show();
+//Use a table to shrinkwrap content
+var dialog_template = [
+    '<center><table id="dialog-window"><tr>',
+        '<td id="dialog-content" class="dialog-content"></td>',
+    '</tr></table></center>'].join('');
+
+//Takes a string that consists of the dialogs content
+function show_dialog(content, panel) {
+    mainDiv = Ext.get('dialog-bg');
+    if (mainDiv) 
+        var contentDiv = Ext.fly('dialog-content');
+    else {
+        var mainDiv = document.createElement('div');
+        mainDiv.id = 'dialog-bg';
+        mainDiv = new Ext.Element(mainDiv);
+        mainDiv.appendTo('centerpanel');
+        mainDiv.update(dialog_template);
+        var contentDiv = Ext.fly('dialog-content');
+    }
+    if (panel)
+        content.render(contentDiv);
+    else
+        contentDiv.update(content);
+    /*
+    This works, but it's a little off. Giving up for now.
+    shadow = new Ext.Layer({
+        shadow:true,
+    }, 'dialog-window');
+    shadow.center(mainDiv);
+    shadow.show()
+    */
 }
 
 function hide_dialog() {
-    if (dialog_window)
-        dialog_window.destroy();
+    var dlg = Ext.fly('dialog-bg');
+    if (dlg)
+        dlg.remove()
 	//Not clear this is necessary in any cases now so it won't be the default
 	//urlm.invalidate_page(); 
 }

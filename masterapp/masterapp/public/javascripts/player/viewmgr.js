@@ -185,7 +185,7 @@ function ViewManager(crumb, objects)
 		'<h1>Create a new Playlist</h1>' +
 		'<center><table><tr>'+
 		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
-		'<input id="playlist-name" maxlength="50" class="dlg-focus" />'+
+		'<input id="playlist-name" maxlength="100" class="dlg-focus" />'+
 		'<br/>playlist name<br/><br/>' +
 		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +

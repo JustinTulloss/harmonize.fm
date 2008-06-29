@@ -1,0 +1,45 @@
+<%inherit file="/base.mako" />
+
+<%def name="head_tags()">
+    ${parent.head_tags()}
+    <link rel="stylesheet" type="text/css" href="/stylesheets/fixed/harmonize.css" />
+</%def>
+
+<center>
+<div id="banner">
+    <div id="header" class="fixed">
+        <a href="/"><img src="/images/bigwhiteharmonize.png" /></a>
+        <div id="signin"><a href='player'>sign in</a></div>
+    </div>
+    <div id="color">
+        <img src="/images/s.gif" />
+    </div>
+</div>
+<table id="content-table" class="fixed">
+    <tr>
+    <td id="side">
+        <div id="side-content">
+            ${self.sidebar()}
+        </div>
+    </td>
+    <td> 
+        <div id="content">
+            ${next.body()}
+        </div>
+    </td>
+    </tr>
+</table>
+<div id="copyright">Copyright &copy; 2008 Harmonize, Inc.</div>
+</center>
+
+<%def name="sidebar()">
+    <div><a href="/">home</a></div>
+    <div><a href="player">player</a></div>
+    <div><a href="http://www.facebook.com/apps/application.php?id=15779218263">
+            facebook app
+        </a>
+    </div>
+    <div><a href="about">about us</a></div>
+    <div><a href="http://blog.harmonize.fm">blog</a></div>
+    <div><a href="faq">faq</a></div>
+</%def>

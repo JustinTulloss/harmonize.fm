@@ -1,4 +1,5 @@
 from masterapp.lib.base import *
+import mako
 
 class TemplateController(BaseController):
 
@@ -24,4 +25,9 @@ class TemplateController(BaseController):
         By default this controller aborts the request with a 404 (Not
         Found)
         """
-        abort(404)
+        try:
+            if url == '':
+                url = 'home'
+            return render('/pages/%s.mako.html' % url)
+        except mako.exceptions.TemplateLookupException:
+            abort(404)
