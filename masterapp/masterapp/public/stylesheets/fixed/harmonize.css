@@ -80,8 +80,11 @@ img {
 
 .aspect-link {
     text-align: center;
-    text-decoration: underline;
     padding-top: 10px;
+}
+
+.aspect-link a{
+    text-decoration: underline;
 }
 
 .aspect-link img {
