@@ -1,6 +1,8 @@
 <%namespace name="feed" file="feed.mako" />
 
 <%def name="render(entries)">
+		<!--iframe used as target for download uploader link-->
+		<iframe name="dummy_iframe" style="display:none;"></iframe>
 		<div id="home">
             <div id="no_music">
             <% 
@@ -28,7 +30,7 @@
 					href = '/uploaders/Harmonize.dmg'
 			%>
 		%	if href:
-				<div><a href="${href}">Download the uploader</a></div>
+				<div><a target="dummy_iframe" href="${href}">Download the uploader</a></div>
 		% 	endif
 				<div><a href="#/player/blog">News</a></div>
 			</div></div>

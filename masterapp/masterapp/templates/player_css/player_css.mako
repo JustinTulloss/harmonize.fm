@@ -7,6 +7,10 @@ body, html {
     color: ${c.profile.primary_txt};
 }
 
+ul {
+	margin-left: 0;
+}
+
 #no_music {
     margin-left: 12px;
 }
@@ -161,14 +165,16 @@ table {
 }
 
 .feed_entry {
-	margin-bottom: 2px;
+	margin-bottom: 17px;
+	margin-top: 2px;
 }
 
 .feed_content {
 	margin-left: 25px;
 }
 
-.feed_content h4 {
+.feed_content h2 {
+	margin-top: 0;
 	color: ${c.profile.dark_txt};
 	margin-bottom: 2px;
 	font-size: 11pt;
