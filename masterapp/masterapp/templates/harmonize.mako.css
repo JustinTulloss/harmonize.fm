@@ -55,6 +55,10 @@ h-menu-a a {
     margin: 0px;
 }
 
+img {
+    border: none;
+}
+
 .a-button {
 	background-color: ${c.profile.top_bg};
 	color: white;

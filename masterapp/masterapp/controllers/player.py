@@ -236,6 +236,7 @@ class PlayerController(BaseController):
         c.main = True
         c.user = Session.query(User).get(session['userid'])
         c.num_songs = c.user.song_count
+        c.appid = config['pyfacebook.appid']
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:
