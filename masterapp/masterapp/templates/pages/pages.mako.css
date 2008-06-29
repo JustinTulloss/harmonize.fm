@@ -136,6 +136,7 @@ img {
 }
 
 .title {
+    margin-left: 10px;
     padding-top: 15px;
     padding-bottom: 5px;
     font-size: 18pt;
