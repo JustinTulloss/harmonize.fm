@@ -114,11 +114,14 @@ function PlaylistMgr() {
 					show_status_msg('Playlist deleted!');
 					//remove the playlist from the playqueue and refresh the breadcrumb gridpanel
 					// (only if its currently displaying the playlist grid)
-					playlist.fireEvent('remove',open_playlists[del_match[1]]);
-					bread_crumb.reload_playlist();
+					var playlist = open_playlists[del_match[1]];
+					if (playlist) { 
+						playlist.fireEvent('remove', playlist);
+						bread_crumb.reload_playlist();
+					}
 				},
 				failure: function() {
-					show_status_msg('Error deleting playlist');
+					show_status_msg('Error deleting playlist. Try again later.');
 				}
 			});
 			hide_dialog();

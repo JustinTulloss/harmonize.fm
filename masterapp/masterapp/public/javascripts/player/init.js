@@ -97,7 +97,7 @@ function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
-		playqueue.enqueue([record]);
+		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({
 		url:'/metadata/album/'+albumid,
@@ -110,7 +110,7 @@ function enqueue_playlist(playlistid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
-		playqueue.enqueue([record]);
+		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({
 		url:'/metadata/playlist/'+playlistid,

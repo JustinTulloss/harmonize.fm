@@ -7,8 +7,8 @@
 
     <%def name="blog_feed(entry)">
         <div class="feed_content">
-            <h4><a href="#/player/blog/${entry.id}">
-                ${entry.author} wrote a post titled "${entry.title}"</a></h4>
+            <h2><a href="#/player/blog/${entry.id}">
+                ${entry.author} wrote a post titled "${entry.title}"</a></h2>
             <div class="blog_feed_comment">
                 ${quote_comment(entry.entry, 60)}</div>
         </div>
@@ -18,9 +18,9 @@
         % if entry.album != None:
             <img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
             <div class="feed_content">
-                <h4><a href="#/people/profile/${entry.user.id}">
+                <h2><a href="#/people/profile/${entry.user.id}">
                     ${entry.user.get_firstname()} 
-                    added a Spotlight on ${entry.album.title}</a></h4>
+                    added a Spotlight on ${entry.album.title}</a></h2>
                 <table class="spotlight_feed_info"><tr>
                     <!--td><img src="/images/enqueue.png" /></td-->
                     <td>${h.p_image_tag(entry.album.smallart)}</td>
@@ -32,9 +32,9 @@
         % elif entry.playlist != None:
             <img src="/images/enqueue.png" onclick="enqueue_playlist(${entry.playlist.id}, ${entry.uid});" />
             <div class="feed_content">
-                <h4><a href="#/people/profile/${entry.user.id}">
+                <h2><a href="#/people/profile/${entry.user.id}">
                     ${entry.user.get_firstname()} 
-                    added a Spotlight on a playlist: ${entry.playlist.name}</a></h4>
+                    added a Spotlight on a playlist: ${entry.playlist.name}</a></h2>
                 <table class="spotlight_feed_info"><tr>
                     <td class="spotlight_feed_comment">
                     ${quote_comment(entry.comment, 175)}
@@ -46,7 +46,7 @@
 
     <%def name="comment_feed(entry)">
         <div class="feed_content">
-            <h4>
+            <h2>
             <a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
                 ${entry.user.get_firstname()} commented on 
             % if entry.spotlight.uid == c.user.id:
@@ -61,7 +61,7 @@
                 ${entry.spotlight.user.get_firstname()}'s 
             % endif
                 Spotlight of ${entry.spotlight.album.title}
-            </a></h4>
+            </a></h2>
             <div class="blog_feed_comment">
                 ${quote_comment(entry.comment, 75)}
             </div>

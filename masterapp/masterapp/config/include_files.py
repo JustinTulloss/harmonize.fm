@@ -27,7 +27,7 @@ player_files = IncludeFiles(
         'button.css.mako',
         'combo.css.mako',
         'menu.mako.css',
-        'harmonize.css.mako',
+        'harmonize.mako.css',
         'player_css/player_css.mako',
         'player_css/queue_css.mako',
         'player_css/album_details.mako',
@@ -60,7 +60,8 @@ player_files = IncludeFiles(
 		'player/urlmanager.js',
         'player/profile.js',
         'player/friendradio.js',
-        'player/playlist.js'
+        'player/playlist.js',
+        'player/invite.js',
     ]
 )
 

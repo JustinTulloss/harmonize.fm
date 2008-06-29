@@ -31,6 +31,8 @@ from mailer import mail
 import re
 import thread
 
+import masterapp.lib.snippets as snippets
+
 log = logging.getLogger(__name__)
 
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
@@ -94,6 +96,9 @@ class PlayerController(BaseController):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
+
+        if snippets.is_ie6(request.environ['HTTP_USER_AGENT']):
+            redirect_to('/ie6')
 
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files

@@ -6,6 +6,7 @@ from db import is_file_uploaded, is_sha_uploaded, set_file_uploaded
 from hfile import HFile
 from httplib import HTTPConnection
 from Queue import Queue
+from excepthandler import exception_managed
 
 actionq = Queue()
 actions = set(['login_complete', 'options_changed'])
@@ -97,6 +98,7 @@ def check_response(response):
 		raise response_switch[response_body]
 	return response_body
 
+@exception_managed
 def start_uploader(base_callback):
 	callback = Callback(base_callback)
 

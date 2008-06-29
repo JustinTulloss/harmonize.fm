@@ -242,9 +242,8 @@ function BreadCrumb()
         return params;
     }
     
-    my.reload_playlist = reload_playlist;
-    function reload_playlist() {
-        if (bclist[current].type == 'playlist') {
+    my.reload_playlist = function() {
+        if (bclist[current] && bclist[current].type == 'playlist') {
             bclist[current].ds.reload({add: false });
         }
     }
