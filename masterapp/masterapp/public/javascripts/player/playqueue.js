@@ -297,13 +297,15 @@ function SongQueue(label, is_playlist) {
     }
     
     my.insert = function insert(records, last) {
-		if (records.length === 0)
-			return;
+		if (records.length == 0) {
+            return;
+        }
         if (records[0].type == "friend_radio") {
             if (my.is_friend_radio()) {
                 return;    
             }
         }
+        
 
 		if (!last && my.root.hasChildNodes())
 			last = my.root.item(0);
@@ -343,7 +345,7 @@ function SongQueue(label, is_playlist) {
 		for (var i=0; my.root.item(i) && !(my.root.item(i).is_active()); i++);
 		return my.root.item(i);
 	}
-
+    
     my.inspanel.on('render', function() {
         var dtarget = new Ext.dd.DropTarget(my.panel.getEl(), {
             notifyDrop: paneldrop,
@@ -539,6 +541,7 @@ function AlbumQueueNode(config)
 	var loading = false;
 	var actions = [];
 	function ensure_loaded(k) {
+        alert('ensure_loaded (album)');
 		if (!my.loaded) {
 			if (k) actions.push(k);
 			if (!loading) {
@@ -727,7 +730,6 @@ function PlaylistQueueNode(config) {
 
         my.loaded = true;
         queue_songs();
-
 		loading = false;
 		if (my.firstChild) { //Don't run anything if there aren't children
 			for (var i=0; i<actions.length; i++) {
@@ -739,15 +741,8 @@ function PlaylistQueueNode(config) {
 
     function queue_songs() {
 		if (config.flatten) {
-			var nodes = my.childNodes;
-            var records = [];
-            for (i = 0; i < nodes.length; i++) {
-                records.push(nodes[i].record);
-            }
-            my.queue.insert(records, my);
-			my.remove();
-			if (songs.getRange().length === 0)
-				my.queue.fireEvent('reordered');
+            my.queue.insert(songs.getRange(), my);
+            my.remove();
 		}
 		else {
 			songs.each(function(record) {
