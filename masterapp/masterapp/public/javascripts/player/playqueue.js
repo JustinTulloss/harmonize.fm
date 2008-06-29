@@ -531,7 +531,6 @@ function AlbumQueueNode(config)
 	var loading = false;
 	var actions = [];
 	function ensure_loaded(k) {
-        alert('ensure_loaded (album)');
 		if (!my.loaded) {
 			if (k) actions.push(k);
 			if (!loading) {
