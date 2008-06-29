@@ -42,6 +42,7 @@ spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
 puids_table = Table('puids', metadata, autoload=True)
 songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
+notifications_table = Table('notifications', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -410,6 +411,10 @@ class Whitelist(object):
         self.fbid = fbid
         self.registered = registered
 
+class Notification(object):
+    def __init__(self, email):
+        self.email = email
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -522,3 +527,5 @@ mapper(SongOwner, songowners_table, properties={
 })
 
 mapper(Whitelist, whitelists_table)
+
+mapper(Notification, notifications_table)

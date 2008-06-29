@@ -44,7 +44,7 @@ class PlayerController(BaseController):
 
     def __before__(self):
         if not ensure_fb_session():
-                redirect_to("/")
+                redirect_to("/sign-up")
 
     def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
