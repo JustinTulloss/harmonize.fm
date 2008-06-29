@@ -56,6 +56,7 @@ function init()
 	playqueue.on('buffersong', player.buffersong);
 	
 	Ext.get("friend_radio_link").on('click', friend_radio.toggle, friend_radio);
+    Ext.get("invite-link").on('click', invite_friend);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);

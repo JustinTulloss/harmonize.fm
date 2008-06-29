@@ -12,9 +12,6 @@ var async_act = 0;
 function PlayQueue(config) {
     var showingprev = false;
     var my = this;
-    
-    var is_queue_active = true;
-    my.is_queue_active = is_queue_active;
 
     my.addEvents({
         newsong : true,
@@ -32,11 +29,20 @@ function PlayQueue(config) {
 
     my.enqueue = function(records) {
 		songQueue.enqueue(records);
+		/*
+		if (my.playing === null)
+			my.dequeue();
+		*/
     }
 
     my.dequeue = function () {
-		if (!songQueue.dequeue(playnow))
+		if (!songQueue.dequeue(playnow)) {
 			my.fireEvent('stop');
+			if (my.playing !== null) {
+				my.played.push(my.playing);
+				my.playing = null;
+			}
+		}
     }
 
 	my.insert = function(records, playnow) {
@@ -127,24 +133,18 @@ function PlayQueue(config) {
     }
 
 	my.panel.on('beforeexpand', function() {
-	        my.is_queue_active = true;
 			return config.beforeexpand(my);
 	});
 
 	my.panel.on('collapse', function() {
-	        my.is_queue_active = false;
 			return config.oncollapse(my);
 	});
 	
-	my.shuffle = shuffle;
-	function shuffle(e) {
-	    e.preventDefault();
-	    if (my.is_queue_active == false) return;
+	my.shuffle = function() {
 	    songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
     }
     
-    my.finish_shuffle = finish_shuffle;
-    function finish_shuffle() {
+    my.finish_shuffle = function() {
         //need to see if anything still hasn't been flattened
         if (flattened != 0) 
             return;    
@@ -366,8 +366,7 @@ function SongQueue(label, is_playlist) {
         }
     }
     
-    my.shuffle = shuffle;
-    function shuffle() {
+    my.shuffle = function() {
         var num_songs = my.root.childNodes.length;
         while (num_songs > 1) {
             var rand = Math.floor(Math.random()*num_songs);
@@ -712,7 +711,7 @@ function PlaylistQueueNode(config) {
 
     function songs_callback(records, options, success) {
         if (!success) {
-            show_status_msg('Error loading album!');
+            show_status_msg('Error loading playlist!');
             return;
         }
 

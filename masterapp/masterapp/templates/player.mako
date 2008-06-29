@@ -84,6 +84,7 @@
 		<a href="#" id="friend_radio_link">radio</a>
 		<a href="#/bc/friend">friends</a>
 		<a href="#" id="feedback-link">feedback</a>
+        <a href="#" id="invite-link">invite</a>
 	</div>
 	<div id="status-box"><span></span></div>
     <div id="logo">
