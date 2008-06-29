@@ -105,6 +105,15 @@ function PlaylistMgr() {
 		}));
 	}
 
+	my.shuffle = function(e) {
+		e.preventDefault();
+		if (expanded_playlist == playqueue)
+			playqueue.shuffle();
+		else {
+			show_status_msg('You can only shuffle the Play Queue');
+		}
+	}
+
 	urlm.register_action('playlist', function(rest) {
 		var del_match = rest.match(/^delete\/(\d+)$/);
 		if (del_match) {

@@ -2,6 +2,7 @@ import config, fb
 import httplib, time, thread, threading, math
 from httplib import HTTPConnection
 import logging, config
+from excepthandler import exception_managed
 
 logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger()
@@ -118,6 +119,7 @@ class Pinger(object):
 			self.counter = 0
 			logger.debug('Whoa now, slowing down upload to %s' % self.rate)
 
+	@exception_managed
 	def loop(self):
 		while self.running:
 			self.lock.acquire()

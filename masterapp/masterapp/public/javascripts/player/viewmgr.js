@@ -195,7 +195,7 @@ function ViewManager(crumb, objects)
 		show_dialog(create_playlist_dialog);
 	});
     
-    Ext.get('shuffle-playqueue').on('click',playqueue.shuffle);    
+    Ext.get('shuffle-playqueue').on('click', playlistmgr.shuffle);    
     
     function set_music_menu() {
         function show_menu(e) {
