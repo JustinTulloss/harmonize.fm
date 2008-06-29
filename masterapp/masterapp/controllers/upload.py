@@ -1,6 +1,6 @@
 # vim:expandtab:smarttab
 import logging
-from pylons import g, Response
+from pylons import g, Response, config
 import os
 import socket
 import os.path as path
@@ -21,6 +21,8 @@ from masterapp.lib.base import *
 import cPickle as pickle
 
 from masterapp import model
+import thread
+from mailer import mail
 
 log = logging.getLogger(__name__)
 
@@ -240,3 +242,14 @@ class UploadController(BaseController):
 
     def upload_ping(self):
         return ''
+
+    def error(self):
+        stack_trace = request.environ['wsgi.input'].read(4096)
+        if stack_trace == '':
+            return '0'
+        def sendmail():
+            mail(config['smtp_server'], config['smtp_port'],
+                config['feedback_email'], config['feedback_password'],
+                'brian@harmonize.fm', 'Uploader exception', stack_trace)
+        thread.start_new_thread(sendmail, ())
+        return '1'

@@ -4,7 +4,7 @@ from thread import start_new_thread
 import config, rate_limit, fb, db
 from db import is_file_uploaded, is_sha_uploaded, set_file_uploaded
 from hfile import HFile
-from httplib import HTTPConnection
+from config import get_conn
 from Queue import Queue
 from excepthandler import exception_managed
 
@@ -248,10 +248,6 @@ def start_uploader(base_callback):
 		
 		callback.set_msg('Upload complete!')
 		time.sleep(30)
-
-def get_conn():
-	return HTTPConnection(
-			config.current['server_addr'], config.current['server_port'])
 
 def get_url(base_url):
 	if '?' not in base_url:

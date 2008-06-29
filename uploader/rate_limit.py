@@ -118,6 +118,7 @@ class Pinger(object):
 			self.counter = 0
 			logger.debug('Whoa now, slowing down upload to %s' % self.rate)
 
+	@exception_managed
 	def loop(self):
 		while self.running:
 			self.lock.acquire()
