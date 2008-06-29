@@ -12,3 +12,8 @@ data = [field for field in stdout.readline().split(' ') if field.endswith('%')]
 used = int(data[0][:-1])
 if used > 70:
 	alert.alert('Disk space used at '+str(used)+'%' , '')
+
+stdout, stdin = popen2("free -tm | awk '/Mem:/ {print $4}'")
+free = int(stdout.readline().rstrip())
+if free < 45:
+	alert.alert('Memory free at %s MB' % free, '')
