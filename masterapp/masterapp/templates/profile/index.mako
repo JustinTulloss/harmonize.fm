@@ -91,7 +91,7 @@ ${rightcol.render()}
         </div>
     </div>
 </%def>
-%def name="build_playlist_spotlight(spotlight, own_profile)" >
+<%def name="build_playlist_spotlight(spotlight, own_profile)" >
     <div class="profile-sp">
         <div class="h-title">
             <img src="/images/enqueue.png" onclick="enqueue_playlist(${spotlight.playlist.id}, ${spotlight.uid})" />
