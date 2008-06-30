@@ -288,9 +288,9 @@ function hide_dialog() {
 }
 
 function show_status_msg(msg, keepshowing) {
-	el = document.getElementById('status-box').firstChild;
-	el.innerHTML = msg;
-	el.style.visibility = 'visible';
+	el = Ext.fly('status-box').first();
+	el.update(msg);
+	el.applyStyles('visibility: visible');
 	if (!keepshowing)
 		setTimeout("hide_status_msg();", 5000);
 }
