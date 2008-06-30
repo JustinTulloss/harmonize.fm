@@ -51,7 +51,11 @@ class BaseAction(object):
                 file['failures'] = file['failures']+1
             else:
                 file['failures'] = 0
-            get_fp().process(file)
+            fp = get_fp()
+            if fp:
+                fp.process(file)
+            else:
+                self.cleanup(file)
         
     def cleanup(self, file):
         if self.cleanup_handler != None:

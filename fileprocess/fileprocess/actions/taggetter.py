@@ -89,7 +89,6 @@ class TagGetter(BaseAction):
                 # Sometimes we don't have one of the values we were looking for
                 file['tracknumber'] = oldtracknum
 
-
 def update_mp4(mp4obj, tagobj):
     """Extracts easyid3 tags from an MP4 object and puts them into tagobj"""
     valid_keys = [
