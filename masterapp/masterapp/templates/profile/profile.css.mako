@@ -144,3 +144,7 @@
 .spotlight-timestamp {
     font-size: 10px;
 }
+
+.h-title a {
+    font-size: 14px;
+}
