@@ -1,3 +1,28 @@
+function get_browser_data()
+{
+    var data = {
+        browser: {
+            appCodeName: navigator.appCodeName,
+            appName: navigator.appName,
+            appVersion: navigator.appVersion,
+            buildID: navigator.buildID,
+            cookieEnabled: navigator.cookieEnabled,
+            language: navigator.language,
+            onLine: navigator.onLine,
+            oscpu: navigator.oscpu,
+            platform: navigator.platform,
+            product: navigator.product,
+            productSub: navigator.productSub,
+            securityPolicy: navigator.securityPolicy,
+            userAgent: navigator.userAgent,
+            vendor: navigator.vendor,
+            vendorSub: navigator.vendorSub
+        },
+        screen: screen
+    }
+    return Ext.util.JSON.encode(data);
+}
+
 function format_time(value)
 {
 

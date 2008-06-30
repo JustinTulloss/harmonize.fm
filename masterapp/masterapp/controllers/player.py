@@ -3,6 +3,8 @@ import logging
 import time
 
 import S3
+import urllib
+import cjson
 import masterapp.controllers.metadata
 from masterapp.config.include_files import player_files, compressed_player_files
 from masterapp.lib.base import *
@@ -44,7 +46,7 @@ class PlayerController(BaseController):
 
     def __before__(self):
         if not ensure_fb_session():
-                redirect_to("/sign-up")
+            redirect_to("/request/invitation")
 
     def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
@@ -198,6 +200,25 @@ class PlayerController(BaseController):
             return '0';
         user_email = request.params['email']
         user_feedback = request.params['feedback']
+        user_browser = request.params['browser']
+
+        bdata = cjson.decode(urllib.unquote(user_browser))
+        browser = screen = ''
+
+        for key, value in bdata['browser'].items():
+            browser = browser + "%s = %s\n" % (key, value)
+
+        for key, value in bdata['screen'].items():
+            screen = screen + "%s = %s\n" % (key, value)
+
+        message = """%s
+
+Browser:
+%s
+
+Screen:
+%s
+        """ % (user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
             subject = 'Site feedback from %s' % user_email
@@ -207,7 +228,7 @@ class PlayerController(BaseController):
         def sendmail():
             mail(config['smtp_server'], config['smtp_port'],
                 config['feedback_email'], config['feedback_password'],
-                'founders@harmonize.fm', subject, user_feedback)
+                'founders@harmonize.fm', subject, message)
 
         thread.start_new_thread(sendmail, ())
         return '1'

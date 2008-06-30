@@ -25,7 +25,7 @@
 			<div id="home-sidebar">			
 			<div id="home-sidebar-header" class="h-subtitle">Links</div>
 				<div><a href="#/player/blog">news</a></div>
-				<div><a href="blog.harmonize.fm">blog</a></div>
+				<div><a href="http://blog.harmonize.fm">blog</a></div>
 				<div><a href="/faq">faq</a></div>
 				<div><a href="http://www.facebook.com/apps/application.php?id=${c.appid}">
                     facebook app</a>
