@@ -90,7 +90,7 @@ class MetadataController(BaseController):
                 order_by(PlaylistSong.songindex)
 
         qry = qry.order_by(sort)
-        #qry = self._apply_offset(qry)
+        qry = self._apply_offset(qry)
         return qry
 
     @cjsonify
