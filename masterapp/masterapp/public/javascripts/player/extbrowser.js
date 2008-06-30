@@ -23,7 +23,7 @@ function Browser()
                 root: 'data',
                 successProperty: 'success',
                 id: 'id',
-                fields:global_config.fields[crumb.type]    
+                fields:global_config.fields[crumb.type]
             });
         }
 
@@ -249,7 +249,10 @@ function SongGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Song_title', text, true, false);
+        if (text == "") 
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Song_title', text, true, false);
         return true;
     }
 }
@@ -279,8 +282,11 @@ function AlbumGrid(config)
 
     this.search = search;
     function search(text)
-    {
-        this.getStore().filter('Album_title', text, true, false);
+    {   
+        if (text == "")
+            this.getStore.clearFilter();
+        else
+            this.getStore().filter('Album_title', text, true, false);
         return true;
     }
     
@@ -291,7 +297,8 @@ function AlbumGrid(config)
             url: 'player/album_details',
             callback: function(){ this.fireEvent('chgstatus', null) },
             scope: this,
-            params: {album:record.get('Album_id')}
+            params: {album:record.get('Album_id')},
+            add: false
         });
         this.fireEvent('chgstatus', 'Loading...');
     }
@@ -313,7 +320,10 @@ function ArtistGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Artist_name', text, true, false);
+        if (text == "")
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Artist_name', text, true, false);
         return true;
     }
 }
@@ -350,7 +360,10 @@ function FriendGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Friend_name', text, true, false);
+        if (text == "")
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Friend_name', text, true, false);
         return true;
     }
 }

@@ -152,8 +152,15 @@ function ViewManager(crumb, objects)
     {
         if (crumb.panel) {
             my.search_field.validator = 
-                function(text) { 
+                function(text) {
 					return crumb.panel.search.call(crumb.panel, text)};
+            /*
+            my.search_field.allowBlank = true;
+            my.search_field.on('keyup', function () {
+                var text = this.getValue();
+                return crumb.panel.search.call(crumb.panel, text);
+            });
+            */
             my.search_field.on('blur', function(form){
                 crumb.panel.search.call(crumb.panel, form.getValue());
             });
