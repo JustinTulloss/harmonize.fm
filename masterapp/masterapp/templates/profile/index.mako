@@ -138,4 +138,4 @@ ${rightcol.render()}
 <%def name="build_amazon_link(spotlight,content)" >
     <a href="http://www.amazon.com/gp/product/${spotlight.album.asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=${spotlight.album.asin}" target="_blank">${content}</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a=B000002ML7" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </%def>
-<
+
