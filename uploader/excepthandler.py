@@ -13,6 +13,8 @@ def exception_managed(fn):
 			contents = f_contents.getvalue()
 			f_contents.close()
 
+			if config.current['debug']:
+				import pdb; pdb.set_trace()
 			try:
 				conn = config.get_conn()
 				conn.request('POST', '/upload/error', contents, 
@@ -21,6 +23,4 @@ def exception_managed(fn):
 			except Exception:
 				return
 
-			if config.current['debug']:
-				import pdb; pdb.set_trace()
 	return wrapper
