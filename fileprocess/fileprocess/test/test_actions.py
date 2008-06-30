@@ -157,11 +157,11 @@ class TestActions(TestBase):
         b.releasecache = {}
         nf = b.process(self.fdata['btles2'])
         #assert nf['album'] == u'The Beatles (disc 2)', "Cry baby not on disc 2"
-        assert nf['artistsort'] == 'Beatles, The', "Did not match Cry baby"
+        assert nf.has_key('mbtrackid'), "Did not match Cry Baby Cry"
 
         nf = b.process(self.fdata['btles1'])
         #assert nf['album'] == u'The Beatles (disc 1)', "USSR not on disc 1"
-        assert nf['artistsort'] == 'Beatles, The', "Did not match USSR"
+        assert nf.has_key('mbtrackid'), "Did not match USSR"
 
     def testCleanup(self):
         c = Cleanup()
