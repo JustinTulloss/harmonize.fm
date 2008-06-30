@@ -51,7 +51,12 @@ function Browser()
                 crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
             }
         });
-    
+        crumb.ds.on('datachanged', function(e) {
+            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+                crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
+            }
+        });
+
     
         var bufferSize = 35; //how many records to grab at a time?        
         
