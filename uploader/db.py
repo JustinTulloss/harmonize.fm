@@ -133,10 +133,19 @@ def init_db():
 	
 	conn.commit()
 
+def update_db():
+	conn = get_conn()
+	try:
+		conn.execute('create table files_skipped (filename text)')
+		conn.commit()
+	except sqlite3.OperationalError:
+		pass
+
 db_dir = get_db_path()
 
 if not os.path.exists(db_dir):
 	init_db()
 else:
+	update_db()
 	if not get_library_file():
 		set_upload_src('folder')
