@@ -60,7 +60,11 @@
             % else:
                 ${entry.spotlight.user.get_firstname()}'s 
             % endif
-                Spotlight of ${entry.spotlight.album.title}
+				% if entry.spotlight.album:
+                	Spotlight of ${entry.spotlight.album.title}
+				% elif entry.spotlight.playlist:
+                	Spotlight of ${entry.spotlight.playlist.name}
+				% endif
             </a></h2>
             <div class="blog_feed_comment">
                 ${quote_comment(entry.comment, 75)}
