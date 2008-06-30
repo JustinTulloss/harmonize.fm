@@ -44,8 +44,7 @@ This program will synchronize your music library with our servers so you can lis
 
 		def nextClicked(sender, args):
 			self.Controls.Remove(intro)
-			thread.start_new_thread(
-					lambda x: upload.start_uploader(self), (None,))
+			thread.start_new_thread(upload.start_uploader, (self,))
 		
 		nextButton = winforms.Button()
 		nextButton.Location = Point(233, 144)
