@@ -94,9 +94,8 @@ img {
     border-spacing: 0;
     margin: 0;
     padding: 0;
-    padding-bottom: 25px;
     font-size: 12pt;
-    border-bottom: 1px solid #999;
+	text-align: left;
 }
 
 #content-table td {
@@ -132,7 +131,9 @@ img {
 #copyright {
     text-align: center;
     font-size: 8pt;
-    margin: 5px;
+    padding: 5px;
+	border-top: 1px solid #999;
+	margin-top: 25px;
 }
 
 .title {
