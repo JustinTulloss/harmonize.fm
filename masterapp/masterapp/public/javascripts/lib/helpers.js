@@ -1,5 +1,10 @@
 function get_browser_data()
 {
+    var new_screen = {};
+    for (var key in screen) {
+        new_screen[key]=screen[key];
+    }
+
     var data = {
         browser: {
             appCodeName: navigator.appCodeName,
@@ -18,7 +23,7 @@ function get_browser_data()
             vendor: navigator.vendor,
             vendorSub: navigator.vendorSub
         },
-        screen: screen
+        screen: new_screen
     }
     return Ext.util.JSON.encode(data);
 }

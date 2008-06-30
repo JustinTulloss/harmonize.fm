@@ -203,22 +203,27 @@ class PlayerController(BaseController):
         user_browser = request.params['browser']
 
         bdata = cjson.decode(urllib.unquote(user_browser))
-        browser = screen = ''
+        browser = screen = user = ''
+        user = Session.query(User).get(session['userid'])
+        user = user.name
 
         for key, value in bdata['browser'].items():
             browser = browser + "%s = %s\n" % (key, value)
 
         for key, value in bdata['screen'].items():
             screen = screen + "%s = %s\n" % (key, value)
+            message = """
 
-        message = """%s
+From: %s
+
+%s
 
 Browser:
 %s
 
 Screen:
 %s
-        """ % (user_feedback, browser, screen)
+        """ % (user, user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
             subject = 'Site feedback from %s' % user_email
