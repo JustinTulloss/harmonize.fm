@@ -4,6 +4,7 @@ import subprocess
 from baseaction import BaseAction
 from fileprocess.processingthread import na
 from fileprocess.configuration import config
+active = True
 try:
     import musicdns
 except ImportError:

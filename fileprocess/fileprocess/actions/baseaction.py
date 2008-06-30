@@ -1,7 +1,7 @@
 # The mother of all file actions
 # Does all the ugly stuff, starts threads, defines queues, eats babies, etc.
 from Queue import *
-from ..processingthread import na
+from ..processingthread import na, get_fp
 import logging
 import threading
 import os
@@ -25,15 +25,11 @@ class BaseAction(object):
                 nextfile = self.process(nf)
             except Exception, e:
                 log.exception(e)
-                nf['msg'] = "Upload had an unexpected failure"
-                nf['na']  = na.FAILURE
-                self.cleanup(nf)
+                self.failure(nf)
                 nextfile = False
 
             if nextfile and self.nextaction:
                 self.nextaction.put(nextfile)
-            else:
-                self.cleanup(nf)
     
     def stop(self):
         self._running = 0
@@ -45,6 +41,18 @@ class BaseAction(object):
         if not self._thread.isAlive():
             self._thread.run()
 
+    def failure(self, file):
+        if file.get('failures')>3:
+            file['msg'] = "Upload had an unexpected failure"
+            file['na']  = na.FAILURE
+            self.cleanup(file)
+        else:
+            if file.has_key('failures'):
+                file['failures'] = file['failures']+1
+            else:
+                file['failures'] = 0
+            get_fp().process(file)
+        
     def cleanup(self, file):
         if self.cleanup_handler != None:
             self.cleanup_handler.queue.put(file)
