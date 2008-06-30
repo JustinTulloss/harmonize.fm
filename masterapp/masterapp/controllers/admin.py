@@ -5,7 +5,7 @@ import socket
 import cPickle as pickle
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
-from masterapp.model import Session, File, Song, Album, BlogEntry, User, Whitelist
+from masterapp.model import Session, File, Song, Album, BlogEntry, User, Whitelist, Notification
 from mako.template import Template
 from pylons import config
 
@@ -126,3 +126,10 @@ class AdminController(BaseController):
         Session.save(w)
         Session.commit()
         redirect_to(action='manage_whitelist')
+
+    def send_notifications(self):
+        redirect_to(action='manage_notifications')
+
+    def manage_notifications(self):
+        c.notifications = Session.query(Notification).all()
+        return render('/admin/manage_notifications.mako')

@@ -72,6 +72,10 @@ ul {
 	padding-left: 8px;
 }
 
+.home-dllink {
+    margin-top: 30px;
+}
+
 .blogentry {
     padding-bottom: 15px;
 }

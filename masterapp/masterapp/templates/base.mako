@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
+<%!
+    import os
+    from masterapp.lib.profile import Profile
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   <head>
+    <style type="text/css">
+        <%include file="harmonize.mako.css" />
+    </style>
     ${self.head_tags()}
     ${h.javascript_include_tag(builtins=False)}
   </head>
@@ -21,6 +28,10 @@
 </html>
 
 <%def name="head_tags()">
-    <title>harmonize.fm | connect with your music</title>
+    <title>${self.title()}</title>
+</%def>
+
+<%def name="title()">
+    ${self.name.split('/').pop().split('.')[0]} | harmonize.fm
 </%def>
 

@@ -24,10 +24,16 @@
 			<div id="home-bg">	
 			<div id="home-sidebar">			
 			<div id="home-sidebar-header" class="h-subtitle">Links</div>
-				<div><a href="#/player/blog">News</a></div>
-                <div>
+				<div><a href="#/player/blog">news</a></div>
+				<div><a href="blog.harmonize.fm">blog</a></div>
+				<div><a href="/faq">faq</a></div>
+				<div><a href="http://www.facebook.com/apps/application.php?id=${c.appid}">
+                    facebook app</a>
+                </div>
+				<div><a href="/">harmonize.fm</a></div>
+                <div class="home-dllink">
                     <%call expr="dl_harmonizer_a('dummy_iframe')">
-                        Download the harmonizer
+                        <img src="/images/dlharmonizerfat.png" />
                     </%call>
                 </div>
 			</div></div>

@@ -84,7 +84,7 @@ function PlaylistMgr() {
 		//working any other way. Seriously.
 		setTimeout(function() {playlist.panel.expand();}, 100);
 
-		open_playlists[record.get('Playlist_id')] = playlist;
+		open_playlists[record.get('Playlist_id')] = playlist;        
 	}
 
 	my.enqueue = function(records) {
@@ -157,9 +157,8 @@ function PlaylistMgr() {
 
 function Playlist(config) {
 	var my = this;
-
 	my.id = config.record.get('Playlist_id');
-
+    
 	my.addEvents({
 		remove: true
 	});

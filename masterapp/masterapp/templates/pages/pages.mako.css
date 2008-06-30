@@ -1,19 +1,23 @@
+<%!
+    from masterapp.lib.profile import Profile
+%>
+
 body, html {
     margin: 0;
     padding: 0;
     max-width: 100%;
     font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
     font-size: 12px;
-    color: #333;
+    color: ${Profile.primary_txt};
     background: white;
 }
 
 a {
-    color: #333;
+    color: ${Profile.primary_txt};
 }
 
 a:hover {
-    color: #FF8811;
+    color: ${Profile.click}
 }
 
 img {
@@ -25,12 +29,12 @@ img {
 }
 
 #banner {
-    background: #334466;
+    background: ${Profile.top_bg};
     color: white;
 }
 
 #color {
-    background: #D8DEEB;
+    background: ${Profile.oddrow_bg};
     height: 10px;
 }
 
@@ -50,7 +54,7 @@ img {
 }
 
 #header a:hover {
-    color: #FF8811;
+    color: ${Profile.click};
 }
 
 #signin {
@@ -74,22 +78,17 @@ img {
 
 .aspect-title {
     font-size: 16pt;
-    color: #999;
+    color: ${Profile.profile_links};
     padding-bottom: 5px;
 }
 
 .aspect-link {
     text-align: center;
-    text-decoration: underline;
     padding-top: 10px;
 }
 
-.aspect-link img {
-    border: none;
-}
-
-.aspect-link a:hover {
-    color: #ff8811;
+.aspect-link a{
+    text-decoration: underline;
 }
 
 #content-table {
@@ -118,12 +117,11 @@ img {
 }
 
 #side a {
-    color: #999;
+    color: ${Profile.profile_links};
 }
 
 #side a:hover {
-    text-decoration: underline;
-    color: #ff8811;
+    color: ${Profile.click};
 }
 
 #side-content {
@@ -138,18 +136,12 @@ img {
 }
 
 .title {
+    margin-left: 10px;
     padding-top: 15px;
     padding-bottom: 5px;
     font-size: 18pt;
     border-bottom: 1px solid #999;
-    color: #334466;
-}
-
-.question {
-    color: #888;
-    padding-top: 5px;
-    padding-bottom:5px;
-    font-size: 15pt;
+    color: ${Profile.dark_txt};
 }
 
 .answer {

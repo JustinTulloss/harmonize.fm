@@ -1,9 +1,12 @@
-.h-light-form textarea {
-    border: 1px solid ${c.profile.light_form}
+<%!
+    from masterapp.lib.profile import Profile
+%>
+textarea {
+    border: 1px solid ${Profile.light_form}
 }
 
-.h-light-form input {
-    border: 1px solid ${c.profile.light_form}
+input {
+    border: 1px solid ${Profile.light_form}
 }
 
 .h-mask {
@@ -12,8 +15,8 @@
 
 .h-subtitle {
     font-size: 14pt;
-    color: ${c.profile.profile_subtitle};
-    border-bottom: 1px solid ${c.profile.profile_border};
+    color: ${Profile.profile_subtitle};
+    border-bottom: 1px solid ${Profile.profile_border};
 	padding-top: 10px;
     padding-left: 5px;
     padding-bottom: 2px;
@@ -23,11 +26,11 @@
 
 .h-title {
     font-size: 16pt;
-    color: ${c.profile.dark_txt};
+    color: ${Profile.dark_txt};
 }
 
 button {
-	background-color: ${c.profile.top_bg};
+	background-color: ${Profile.top_bg};
 	color: white;
 	padding: 2px 3px;
 	margin: 0 3px;
@@ -36,8 +39,8 @@ button {
     border-left: 0;
 	border-right: solid 1px #aaa;
 	border-bottom: solid 1px #aaa;
-	font-size: ${c.profile.font_size};
-	font-family: ${c.profile.font_family};
+	font-size: ${Profile.font_size};
+	font-family: ${Profile.font_family};
 	cursor: pointer;
 }
 
@@ -46,7 +49,7 @@ button * {
 }
 
 button:hover {
-	background-color: ${c.profile.oddrow_bg};
+	background-color: ${Profile.oddrow_bg};
 	color: #333;
 }
 
@@ -55,8 +58,12 @@ h-menu-a a {
     margin: 0px;
 }
 
+img {
+    border: none;
+}
+
 .a-button {
-	background-color: ${c.profile.top_bg};
+	background-color: ${Profile.top_bg};
 	color: white;
 	padding: 4px 5px 4px 5px;
     line-height: 25px;
@@ -67,6 +74,6 @@ h-menu-a a {
 }
 
 .a-button:hover {
-	background-color: ${c.profile.oddrow_bg};
+	background-color: ${Profile.oddrow_bg};
 	color: #333;
 }

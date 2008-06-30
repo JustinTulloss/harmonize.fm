@@ -86,11 +86,11 @@ class MetadataController(BaseController):
         elif request.params.get('playlist'):
             qry = qry.reset_joinpoint().join(Song.playlistsongs).\
                 filter(PlaylistSong.playlistid == 
-                        int(request.params['playlist'])).\
+                        int(request.params.get('playlist'))).\
                 order_by(PlaylistSong.songindex)
 
         qry = qry.order_by(sort)
-        qry = self._apply_offset(qry)
+        #qry = self._apply_offset(qry)
         return qry
 
     @cjsonify
