@@ -305,7 +305,11 @@ body .x-menu {
  *********************************************/
 
 #amazon_link {
-    float: left;
+    left: 255px;
+    top: 3px;
+    position: absolute;
+    width: 50%;
+    overflow: right;
 }
 
 #amazon_link a {
