@@ -1,6 +1,7 @@
 # vim:expandtab:smarttab
 import logging
 from pylons import config
+import cPickle as pickle
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join, or_, and_
@@ -412,8 +413,10 @@ class Whitelist(object):
         self.registered = registered
 
 class Notification(object):
-    def __init__(self, email):
+    def __init__(self, email, type, data = None):
         self.email = email
+        self.type = type
+        self.data = pickle.dumps(data)
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
