@@ -296,8 +296,8 @@ function show_status_msg(msg, keepshowing) {
 }
 
 function hide_status_msg() {
-	el = document.getElementById('status-box').firstChild;
-	el.style.visibility = 'hidden';
+	el = Ext.fly('status-box').first();
+	el.applyStyles('visibility: hidden');
 }
 
 function prevent_default(fn) {
