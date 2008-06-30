@@ -9,6 +9,7 @@
             href = '/uploaders/Harmonizer.dmg'
         else:
             href = '/harmonizer-not-supported'
+            target = None
     %>
     % if href:
         <a href="${href}"

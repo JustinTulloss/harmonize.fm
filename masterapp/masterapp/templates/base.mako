@@ -28,10 +28,10 @@
 </html>
 
 <%def name="head_tags()">
-    <title>${self.title()}</title>
+    <title>${self.title()} | harmonize.fm</title>
 </%def>
 
 <%def name="title()">
-    ${self.name.split('/').pop().split('.')[0]} | harmonize.fm
+    ${self.name.split('/').pop().split('.')[0]}
 </%def>
 
