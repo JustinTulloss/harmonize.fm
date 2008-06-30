@@ -44,7 +44,7 @@
 			// TODO: Tie into actual error handling mechanism 
 			alert ('An error occurred loading the soundmanager');
         }
-    </script>
+    </script> 
 </%def>
 
 <div id="header">
@@ -72,6 +72,7 @@
             <div id="full-volume"></div>
         </div>
     </div>
+    <div id="amazon_link"></div>
 	<div id="topmenu">
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
