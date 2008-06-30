@@ -68,12 +68,10 @@ img {
 
 #connect {
     text-align: center;
-    padding-top: 30px;
 }
 
 .aspect {
-    padding: 15px 15px 0 15px;
-    margin: 15px 15px 0 15px;
+    margin-top: 30px;
 }
 
 .aspect-title {
@@ -96,7 +94,7 @@ img {
     border-spacing: 0;
     margin: 0;
     padding: 0;
-    padding-bottom: 10px;
+    padding-bottom: 25px;
     font-size: 12pt;
     border-bottom: 1px solid #999;
 }
@@ -108,6 +106,8 @@ img {
 
 #content {
     margin-left: 10px;
+	margin-top: 25px;
+	padding: 0 30px 0 30px;
 }
 
 #side {
@@ -125,7 +125,7 @@ img {
 }
 
 #side-content {
-    margin-top: 10px;
+    margin-top: 25px;
     margin-bottom: 10px;
 }
 
@@ -136,15 +136,13 @@ img {
 }
 
 .title {
-    margin-left: 10px;
-    padding-top: 15px;
     padding-bottom: 5px;
     font-size: 18pt;
-    border-bottom: 1px solid #999;
+    /*border-bottom: 1px solid #999;*/
+	text-align: center;
     color: ${Profile.dark_txt};
 }
 
 .answer {
     margin-bottom: 5px;
-    padding-left: 5px;
 }
