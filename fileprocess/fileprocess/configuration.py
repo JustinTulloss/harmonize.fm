@@ -41,13 +41,14 @@ production_config = {
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600,
-    'upload_dir': os.environ.get('UPLOADS'),
+    'upload_dir': os.environ.get('STAGE_UPLOADS'),
     'media_dir': os.environ.get('MEDIA'),
     'tagshelf': '/var/opt/tagshelf.archive'
 }
 
 live_config = {
     'port': 48262,
+    'upload_dir': os.environ.get('UPLOADS'),
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
 }
