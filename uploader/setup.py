@@ -4,7 +4,7 @@ import os
 
 r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py', 
 			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py', 'hfile.py',
-			 'singleton.py']
+			 'singleton.py', 'excepthandler.py']
 
 if sys.platform == 'darwin':
 	if not os.path.exists('genpuid'):
