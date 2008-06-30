@@ -2,10 +2,18 @@
 #A thread that allows us to process files
 from __future__ import with_statement
 
-import sys
+import sys, os
 import threading
 from Queue import Queue
+from configuration import config
 
+fp = None
+def set_fp(newfp):
+    global fp
+    fp = newfp
+
+def get_fp():
+    return fp
 
 class MsgQueue(object):
     def __init__(self):
@@ -69,7 +77,6 @@ class FileUploadThread(object):
         cleanup = Cleanup() # A Special thread for cleaning up errors
 
         self.handlers = [
-            Mover(),
             Hasher(),
             PuidGenerator(),
             TagGetter(),
@@ -93,6 +100,10 @@ class FileUploadThread(object):
         self._thread.setDaemon(True)
         self._thread.start()
 
+        # Restart where we left off
+        self.bootstrap()
+
+
     def process(self, file):
         self._fqueue.put(file)
    
@@ -100,3 +111,14 @@ class FileUploadThread(object):
         while(self.running):
             newfile = self._fqueue.get()
             self.handlers[0].queue.put(newfile)
+
+    def bootstrap(self):
+        for dirpath, dirs, files in os.walk(config['upload_dir']):
+            fbid = dirpath.split('/').pop()
+            for file in files:
+                new_file = {
+                    'fname': os.path.join(dirpath, file),
+                    'fbid': fbid,
+                    'usersha': file.split('.')[0],
+                }
+                self.process(new_file)

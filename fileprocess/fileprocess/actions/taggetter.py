@@ -67,7 +67,7 @@ class TagGetter(BaseAction):
         if file.get('date'):
             file['date'] = file['date'].split('-')[0]
 
-        audio.delete() #remove the ID3 tags, we don't care for them
+        #audio.delete() #remove the ID3 tags, we don't care for them
 
         newname = '%s.%s' % (file['fname'], file['filetype'])
         os.rename(file['fname'], newname)

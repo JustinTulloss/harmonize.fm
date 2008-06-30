@@ -37,7 +37,7 @@ class Hasher(BaseAction):
 					 (file['usersha'], file['sha']))
             file['msg'] = "Hash mismatch"
             file['na'] = na.TRYAGAIN
-            self.cleanup(file)
+            self.failure(file)
             return False
 
         return file
