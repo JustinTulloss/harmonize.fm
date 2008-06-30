@@ -24,8 +24,8 @@
     pageTracker._initData();
     pageTracker._trackPageview();
     </script>
-  </body>
 </html>
+     </body>
 
 <%def name="head_tags()">
     <title>${self.title()} | harmonize.fm</title>

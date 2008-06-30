@@ -274,3 +274,18 @@ class MetadataController(BaseController):
         else:
             return "False"
             
+
+    def get_asin(self):
+        if not request.params.has_key('id'):
+            return "0"
+
+        count = Session.query(SongOwner).filter(SongOwner.songid == request.params.get('id')).filter(SongOwner.uid == get_user().id).count()
+        if count != 0:
+            return "0"
+
+        albumid = Session.query(Song).get(request.params.get('id')).albumid
+        
+        asin = Session.query(Album).get(albumid).asin
+        if asin:
+            return asin
+        return "0"

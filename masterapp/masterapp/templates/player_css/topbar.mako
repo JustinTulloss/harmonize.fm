@@ -303,3 +303,24 @@ body .x-menu {
 /*********************************************
  * this is the end of the css for the music menu
  *********************************************/
+
+#amazon_link {
+    float: left;
+}
+
+#amazon_link a {
+    font-size: 13px;
+    color: #FFFFFF;
+	text-decoration: none;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+#amazon_link *:hover {
+    color: ${c.profile.click};
+	text-decoration: none;
+}
+
+#amazon_link *:focus {
+	outline: none;
+}

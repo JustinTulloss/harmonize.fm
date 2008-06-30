@@ -34,7 +34,8 @@ function Player() {
         prevsong: true,
         showprev: true
     });
-
+    
+    var amazon_link = new Ext.Template('<a href="http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}" target="_blank">Buy this album ({album}) on Amazon.com</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a={asin}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />');
 	
     function init_seekbar() 
     {
@@ -133,8 +134,9 @@ function Player() {
 			title : song.get('Song_title'),
 			artist : song.get('Artist_name'),
 			album : song.get('Album_title'),
-			length : song.get('Song_length')})
-
+			length : song.get('Song_length'),
+            id: song.get('Song_id')})
+            
 		set_pause(true);
 
 		if (bufferedsong && bufferedsong === song.get('Song_id')) {
@@ -289,6 +291,30 @@ function Player() {
 				new_artist = album;
 		}
 		now_playing_artist.innerHTML = new_artist;
+        
+        // call the serve and get the asin for the currently playing song (album)
+        Ext.Ajax.request({
+            url: 'metadata/get_asin',
+            params: {
+                id:song_info.id
+            },
+            success: function(response, options) {
+                if (response.responseText == "0") {
+                    //do nothing, we don't have an ASIN for this album
+
+                } else {
+                    Ext.get('amazon_link').update(amazon_link.apply({
+                        asin: response.responseText,
+                        album: song_info.album,
+                        artist: song_info.artist
+                    }));
+                    Ext.get('amazon_link').frame();
+                }
+            },
+            failure: function(response, options) {
+                show_status_msg("Error retrieving Amazon link information");
+            }
+        });
 
 		if (song_info.length) 
 			reset_progress_bar(song_info.length);
