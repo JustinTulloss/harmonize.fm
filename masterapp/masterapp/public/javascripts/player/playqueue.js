@@ -29,10 +29,8 @@ function PlayQueue(config) {
 
     my.enqueue = function(records) {
 		songQueue.enqueue(records);
-		/*
 		if (my.playing === null)
 			my.dequeue();
-		*/
     }
 
     my.dequeue = function () {
@@ -46,16 +44,14 @@ function PlayQueue(config) {
     }
 
 	my.insert = function(records, playnow) {
-		var was_playing = my.playing != null;
+		//var was_playing = my.playing != null;
 		songQueue.insert(records);
-		if (playnow && was_playing)
+		if (playnow || my.playing === null) {
 			my.dequeue();
+		}
 	}
 
 	function onreorder() {
-		if (my.playing == null) {
-			my.dequeue();
-		}
 		songQueue.peek(function(record) {
 			my.fireEvent('buffersong', record);});
 	}
@@ -69,7 +65,6 @@ function PlayQueue(config) {
     function playnow(record) {
         if (my.playing != null) {
             my.played.push(my.playing);
-			//my.playing.set('type', 'prevsong');
         }
 
         play(record);
@@ -78,7 +73,6 @@ function PlayQueue(config) {
     function play(record) {
         if (record) {
 			my.playing = record;
-			//record.set('type', 'nowplayingsong');
             my.fireEvent('playsong', record);
         }
     }
@@ -617,13 +611,19 @@ function ArtistQueueNode(config)
     });
     albums.on('load', loaded);
 
-    function loaded(store, records, options)
-    {
+    function loaded(store, records, options) {
         if (records.length > 0) {
 			my.queue.insert(records, my);
         }
 		my.remove();
+		if (last_k)
+			config.queue.dequeue(last_k);
     }
+
+	var last_k = null;
+	my.dequeue = function(k) {
+		last_k = k;
+	}
 }
 Ext.extend(ArtistQueueNode, QueueNode);
 
