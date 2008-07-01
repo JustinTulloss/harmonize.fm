@@ -35,6 +35,21 @@ import thread
 
 import masterapp.lib.snippets as snippets
 
+feedback_template = """
+From: %s
+
+%s
+
+Browser:
+%s
+
+Screen:
+%s
+
+File this:
+http://trac.harmonize.fm/trac/newticket
+"""
+
 log = logging.getLogger(__name__)
 
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
@@ -212,18 +227,8 @@ class PlayerController(BaseController):
 
         for key, value in bdata['screen'].items():
             screen = screen + "%s = %s\n" % (key, value)
-            message = """
-
-From: %s
-
-%s
-
-Browser:
-%s
-
-Screen:
-%s
-        """ % (user, user_feedback, browser, screen)
+        message = feedback_template % \
+                (user, user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
             subject = 'Site feedback from %s' % user_email
