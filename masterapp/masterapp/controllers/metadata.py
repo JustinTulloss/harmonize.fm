@@ -112,7 +112,9 @@ class MetadataController(BaseController):
         qry = user.song_query
         
         sort = [Artist.sort, Album.title, Song.tracknumber]
-        if request.params.get('album'):
+        if request.params.get('song'):
+            qry = qry.filter(Song.id == request.params.get('song'))
+        elif request.params.get('album'):
             qry = qry.filter(Album.id== request.params.get('album'))
             sort = [Song.tracknumber]
         elif request.params.get('artist'):
@@ -122,6 +124,7 @@ class MetadataController(BaseController):
                 filter(PlaylistSong.playlistid == 
                         int(request.params.get('playlist'))).\
                 order_by(PlaylistSong.songindex)
+
 
         qry = qry.order_by(sort)
         qry = self._apply_offset(qry)

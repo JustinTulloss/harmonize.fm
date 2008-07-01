@@ -52,11 +52,11 @@ function friend_recommend(record) {
     });
     button.setHandler(
         function() {
-            set_status_msg("Recommmending...");
+            show_status_msg("Recommmending...");
             Ext.Ajax.request({
                 url: [url, field.getValue()].join('/'),
                 success: function(options, response) {
-                    set_status_msg("Recommendation Sent");
+                    show_status_msg("Recommendation Sent");
                 }
             });
             hide_dialog();

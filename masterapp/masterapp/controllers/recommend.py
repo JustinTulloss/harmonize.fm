@@ -21,8 +21,8 @@ class RecommendController(BaseController):
         c.entity = album.title
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://harmonize.fm/player#/bc/friend=%s/album=%s/song' % \
-            (session['userid'], kwargs['entity'])
+        c.href = 'http://%s/player#/bc/friend=%s/album=%s/song' % \
+            (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
         return True
@@ -33,8 +33,8 @@ class RecommendController(BaseController):
         c.entity = artist.name
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://harmonize.fm/player#/bc/friend=%s/artist=%s/album' % \
-            (session['userid'], kwargs['entity'])
+        c.href = 'http://%s/player#/bc/friend=%s/artist=%s/album' % \
+            (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
         return True
@@ -45,7 +45,10 @@ class RecommendController(BaseController):
         c.entity = song.title
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://harmonize.fm/player#/bc/friend=%s/song' % session['userid']
+        c.href = \
+            'http://%s/player#/bc/friend=%s/artist=%s/album=%s/song=%s/song' %\
+            (request.host, session['userid'], song.artistid, 
+                song.albumid, song.id)
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
         return True
@@ -56,8 +59,8 @@ class RecommendController(BaseController):
         c.entity = playlist.name
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://harmonize.fm/player#/bc/friend=%s/playlist=%s/playlistsong' % \
-            (session['userid'], kwargs['entity'])
+        c.href = 'http://%s/player#/bc/friend=%s/playlist=%s/playlistsong' % \
+            (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
         return True
