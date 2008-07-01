@@ -9,6 +9,10 @@ input {
     border: 1px solid ${Profile.light_form}
 }
 
+.h-dlg-buttons {
+    text-align: right;
+}
+
 .h-mask {
     opacity: .5;
 }
