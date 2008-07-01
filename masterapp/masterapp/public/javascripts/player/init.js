@@ -40,6 +40,7 @@ function init()
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
+    bread_crumb.on('chgstatus', viewmgr.set_status, viewmgr);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgrid', viewmgr.init_search, viewmgr);

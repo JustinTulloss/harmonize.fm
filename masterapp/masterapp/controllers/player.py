@@ -123,7 +123,7 @@ class PlayerController(BaseController):
             c.include_files = player_files
 	
         return render('/player.mako')
-    
+
     def songurl(self, id):
         """
         Fetches the S3 authenticated url of a song.

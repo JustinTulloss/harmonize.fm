@@ -69,7 +69,8 @@ function BreadCrumb()
 
     this.addEvents({
         'bcupdate' : true,
-        'newfilter' : true
+        'newfilter' : true,
+        'chgstatus' : true
     });
 
 
@@ -242,9 +243,13 @@ function BreadCrumb()
         return params;
     }
     
-    my.reload= function() {
+    my.reload = function() {
+        my.fireEvent('chgstatus', 'Loading...');
         if (bclist[current])
-            bclist[current].ds.reload({add: false });
+            bclist[current].ds.reload({
+                add: false,
+                callback: function(){my.fireEvent('chgstatus', null);}
+            });
     }
 }
 

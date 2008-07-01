@@ -19,6 +19,7 @@
 
 .status a {
     color: ${c.profile.status_txt};
+    margin-left: 5px;
     text-decoration: none;
 }
 
