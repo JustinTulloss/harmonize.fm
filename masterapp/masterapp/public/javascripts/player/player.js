@@ -292,29 +292,31 @@ function Player() {
 		}
 		now_playing_artist.innerHTML = new_artist;
         
-        // call the serve and get the asin for the currently playing song (album)
-        Ext.Ajax.request({
-            url: 'metadata/get_asin',
-            params: {
-                id:song_info.id
-            },
-            success: function(response, options) {
-                if (response.responseText == "0") {
-                    //do nothing, we don't have an ASIN for this album
+        if (song_info.id) {
+            // call the serve and get the asin for the currently playing song (album)
+            Ext.Ajax.request({
+                url: 'metadata/get_asin',
+                params: {
+                    id:song_info.id
+                },
+                success: function(response, options) {
+                    if (response.responseText == "0") {
+                        //do nothing, we don't have an ASIN for this album
 
-                } else {
-                    Ext.get('amazon_link').update(amazon_link.apply({
-                        asin: response.responseText,
-                        album: song_info.album,
-                        artist: song_info.artist
-                    }));
-                    Ext.get('amazon_link').frame();
+                    } else {
+                        Ext.get('amazon_link').update(amazon_link.apply({
+                            asin: response.responseText,
+                            album: song_info.album,
+                            artist: song_info.artist
+                        }));
+                        Ext.get('amazon_link').frame();
+                    }
+                },
+                failure: function(response, options) {
+                    show_status_msg("Error retrieving Amazon link information");
                 }
-            },
-            failure: function(response, options) {
-                show_status_msg("Error retrieving Amazon link information");
-            }
-        });
+            });
+        }
 
 		if (song_info.length) 
 			reset_progress_bar(song_info.length);
