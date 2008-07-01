@@ -16,7 +16,7 @@ var every_action =  {
         action: function(record) {playlistmgr.enqueue([record]);}
     },
     friendrec: { 
-        view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/enqueue.png" /></a>',
+        view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/recommend.png" /></a>',
         action: friend_recommend,
     },
     spotlight: {
