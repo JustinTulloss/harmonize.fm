@@ -19,6 +19,7 @@ from masterapp.model import (
     Artist, 
     Owner,
     SongOwner,
+    RemovedOwner,
     File, 
     Session, 
     User, 
@@ -53,6 +54,13 @@ class MetadataController(BaseController):
             'next_radio_song': self.next_radio_song,
             'find_spotlight_by_id': self.find_spotlight_by_id
         }
+        self.id_map = {
+            'artist': Artist.id,
+            'album': Album.id,
+            'song': Song.id,
+            'friend': User.id,
+            'playlist': Playlist.id
+        }
 
     def __before__(self):
         ensure_fb_session()
@@ -70,6 +78,30 @@ class MetadataController(BaseController):
         type = request.params.get('type')
         handler=self.datahandlers.get(type, self._json_failure)
         return handler()
+
+    @pass_user
+    def remove(self, user, **kwargs):
+        type = kwargs['type']
+        id = kwargs['id']
+        songs = user.song_query.filter(self.id_map[type]==id)
+        for song in songs:
+            movedowner = RemovedOwner(
+                song=Session.query(Song).get(song.Song_id),
+                user=user
+            )
+            Session.add(movedowner)
+
+            owner = Session.query(SongOwner).\
+                filter(SongOwner.songid == song.Song_id).\
+                filter(SongOwner.user == user).first()
+            Session.delete(owner) 
+
+        try:
+            Session.commit()
+        except Exception, e:
+            Session.rollback()
+            raise
+
 
     @cjsonify
     @d_build_json

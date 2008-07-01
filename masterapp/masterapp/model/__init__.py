@@ -44,6 +44,7 @@ puids_table = Table('puids', metadata, autoload=True)
 songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
 notifications_table = Table('notifications', metadata, autoload=True)
+removedowners_table = Table('removedowners', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -418,6 +419,11 @@ class Notification(object):
         self.type = type
         self.data = pickle.dumps(data)
 
+class RemovedOwner(object):
+    def __init__(self, song=None, user=None):
+        self.song = song
+        self.user = user
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -527,6 +533,11 @@ mapper(Puid, puids_table)
 
 mapper(SongOwner, songowners_table, properties={
     'user': relation(User, lazy=True, backref='owners')
+})
+
+mapper(RemovedOwner, removedowners_table, properties={
+    'user': relation(User),
+    'song': relation(Song)
 })
 
 mapper(Whitelist, whitelists_table)
