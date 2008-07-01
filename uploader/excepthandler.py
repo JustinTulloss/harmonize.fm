@@ -1,7 +1,7 @@
 import traceback as tb
 from StringIO import StringIO
-import sys
-import config
+import sys, platform
+import config, build
 
 def exception_managed(fn):
 	def wrapper(*args, **kws):
@@ -12,6 +12,9 @@ def exception_managed(fn):
 			tb.print_tb(sys.exc_traceback, file=f_contents)
 			contents = f_contents.getvalue()
 			f_contents.close()
+
+			contents += '\nplatform.uname():\n' + str(platform.uname())
+			contents += '\nRepo version: ' + build.repo_version
 
 			if config.current['debug']:
 				import pdb; pdb.set_trace()

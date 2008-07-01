@@ -96,6 +96,11 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
+function enqueue_spotlight(id, friendid, type) {
+    if (type == "playlist") enqueue_playlist(id, friendid);
+    else enqueue_album(id, friendid);
+}
+
 function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);

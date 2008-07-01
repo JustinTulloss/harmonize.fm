@@ -1,10 +1,13 @@
 import sys
 from distutils.core import setup
 import os
+import create_build
 
 r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py', 
 			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py', 'hfile.py',
-			 'singleton.py', 'excepthandler.py']
+			 'singleton.py', 'excepthandler.py', 'build.py']
+
+create_build.create()
 
 if sys.platform == 'darwin':
 	if not os.path.exists('genpuid'):
