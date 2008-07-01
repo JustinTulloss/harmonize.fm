@@ -316,6 +316,6 @@ class PlayerController(BaseController):
         # oops, exceeded time window.  from now only only 10 times per 48 hours (moving)
         title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on <a href="http://harmonize.fm">Harmonize.fm</a>'
         body_t = '<i><fb:pronoun uid="actor" useyou="false" capitalize="true" /> said: </i>{comment}  (<b>{title}</b> by {artist})'
-        body_d = '{"title":"'+ spot.title +'", "album":"'+ spot.title +'", "artist":"'+ spot.author +'", "comment":"'+ spot.comment +'"}'
+        body_d = '{"title":"'+ spot.title +'", "album":"'+ spot.title +'", "artist":"'+ spot.author +'", "comment":"'+ spot.comment +'", "uid":"'+ session['userid'] +'"}'
         r = facebook.feed.publishTemplatizedAction(title_template=title_t, body_template=body_t, body_data=body_d)
         return r
