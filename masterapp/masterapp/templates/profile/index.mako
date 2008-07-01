@@ -47,9 +47,11 @@ ${rightcol.render()}
                 if spotlight.albumid:
                     enqueue_type = 'album'
                     enqueue_id = spotlight.albumid
+                    edit_class = 'edit-spotlight'
                 else:
                     enqueue_type = 'playlist'
                     enqueue_id = spotlight.playlistid
+                    edit_class = 'edit-playlist-spotlight'
                 endif
             %>
 				<img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
@@ -64,8 +66,8 @@ ${rightcol.render()}
             <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
                 <span class="spot-controls">
-                    <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id},${enqueue_type}); return false;">delete</a>
+                    <a id="${spotlight.id}" class="${edit_class}" href="${c.current_url}">edit</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id},'${enqueue_type}'); return false;">delete</a>
                 </span>
             % endif
         </div>
