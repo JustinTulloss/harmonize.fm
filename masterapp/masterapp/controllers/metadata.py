@@ -322,7 +322,7 @@ class MetadataController(BaseController):
             asin = Session.query(Album).get(albumid).asin
             if asin:
                 try:
-                    items = XMLItemSearch(album.title, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
+                    items = XMLItemSearch(album.artist.name, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
                     item = items.getElementsByTagName("Item")
                     # for each item, check to see if it is a "Digial Music Album"
                     # if it isn't, we're gonna just give the regular asin back.
