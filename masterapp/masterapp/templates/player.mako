@@ -70,10 +70,10 @@
             <div id="no-volume"></div>
             <div id="volume"></div>
             <div id="full-volume"></div>
+            <div id="amazon_link"></div>
         </div>
     </div>
-    <div id="amazon_link"></div>
-	<div id="topmenu">
+    <div id="topmenu">
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
 		<a id="music_link" href="#/bc/artist">
@@ -87,10 +87,13 @@
         <!--<a href="#/action/invite" id="invite-link">invite</a>-->
 		<a href="#/action/feedback" id="feedback-link">feedback</a>
 	</div>
-	<div id="status-box"><span></span></div>
+	<div id="status-box">
+        <span></span>
+    </div>
     <div id="logo">
         <a href="/"><img src="/images/whiteharmonizefm.png" /></a>
     </div>
+
 </div>
 
 

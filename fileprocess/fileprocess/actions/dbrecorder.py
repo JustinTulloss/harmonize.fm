@@ -1,4 +1,5 @@
 import logging
+import re
 import os
 from mock import Mock
 from ..processingthread import na
@@ -19,6 +20,8 @@ class DBRecorder(DBChecker):
     Therefore, we need to create a new Owner and a new File after we get the
     correct metadata in place.
     """
+    sorter = re.compile('^([!@#$%^&*\-_+=<>,.;:\'{}|`~".()\[\]\\\]+|the )',
+        re.IGNORECASE)
 
     def process(self, file):
         assert file.has_key('dbuserid')
@@ -47,14 +50,18 @@ class DBRecorder(DBChecker):
 
             dbfile = None
             if file.has_key('sha'):
-                # Create a new file associated with the song we found or created
-                dbfile = self.model.File(
-                    sha = file['sha'],
-                    bitrate = file.get('bitrate'),
-                    size = file.get('size'),
-                    song = song
-                )
-                log.debug("New file %s added to files", file['sha'])
+                dbfile = self.model.Session.query(self.model.File).filter(
+                    self.model.File.sha == file['sha']
+                ).first()
+                if not dbfile:
+                    # Create a new file associated with the song we found or created
+                    dbfile = self.model.File(
+                        sha = file['sha'],
+                        bitrate = file.get('bitrate'),
+                        size = file.get('size'),
+                        song = song
+                    )
+                    log.debug("New file %s added to files", file['sha'])
 
                 # Mark the owner of this fine file
                 fowner = self.model.Owner(file=dbfile, user=user)
@@ -175,11 +182,13 @@ class DBRecorder(DBChecker):
         if albumartist:
             artist.mbid = file.get('mbalbumartistid')
             artist.name = file.get('albumartist')
-            artist.sort = file.get('albumartistsort')
+            sortname = self.sorter.sub('', file.get('albumartist'))
+            artist.sort = sortname if sortname else file.get('albumartist')
         else:
             artist.mbid = file.get('mbartistid')
             artist.name = file.get('artist')
-            artist.sort = file.get('artistsort')
+            sortname = self.sorter.sub('', file.get('artist'))
+            artist.sort = sortname if sortname else file.get('artist')
 
         log.debug("Saving new artist %s", artist.name)
         self.model.Session.add(artist)

@@ -59,7 +59,6 @@ class BrainzTagger(BaseAction):
 
         self.lastquery = 0 #time of last query
 
-
     def process(self, file):
         mbquery = Query()
 
@@ -139,7 +138,6 @@ class BrainzTagger(BaseAction):
     def _cash_out(self, file, track, album, artist):
         file[u'title'] = track.title
         file[u'artist'] = artist.name
-        file[u'artistsort'] = artist.sortName
         if not file.get('album'):
             file[u'album'] = album.title
         file[u'duration'] = track.duration #in milliseconds
@@ -164,11 +162,9 @@ class BrainzTagger(BaseAction):
         try:
             file[u'mbalbumartistid'] = album.artist.id.rsplit('/').pop()
             file[u'albumartist'] = album.artist.name
-            file[u'albumartistsort'] = album.artist.sortName
         except:
             file[u'mbalbumartistid'] = file['mbartistid']
             file[u'albumartist'] = file['artist']
-            file[u'albumartistsort'] = file['artistsort']
 
         log.debug('%s successfully tagged by MusicBrainz', track.title)
         return file

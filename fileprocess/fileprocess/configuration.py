@@ -19,12 +19,12 @@ config = {
     'pyfacebook.secret': 'a08f822bf3d7f80ee25c47414fe98be1',
     'pyfacebook.appid': '2364724122',
     'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1',
-    'maxkbps': 192000
+    'maxkbps': 192000,
+    'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
 }
 
 dev_config = {
     'S3.upload': False,
-    'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
     'tagshelf': '../masterapp/tags.archive'
 }
 
@@ -41,13 +41,14 @@ production_config = {
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/rubicon',
     'sqlalchemy.default.pool_recycle': 3600,
-    'upload_dir': os.environ.get('UPLOADS'),
+    'upload_dir': '/var/opt/stage_uploads',
     'media_dir': os.environ.get('MEDIA'),
     'tagshelf': '/var/opt/tagshelf.archive'
 }
 
 live_config = {
     'port': 48262,
+    'upload_dir': '/var/opt/uplods',
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
 }
