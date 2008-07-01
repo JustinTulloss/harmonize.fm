@@ -278,19 +278,21 @@ class MetadataController(BaseController):
             
 
     def get_asin(self):
+        # remove this once we are working on amazon stuff again
+        return "0"
         if not request.params.has_key('id'):
             return "0"
 
         count = Session.query(SongOwner).filter(SongOwner.songid == request.params.get('id')).filter(SongOwner.uid == get_user().id).count()
         if count != 0:
             return "0"
-
-        albumid = Session.query(Song).get(request.params.get('id')).albumid
-       
-        asin = Session.query(Album).get(albumid).asin
-        if asin:
-            item = XMLItemLookup(asin, IdType='ASIN', ResponseGroup='Similarities', AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
-            # this isn't working.  just search using album title and artist name in mp3 downloads and get that asin and go from there.
-            return item.toxml("UTF-8")
-            return asin
+        album = Session.query(Song).get(request.params.get('id'))
+        if album:
+            albumid = album.id
+            asin = Session.query(Album).get(albumid).asin
+            if asin:
+                item = XMLItemLookup(asin, IdType='ASIN', ResponseGroup='Similarities', AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
+                # this isn't working.  just search using album title and artist name in mp3 downloads and get that asin and go from there.
+                return item.toxml("UTF-8")
+                return asin
         return "0"

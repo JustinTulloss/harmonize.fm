@@ -382,6 +382,14 @@ class Spotlight(object):
             return qry.name
     title = property(get_title)
 
+    def get_author(self):
+        if self.albumid:
+            return self.album.artist.name
+        elif self.playlistid:
+            user = Session.query(User).get(self.uid)
+            return user.name
+    author = property(get_author)
+
     def _unactivate_lru(self):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
                 Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:

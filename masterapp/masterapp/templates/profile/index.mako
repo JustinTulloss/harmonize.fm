@@ -35,35 +35,37 @@ ${rightcol.render()}
 
 <%def name="build_spotlight(spotlight, own_profile)" >
     <div class="profile-sp">
-        % if spotlight.album.smallart:
+        % if spotlight.albumid and spotlight.album.smallart:
             <div class="profile-sp-albumart">
                ${build_amazon_link(spotlight, h.p_image_tag(spotlight.album.smallart))}
-
             </div>
         % endif
         <div class="h-title">
-            % if spotlight.albumid:
-				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
-            % elif spotlight.playlistid:
-                <img src="/images/enqueue.png" onclick="enqueue_playlist(${spotlight.playlist.id}, ${spotlight.uid})" />
+            <% 
+                enqueue_type = "playlist"
+                enqueue_id = "0"
+                if spotlight.albumid:
+                    enqueue_type = 'album'
+                    enqueue_id = spotlight.albumid
+                else:
+                    enqueue_type = 'playlist'
+                    enqueue_id = spotlight.playlistid
+                endif
+            %>
+				<img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
+            ${spotlight.title}
+            % if not own_profile and spotlight.albumid:
+                ${build_amazon_link(spotlight,"(buy)")}
             % endif
-                ${spotlight.title}
-                % if not own_profile and spotlight.albumid:
-                    ${build_amazon_link(spotlight,"(buy)")}
-                % endif
  
         </div>
         <div class="profile-sp-artist">
-            % if spotlight.albumid:
-                by ${spotlight.album.artist.name} 
-            % elif spotlight.playlistid:
-                by ${spotlight.user.name}
-            % endif
+            by ${spotlight.author}
             <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id},'album'); return false;">delete</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id},${enqueue_type}); return false;">delete</a>
                 </span>
             % endif
         </div>
