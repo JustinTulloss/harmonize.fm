@@ -28,11 +28,7 @@ ${rightcol.render()}
     <div id="profile-spotlight">
         <div class="profile-subtitle h-subtitle">Spotlight</div>
         % for spotlight in c.user.get_active_spotlights():
-            % if spotlight.album != None:            
-                ${build_spotlight(spotlight, c.current_uid == c.user.id)}
-            % elif spotlight.playlist != None:
-                ${build_playlist_spotlight(spotlight, c.current_uid == c.user.id)}
-            % endif
+            ${build_spotlight(spotlight, c.current_uid == c.user.id)}
         % endfor
     </div>
 </div>
@@ -46,15 +42,24 @@ ${rightcol.render()}
             </div>
         % endif
         <div class="h-title">
+            % if spotlight.albumid:
 				<img src="/images/enqueue.png" onclick="enqueue_album(${spotlight.album.id}, ${spotlight.uid})" />
-                ${spotlight.album.title}
-                % if not own_profile:
+            % elif spotlight.playlistid:
+                <img src="/images/enqueue.png" onclick="enqueue_playlist(${spotlight.playlist.id}, ${spotlight.uid})" />
+            % endif
+                ${spotlight.title}
+                % if not own_profile and spotlight.albumid:
                     ${build_amazon_link(spotlight,"(buy)")}
                 % endif
  
         </div>
         <div class="profile-sp-artist">
-            by ${spotlight.album.artist.name} <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
+            % if spotlight.albumid:
+                by ${spotlight.album.artist.name} 
+            % elif spotlight.playlistid:
+                by ${spotlight.user.name}
+            % endif
+            <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="edit-spotlight" href="${c.current_url}">edit</a>
