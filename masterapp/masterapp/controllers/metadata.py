@@ -321,19 +321,18 @@ class MetadataController(BaseController):
             albumid = album.id
             asin = Session.query(Album).get(albumid).asin
             if asin:
-                items = XMLItemSearch(album.title, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
-                item = items.getElementsByTagName("Item")
-                # for each item, check to see if it is a "Digial Music Album"
-                # if it isn't, we're gonna just give the regular asin back.
-                # if it is, give that one back.
-                
-                l_asin = item[0].firstChild.firstChild.nodeValue
-                product_group = item[0].childNodes[2].childNodes[2].firstChild.nodeValue
-                if product_group == "Digital Music Album":
-                    return l_asin
-                return asin
-
-                response.headers["Content-type"] = "text/xml"
-                return item.toxml()
-                return asin
+                try:
+                    items = XMLItemSearch(album.title, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
+                    item = items.getElementsByTagName("Item")
+                    # for each item, check to see if it is a "Digial Music Album"
+                    # if it isn't, we're gonna just give the regular asin back.
+                    # if it is, give that one back.
+                    
+                    l_asin = item[0].firstChild.firstChild.nodeValue
+                    product_group = item[0].childNodes[2].childNodes[2].firstChild.nodeValue
+                    if product_group == "Digital Music Album":
+                        return l_asin
+                    return asin
+                except:
+                    return asin
         return "0"
