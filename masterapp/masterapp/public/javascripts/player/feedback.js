@@ -15,8 +15,10 @@ var init_feedback;
         '</tr><tr>',
             '<td class="feedback-label">your email</td>',
         '</tr><tr>',
-            '<td><button id="feedback-send">send</button>',
-            '<button id="feedback-cancel">cancel</button></td>',
+            '<td>',
+                '<button id="feedback-cancel">cancel</button>',
+                '<button id="feedback-send">send</button>',
+            '</td>',
         '</tr></table></center>');
     feedback_template = feedback_template.compile();
 

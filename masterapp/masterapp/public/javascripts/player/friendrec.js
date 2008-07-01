@@ -3,8 +3,7 @@
  */
 
 
-/* Takes a record and displays a box that you can pick a friend */
-function friend_recommend(record) {
+function make_friend_combo() {
     var friendstore = new Ext.data.JsonStore({
         url: '/metadata',
         baseParams: {
@@ -23,18 +22,28 @@ function friend_recommend(record) {
         valueField: 'uid',
         typeAhead: true,
         mode: 'local',
+        shadow: 'false',
         emptyText: 'Select a Friend...'
     });
+    return field;
+}
+
+/* Takes a record and displays a box that you can pick a friend */
+function friend_recommend(record) {
+    var field = make_friend_combo();
     var id = record.get(typeinfo[record.get('type')].qryindex);
     var url = ['recommend', record.get('type'), id].join('/');
+    var button_t = new Ext.Template('<span><button>{0}</button></span>');
     var button = new Ext.Button({
-        text: 'recommend'
+        text: 'recommend',
+        template: button_t
     });
     var cancel = new Ext.Button({
-        text:'cancel'
+        text:'cancel',
+        template: button_t
     });
     var entity = record.get(typeinfo[record.get('type')].lblindex);
-    var win = new Ext.Window({
+    var win = new Ext.Panel({
         layout: 'fit',
         resizable: false,
         items: [field],
@@ -50,9 +59,9 @@ function friend_recommend(record) {
                     set_status_msg("Recommendation Sent");
                 }
             });
-            win.close();
+            hide_dialog();
         }
     );
-    cancel.setHandler(function(){win.close()});
-    win.show();
+    cancel.setHandler(function(){hide_dialog()});
+    show_dialog(win, true);
 }

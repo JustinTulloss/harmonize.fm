@@ -47,7 +47,7 @@ var typeinfo = {
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['spotlight', 'delrow'],
+        ownactions: ['spotlight', 'friendrec', 'delrow'],
     }, 
     playlist:{
         next: 'openplaylist',
@@ -59,7 +59,7 @@ var typeinfo = {
 		emptyText: 'There aren\'t any playlists here!<br>'+
             'Create one by clicking "create playlist" in the bottom left corner.',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['spotlight', 'delrow'],
+        ownactions: ['spotlight', 'friendrec', 'delrow'],
         remove: function(record) {playlistmgr.delete_playlist(record)}
     },
     song:{
@@ -72,7 +72,7 @@ var typeinfo = {
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['delrow'],
+        ownactions: ['friendrec', 'delrow'],
     },
     nowplayingsong:{
         nodeclass: PlayingQueueNode,

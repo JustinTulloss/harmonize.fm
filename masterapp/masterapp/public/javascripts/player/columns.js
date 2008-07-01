@@ -287,7 +287,7 @@ var BrowserColumns = {
         css:'text-align: center;',
         renderer: render.actionColumn,
         fixed: true,
-        width: 80,
+        width: 100,
         sortable: false
     },
     'expander': new Ext.grid.RowExpander()
