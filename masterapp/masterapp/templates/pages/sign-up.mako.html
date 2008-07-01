@@ -1,0 +1,13 @@
+<%inherit file="pagebase.mako.html" />
+
+<div class="title">Sign Up</div>
+<div class="aspect">
+    Harmonize is currently private beta.  Enter your email address below to be notified when we launch!
+    ${h.rails.form('invitation', method='POST')}
+    <div class="aspect-link" style="text_decoration:none">
+        <div>Email address: ${h.rails.text_field('email', size=35, maxlength=255)}
+            <button type="submit" name='post'>Sign Up</button>
+        </div>
+    </div>
+    ${h.rails.end_form()}
+</div>

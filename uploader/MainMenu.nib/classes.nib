@@ -5,26 +5,52 @@
         {CLASS = NSSegmentedControl; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
         {
             ACTIONS = {
-                changeFolder = id; 
-                login = id; 
-                options = id; 
+                addFolders = id; 
+                closeWindow = id; 
+                removeFolders = id; 
                 setUploadFolder = id; 
                 setUploadITunes = id; 
             }; 
+            CLASS = OptionsController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                folderButton = NSButtonCell; 
+                folderGrid = NSTableView; 
+                iTunesButton = NSButtonCell; 
+                uploadFolders = UploadFolders; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {options = id; quit = id; upload = id; }; 
             CLASS = RubiconController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
-                loginView = NSView; 
-                mainWindow = NSWindow; 
-                progressbar = NSProgressIndicator; 
-                uploadFolderButton = NSButtonCell; 
-                uploadFolderField = NSTextField; 
-                uploadITunesButton = NSButtonCell; 
-                uploadOptions = NSWindow; 
-                uploadView = NSView; 
+                optionsWindow = NSWindow; 
+                statusMenu = NSMenu; 
+                uploadController = UploadController; 
+                uploadWindow = NSWindow; 
             }; 
             SUPERCLASS = NSObject; 
-        }
+        }, 
+        {
+            ACTIONS = {listen = id; login = id; next = id; options = id; }; 
+            CLASS = UploadController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                introView = NSView; 
+                listenButton = NSButton; 
+                loginButton = NSButton; 
+                optionsButton = NSButton; 
+                optionsMenu = NSMenuItem; 
+                optionsWindow = NSWindow; 
+                progress = NSProgressIndicator; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = UploadFolders; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }

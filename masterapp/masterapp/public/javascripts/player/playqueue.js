@@ -29,24 +29,29 @@ function PlayQueue(config) {
 
     my.enqueue = function(records) {
 		songQueue.enqueue(records);
+		if (my.playing === null)
+			my.dequeue();
     }
 
     my.dequeue = function () {
-		if (!songQueue.dequeue(playnow))
+		if (!songQueue.dequeue(playnow)) {
 			my.fireEvent('stop');
+			if (my.playing !== null) {
+				my.played.push(my.playing);
+				my.playing = null;
+			}
+		}
     }
 
 	my.insert = function(records, playnow) {
-		var was_playing = my.playing != null;
+		//var was_playing = my.playing != null;
 		songQueue.insert(records);
-		if (playnow && was_playing)
+		if (playnow || my.playing === null) {
 			my.dequeue();
+		}
 	}
 
 	function onreorder() {
-		if (my.playing == null) {
-			my.dequeue();
-		}
 		songQueue.peek(function(record) {
 			my.fireEvent('buffersong', record);});
 	}
@@ -60,7 +65,6 @@ function PlayQueue(config) {
     function playnow(record) {
         if (my.playing != null) {
             my.played.push(my.playing);
-			//my.playing.set('type', 'prevsong');
         }
 
         play(record);
@@ -69,7 +73,6 @@ function PlayQueue(config) {
     function play(record) {
         if (record) {
 			my.playing = record;
-			//record.set('type', 'nowplayingsong');
             my.fireEvent('playsong', record);
         }
     }
@@ -131,14 +134,11 @@ function PlayQueue(config) {
 			return config.oncollapse(my);
 	});
 	
-	my.shuffle = shuffle;
-	function shuffle(e) {
-	    e.preventDefault();
+	my.shuffle = function() {
 	    songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
     }
     
-    my.finish_shuffle = finish_shuffle;
-    function finish_shuffle() {
+    my.finish_shuffle = function() {
         //need to see if anything still hasn't been flattened
         if (flattened != 0) 
             return;    
@@ -282,13 +282,15 @@ function SongQueue(label, is_playlist) {
     }
     
     my.insert = function insert(records, last) {
-		if (records.length === 0)
-			return;
+		if (records.length == 0) {
+            return;
+        }
         if (records[0].type == "friend_radio") {
             if (my.is_friend_radio()) {
                 return;    
             }
         }
+        
 
 		if (!last && my.root.hasChildNodes())
 			last = my.root.item(0);
@@ -328,7 +330,7 @@ function SongQueue(label, is_playlist) {
 		for (var i=0; my.root.item(i) && !(my.root.item(i).is_active()); i++);
 		return my.root.item(i);
 	}
-
+    
     my.inspanel.on('render', function() {
         var dtarget = new Ext.dd.DropTarget(my.panel.getEl(), {
             notifyDrop: paneldrop,
@@ -360,8 +362,7 @@ function SongQueue(label, is_playlist) {
         }
     }
     
-    my.shuffle = shuffle;
-    function shuffle() {
+    my.shuffle = function() {
         var num_songs = my.root.childNodes.length;
         while (num_songs > 1) {
             var rand = Math.floor(Math.random()*num_songs);
@@ -612,13 +613,19 @@ function ArtistQueueNode(config)
     });
     albums.on('load', loaded);
 
-    function loaded(store, records, options)
-    {
+    function loaded(store, records, options) {
         if (records.length > 0) {
 			my.queue.insert(records, my);
         }
 		my.remove();
+		if (last_k)
+			config.queue.dequeue(last_k);
     }
+
+	var last_k = null;
+	my.dequeue = function(k) {
+		last_k = k;
+	}
 }
 Ext.extend(ArtistQueueNode, QueueNode);
 
@@ -706,13 +713,12 @@ function PlaylistQueueNode(config) {
 
     function songs_callback(records, options, success) {
         if (!success) {
-            show_status_msg('Error loading album!');
+            show_status_msg('Error loading playlist!');
             return;
         }
 
         my.loaded = true;
         queue_songs();
-
 		loading = false;
 		if (my.firstChild) { //Don't run anything if there aren't children
 			for (var i=0; i<actions.length; i++) {
@@ -724,15 +730,8 @@ function PlaylistQueueNode(config) {
 
     function queue_songs() {
 		if (config.flatten) {
-			var nodes = my.childNodes;
-            var records = [];
-            for (i = 0; i < nodes.length; i++) {
-                records.push(nodes[i].record);
-            }
-            my.queue.insert(records, my);
-			my.remove();
-			if (songs.getRange().length === 0)
-				my.queue.fireEvent('reordered');
+            my.queue.insert(songs.getRange(), my);
+            my.remove();
 		}
 		else {
 			songs.each(function(record) {

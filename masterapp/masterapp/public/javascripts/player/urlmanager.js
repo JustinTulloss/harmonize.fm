@@ -102,13 +102,20 @@ urlm = {}; //urlmanager is a singleton
 	var url_actions_regex = RegExp('#/action/([^/]*)(/(.*))?$');
 	function init_url_actions() {
 		Ext.getBody().on('click', function(e, target) {
-			if (target.tagName == 'A') {
+			var anchor;
+			if (target.tagName=='A')
+				anchor = target
+			else {
+				var target_el = new Ext.Element(target);
+				anchor = target_el.findParent('a');
+			}
+			if (anchor) {
 				var match = 
-						target.getAttribute('href').match(url_actions_regex);
+						anchor.getAttribute('href').match(url_actions_regex);
 				if (match) {
 					e.preventDefault();
 					if (url_actions[match[1]]) {
-						url_actions[match[1]](match[3], target);
+						url_actions[match[1]](match[3], anchor);
 					}
 				}
 			}

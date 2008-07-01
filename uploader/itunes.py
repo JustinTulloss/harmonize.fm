@@ -41,16 +41,31 @@ class ITunes(object):
 
 		return None
 
+	def get_key_playlist(self):
+		for playlist in self.itunes_data['Playlists']:
+			if playlist['Master'] == True:
+				return playlist
+		return None
+
 	def get_all_track_filenames(self):
-		return self.get_playlist_track_filenames("Library")
+		for name in ('Library', 'Music'):
+			playlist = self.get_playlist_by_name(name)
+			if playlist != None: break
+		if playlist == None:
+			playlist = get_key_playlist()
+
+		if playlist == None:
+			return []
+		else:
+			return self.get_playlist_track_filenames(playlist)
 	
-	def get_playlist_track_filenames(self, name):
-		playlist = self.get_playlist_by_name(name)
+	def get_playlist_track_filenames(self, playlist):
 		track_filenames = []
 		for item in playlist['Playlist Items']:
 			track_id = item['Track ID']
 			track = self.get_track(track_id)
-			filename = track['Location']
+			filename = track.get('Location')
+			if not filename: continue
 			#for right now, only upload local files
 			if filename[:16] == 'file://localhost':
 				track_filenames.append(url2pathname(str(filename)[16:]))

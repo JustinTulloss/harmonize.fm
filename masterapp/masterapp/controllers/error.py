@@ -16,12 +16,10 @@ class ErrorController(BaseController):
     """
 
     def document(self):
-        """Render the error document"""
-        page = error_document_template % \
-            dict(prefix=request.environ.get('SCRIPT_NAME', ''),
-                 code=request.params.get('code', ''),
-                 message=request.params.get('message', ''))
-        return page
+        c.prefix = request.environ.get('SCRIPT_NAME', '')
+        c.code = request.params.get('code', '')
+        c.message = request.params.get('message', '')
+        return render('pages/error.mako.html')
 
     def img(self, id):
         """Serve Pylons' stock images"""

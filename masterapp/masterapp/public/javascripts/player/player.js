@@ -23,7 +23,7 @@ function Player() {
     var volume = 80;
     var playingsong = null;
 	var bufferedsong;
-	var buffer_onload; //Should be a fn to call when a song finishes loading
+	var buffer_onload; //Should be a fn to call when a song finishes 	loading
 	var buffer_loaded;
     var slider;
     var shuttle;
@@ -34,16 +34,17 @@ function Player() {
         prevsong: true,
         showprev: true
     });
-
-	/* We don't have a seekbar right now
-    function init_seekbar()
+    
+    var amazon_link = new Ext.Template('<a href="http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}" target="_blank">Buy this album</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a={asin}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />');
+	
+    function init_seekbar() 
     {
         slider = new Ext.ux.SlideZone('timeline', {
             type: 'horizontal',
-            size:100,
+            size:250,
             sliderWidth: 13,
-            //sliderHeight: 13,
-            maxValue: 100,
+            sliderHeight: 13,
+            maxValue: 250,
             minValue: 0,
             sliderSnap: 1,
             sliders: [{
@@ -55,17 +56,17 @@ function Player() {
         shuttle = slider.getSlider('shuttle');
         shuttle.on('drag',
             function() {
-                player.seek(this.value/100)
+                player.seek(this.value/250)
             });
     }
-	*/
-
+    init_seekbar();
+    
     /* Event handlers */
     this.seek = seek;
     function seek(percent)
     {
         sound = soundManager.getSoundById(playingsong);
-        time = soundduration(sound);
+        time = get_duration();
         soundManager.setPosition(playingsong, time*percent);
     }
 
@@ -133,8 +134,9 @@ function Player() {
 			title : song.get('Song_title'),
 			artist : song.get('Artist_name'),
 			album : song.get('Album_title'),
-			length : song.get('Song_length')})
-
+			length : song.get('Song_length'),
+            id: song.get('Song_id')})
+            
 		set_pause(true);
 
 		if (bufferedsong && bufferedsong === song.get('Song_id')) {
@@ -231,7 +233,12 @@ function Player() {
 				if (buffer_onload)
 					buffer_onload();
 			},
-			multishot: false
+			multishot: false,
+						whileloading: function () {
+			    if (id == playingsong) {
+			        update_loading_bar(this.bytesLoaded, this.bytesTotal);
+			    }
+			}
         });
 	}
 
@@ -246,6 +253,12 @@ function Player() {
     function updateseekbar(percentage)
     {
         progressbar.updateProgress(percentage);
+        shuttle.setPosition(percentage * 250);
+    }
+
+    function update_loading_bar(loaded, total) 
+    {
+        now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
     }
 
     function badsongurl(response, options)
@@ -278,6 +291,32 @@ function Player() {
 				new_artist = album;
 		}
 		now_playing_artist.innerHTML = new_artist;
+        
+        if (song_info.id) {
+            // call the serve and get the asin for the currently playing song (album)
+            Ext.Ajax.request({
+                url: 'metadata/get_asin',
+                params: {
+                    id:song_info.id
+                },
+                success: function(response, options) {
+                    if (response.responseText == "0") {
+                        //do nothing, we don't have an ASIN for this album
+
+                    } else {
+                        Ext.get('amazon_link').update(amazon_link.apply({
+                            asin: response.responseText,
+                            album: song_info.album,
+                            artist: song_info.artist
+                        }));
+                        Ext.get('amazon_link').frame();
+                    }
+                },
+                failure: function(response, options) {
+                    show_status_msg("Error retrieving Amazon link information");
+                }
+            });
+        }
 
 		if (song_info.length) 
 			reset_progress_bar(song_info.length);
@@ -288,6 +327,7 @@ function Player() {
 	var now_playing_bar = document.getElementById('now-playing-bar');
 	var now_playing_time = document.getElementById('now-playing-time');
 	var now_playing_progress = document.getElementById('now-playing-progress');
+	var now_playing_loading = document.getElementById('now-playing-loading');
 	function reset_progress_bar(new_song_length) {
 		now_playing_bar.style.visibility = 'visible';
 		reset_duration(new_song_length);
@@ -311,6 +351,7 @@ function Player() {
 		if (duration > 0) {
 			now_playing_progress.style.width = 
 					String(elapsed/duration*100, 10) + '%';
+		    shuttle.setPosition([(elapsed/duration)*250]);
 		}
 		else
 			now_playing_progress.style.width = 0;

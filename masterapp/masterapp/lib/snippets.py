@@ -25,3 +25,12 @@ def get_user():
         # TODO: Make sure they're friends
         user = Session.query(User).get(friendid)
     return user
+
+def is_ie6(user_agent):
+	if user_agent.find('MSIE 6.0') >= 0:
+		for not_6 in ('MSIE 7.0', 'Opera', 'Netscape'):
+			if user_agent.find(not_6) >= 0:
+				return False
+		return True
+	else:
+		return False

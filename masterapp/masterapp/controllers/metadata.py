@@ -19,6 +19,7 @@ from masterapp.model import (
     Artist, 
     Owner,
     SongOwner,
+    RemovedOwner,
     File, 
     Session, 
     User, 
@@ -32,6 +33,8 @@ from facebook.wsgi import facebook
 from operator import itemgetter
 from functools import partial
 from masterapp.lib.snippets import build_json, get_user
+from ecs import *
+import xml.dom.minidom
 
 log = logging.getLogger(__name__)
 
@@ -53,6 +56,13 @@ class MetadataController(BaseController):
             'next_radio_song': self.next_radio_song,
             'find_spotlight_by_id': self.find_spotlight_by_id
         }
+        self.id_map = {
+            'artist': Artist.id,
+            'album': Album.id,
+            'song': Song.id,
+            'friend': User.id,
+            'playlist': Playlist.id
+        }
 
     def __before__(self):
         ensure_fb_session()
@@ -71,6 +81,30 @@ class MetadataController(BaseController):
         handler=self.datahandlers.get(type, self._json_failure)
         return handler()
 
+    @pass_user
+    def remove(self, user, **kwargs):
+        type = kwargs['type']
+        id = kwargs['id']
+        songs = user.song_query.filter(self.id_map[type]==id)
+        for song in songs:
+            movedowner = RemovedOwner(
+                song=Session.query(Song).get(song.Song_id),
+                user=user
+            )
+            Session.add(movedowner)
+
+            owner = Session.query(SongOwner).\
+                filter(SongOwner.songid == song.Song_id).\
+                filter(SongOwner.user == user).first()
+            Session.delete(owner) 
+
+        try:
+            Session.commit()
+        except Exception, e:
+            Session.rollback()
+            raise
+
+
     @cjsonify
     @d_build_json
     @pass_user
@@ -86,7 +120,7 @@ class MetadataController(BaseController):
         elif request.params.get('playlist'):
             qry = qry.reset_joinpoint().join(Song.playlistsongs).\
                 filter(PlaylistSong.playlistid == 
-                        int(request.params['playlist'])).\
+                        int(request.params.get('playlist'))).\
                 order_by(PlaylistSong.songindex)
 
         qry = qry.order_by(sort)
@@ -223,7 +257,17 @@ class MetadataController(BaseController):
         else:
             return "False"
         
-
+    @cjsonify
+    @d_build_json
+    @pass_user
+    def find_playlist_spotlight_by_id(self, user, **kwargs):
+        if request.params.get('id') != '':
+            qry = Session.query(*dbfields['spotlight']).join(Spotlight.playlist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id).limit(1)
+            return qry.all()
+        else:
+            return "False"    
+        
+    
     # right now this only returns true or false
     # depending on whether or not a spotlight exists
     # for the album    
@@ -264,3 +308,23 @@ class MetadataController(BaseController):
         else:
             return "False"
             
+
+    def get_asin(self):
+        # remove this once we are working on amazon stuff again
+        return "0"
+        if not request.params.has_key('id'):
+            return "0"
+
+        count = Session.query(SongOwner).filter(SongOwner.songid == request.params.get('id')).filter(SongOwner.uid == get_user().id).count()
+        if count != 0:
+            return "0"
+        album = Session.query(Song).get(request.params.get('id'))
+        if album:
+            albumid = album.id
+            asin = Session.query(Album).get(albumid).asin
+            if asin:
+                item = XMLItemLookup(asin, IdType='ASIN', ResponseGroup='Similarities', AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
+                # this isn't working.  just search using album title and artist name in mp3 downloads and get that asin and go from there.
+                return item.toxml("UTF-8")
+                return asin
+        return "0"

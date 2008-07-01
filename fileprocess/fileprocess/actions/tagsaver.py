@@ -15,6 +15,7 @@ class TagSaver(BaseAction):
         try:
             tagshelf = open(config['tagshelf'], 'ab')
             pickle.dump(file, tagshelf, 2)
+            tagshelf.close()
         except Exception, e:
             log.info("Exception occurred while saving tags: %s", e)
 

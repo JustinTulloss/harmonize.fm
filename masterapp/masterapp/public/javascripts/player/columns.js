@@ -8,6 +8,154 @@ var defaultWidths = {
     'Song_title': 400
 };
 
+/* Column Renderers */
+/* Action Templates */
+var every_action =  {
+    enqueue:{
+        view:'<a href="#/action/enqueue"><img title="Enqueue" src="/images/enqueue.png" /></a>',
+        action: function(record) {playlistmgr.enqueue([record]);}
+    },
+    friendrec: { 
+        view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/enqueue.png" /></a>',
+        action: friend_recommend,
+    },
+    spotlight: {
+        view: '<a href="#/action/spotlight"><img title="Spotlight" src="/images/spotlight.png" /></a>',
+        action: function(record) {
+            //we need to check and make sure this spotlight doesn't already exist
+            var album_id = record.get('Album_id');
+            var playlist_id = record.get('Playlist_id');
+            if (album_id) {
+                Ext.Ajax.request({
+                    url: 'metadata/find_spotlight_by_album',
+                    params: {album_id: album_id},
+                    success: function(response, options) {
+                        if (response.responseText == "True") {
+                            show_status_msg("You already have a spotlight for this album.");
+                        } else {
+                            show_spotlight(record, "add");
+                        }                
+                    },
+                    failure: function(response, options) {
+                        show_spotlight(record, "add");                
+                    }            
+                });
+            } else if (playlist_id) {
+                Ext.Ajax.request({
+                    url: 'metadata/find_spotlight_by_playlist',
+                    params: {playlist_id: playlist_id},
+                    success: function(response, options) {
+                        if (response.responseText == "True") {
+                            show_status_msg("You already have a spotlight for this playlist.");
+                        } else {
+                            show_spotlight(record, "add_playlist");
+                        }
+                    },
+                    failure: function(response, options) {
+                        show_spotlight(record, "add_playlist");
+                    }                
+                });
+            }
+        }
+    },
+    playnow: {
+        view: '<a href="#/action/playnow"><img title="Play now" src="/images/control_play_blue.png" /></a>',
+        action: function(record) {playqueue.insert([record], true);}
+    },
+    delrow: {
+        view: '<a href="#/action/delrow"><img title="Remove from library" src="/images/cross.png" /></a>',
+        action: function(record) {
+            if(typeinfo[record.get('type')].remove)
+                typeinfo[record.get('type')].remove(record);
+            else {
+                var type = record.get('type');
+                var title = record.get(typeinfo[type].lblindex)
+                urlm.register_action('cancel_remove', function (){
+                    hide_dialog();
+                });
+                urlm.register_action('really_remove', function (){
+                    var index = record.get(typeinfo[type].qryindex);
+                    hide_dialog();
+                    Ext.Ajax.request({
+                        url: ['/metadata', 'remove', record.get('type'), index].join('/'),
+                        success: function() {
+                            show_status_msg('Successfully removed '+ title);
+                            urlm.unregister_action('cancel_remove');
+                            urlm.unregister_action('really_remove');
+                            bread_crumb.reload();
+                        }
+                    });
+                });
+                show_dialog('<h2> Are you sure you want to remove '+title+'?</h2>'+
+                    '<a href="#/action/really_remove" class="a-button">Remove</a>'+
+                    '<a href="#/action/cancel_remove" class="a-button">Cancel</a>');
+            }
+        }
+    }
+};
+
+for (action_key in every_action) {
+    (function(action_key) {
+        urlm.register_action(action_key, function(match, target){
+            var crumb = bread_crumb.current_view()
+            var record = crumb.panel.find_record(new Ext.Element(target));
+            every_action[action_key].action(record);
+        });
+    })(action_key);
+}
+
+var render = {
+
+    actionColumn: function (value, p, record)
+    {
+        var type = record.get('type');
+        var allactions = typeinfo[type].actions;
+        var ownactions = typeinfo[type].ownactions;
+        var html = ['<span class="grid-actions">'];
+        
+        if (allactions) {
+            for (var i=0; i<allactions.length; i++)
+                html.push(every_action[allactions[i]].view);
+        }
+
+        if (own_record(record)) {
+            if (ownactions) {
+                for (var i=0; i<ownactions.length; i++)
+                    html.push(every_action[ownactions[i]].view);
+            }
+        }
+
+        html.push('</span>');
+        return html.join('');
+    },
+
+    starColumn: function (value, p, record)
+    {
+        //figure out opacity from record.recs (or something like that)
+        recs = record.get('recs')
+        opacity = 0
+        if (recs != 0)
+            opacity = record.get('recs')/record.store.sum('recs');  
+        return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
+    },
+
+    lengthColumn: function (value, p, record)
+    {
+        return format_time(value)
+    },
+
+
+    availColumn: function (value, p, record)
+    {
+        ret = value;
+        total = record.get('Album_totaltracks');
+        if (total)
+            ret = value + ' of ' + total;
+
+        return ret
+    }
+}
+
 var BrowserColumns = {
     'Song_tracknumber': {
         id: 'tracknumber', 
@@ -137,7 +285,7 @@ var BrowserColumns = {
         id: 'add',
         header: 'Actions',
         css:'text-align: center;',
-        renderer: render.enqColumn,
+        renderer: render.actionColumn,
         fixed: true,
         width: 80,
         sortable: false

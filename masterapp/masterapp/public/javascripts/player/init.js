@@ -40,6 +40,7 @@ function init()
     /* Initialize event handlers */
     bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
     bread_crumb.on('newfilter', browser.load, browser);
+    bread_crumb.on('chgstatus', viewmgr.set_status, viewmgr);
 
     browser.on('newgrid', viewmgr.set_panel, viewmgr);
     browser.on('newgrid', viewmgr.init_search, viewmgr);
@@ -56,6 +57,8 @@ function init()
 	playqueue.on('buffersong', player.buffersong);
 	
 	Ext.get("friend_radio_link").on('click', friend_radio.toggle, friend_radio);
+
+    urlm.register_action('invite', invite_friend);
 
 	function jump_bc(rest) {
 		bread_crumb.go(rest);
@@ -93,11 +96,16 @@ function enqueue(recordid)
     Ext.EventObject.stopPropagation();
 }
 
+function enqueue_spotlight(id, friendid, type) {
+    if (type == "playlist") enqueue_playlist(id, friendid);
+    else enqueue_album(id, friendid);
+}
+
 function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
-		playqueue.enqueue([record]);
+		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({
 		url:'/metadata/album/'+albumid,
@@ -110,7 +118,7 @@ function enqueue_playlist(playlistid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
-		playqueue.enqueue([record]);
+		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({
 		url:'/metadata/playlist/'+playlistid,

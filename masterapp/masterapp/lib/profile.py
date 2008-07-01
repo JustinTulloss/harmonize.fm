@@ -24,3 +24,4 @@ class Profile:
     profile_border = "#DDD"
     light_form = "#999"
     font_family = '"Lucida Sans Unicode","Lucida Grande","Lucida Sans","Lucida",sans-serif'
+    font_size = '12px'

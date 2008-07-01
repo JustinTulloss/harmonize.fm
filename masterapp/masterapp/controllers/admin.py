@@ -5,7 +5,7 @@ import socket
 import cPickle as pickle
 from masterapp.lib.base import *
 from masterapp.lib.fbauth import ensure_fb_session
-from masterapp.model import Session, File, Song, Album, BlogEntry, User
+from masterapp.model import Session, File, Song, Album, BlogEntry, User, Whitelist, Notification
 from mako.template import Template
 from pylons import config
 
@@ -18,7 +18,9 @@ class AdminController(BaseController):
     admin = [1908861,1909354, 1932106]
 
     def __before__(self):
-        ensure_fb_session()
+        if not ensure_fb_session():
+                redirect_to("/")
+
         user = Session.query(User).get(session['userid'])
         if not user.fbid in self.admin:
             redirect_to('/')
@@ -105,3 +107,29 @@ class AdminController(BaseController):
 
         c.status = pickle.loads(msg)
         return render('/admin/monitor_pipeline.mako')
+
+    def manage_whitelist(self):
+        c.whitelists = Session.query(Whitelist).all()
+        return render('/admin/manage_whitelist.mako')
+
+    def remove_from_whitelist(self):
+        for id in request.params.iterkeys():
+            entry = Session.query(Whitelist).get(id)
+            if entry:
+                Session.delete(entry)
+            Session.commit()
+            redirect_to(action='manage_whitelist')
+
+    def add_to_whitelist(self):
+        fbid = request.params.get('fbid')
+        w = Whitelist(fbid=fbid, registered=False)
+        Session.save(w)
+        Session.commit()
+        redirect_to(action='manage_whitelist')
+
+    def send_notifications(self):
+        redirect_to(action='manage_notifications')
+
+    def manage_notifications(self):
+        c.notifications = Session.query(Notification).all()
+        return render('/admin/manage_notifications.mako')

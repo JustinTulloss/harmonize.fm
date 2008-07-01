@@ -2,11 +2,12 @@ import config, fb
 import httplib, time, thread, threading, math
 from httplib import HTTPConnection
 import logging, config
+from excepthandler import exception_managed
 
 logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger()
 
-def post(connection, url, contents):
+def post(connection, url, contents, callback=None):
 	global pinger
 	#connection.set_debuglevel(1)
 	if pinger == None: raise Exception()
@@ -17,6 +18,10 @@ def post(connection, url, contents):
 	connection.endheaders()
 
 	interval = 1.0
+
+	if callback:
+		total_len = float(len(contents))
+		callback.set_progress(False, 0.0)
 
 	while contents != '':
 		amount = pinger.get_rate()*1024
@@ -32,6 +37,9 @@ def post(connection, url, contents):
 			time.sleep(interval-elapsed)
 		else:
 			logger.debug('Interval exceeded, ran for %s seconds' % elapsed)
+
+		if callback:
+			callback.set_progress(False, (total_len-len(contents))/total_len)
 	
 	return connection.getresponse()
 
@@ -111,6 +119,7 @@ class Pinger(object):
 			self.counter = 0
 			logger.debug('Whoa now, slowing down upload to %s' % self.rate)
 
+	@exception_managed
 	def loop(self):
 		while self.running:
 			self.lock.acquire()
@@ -131,6 +140,9 @@ class Pinger(object):
 				continue
 
 			self.lock.acquire()
+			if pingtime == 0.0:
+				self.lock.release()
+				continue
 			error = (pingtime - self.baseline) / pingtime
 			if error < -.2:
 				self.update_rate('fast')

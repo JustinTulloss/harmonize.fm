@@ -13,4 +13,8 @@ masterapp/media
 masterapp/tmp
 */dist/*
 */build/*
+*/cache/*
 uploader/genpuid
+syntax: glob
+mipcore
+masterapp/tags.archive

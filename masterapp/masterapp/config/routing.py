@@ -17,20 +17,20 @@ def make_map():
     map.connect('error/:action/:id', controller='error')
 
     # CUSTOM ROUTES HERE
-    #map.connect('uploads/:id', controller='uploads', action='upload_new',
-    #    conditions=dict(method=['POST']))
-    #map.connect('uploads/:id', controller='uploads', action='file_exists',
-    #    conditions=dict(method=['GET']))
-    map.connect('desktop_redirect', controller='uploads', 
+    
+    # Upload reroutes
+    map.connect('desktop_redirect', controller='upload', 
 		action='desktop_redirect', conditions=dict(method=['GET']))
-    map.connect('desktop_login', controller='uploads', 
+    map.connect('desktop_login', controller='upload', 
 		action='desktop_login', conditions=dict(method=['GET']))
-    map.connect('upload_ping', controller='uploads', 
+    map.connect('upload_ping', controller='upload', 
 		action='upload_ping', conditions=dict(method=['GET']))
 
     # The recommender needs an id and a friend
     map.connect('recommend/:action/:entity/:friend', controller='recommend', 
         requirements=dict(id='\d+', friend='\d+'))
+    map.connect('metadata/remove/:type/:id', controller='metadata',
+        action='remove', requirements=dict(id='\d+'))
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 

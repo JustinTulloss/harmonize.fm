@@ -8,6 +8,7 @@
 #
 # Reworked 06/12/2008 to use PUIDs that are generated client-side --JMT
 # Added real caching 06/17/2008 --JMT
+# Reworked 06/25/08 make it so that it doesn't replace the album name --JMT
 
 from __future__ import with_statement
 import logging
@@ -57,7 +58,6 @@ class BrainzTagger(BaseAction):
         )
 
         self.lastquery = 0 #time of last query
-
 
     def process(self, file):
         mbquery = Query()
@@ -138,8 +138,8 @@ class BrainzTagger(BaseAction):
     def _cash_out(self, file, track, album, artist):
         file[u'title'] = track.title
         file[u'artist'] = artist.name
-        file[u'artistsort'] = artist.sortName
-        file[u'album'] = album.title
+        if not file.get('album'):
+            file[u'album'] = album.title
         file[u'duration'] = track.duration #in milliseconds
         year = get_year(album)
         if year:
@@ -162,11 +162,9 @@ class BrainzTagger(BaseAction):
         try:
             file[u'mbalbumartistid'] = album.artist.id.rsplit('/').pop()
             file[u'albumartist'] = album.artist.name
-            file[u'albumartistsort'] = album.artist.sortName
         except:
             file[u'mbalbumartistid'] = file['mbartistid']
             file[u'albumartist'] = file['artist']
-            file[u'albumartistsort'] = file['artistsort']
 
         log.debug('%s successfully tagged by MusicBrainz', track.title)
         return file
@@ -203,8 +201,7 @@ class BrainzTagger(BaseAction):
 
         trackl = []
         trackd = {}
-        track_queried = False
-        include = ReleaseIncludes(releaseEvents = True)
+        include = ReleaseIncludes(releaseEvents = True, tracks = True)
         for track in result:
             trackd[track.track.id] = track
 
@@ -221,16 +218,15 @@ class BrainzTagger(BaseAction):
             trackl.append({
                 'id': track.track.id,
                 'title': track.track.title,
-                'album': release.title,
+                'album': track.track.releases[0].title,
                 'artist': track.track.artist.name,
                 'duration': track.track.duration,
                 'releaseid': track.track.releases[0].id,
                 'tracknumber': track.track.releases[0].getTracksOffset()+1,
-                'totaltracks': track.track.releases[0].tracksCount,
+                'totaltracks': len(release.tracks),
                 'date': get_year(release),
-                'types': release.types,
+                'types': release.types
             })
-            track_queried = True
 
         result = match_file_to_track(file, trackl)
         if result:

@@ -55,7 +55,7 @@ function PlaylistMgr() {
 		}
 		else
 			my.panel.doLayout(true);
-	    bread_crumb.reload_playlist();
+	    bread_crumb.reload();
 	}
 
 	var open_playlists = {};
@@ -84,7 +84,7 @@ function PlaylistMgr() {
 		//working any other way. Seriously.
 		setTimeout(function() {playlist.panel.expand();}, 100);
 
-		open_playlists[record.get('Playlist_id')] = playlist;
+		open_playlists[record.get('Playlist_id')] = playlist;        
 	}
 
 	my.enqueue = function(records) {
@@ -105,6 +105,15 @@ function PlaylistMgr() {
 		}));
 	}
 
+	my.shuffle = function(e) {
+		e.preventDefault();
+		if (expanded_playlist == playqueue)
+			playqueue.shuffle();
+		else {
+			show_status_msg('You can only shuffle the Play Queue');
+		}
+	}
+
 	urlm.register_action('playlist', function(rest) {
 		var del_match = rest.match(/^delete\/(\d+)$/);
 		if (del_match) {
@@ -114,11 +123,14 @@ function PlaylistMgr() {
 					show_status_msg('Playlist deleted!');
 					//remove the playlist from the playqueue and refresh the breadcrumb gridpanel
 					// (only if its currently displaying the playlist grid)
-					playlist.fireEvent('remove',open_playlists[del_match[1]]);
-					bread_crumb.reload_playlist();
+					var playlist = open_playlists[del_match[1]];
+					if (playlist) { 
+						playlist.fireEvent('remove', playlist);
+						bread_crumb.reload();
+					}
 				},
 				failure: function() {
-					show_status_msg('Error deleting playlist');
+					show_status_msg('Error deleting playlist. Try again later.');
 				}
 			});
 			hide_dialog();
@@ -132,7 +144,7 @@ function PlaylistMgr() {
 				success: function(response) {
 					show_status_msg('Playlist created!');
 					playlistmgr.open_playlist(untyped_record(response));
-					bread_crumb.reload_playlist();
+					bread_crumb.reload();
 				},
 				failure: function() {
 					show_status_msg('Error creating playlist!');
@@ -145,9 +157,8 @@ function PlaylistMgr() {
 
 function Playlist(config) {
 	var my = this;
-
 	my.id = config.record.get('Playlist_id');
-
+    
 	my.addEvents({
 		remove: true
 	});

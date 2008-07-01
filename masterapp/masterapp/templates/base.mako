@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 <%!
-    from masterapp.config.include_files import IncludeFiles
+    import os
+    from masterapp.lib.profile import Profile
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   <head>
+    <style type="text/css">
+        <%include file="harmonize.mako.css" />
+    </style>
     ${self.head_tags()}
     ${h.javascript_include_tag(builtins=False)}
   </head>
   <body>
-    ${self.body()}
+    ${next.body()}
         <script type="text/javascript">
     var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
     document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
@@ -20,23 +24,14 @@
     pageTracker._initData();
     pageTracker._trackPageview();
     </script>
-  </body>
+     </body>
 </html>
 
 <%def name="head_tags()">
-    % if c.include_files != None:
-        % for sheet in c.include_files.stylesheets:
-            ${h.stylesheet_link_tag(sheet)}
-        % endfor
-
-        <style type="text/css">
-        % for template in c.include_files.templated_stylesheets:
-            <%include file="${template}" />
-        % endfor
-        </style>
-
-        % for script in c.include_files.javascripts:
-            ${h.javascript_include_tag(script)}
-        % endfor
-    % endif
+    <title>${self.title()} | harmonize.fm</title>
 </%def>
+
+<%def name="title()">
+    ${self.name.split('/').pop().split('.')[0]}
+</%def>
+

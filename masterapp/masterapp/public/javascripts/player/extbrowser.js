@@ -23,7 +23,7 @@ function Browser()
                 root: 'data',
                 successProperty: 'success',
                 id: 'id',
-                fields:global_config.fields[crumb.type]    
+                fields:global_config.fields[crumb.type]
             });
         }
 
@@ -51,7 +51,12 @@ function Browser()
                 crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
             }
         });
-    
+        crumb.ds.on('datachanged', function(e) {
+            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+                crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
+            }
+        });
+
     
         var bufferSize = 35; //how many records to grab at a time?        
         
@@ -163,50 +168,11 @@ function BaseGrid(config)
         chgstatus: true
     });
 
-    this.actions={
-        addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
-		show_spotlight: function(record) {
-            //we need to check and make sure this spotlight doesn't already exist
-            var album_id = record.get('Album_id');
-            var playlist_id = record.get('Playlist_id');
-            if (album_id) {
-                Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_album',
-                    params: {album_id: album_id},
-                    success: function(response, options) {
-                        if (response.responseText == "True") {
-                            show_status_msg("You already have a spotlight for this album.");
-                        } else {
-                            show_spotlight(record, "add");
-                        }                
-                    },
-                    failure: function(response, options) {
-                        show_spotlight(record, "add");                
-                    }            
-                });
-            } else if (playlist_id) {
-                Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_playlist',
-                    params: {playlist_id: playlist_id},
-                    success: function(response, options) {
-                        if (response.responseText == "True") {
-                            show_status_msg("You already have a spotlight for this playlist.");
-                        } else {
-                            show_spotlight(record, "add_playlist");
-                        }
-                    },
-                    failure: function(response, options) {
-                        show_spotlight(record, "add_playlist");
-                    }                
-                });
-            }
-		},
-        recommendtofriend: friend_recommend,
-		play_record: function(record) {
-							playqueue.insert([record], true);
-		},
-		delete_playlist: playlistmgr.delete_playlist
-    };
+    my.find_record = function(el) {
+        var row = el.findParent('.x-grid3-row')
+        var record = my.getStore().getAt(row.rowIndex);
+        return record
+    }
 
     my.onMouseDown = function(e, div) {
         /* XXX: Does this loop scale to lots of actions? */
@@ -249,7 +215,10 @@ function SongGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Song_title', text, true, false);
+        if (text == "") 
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Song_title', text, true, false);
         return true;
     }
 }
@@ -279,8 +248,11 @@ function AlbumGrid(config)
 
     this.search = search;
     function search(text)
-    {
-        this.getStore().filter('Album_title', text, true, false);
+    {   
+        if (text == "")
+            this.getStore.clearFilter();
+        else
+            this.getStore().filter('Album_title', text, true, false);
         return true;
     }
     
@@ -291,7 +263,8 @@ function AlbumGrid(config)
             url: 'player/album_details',
             callback: function(){ this.fireEvent('chgstatus', null) },
             scope: this,
-            params: {album:record.get('Album_id')}
+            params: {album:record.get('Album_id')},
+            add: false
         });
         this.fireEvent('chgstatus', 'Loading...');
     }
@@ -313,7 +286,10 @@ function ArtistGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Artist_name', text, true, false);
+        if (text == "")
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Artist_name', text, true, false);
         return true;
     }
 }
@@ -350,7 +326,10 @@ function FriendGrid(config)
     this.search = search;
     function search(text)
     {
-        this.getStore().filter('Friend_name', text, true, false);
+        if (text == "")
+            this.getStore().clearFilter();
+        else
+            this.getStore().filter('Friend_name', text, true, false);
         return true;
     }
 }

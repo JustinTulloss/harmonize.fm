@@ -31,12 +31,13 @@ class Hasher(BaseAction):
 
         file['sha']= s.hexdigest()
 
+        f.close()
         if file['sha'] != file['usersha']:
             log.info("The client's hash %s did not match ours %s, bailing"%
 					 (file['usersha'], file['sha']))
             file['msg'] = "Hash mismatch"
             file['na'] = na.TRYAGAIN
-            self.cleanup(file)
+            self.failure(file)
             return False
 
         return file

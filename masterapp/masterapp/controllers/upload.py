@@ -1,6 +1,6 @@
 # vim:expandtab:smarttab
 import logging
-from pylons import g, Response
+from pylons import g, Response, config
 import os
 import socket
 import os.path as path
@@ -21,6 +21,8 @@ from masterapp.lib.base import *
 import cPickle as pickle
 
 from masterapp import model
+import thread
+from mailer import mail
 
 log = logging.getLogger(__name__)
 
@@ -31,8 +33,6 @@ class Response(object):
     upload = 'upload'
     wait = 'wait'
     retry = 'retry'
-
-upload_response = Response()
 
 class UploadController(BaseController):
     def __init__(self, *args):
@@ -139,7 +139,7 @@ class UploadController(BaseController):
                 self.read_postdata()
             except self.PostException:
                 pass
-            return upload_response.reauthenticate
+            return Response.reauthenticate
 
         if config['app_conf']['check_df'] == 'true' and \
                 df.check(config['app_conf']['upload_dir']) > 85:
@@ -147,7 +147,7 @@ class UploadController(BaseController):
                 self.read_postdata()
             except self.PostException:
                 pass
-            return upload_response.wait
+            return Response.wait
             
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
@@ -162,7 +162,7 @@ class UploadController(BaseController):
                 self.read_postdata(dest_file)
             except self.PostException:
                 os.remove(dest_path)
-                return upload_response.retry
+                return Response.retry
 
             dest_file.close()
 
@@ -178,14 +178,14 @@ class UploadController(BaseController):
             try:
                 self.read_postdata()
             except self.PostException, e:
-                log.info("A problem occurred with the post: %s", e)
+                log.warn("A problem occurred with the post: %s", e)
 
-        return upload_response.done
+        return Response.done
         
     def tags(self):
         fbid = self._get_fbid(request)
         if not fbid:
-            return upload_response.reauthenticate
+            return Response.reauthenticate
 
         # Check for api version
         version = request.params.get('version')
@@ -196,7 +196,7 @@ class UploadController(BaseController):
         userpuid = request.params.get('puid')
         if not userpuid:
             log.debug("Puid was blank, upload the file")
-            return upload_response.upload
+            return Response.upload
 
         def build_fdict():
             return dict(
@@ -219,10 +219,10 @@ class UploadController(BaseController):
             self._process(build_fdict())
             log.debug("We have the puid for %s in our db, don't need the song",
                 request.params.get('title'))
-            return upload_response.done
+            return Response.done
 
         # We haven't seen the song, let's get the whole file
-        return upload_response.upload
+        return Response.upload
             
     def desktop_redirect(self):
         fb = self._get_fb()
@@ -240,3 +240,14 @@ class UploadController(BaseController):
 
     def upload_ping(self):
         return ''
+
+    def error(self):
+        stack_trace = request.environ['wsgi.input'].read(4096)
+        if stack_trace == '':
+            return '0'
+        def sendmail():
+            mail(config['smtp_server'], config['smtp_port'],
+                config['feedback_email'], config['feedback_password'],
+                'brian@harmonize.fm', 'Uploader exception', stack_trace)
+        thread.start_new_thread(sendmail, ())
+        return '1'

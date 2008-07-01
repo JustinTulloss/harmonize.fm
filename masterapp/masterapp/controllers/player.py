@@ -4,6 +4,8 @@ import time
 import os
 
 import S3
+import urllib
+import cjson
 import masterapp.controllers.metadata
 from masterapp.config.include_files import player_files, compressed_player_files
 from masterapp.lib.base import *
@@ -32,6 +34,23 @@ from mailer import mail
 import re
 import thread
 
+import masterapp.lib.snippets as snippets
+
+feedback_template = """
+From: %s
+
+%s
+
+Browser:
+%s
+
+Screen:
+%s
+
+File this:
+http://trac.harmonize.fm/trac/newticket
+"""
+
 log = logging.getLogger(__name__)
 
 DEFAULT_EXPIRATION = 30 #minutes to expire a song access URL
@@ -42,7 +61,8 @@ class PlayerController(BaseController):
         self.email_regex = re.compile("^[a-zA-Z0-9._%-]+@[a-zA-Z0-9._%-]+\.[a-zA-Z]{2,6}$")
 
     def __before__(self):
-        ensure_fb_session()
+        if not ensure_fb_session():
+            redirect_to("/request/invitation")
 
     def _get_feed_entries(self, uid, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
@@ -95,13 +115,16 @@ class PlayerController(BaseController):
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
 
+        if snippets.is_ie6(request.environ['HTTP_USER_AGENT']):
+            redirect_to('/ie6')
+
         if config.get('compressed') == 'true':
             c.include_files = compressed_player_files
         else:
             c.include_files = player_files
-
+	
         return render('/player.mako')
-    
+
     def songurl(self, id):
         """
         Fetches the S3 authenticated url of a song.
@@ -182,6 +205,20 @@ class PlayerController(BaseController):
             return '0';
         user_email = request.params['email']
         user_feedback = request.params['feedback']
+        user_browser = request.params['browser']
+
+        bdata = cjson.decode(urllib.unquote(user_browser))
+        browser = screen = user = ''
+        user = Session.query(User).get(session['userid'])
+        user = user.name
+
+        for key, value in bdata['browser'].items():
+            browser = browser + "%s = %s\n" % (key, value)
+
+        for key, value in bdata['screen'].items():
+            screen = screen + "%s = %s\n" % (key, value)
+        message = feedback_template % \
+                (user, user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
             subject = 'Site feedback from %s' % user_email
@@ -191,7 +228,7 @@ class PlayerController(BaseController):
         def sendmail():
             mail(config['smtp_server'], config['smtp_port'],
                 config['feedback_email'], config['feedback_password'],
-                'founders@harmonize.fm', subject, user_feedback)
+                'founders@harmonize.fm', subject, message)
 
         thread.start_new_thread(sendmail, ())
         return '1'
@@ -209,7 +246,7 @@ class PlayerController(BaseController):
         Session.commit()
 
         self.update_fbml()
-        
+        self.publish_to_facebook(spotlight)
         return '1'
 
     def blog(self, id):
@@ -222,15 +259,17 @@ class PlayerController(BaseController):
         c.main = True
         c.user = Session.query(User).get(session['userid'])
         c.num_songs = c.user.song_count
+
         c.fbapp_href = "http://www.facebook.com/apps/application.php?id=%s" % \
             config['pyfacebook.appid']
+        c.appid = config['pyfacebook.appid']
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
         elif 'Macintosh' in request.headers['User-Agent']:
             c.platform = 'mac'
         return render('/home.mako')
         
-    def spotlight_album_edit(self):
+    def spotlight_edit(self):
         if not request.params.has_key('comment'):
             return "False"
         elif not request.params.has_key('spot_id'):
@@ -265,10 +304,19 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, None, comment, True, playlistid)
         Session.save(spotlight)
         Session.commit()
-
         self.update_fbml()
-        
+        self.publish_to_facebook(spotlight)
         return '1'
+
+    def publish_to_facebook(self, spot):
+        return '1'
+        # oops, exceeded time window.  from now only only 10 times per 48 hours (moving)
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on <a href="http://harmonize.fm">Harmonize.fm</a>'
+        body_t = '<i><fb:pronoun uid="actor" useyou="false" capitalize="true" /> said: </i>{comment}  (<b>{title}</b> by {artist})'
+        body_d = '{"title":"'+ spot.title +'", "album":"'+ spot.title +'", "artist":"'+ spot.author +'", "comment":"'+ spot.comment +'"}'
+        r = facebook.feed.publishTemplatizedAction(title_template=title_t, body_template=body_t, body_data=body_d)
+        return r
+
 
     def update_fbml(self):
         c.user = Session.query(User).get(session['userid'])
@@ -281,3 +329,5 @@ class PlayerController(BaseController):
         """
         fbml = render('facebook/profile.mako.fbml')
         facebook.profile.setFBML(fbml)
+
+      

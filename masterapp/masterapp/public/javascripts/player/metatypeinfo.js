@@ -6,87 +6,6 @@
  * just assume that it exists. Let's hope I don't hate myself for that later.
  */
 
-/* TODO: Move all the renderer stuff into its own file. */
-t_add_col = new Ext.Template('<span class="grid-actions">',
-        '<img class="addtoqueue" src="/images/enqueue.png" />',
-        //'<img class="recommendtofriend" src="/images/enqueue.png" />',
-        '<img class="play_record" src="/images/control_play_blue.png" />',
-    '</span>');
-t_add_col_alb = new Ext.Template('<span class="grid-actions">',
-        '<img class="addtoqueue" src="/images/enqueue.png" />',
-        //'<img class="recommendtofriend" src="/images/enqueue.png" />',
-        '<img class="show_spotlight" src="/images/spotlight.png" />',
-        '<img class="play_record" src="/images/control_play_blue.png" />',
-    '</span>');
-playlist_col = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /></span>');
-playlist_col_own = new Ext.Template('<span class="grid-actions"><img class="play_record" src="/images/control_play_blue.png" /><img class="delete_playlist" src="/images/cross.png" /><img class="show_spotlight" src="/images/spotlight.png" /></span>');
-var render = {
-
-    enqColumn: function (value, p, record)
-    {
-		if (record.get('type') === 'album' && own_record(record))
-			return t_add_col_alb.apply();
-		else if (record.get('type') === 'playlist' && own_record(record)) {
-			return playlist_col_own.apply();
-		}
-		else if (record.get('type') === 'playlist') {
-			return playlist_col.apply();
-		}
-		else
-			return t_add_col.apply();
-    },
-
-    starColumn: function (value, p, record)
-    {
-        //figure out opacity from record.recs (or something like that)
-        recs = record.get('recs')
-        opacity = 0
-        if (recs != 0)
-            opacity = record.get('recs')/record.store.sum('recs');  
-        return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
-    },
-
-    lengthColumn: function (value, p, record)
-    {
-        return format_time(value)
-    },
-
-
-    availColumn: function (value, p, record)
-    {
-        ret = value;
-        total = record.get('Album_totaltracks');
-        if (total)
-            ret = value + ' of ' + total;
-
-        return ret
-    },
-
-    recColumn: function (value, p, record)
-    {
-        songid = record.get('Song_id');    
-        albumid = record.get('Album_id');
-        artist = record.get('Artist_name');
-        if (songid != "")
-        {
-            type = 'song';
-            id = songid;
-        }
-        else if (albumid != "")
-        {
-            type = 'album';
-            id = albumid;
-        }
-        else
-        {
-            type = 'artist';
-            id = artist;
-            return '<center><img class="mo" onclick="browser.recommend(\''+type+'\',\''+id+'\')" src="/images/recommend.png" unselectable="on"/></center>';    
-        }
-        return '<center><img class="mo" onclick="browser.recommend(\''+type+'\','+id+')" src="/images/recommend.png" unselectable="on"/></center>';    
-    }
-}
-
 var typeinfo = {
     home:{
         display:'Home'
@@ -106,7 +25,9 @@ var typeinfo = {
         nodeclass: ArtistQueueNode,
         gridclass: ArtistGrid,
         emptyText: 'There aren\'t any artists here!<br>'+
-            'Upload some, or why not listen to your friends\' music?'
+            'Upload some, or why not listen to your friends\' music?',
+        actions: ['enqueue', 'playnow'],
+        ownactions: ['delrow'],
     }, 
     album:{
         next: function (row, breadcrumb) {
@@ -124,7 +45,9 @@ var typeinfo = {
         nodeclass: AlbumQueueNode,
         gridclass: AlbumGrid,
         emptyText: 'There aren\'t any albums here!<br>'+
-            'Upload some, or why not listen to your friends\' music?'
+            'Upload some, or why not listen to your friends\' music?',
+        actions: ['enqueue', 'playnow'],
+        ownactions: ['spotlight', 'delrow'],
     }, 
     playlist:{
         next: 'openplaylist',
@@ -134,16 +57,22 @@ var typeinfo = {
         gridclass: PlaylistGrid,
 		nodeclass: PlaylistQueueNode,
 		emptyText: 'There aren\'t any playlists here!<br>'+
-            'Create one by clicking "create playlist" in the bottom left corner.'
+            'Create one by clicking "create playlist" in the bottom left corner.',
+        actions: ['enqueue', 'playnow'],
+        ownactions: ['spotlight', 'delrow'],
+        remove: function(record) {playlistmgr.delete_playlist(record)}
     },
     song:{
         next:'play', 
         lblindex: 'Song_title',
+        qryindex: 'Song_id',
         display:'Songs',
         nodeclass: SongQueueNode,
         gridclass: SongGrid,
         emptyText: 'There isn\'t any music here!<br>'+
-            'Upload some, or why not listen to your friends\' music?'
+            'Upload some, or why not listen to your friends\' music?',
+        actions: ['enqueue', 'playnow'],
+        ownactions: ['delrow'],
     },
     nowplayingsong:{
         nodeclass: PlayingQueueNode,

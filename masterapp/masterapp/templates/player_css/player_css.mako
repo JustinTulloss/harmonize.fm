@@ -7,6 +7,10 @@ body, html {
     color: ${c.profile.primary_txt};
 }
 
+ul {
+	margin-left: 0;
+}
+
 #no_music {
     margin-left: 12px;
 }
@@ -66,6 +70,10 @@ body, html {
 	float: right;
 	background-color:white;
 	padding-left: 8px;
+}
+
+.home-dllink {
+    margin-top: 30px;
 }
 
 .blogentry {
@@ -161,14 +169,16 @@ table {
 }
 
 .feed_entry {
-	margin-bottom: 2px;
+	margin-bottom: 17px;
+	margin-top: 2px;
 }
 
 .feed_content {
 	margin-left: 25px;
 }
 
-.feed_content h4 {
+.feed_content h2 {
+	margin-top: 0;
 	color: ${c.profile.dark_txt};
 	margin-bottom: 2px;
 	font-size: 11pt;
@@ -209,7 +219,9 @@ table {
 	position: absolute;
 	width: 100%;
 	margin-top: 3px;
-	text-align: center;
+    text-align: center;
+    top: 30px;
+    left: 0;
 }
 
 #status-box span {

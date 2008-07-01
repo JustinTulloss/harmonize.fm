@@ -1,6 +1,7 @@
 # vim:expandtab:smarttab
 import logging
 from pylons import config
+import cPickle as pickle
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join, or_, and_
@@ -41,6 +42,9 @@ spotlights_table = Table('spotlights', metadata, autoload=True)
 spotlight_comments_table = Table('spotlight_comments', metadata, autoload=True)
 puids_table = Table('puids', metadata, autoload=True)
 songowners_table = Table('songowners', metadata, autoload=True)
+whitelists_table = Table('whitelists', metadata, autoload=True)
+notifications_table = Table('notifications', metadata, autoload=True)
+removedowners_table = Table('removedowners', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -63,7 +67,7 @@ class User(object):
             self.fbcache[self.fbid] = self._get_fbinfo()
         self.fbinfo = self.fbcache.get_value(
             key = self.fbid,
-            expiretime = 24*60*60*60, # 24 hours
+            expiretime = 24*60*60, # 24 hours
             createfunc = self._get_fbinfo
         )
         try:
@@ -305,9 +309,11 @@ class Owner(object):
         self.user = user
 
 class File(object):
-    def __init__(self, sha=None, songid=None):
+    def __init__(self, sha=None, song=None, bitrate=None, size=None):
         self.sha = sha
-        self.songid = songid
+        self.bitrate = bitrate
+        self.size = size
+        self.song = song
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
@@ -379,6 +385,23 @@ class Spotlight(object):
         if active:
             self._unactivate_lru()
 
+    def get_title(self):
+        if self.albumid:
+            qry = Session.query(Album).get(self.albumid)
+            return qry.title
+        elif self.playlistid:
+            qry = Session.query(Playlist).get(self.playlistid)
+            return qry.name
+    title = property(get_title)
+
+    def get_author(self):
+        if self.albumid:
+            return self.album.artist.name
+        elif self.playlistid:
+            user = Session.query(User).get(self.uid)
+            return user.name
+    author = property(get_author)
+
     def _unactivate_lru(self):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
                 Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:
@@ -409,6 +432,22 @@ class Puid(object):
         self.puid = puid
 
 class SongOwner(object):
+    def __init__(self, song=None, user=None):
+        self.song = song
+        self.user = user
+
+class Whitelist(object):
+    def __init__(self, fbid=None, registered=False):
+        self.fbid = fbid
+        self.registered = registered
+
+class Notification(object):
+    def __init__(self, email, type, data = None):
+        self.email = email
+        self.type = type
+        self.data = pickle.dumps(data)
+
+class RemovedOwner(object):
     def __init__(self, song=None, user=None):
         self.song = song
         self.user = user
@@ -523,3 +562,12 @@ mapper(Puid, puids_table)
 mapper(SongOwner, songowners_table, properties={
     'user': relation(User, lazy=True, backref='owners')
 })
+
+mapper(RemovedOwner, removedowners_table, properties={
+    'user': relation(User),
+    'song': relation(Song)
+})
+
+mapper(Whitelist, whitelists_table)
+
+mapper(Notification, notifications_table)
