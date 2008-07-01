@@ -55,7 +55,7 @@ function PlaylistMgr() {
 		}
 		else
 			my.panel.doLayout(true);
-	    bread_crumb.reload_playlist();
+	    bread_crumb.reload();
 	}
 
 	var open_playlists = {};
@@ -126,7 +126,7 @@ function PlaylistMgr() {
 					var playlist = open_playlists[del_match[1]];
 					if (playlist) { 
 						playlist.fireEvent('remove', playlist);
-						bread_crumb.reload_playlist();
+						bread_crumb.reload();
 					}
 				},
 				failure: function() {
@@ -144,7 +144,7 @@ function PlaylistMgr() {
 				success: function(response) {
 					show_status_msg('Playlist created!');
 					playlistmgr.open_playlist(untyped_record(response));
-					bread_crumb.reload_playlist();
+					bread_crumb.reload();
 				},
 				failure: function() {
 					show_status_msg('Error creating playlist!');

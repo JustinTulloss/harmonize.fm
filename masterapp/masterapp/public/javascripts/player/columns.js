@@ -69,15 +69,26 @@ var every_action =  {
                 typeinfo[record.get('type')].remove(record);
             else {
                 var type = record.get('type');
-                var index = record.get(typeinfo[type].qryindex);
-                Ext.Ajax.request({
-                    url: ['/metadata', 'remove', record.get('type'), index].join('/'),
-                    success: function() {
-                        show_status_msg('Successfully removed '+
-                            record.get(typeinfo[type].lblindex))
-                        //Refresh
-                    }
+                var title = record.get(typeinfo[type].lblindex)
+                urlm.register_action('cancel_remove', function (){
+                    hide_dialog();
                 });
+                urlm.register_action('really_remove', function (){
+                    var index = record.get(typeinfo[type].qryindex);
+                    hide_dialog();
+                    Ext.Ajax.request({
+                        url: ['/metadata', 'remove', record.get('type'), index].join('/'),
+                        success: function() {
+                            show_status_msg('Successfully removed '+ title);
+                            urlm.unregister_action('cancel_remove');
+                            urlm.unregister_action('really_remove');
+                            bread_crumb.reload();
+                        }
+                    });
+                });
+                show_dialog('<h2> Are you sure you want to remove '+title+'?</h2>'+
+                    '<a href="#/action/really_remove" class="a-button">Remove</a>'+
+                    '<a href="#/action/cancel_remove" class="a-button">Cancel</a>');
             }
         }
     }
