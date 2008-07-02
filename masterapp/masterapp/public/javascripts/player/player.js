@@ -301,7 +301,8 @@ function Player() {
                 },
                 success: function(response, options) {
                     if (response.responseText == "0") {
-                        //do nothing, we don't have an ASIN for this album
+                        //we have no asin for this album, make sure the link is not there
+                        Ext.get('amazon_link').update('');
 
                     } else {
                         Ext.get('amazon_link').update(amazon_link.apply({
