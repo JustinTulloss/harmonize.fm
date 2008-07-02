@@ -226,8 +226,14 @@ class PlayerController(BaseController):
             subject = 'Site feedback'
         
         def sendmail():
+            if config['use_gmail'] == 'yes' or not user_email:
+                frm = config['feedback_email']
+                pword = config['feedback_password']
+            else:
+                frm = user_email
+                pword = None
             mail(config['smtp_server'], config['smtp_port'],
-                config['feedback_email'], config['feedback_password'],
+                frm, pword,
                 'founders@harmonize.fm', subject, message)
 
         thread.start_new_thread(sendmail, ())

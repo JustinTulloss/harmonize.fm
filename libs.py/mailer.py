@@ -5,11 +5,11 @@ from email.MIMEText import MIMEText
 from email import Encoders
 import os
 
-def mail(smtp_addr, smtp_port, gmail_user, gmail_pwd, to, subject, text, 
+def mail(smtp_addr, smtp_port, user, pwd, to, subject, text, 
 		 attach=None):
    msg = MIMEMultipart()
 
-   msg['From'] = gmail_user
+   msg['From'] = user
    msg['To'] = to
    msg['Subject'] = subject
 
@@ -25,10 +25,12 @@ def mail(smtp_addr, smtp_port, gmail_user, gmail_pwd, to, subject, text,
 
    mailServer = smtplib.SMTP(smtp_addr, smtp_port)
    mailServer.ehlo()
-   mailServer.starttls()
-   mailServer.ehlo()
-   mailServer.login(gmail_user, gmail_pwd)
-   mailServer.sendmail(gmail_user, to, msg.as_string())
+   if pwd:
+       mailServer.starttls()
+       mailServer.ehlo()
+       mailServer.login(user, pwd)
+
+   mailServer.sendmail(user, to, msg.as_string())
    # Should be mailServer.quit(), but that crashes...
    mailServer.close()
 

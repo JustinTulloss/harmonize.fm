@@ -310,32 +310,28 @@ class MetadataController(BaseController):
             
         else:
             return "False"
-            
 
     def get_asin(self):
         if not request.params.has_key('id'):
             return "0"
-
-        count = Session.query(SongOwner).filter(SongOwner.songid == request.params.get('id')).filter(SongOwner.uid == get_user().id).count()
-        if count != 0:
+        try:
+            album = Session.query(Song).get(request.params.get('id')).album
+        except:
             return "0"
-        album = Session.query(Song).get(request.params.get('id')).album
         if album:
             albumid = album.id
             asin = Session.query(Album).get(albumid).asin
             if asin:
                 try:
-                    items = XMLItemSearch(album.artist.name, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
-                    item = items.getElementsByTagName("Item")
-                    # for each item, check to see if it is a "Digial Music Album"
-                    # if it isn't, we're gonna just give the regular asin back.
-                    # if it is, give that one back.
-                    
-                    l_asin = item[0].firstChild.firstChild.nodeValue
-                    product_group = item[0].childNodes[2].childNodes[2].firstChild.nodeValue
-                    if product_group == "Digital Music Album":
-                        return l_asin
+                    items = ItemSearch(album.artist.name, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
+                    for item in items:
+                        if item.ProductGroup == "Digital Music Album" and item.Creator.lower() == album.artist.name.lower():
+                            #found += 1
+                            #r[item.Title]= item.ASIN
+                            return item.ASIN
+                            #s += item.Title + ' : ' + item.ASIN + ' by ' + item.Creator + ' : <a href="' + item.DetailPageURL +'" target="_blank">link</a><br />'
                     return asin
-                except:
+                except KeyError:
                     return asin
         return "0"
+
