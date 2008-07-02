@@ -105,7 +105,6 @@ class DBRecorder(DBChecker):
             file['sha'] = othersong.sha
             file['size'] = othersong.size
             file['bitrate'] = othersong.bitrate
-            file['pristine'] = othersong.pristine
 
         song = self.model.Song(
             title = file.get('title'),
@@ -115,7 +114,6 @@ class DBRecorder(DBChecker):
             sha = file['sha'],
             size = file['size'],
             bitrate = file.get('bitrate'),
-            pristine = file.get('pristine')
         )
         log.debug("Saving new song %s", song.title)
 
