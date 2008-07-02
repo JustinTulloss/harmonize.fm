@@ -169,6 +169,7 @@ class DBRecorder(DBChecker):
             title = file.get('album'),
             mbid = file.get('mbalbumid'),
             asin = file.get('asin'),
+            mp3_asin = file.get('mp3_asin'),
             year = file.get('year'),
             totaltracks = file.get('totaltracks'),
             smallart = file.get('smallart'),

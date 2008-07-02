@@ -331,11 +331,12 @@ class Song(object):
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
-            asin=None, year=None, totaltracks=0,
+            asin=None, mp3_asin=None, year=None, totaltracks=0,
             smallart=None, medart=None, largeart=None, swatch=None):
         self.title = title
         self.mbid = mbid
         self.asin = asin
+        self.mp3_asin = mp3_asin
         self.year = year
         self.totaltracks = totaltracks
 

@@ -244,6 +244,19 @@ class TestActions(TestBase):
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
         assert a.covercache.has_key(nf['asin'])
+    
+    def testAmazonASINConvert(self):
+        a = AmazonASINConvert()
+        a.cleanup_handler = Mock()
+        assert a is not None, "AmazonASINConvert Action not constructed"
+
+        nf = a.process(self.fdata['goodfile'])
+        assert not nf.has_key('mp3_asin')
+
+        nf = a.process(self.fdata['dbrec'])
+        assert nf.has_key('mp3_asin')
+        assert nf['mp3_asin'] != None
+        assert a.cache.has_key(nf['album'])
 
     def testHasher(self):
         h = Hasher()

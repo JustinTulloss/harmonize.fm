@@ -86,6 +86,7 @@ class FileUploadThread(object):
             DBChecker(),
             BrainzTagger(),
             AmazonCovers(),
+            AmazonASINConvert(),
             DBRecorder(),
             Cleanup()
         ]
