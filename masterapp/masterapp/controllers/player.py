@@ -228,10 +228,10 @@ class PlayerController(BaseController):
         def sendmail():
             if user_email:
                 frm = user_email
-            else
+            else:
                 frm = config['feedback_email']
             mail(config['smtp_server'], config['smtp_port'],
-                frm, None
+                frm, None,
                 'founders@harmonize.fm', subject, message)
 
         thread.start_new_thread(sendmail, ())
