@@ -202,7 +202,7 @@ class User(object):
         query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(Song.files, SongOwner).filter(SongOwner.uid == self.id)
+        query = query.join(SongOwner).filter(SongOwner.uid == self.id)
         return query
         
     def get_song_query(self):
