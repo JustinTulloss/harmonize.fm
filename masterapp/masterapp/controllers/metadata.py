@@ -325,7 +325,7 @@ class MetadataController(BaseController):
                 try:
                     items = ItemSearch(album.artist.name, Title=album.title, SearchIndex="MP3Downloads", AWSAccessKeyId='17G635SNK33G1Y7NZ2R2')
                     for item in items:
-                        if item.ProductGroup == "Digital Music Album" and item.Title == album.title:
+                        if item.ProductGroup == "Digital Music Album" and item.Creator == album.artist.name:
                             #found += 1
                             #r[item.Title]= item.ASIN
                             return item.ASIN
