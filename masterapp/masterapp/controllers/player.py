@@ -246,7 +246,7 @@ class PlayerController(BaseController):
         Session.commit()
 
         self.update_fbml()
-        self.publish_to_facebook(spotlight)
+        self.publish_spotlight_to_facebook(spotlight)
         return '1'
 
     def blog(self, id):
@@ -304,11 +304,12 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, None, comment, True, playlistid)
         Session.save(spotlight)
         Session.commit()
+
         self.update_fbml()
-        self.publish_to_facebook(spotlight)
+        self.publish_spotlight_to_facebook(spotlight)
         return '1'
 
-    def publish_to_facebook(self, spot):
+    def publish_spotlight_to_facebook(self, spot):
         return '1'
         # oops, exceeded time window.  from now only only 10 times per 48 hours (moving)
         title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on <a href="http://harmonize.fm">Harmonize.fm</a>'
