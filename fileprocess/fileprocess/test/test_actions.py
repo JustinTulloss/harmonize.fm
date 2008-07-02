@@ -400,6 +400,14 @@ class TestDBActions(TestBase):
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song and user insertion")
 
+        # Test insertion of a record with the same PUID but different tags
+        self._create_user('dbpuid')
+        nf = r.process(self.fdata['dbpuid'])
+        assert nf != False
+        assert_false(c.process(self.fdata['dbpuid']),
+            "Checker did not detect duplicate puid insertion")
+        assert nf.get('sha') != None, "Did not fill in sha from other song"
+
         # Test insertion of incomplete record
         assert_raises(AssertionError, r.process,  self.fdata['goodtags'])
 

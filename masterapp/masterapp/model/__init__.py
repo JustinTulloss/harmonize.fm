@@ -317,7 +317,8 @@ class File(object):
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
-            length=0, tracknumber=None, sha=None, size=None, bitrate=None):
+            length=0, tracknumber=None, sha=None, size=None, bitrate=None,
+            pristine=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
@@ -326,7 +327,7 @@ class Song(object):
         self.sha = sha
         self.size = size
         self.bitrate = bitrate
-        self.pristine = False
+        self.pristine = pristine
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
