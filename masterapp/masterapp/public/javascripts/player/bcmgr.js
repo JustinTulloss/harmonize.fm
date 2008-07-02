@@ -246,9 +246,13 @@ function BreadCrumb()
     my.reload = function() {
         my.fireEvent('chgstatus', 'Loading...');
         if (bclist[current])
+            bclist[current].ds.lastOptions.params.limit = null;
+            bclist[current].ds.lastOptions.params.start = null;
             bclist[current].ds.reload({
                 add: false,
-                callback: function(){my.fireEvent('chgstatus', null);}
+                callback: function(r, options, success){
+                    my.fireEvent('chgstatus', null);
+                }
             });
     }
 }
