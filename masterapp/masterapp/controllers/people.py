@@ -1,6 +1,7 @@
 # Profile controller for viewing a friend's profile
 
 from masterapp.lib.base import *
+from masterapp.lib.amazon import *
 from masterapp.lib.profile import Profile
 from masterapp.lib.fbauth import ensure_fb_session
 from masterapp.model import User, Session, Spotlight, SpotlightComment
@@ -31,6 +32,9 @@ class PeopleController(BaseController):
         c.current_url = '#/people/profile/'+id
         c.current_uid = session['userid']
         c.profile = Profile()
+        def l_get_asin(id,type):
+            return get_asin(id, type)
+        c.l_get_asin = l_get_asin
         return render('/profile/index.mako')
 
     def add_spotcomment(self, id):
