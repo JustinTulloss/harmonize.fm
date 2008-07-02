@@ -314,6 +314,10 @@ class MetadataController(BaseController):
     def get_asin(self):
         if not request.params.has_key('id'):
             return "0"
+        qry = Session.query(SongOwner).filter(SongOwner.uid == session['userid']).filter(SongOwner.songid == request.params.get('id'))
+        if qry.count() != 0:
+            # user already has this song
+            return "0"
         try:
             album = Session.query(Song).get(request.params.get('id')).album
         except:
