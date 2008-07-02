@@ -177,7 +177,13 @@ class PlayerController(BaseController):
         return 'false'
 
     def album_details(self):
-        c.album = Session.query(Album).get(request.params.get('album'))
+        user = Session.query(User).get(session['userid'])
+        c.songs = user.song_query.filter(
+            Song.albumid == request.params.get('album')
+        ).order_by(Song.tracknumber).all()
+        c.album = user.album_query.filter(
+            Album.id == request.params.get('album')
+        ).one()
         return render('/album_details.mako')
 
     def username(self):
