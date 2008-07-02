@@ -94,14 +94,26 @@ class DBRecorder(DBChecker):
             return file
 
     def create_song(self, file):
+        if file.get('fname') == None:
+            assert file.get('puid') != None, \
+                "File must have puid if you don't upload it"
+            # This song is different tag version of a song we've seen
+            othersong = self.model.Session.query(self.model.Song).join(
+                self.model.Puid).filter(
+                self.model.Puid.puid == file['puid']
+            ).first()
+            file['sha'] = othersong.sha
+            file['size'] = othersong.size
+            file['bitrate'] = othersong.bitrate
+
         song = self.model.Song(
             title = file.get('title'),
             length = file.get('duration'),
             tracknumber = file.get('tracknumber'),
             mbid = file.get('mbtrackid'),
-            sha = file.get('sha'),
-            size = file.get('size'),
-            bitrate = file.get('bitrate')
+            sha = file['sha'],
+            size = file['size'],
+            bitrate = file.get('bitrate'),
         )
         log.debug("Saving new song %s", song.title)
 
