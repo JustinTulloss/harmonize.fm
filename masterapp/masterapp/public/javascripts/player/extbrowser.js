@@ -250,7 +250,7 @@ function AlbumGrid(config)
     function search(text)
     {   
         if (text == "")
-            this.getStore.clearFilter();
+            this.getStore().clearFilter();
         else
             this.getStore().filter('Album_title', text, true, false);
         return true;
