@@ -93,7 +93,7 @@ function BreadCrumb()
         clickedinfo.next(row, this);
     }
 
-    my.addbreadcrumb = function(crumb)
+    my.add_breadcrumb = function(crumb, url)
     {
         current++;
 
@@ -101,7 +101,8 @@ function BreadCrumb()
         bclist.splice(current, bclist.length-current, crumb);
         update_div();
         var params = create_params(bclist[current]);
-        var url = build_bc_url(bclist.length-1);
+        if (!url)
+            url = build_bc_url(bclist.length-1);
         urlm.goto_url(url);
         bclist[current].url = url;
     }
@@ -133,17 +134,26 @@ function BreadCrumb()
             if (param.length == 2) {
                 params[param[0]] = param[1];
             }
+            function create_bc()
+            {
+                bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
+                if (typeinfo[bclist[i].type].bcurl)
+                    bclist[i].url = String.format(typeinfo[bclist[i].type].bcurl, param[1]);
+                else
+                    bclist[i].url = build_bc_url(i);
+            }
+
             if (bclist[i]) {
                 if (bclist[i].type != param[0]) {
                     /* this is not a currently loaded bc */
-                    bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                    bclist[i].url = build_bc_url(i);
+                    create_bc();
                     splice = true;
                 }
             }
-            else
+            else {
                 bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                bclist[i].url = build_bc_url(i);
+                create_bc();
+            }
             current = i;
         }
         if (splice)
@@ -167,7 +177,6 @@ function BreadCrumb()
             value = typeinfo[crumb.type].display;
         else
             value = crumb.value;
-        crumb.el.un('click', jump_to)
         t_active_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
     }
 

@@ -17,7 +17,7 @@ var typeinfo = {
                 row.get('Artist_name'),
                 'album'
             );
-            breadcrumb.addbreadcrumb(bc);
+            breadcrumb.add_breadcrumb(bc);
         },
         lblindex: 'Artist_name',
         qryindex: 'Artist_id',
@@ -37,7 +37,7 @@ var typeinfo = {
                 'song'
             );
             bc.row = row;
-            breadcrumb.addbreadcrumb(bc);
+            breadcrumb.add_breadcrumb(bc);
         },
         lblindex: 'Album_title',
         qryindex:'Album_id', 
@@ -92,16 +92,24 @@ var typeinfo = {
             var bc = new BcEntry(
                 'profile',
                 row.get('Friend_name'),
-                'profile'
+                'profile',
+                row.get('Friend_id')
             );
-            breadcrumb.addbreadcrumb(bc);
-            urlm.goto_url('/people/profile/'+row.get('Friend_id'));
+            var url = '/people/profile/'+row.get('Friend_id');
+            bc.url = url;
+            breadcrumb.add_breadcrumb(bc, url);
         },
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
         gridclass: FriendGrid,
         emptyText: 'None of your friends are Harmonize.fm users.  Invite them!'
+    },
+    profile: {
+        lblindex: 'Friend_name',
+        qryindex: 'Friend_id',
+        display: 'Friend',
+        bcurl: '/people/profile/{0}',
     },
     friend_radio:{
         display: 'FriendRadio',
