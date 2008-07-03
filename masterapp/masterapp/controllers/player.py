@@ -342,10 +342,7 @@ class PlayerController(BaseController):
         try:
             r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
         except:
-            if r is '4': # feed limit exceeded, too many spotlights.  no big deal.
-                return '1'
-            else: # some other kind of error
-                return '0'
+            return r
         return r
 
 
