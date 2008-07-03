@@ -327,12 +327,16 @@ class PlayerController(BaseController):
         return '1'
 
     def publish_spotlight_to_facebook(self, spot):
-        return '1'
-        # oops, exceeded time window.  from now only only 10 times per 48 hours (moving)
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on <a href="http://harmonize.fm">Harmonize.fm</a>'
-        body_t = '<i><fb:pronoun uid="actor" useyou="false" capitalize="true" /> said: </i>{comment}  (<b>{title}</b> by {artist})'
-        body_d = '{"title":"'+ spot.title +'", "album":"'+ spot.title +'", "artist":"'+ spot.author +'", "comment":"'+ spot.comment +'", "uid":"'+ session['userid'] +'"}'
-        r = facebook.feed.publishTemplatizedAction(title_template=title_t, body_template=body_t, body_data=body_d)
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">Harmonize.fm</a>'
+        title_d = '{"album":"'+ spot.title +'"}'
+        r = ''
+        try:
+            r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
+        except:
+            if r is '4': # feed limit exceeded, too many spotlights.  no big deal.
+                return '1'
+            else: # some other kind of error
+                return '0'
         return r
 
 
