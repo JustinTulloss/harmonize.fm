@@ -37,8 +37,6 @@ import thread
 import masterapp.lib.snippets as snippets
 
 feedback_template = """
-From: %s
-
 %s
 
 Browser:
@@ -47,7 +45,7 @@ Browser:
 Screen:
 %s
 
-File this:
+File this (harmonize.fm employees only):
 http://trac.harmonize.fm/trac/newticket
 """
 
