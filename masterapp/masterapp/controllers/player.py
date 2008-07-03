@@ -138,11 +138,6 @@ class PlayerController(BaseController):
         song= Session.query(Song).\
             join([Song.owners]).filter(Song.id==int(id))
         song= song.first()
-        # Update now playing
-        user = Session.query(User).get(session['userid'])
-        user.nowplaying = song
-        Session.add(user)
-        Session.commit()
         self.update_fbml()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
@@ -173,6 +168,20 @@ class PlayerController(BaseController):
         session['playing'] = None
         session.save()
         return 'false'
+
+    def set_now_playing(self):
+        if not request.params.has_key('id'):
+            return 'false'
+        
+        song = Session.query(Song).get(request.params.get('id'))
+
+        user = Session.query(User).get(session['userid'])
+        # moving this to a separate action to fix buffering bug
+        user.nowplaying = song
+        Session.add(user)
+        Session.commit()
+        self.update_fbml()
+        return 'true'
 
     def album_details(self):
         user = Session.query(User).get(session['userid'])
@@ -325,16 +334,13 @@ class PlayerController(BaseController):
         return '1'
 
     def publish_spotlight_to_facebook(self, spot):
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">Harmonize.fm</a>'
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
         title_d = '{"album":"'+ spot.title +'"}'
         r = ''
         try:
             r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
         except:
-            if r is '4': # feed limit exceeded, too many spotlights.  no big deal.
-                return '1'
-            else: # some other kind of error
-                return '0'
+            return r
         return r
 
 
