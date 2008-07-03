@@ -111,7 +111,8 @@ var profile_handler;
         
         friend_music_menu = new Ext.menu.Menu({
             width: target.offsetWidth,
-            defaultAlign: 'tr-br'
+            defaultAlign: 'tr-br',
+            shadow: false
         });
         
         var urlbase = ['#/bc/friend=', friend, '/profile=', friend];
