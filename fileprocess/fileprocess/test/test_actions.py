@@ -402,14 +402,14 @@ class TestDBActions(TestBase):
         self.fdata['dbrec']['fbid'] = 1908861 
         self._create_user('dbrec')
         nf = r.process(self.fdata['dbrec'])
-        assert nf != False
+        assert nf == False
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song insertion")
 
         # Test insertion of same record with different sha
         self.fdata['dbrec']['sha'] = '1dfbc8174c31551c3f7698a344fe6dc2d6a0f431'
         nf = r.process(self.fdata['dbrec'])
-        assert nf != False
+        assert nf == False
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song and user insertion")
 

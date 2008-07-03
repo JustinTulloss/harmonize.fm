@@ -38,7 +38,7 @@ class PuidGenerator(BaseAction):
         try:
             fp = musicdns.create_fingerprint(file['fname'])
             puid = musicdns.lookup_fingerprint(fp[0], fp[1], config['musicdns.key'])
-        except IOError, e:
+        except Exception, e:
             log.warn("Could not fingerprint %s: %s", file['fname'], e)
             return file #We don't need the fingerprint per say
         

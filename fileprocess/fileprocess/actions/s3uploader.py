@@ -6,6 +6,7 @@ import fileprocess
 from fileprocess.configuration import config
 from fileprocess.processingthread import na
 from socket import sslerror
+from httplib import error
 
 log = logging.getLogger(__name__)
 
@@ -33,10 +34,13 @@ class S3Uploader(BaseAction):
         )
 
         # Check to see if this file already exists
-        exists = conn.list_bucket(config['S3.music_bucket'],
-            {'prefix': file['sha']}).entries
-        if exists:
-            return file
+        try:
+            exists = conn.list_bucket(config['S3.music_bucket'],
+                {'prefix': file['sha']}).entries
+            if exists:
+                return file
+        except error, e:
+            log.warn("could not check for %s: %s", file['sha'], e)
 
         def upload_file():
             try:

@@ -91,7 +91,8 @@ class DBRecorder(DBChecker):
             raise
         finally:
             self.model.Session.remove()
-            return file
+
+        return file
 
     def create_song(self, file):
         if file.get('fname') == None:
