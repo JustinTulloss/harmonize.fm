@@ -310,7 +310,8 @@ function Player() {
                             album: song_info.album,
                             artist: song_info.artist
                         }));
-                        Ext.get('amazon_link').frame();
+                        //this turned out to be annoying, maybe change later
+                        //Ext.get('amazon_link').frame();
                     }
                 },
                 failure: function(response, options) {
