@@ -336,7 +336,7 @@ class PlayerController(BaseController):
         return '1'
 
     def publish_spotlight_to_facebook(self, spot):
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">Harmonize.fm</a>'
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
         title_d = '{"album":"'+ spot.title +'"}'
         r = ''
         try:
