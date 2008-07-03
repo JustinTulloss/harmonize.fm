@@ -10,7 +10,7 @@ var init_feedback;
         '</tr><tr>',
             '<td class="feedback-label">comment</td>',
         '</tr><tr>',
-            '<td class="h-light-form"><input id="feedback-email"></input>',
+            '<td class="h-light-form"><input id="feedback-email" value={email}></input>',
             '<input type="hidden" id="feedback-browser" value={browser}></input></td>',
         '</tr><tr>',
             '<td class="feedback-label">your email</td>',
@@ -27,7 +27,10 @@ var init_feedback;
 		if (!feedback_active) {
 			feedback_active = true;
 
-			show_dialog(feedback_template.apply({browser:escape(get_browser_data())}));
+			show_dialog(feedback_template.apply({
+                browser:escape(get_browser_data()),
+                email: global_config.email
+            }));
 			//show_dialog(feedback_template.apply('bleh'));
 			Ext.fly('feedback-cancel').on('click', hide_feedback);
 			Ext.fly('feedback-send').on('click', send_feedback);

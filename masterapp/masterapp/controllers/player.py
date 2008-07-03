@@ -216,7 +216,6 @@ class PlayerController(BaseController):
         bdata = cjson.decode(urllib.unquote(user_browser))
         browser = screen = user = ''
         user = Session.query(User).get(session['userid'])
-        user = user.name
 
         for key, value in bdata['browser'].items():
             browser = browser + "%s = %s\n" % (key, value)
@@ -224,14 +223,20 @@ class PlayerController(BaseController):
         for key, value in bdata['screen'].items():
             screen = screen + "%s = %s\n" % (key, value)
         message = feedback_template % \
-                (user, user_feedback, browser, screen)
+                (user.name, user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
-            subject = 'Site feedback from %s' % user_email
+            if user.email != user_email:
+                user.email = user_email
+                Session.add(user)
+                Session.commit()
         else:
-            subject = 'Site feedback'
+            user_email = None
+
+        subject = 'harmonize.fm feedback from %s' % user.name
         
         def sendmail():
+            cc = user_email
             if config['use_gmail'] == 'yes' or not user_email:
                 frm = config['feedback_email']
                 pword = config['feedback_password']
@@ -240,7 +245,7 @@ class PlayerController(BaseController):
                 pword = None
             mail(config['smtp_server'], config['smtp_port'],
                 frm, pword,
-                'founders@harmonize.fm', subject, message)
+                'justin@harmonize.fm', subject, message, cc=cc)
 
         thread.start_new_thread(sendmail, ())
         return '1'
@@ -333,14 +338,12 @@ class PlayerController(BaseController):
 
     def update_fbml(self):
         c.user = Session.query(User).get(session['userid'])
-        """
-        path = 'stylesheets/fbprofile.css'
-        modified = os.stat(
-            os.path.join(config['pylons.paths']['static_files'], path)
-        )[os.path.stat.ST_MTIME]
-        c.stylesheet = 'http://%s/%s?v=%d' % (request.host, path, modified)
-        """
         fbml = render('facebook/profile.mako.fbml')
         facebook.profile.setFBML(fbml)
 
-      
+    def set_volume(self, id):
+        user = Session.query(User).get(session['userid'])
+        user.lastvolume = id
+        Session.add(user)
+        Session.commit()
+        return True

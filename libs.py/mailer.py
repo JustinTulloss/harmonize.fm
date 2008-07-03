@@ -6,11 +6,12 @@ from email import Encoders
 import os
 
 def mail(smtp_addr, smtp_port, user, pwd, to, subject, text, 
-		 attach=None):
+		 attach=None, cc=None):
    msg = MIMEMultipart()
 
    msg['From'] = user
    msg['To'] = to
+   msg['CC'] = cc
    msg['Subject'] = subject
 
    msg.attach(MIMEText(text))

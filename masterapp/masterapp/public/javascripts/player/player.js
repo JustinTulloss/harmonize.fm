@@ -20,7 +20,7 @@ function Player() {
     // this.some player variables to save
     var position;
     var state = 0; //stopped, paused, or playing (0, 1, 2)
-    var volume = 80;
+    var volume = global_config.volume ? global_config.volume : 80;
     var playingsong = null;
 	var bufferedsong;
 	var buffer_onload; //Should be a fn to call when a song finishes 	loading
@@ -398,12 +398,25 @@ function Player() {
 		value: volume
 	});
 
+    var lastsaved = 0;
+    function save_volume(){
+        Ext.Ajax.request({
+            url:'player/set_volume/'+volume,
+            disableCaching: false
+        });
+    }
+
 	function onVolumeChange(slider, value) {
 		if (Math.floor(value) != volume) {
 			volume = Math.floor(value);
 			if (playingsong)
 				soundManager.getSoundById(playingsong).setVolume(volume);
 		}
+        var now = new Date().getTime();
+        if (lastsaved+2000 < now) {
+            save_volume.defer(2000);
+            lastsaved = now;
+        }
 	}
 
 	volume_control.on('change', onVolumeChange);

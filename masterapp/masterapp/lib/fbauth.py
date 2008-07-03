@@ -19,7 +19,7 @@ def ensure_fb_session():
         session['fbuid']= facebook.uid
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()        
-        #raise RuntimeError()
+
         if not qualified_for_login(facebook.uid, 1):
             return False
         if not user:
