@@ -124,7 +124,7 @@ function Player() {
     this.init_playcontrols();
 
     my.playsong = function(song)
-    {
+    {   
 		if (playingsong) {
 			soundManager.destroySound(playingsong);
 			playingsong = null;
@@ -138,8 +138,17 @@ function Player() {
             id: song.get('Song_id')})
             
 		set_pause(true);
+        // now update the nowplaying field in the database        
+        Ext.Ajax.request({
+            url: '/player/set_now_playing',
+            params: {id:song.get('Song_id')},
+            success: function() {return;},
+            failure: function() {
+                show_status_msg('There was a problem setting your current song statistic.');
+            }
+        });
 
-		if (bufferedsong && bufferedsong === song.get('Song_id')) {
+		if (bufferedsong && bufferedsong == song.get('Song_id')) {
 			if (!buffer_loaded) {
 				clear_buffer();
 			}
@@ -163,7 +172,8 @@ function Player() {
     }
 
     function loadsongurl(response, options) {
-        if (playingsong != options.songid)
+        //if this is the next song being buffered, return
+        if (playingsong != options.songid) 
 			return;
 
 		createSound(response.responseText, playingsong);

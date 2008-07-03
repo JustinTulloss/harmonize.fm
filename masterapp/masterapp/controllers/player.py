@@ -140,11 +140,6 @@ class PlayerController(BaseController):
         song= Session.query(Song).\
             join([Song.owners]).filter(Song.id==int(id))
         song= song.first()
-        # Update now playing
-        user = Session.query(User).get(session['userid'])
-        user.nowplaying = song
-        Session.add(user)
-        Session.commit()
         self.update_fbml()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
@@ -175,6 +170,20 @@ class PlayerController(BaseController):
         session['playing'] = None
         session.save()
         return 'false'
+
+    def set_now_playing(self):
+        if not request.params.has_key('id'):
+            return 'false'
+        
+        song = Session.query(Song).get(request.params.get('id'))
+
+        user = Session.query(User).get(session['userid'])
+        # moving this to a separate action to fix buffering bug
+        user.nowplaying = song
+        Session.add(user)
+        Session.commit()
+        self.update_fbml()
+        return 'true'
 
     def album_details(self):
         user = Session.query(User).get(session['userid'])
