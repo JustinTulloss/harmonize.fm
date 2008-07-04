@@ -5,8 +5,8 @@ from facebook.wsgi import facebook
 from masterapp.model import User, Session, users_table, Whitelist
 from masterapp.lib.base import *
 from sqlalchemy import or_
+from fblogin import login
 
-import re
 
 from datetime import datetime
 
@@ -14,35 +14,26 @@ def ensure_fb_session():
     c.facebook = facebook
 
     def setup_user():
-        
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
-        user = Session.query(User).filter(
-            User.fbid==facebook.uid).first()        
+        session.save()
 
         if not qualified_for_login(facebook.uid, 1):
             return False
+
+        user = Session.query(User).filter(
+            User.fbid==facebook.uid).first()        
         if not user:
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid)
             Session.add(user)
-            Session.commit()
             
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
+        user.present_mode = True if request.params.get('present') == 'true' else False
         session['userid'] = user.id
         Session.add(user)
         Session.commit()
-
-        session['fbfriends']=facebook.friends.getAppUsers()
-        # XXX: This conditional works around a bug where the getAppUsers call
-        #   returns a {} instead of [] when there are no friends. Should fix
-        #   in the library
-        if len(session['fbfriends']) == 0:
-            session['fbfriends'] = []
-        if request.params.get('present') == 'true':
-            session['fbfriends'].extend([1909354, 1908861])
-        session.save()
         return True
 
     if 'paste.testing_variables' in request.environ:
@@ -51,19 +42,11 @@ def ensure_fb_session():
         facebook.uid = 1909354
         return setup_user()
 
-    if not session.has_key('fbsession'):
+    if not session.get('fbsession'):
         if facebook.check_session(request):            
             return setup_user()
         else:
-            qry_string = request.environ['QUERY_STRING']
-            auth_match = re.search('&auth_token=[A-Za-z0-9]+', qry_string)
-            if auth_match:
-                qry_string = qry_string.replace(auth_match.group(), '')
-                
-            next = '%s?%s' % \
-                (request.environ['PATH_INFO'], qry_string)
-            url = facebook.get_login_url(next=next, canvas=False)
-            facebook.redirect_to(url)
+            login()
     else: 
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']

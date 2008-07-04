@@ -112,6 +112,7 @@ class PlayerController(BaseController):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
+        c.fblogin_url = facebook.get_login_url(canvas=False)
 
         if snippets.is_ie6(request.environ['HTTP_USER_AGENT']):
             redirect_to('/ie6')
@@ -195,22 +196,6 @@ class PlayerController(BaseController):
 
     def username(self):
         return get_user_info()['name']
-
-    @jsonify
-    def get_checked_friends(self):
-        userStore = facebook.friends.getAppUsers()
-        userList = facebook.users.getInfo(userStore)
-        for user in userList:
-            user["checked"]=self.get_active(user["uid"])
-        
-        userDict = dict(data = userList) 
-        return userDict
-    
-    def get_active(self, uid):
-        if uid == 1908861:
-            return True 
-        else:
-            return False
 
     def feedback(self):
         if not request.params.has_key('email') or\
