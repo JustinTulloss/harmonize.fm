@@ -1,3 +1,4 @@
+#vim:noexpandtab
 import os, platform
 import os.path as path
 
