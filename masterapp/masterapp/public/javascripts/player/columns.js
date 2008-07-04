@@ -86,7 +86,7 @@ var every_action =  {
                         }
                     });
                 });
-                show_dialog(['<h2> Are you sure you want to remove ',title,'?</h2>',
+                show_dialog(['<h1> Remove from Library</h1><h2>',title,'</h2>',
                     '<div class="h-dlg-buttons">',
                         '<a href="#/action/cancel_remove" class="a-button">cancel</a>',
                         '<a href="#/action/really_remove" class="a-button">remove</a>',
