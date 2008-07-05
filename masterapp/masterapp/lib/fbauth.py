@@ -16,7 +16,6 @@ def ensure_fb_session():
     def setup_user():
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
-        session.save()
 
         if not qualified_for_login(facebook.uid, 1):
             return False
@@ -32,6 +31,7 @@ def ensure_fb_session():
         user.fbsession = facebook.session_key
         user.present_mode = True if request.params.get('present') == 'true' else False
         session['userid'] = user.id
+        session.save()
         Session.add(user)
         Session.commit()
         return True
