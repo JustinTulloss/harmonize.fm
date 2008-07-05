@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 import sys
+import gc
 import fileprocess
 from fileprocess.processingthread import FileUploadThread, set_fp
 import logging
 import threading
 import socket
 import cPickle
+from sizer import annotate, scanner, formatting
 pickle = cPickle
 from fileprocess.configuration import *
 
@@ -73,13 +75,25 @@ def monitor(pipeline):
             csock, caddr = msock.accept()
             csock.recv(1)
 
-            status = []
+            objs = scanner.Objects()
+            classes = annotate.simplegroupby(objs, modules=True)
+            print classes
+            status = {
+                'handlers': [], 
+                'gc': gc.isenabled(),
+                'heap': classes
+            }
             for handler in pipeline.handlers:
                 waiting = list(handler.queue.queue)
-                status.append((handler.__class__.__name__, waiting))
+                size = heapy.View.iso(handler).size
+                tuple = (handler.__class__.__name__, waiting, size)
+                print tuple
+                status['handlers'].append(tuple)
+                    
             
             csock.sendall(pickle.dumps(status))
             csock.close()
+            heapy.setref()
         except Exception, e:
             log.error("An exception occurred in the monitor: %s", e)
             break
