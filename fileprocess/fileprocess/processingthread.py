@@ -6,7 +6,9 @@ import sys, os
 import threading
 from Queue import Queue
 from configuration import config
+from beaker.cache import CacheManager
 
+caches = CacheManager(type='ext:database', url=config['sqlalchemy.default.url'])
 fp = None
 def set_fp(newfp):
     global fp

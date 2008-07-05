@@ -28,6 +28,7 @@ from masterapp.model import (
     Spotlight
 )
 from pylons import config
+from pylons.decorators.cache import beaker_cache
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from operator import itemgetter
@@ -37,6 +38,8 @@ from masterapp.lib.snippets import build_json, get_user
 from ecs import *
 import xml.dom.minidom
 from masterapp.lib.amazon import *
+
+from decorator import decorator
 
 log = logging.getLogger(__name__)
 
@@ -74,6 +77,14 @@ class MetadataController(BaseController):
             qry = qry[int(request.params['start']):int(request.params['limit'])]
         return qry
 
+    @decorator
+    def apply_offset(func, self, *args, **kwargs):
+        results = func(self, *args, **kwargs)
+        if request.params.get('start') and request.params.get('limit'):
+            return results[request.params.get('start'):request.params.get('limit')]
+        else:
+            return results
+
     @cjsonify
     def _json_failure(self, error='A problem occurred requesting your data'):
         return {'success': False, 'error': error, 'data':[]}
@@ -109,6 +120,8 @@ class MetadataController(BaseController):
 
     @cjsonify
     @d_build_json
+    @apply_offset
+    @beaker_cache(expire=180)
     @pass_user
     def songs(self, user):
         qry = user.song_query
@@ -128,29 +141,29 @@ class MetadataController(BaseController):
             qry = qry.filter(Artist.id == request.params.get('artist'))
 
         qry = qry.order_by(sort)
-        qry = self._apply_offset(qry)
-        return qry
+        return qry.all()
 
     @cjsonify
     @d_build_json
+    @apply_offset
+    @beaker_cache(expire=180)
     @pass_user
     def albums(self, user):
         qry = user.album_query
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
         qry = qry.order_by([Artist.sort, Album.title])
-        qry = self._apply_offset(qry)
-        results = qry
-        return results
+        return qry.all()
         
     @cjsonify
     @d_build_json
+    @apply_offset
+    @beaker_cache(expire=180)
     @pass_user
     def artists(self, user):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
-        qry = self._apply_offset(qry)
-        return qry
+        return qry.all()
         
     @cjsonify
     @pass_user

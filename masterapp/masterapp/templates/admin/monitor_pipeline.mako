@@ -6,13 +6,19 @@
 
 <%def name="body()">
     <h5> Garbage Collection Enabled: ${c.status['gc']} </h5>
-    <h2> Heap Details </h2>
-    <code>${c.status['heap']}</code>
     <h2> Summary </h2>
     <table>
     <tr><th>Action</th><th>Files Pending</th><th>Size</th></tr>
     % for action, queue, size in c.status['handlers']:
         <tr><td>${action}</td><td>${len(queue)}</td><td>${size}</td></tr>
+    % endfor
+    </table>
+
+    <h2> Heap Details </h2>
+    <table>
+    <tr><th>Class</th><th>Size in bytes</th></tr>
+    % for klass, size in c.status['heap']:
+        <tr><td>${klass}</td><td>${size}</td></tr>
     % endfor
     </table>
 

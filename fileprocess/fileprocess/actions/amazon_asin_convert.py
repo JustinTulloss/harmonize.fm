@@ -9,7 +9,7 @@ from ecs import *
 from beaker.cache import Cache
 log = logging.getLogger(__name__)
 from time import sleep
-CACHE_EXPIRATION = 60*60*60
+CACHE_EXPIRATION = 60*60
 
 class AmazonASINConvert(BaseAction):
     cache = Cache(

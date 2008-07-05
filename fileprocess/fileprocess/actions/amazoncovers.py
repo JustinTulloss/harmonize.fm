@@ -8,7 +8,7 @@ from beaker.cache import Cache
 
 log = logging.getLogger(__name__)
 
-CACHE_EXPIRATION = 60*60*60
+CACHE_EXPIRATION = 60*60
 
 class AmazonCovers(BaseAction):
     covercache = Cache(

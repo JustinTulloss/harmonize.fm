@@ -4,14 +4,18 @@ import gc
 import fileprocess
 from fileprocess.processingthread import FileUploadThread, set_fp
 import logging
+import signal
 import threading
 import socket
 import cPickle
 from sizer import annotate, scanner, formatting
 pickle = cPickle
 from fileprocess.configuration import *
+from operator import itemgetter
 
 log = None
+msock = None
+fsock = None
 
 def main():
     # Initialize the config
@@ -35,6 +39,12 @@ def main():
     handler = lconfig['handler'](*lconfig['handler_args'])
     log.addHandler(handler)
 
+    # Initialize Signal handlers
+    def kill(signal, frame):
+        msock.close()
+        fsock.close()
+    signal.signal(signal.SIGINT, kill)
+
     # Initialize the processing thread
     fp = FileUploadThread()
     set_fp(fp)
@@ -45,6 +55,7 @@ def main():
     mthread.start()
 
     # Initialize the file socket
+    global fsock
     fsock = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM
     )
@@ -62,38 +73,44 @@ def main():
 
         fp.process(pickle.loads(pfile))
 
+
 def monitor(pipeline):
     msock = socket.socket(
         socket.AF_INET, socket.SOCK_STREAM
     )
+    msock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     msock.bind(('localhost', config['port']+1))
 
     msock.listen(2)
     log.info("Monitor thread started")
+
     while True:
         try:
             csock, caddr = msock.accept()
             csock.recv(1)
 
             objs = scanner.Objects()
-            classes = annotate.simplegroupby(objs, modules=True)
-            print classes
+            classes = annotate.simplegroupby(objs, classes=True)
+            heap = {}
+            for key, c in classes.items():
+                heap[c.show()] = c.size
+
+            heap = sorted(heap.items(), key=itemgetter(1), reverse=True)
+                
             status = {
                 'handlers': [], 
                 'gc': gc.isenabled(),
-                'heap': classes
+                'heap': heap
             }
             for handler in pipeline.handlers:
+                size = classes[id(handler)].size
                 waiting = list(handler.queue.queue)
-                size = heapy.View.iso(handler).size
                 tuple = (handler.__class__.__name__, waiting, size)
-                print tuple
                 status['handlers'].append(tuple)
                     
             
             csock.sendall(pickle.dumps(status))
             csock.close()
-            heapy.setref()
         except Exception, e:
             log.error("An exception occurred in the monitor: %s", e)
             break
