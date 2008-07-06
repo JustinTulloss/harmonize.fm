@@ -65,10 +65,15 @@ base_logging = {
 }
 
 dev_logging = {
+    'level': logging.DEBUG
 }
 
 production_logging = {
     'level': logging.INFO,
     'handler': handlers.TimedRotatingFileHandler,
     'handler_args': ('/var/log/rubicon/filepipe', 'midnight', 0, 7)
+}
+
+live_logging = {
+    'handler_args': ('/var/log/harmonize/filepipe', 'midnight', 0, 7)
 }

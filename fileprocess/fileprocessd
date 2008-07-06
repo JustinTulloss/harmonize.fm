@@ -34,8 +34,11 @@ def main():
         config.update(dev_config)
         lconfig.update(dev_logging)
 
+
     # Initialize Logging
     global log
+    if '--debug' in sys.argv:
+        lconfig['level'] = logging.DEBUG
     logging.basicConfig(**lconfig)
     log = logging.getLogger(__name__)
     handler = lconfig['handler'](*lconfig['handler_args'])
