@@ -102,6 +102,56 @@ var profile_handler;
 		    }
 	    }
     }
+
+    var friend_music_menu_link = null;
+    var friend_music_menu = null;
+
+    function browse_friends_music(friend, target) {
+        if (friend == null) return;
+        
+        friend_music_menu = new Ext.menu.Menu({
+            width: target.offsetWidth,
+            defaultAlign: 'tr-br',
+            shadow: false
+        });
+        
+        var urlbase = ['#/bc/friend=', friend, '/profile=', friend];
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'artists',
+            href: urlbase.concat(['/artist']).join(''),
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'albums',
+            href: urlbase.concat(['/album']).join(''),
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'songs',
+            href: urlbase.concat(['/song']).join(''),
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'    
+        }));
+        friend_music_menu.add(new Ext.menu.Item({
+            text: 'playlists',
+            href: urlbase.concat(['/playlist']).join(''),
+            itemCls: 'music-menu-item',
+            overCls: 'music-menu-item-over',
+            activeClass: 'music-menu-item-active',
+            iconCls: 'no_icon'    
+        }));
+        friend_music_menu.show(target);
+    }
+
+    urlm.register_action('browse_friend', browse_friends_music);
 })();
 
 function profile_factory(url) {

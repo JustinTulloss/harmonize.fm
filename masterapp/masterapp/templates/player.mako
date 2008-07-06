@@ -29,7 +29,13 @@
             fullname: '${c.user.firstname}',
             fields: ${simplejson.dumps(c.fields)},
             fburl: '${c.fburl}',
-			uid: ${c.user.id}
+			uid: ${c.user.id},
+            % if c.user.lastvolume:
+            volume: ${c.user.lastvolume},
+            % endif
+            % if c.user.email:
+            email: '${c.user.email}'
+            % endif
         };
     </script>
     <script>

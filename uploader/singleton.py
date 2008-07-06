@@ -4,6 +4,7 @@
 from socket import socket
 from thread import start_new_thread
 import atexit
+from excepthandler import exception_managed
 
 class PortInUse(Exception):
 	pass
@@ -35,6 +36,7 @@ def running():
 		else:
 			raise PortInUse()
 	else:
+		@exception_managed
 		def start_server(port):
 			global callback
 			server_sock = socket()

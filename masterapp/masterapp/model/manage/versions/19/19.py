@@ -1,0 +1,40 @@
+from datetime import datetime
+from sqlalchemy import *
+from sqlalchemy.exceptions import OperationalError
+from sqlalchemy.schema import DDL
+import migrate.changeset
+from migrate.changeset.exceptions import NotSupportedError
+from migrate import *
+
+
+
+metadata = MetaData(migrate_engine)
+albums_table = Table("albums", metadata,
+    Column("id", Integer, primary_key=True),
+    Column("mbid", Unicode(36), index=True),
+    Column("artist", Unicode(255), index=True),
+    Column("artistsort", Unicode(255)),
+    Column("mbartistid", Unicode(36), index=True),
+    Column("asin", Unicode(10)),
+    Column("title", Unicode(255), index=True),
+    Column("year", Integer, index=True),
+    Column("totaltracks", Integer, default=0),
+)
+
+def upgrade():
+    # Upgrade operations go here. Don't create your own engine; use the engine
+    # named 'migrate_engine' imported from migrate.
+    newcol = Column('mp3_asin', Unicode(255), index=True)
+
+    try:
+        albums_table.append_column(newcol)
+        migrate.changeset.create_column(newcol, albums_table)
+    except:
+        print "Couldn't add mp3_asin column to albums.  Already done?"
+
+def downgrade():
+    # Operations to reverse the above upgrade go here.
+    try:
+        migrate.changeset.drop_column("mp3_asin", albums_table)
+    except:
+        print "Couldn't drop mp3_asin column from albums table."

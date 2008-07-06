@@ -1,3 +1,4 @@
+#vim:noexpandtab
 import os, platform
 import os.path as path
 
@@ -34,9 +35,3 @@ def get_db_path():
 		return os.path.join(os.getenv('HOME'), '.harmonize')
 	else:
 		return os.path.join(os.getenv('USERPROFILE'), '_harmonize')
-
-def get_genpuid_path():
-	if platform.system() in ('Darwin', 'Linux'):
-		return './genpuid'
-	else:
-		return '.\\genpuid'

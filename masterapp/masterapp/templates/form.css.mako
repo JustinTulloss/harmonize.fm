@@ -67,6 +67,7 @@
 
 .x-form-field-wrap {
     position:relative;
+    text-align: left;
     zoom:1;
     white-space: nowrap;
 }

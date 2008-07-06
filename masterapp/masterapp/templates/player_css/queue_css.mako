@@ -46,8 +46,7 @@
 	background: url('/images/control_play_blue.png');
 }
 
-.x-panel-header {
-	border-width: 0;
+.x-accordion-hd {
 	border-bottom: solid #999 1px;
 }
 

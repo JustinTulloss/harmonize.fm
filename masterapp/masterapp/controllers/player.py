@@ -1,6 +1,7 @@
 # vim:expandtab:smarttab
 import logging
 import time
+import os
 
 import S3
 import urllib
@@ -36,8 +37,6 @@ import thread
 import masterapp.lib.snippets as snippets
 
 feedback_template = """
-From: %s
-
 %s
 
 Browser:
@@ -46,7 +45,7 @@ Browser:
 Screen:
 %s
 
-File this:
+File this (harmonize.fm employees only):
 http://trac.harmonize.fm/trac/newticket
 """
 
@@ -123,7 +122,7 @@ class PlayerController(BaseController):
             c.include_files = player_files
 	
         return render('/player.mako')
-    
+
     def songurl(self, id):
         """
         Fetches the S3 authenticated url of a song.
@@ -139,11 +138,7 @@ class PlayerController(BaseController):
         song= Session.query(Song).\
             join([Song.owners]).filter(Song.id==int(id))
         song= song.first()
-        # Update now playing
-        user = Session.query(User).get(session['userid'])
-        user.nowplaying = song
-        Session.add(user)
-        Session.commit()
+        self.update_fbml()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
         config['S3.accesskey'], config['S3.secret'],
@@ -174,21 +169,29 @@ class PlayerController(BaseController):
         session.save()
         return 'false'
 
-    def album_details(self):
-        c.album = Session.query(Album).get(request.params.get('album'))
-        return render('/album_details.mako')
+    def set_now_playing(self):
+        if not request.params.has_key('id'):
+            return 'false'
+        
+        song = Session.query(Song).get(request.params.get('id'))
 
-    def recommend_to_fbfriend(self, id):
-        """
-        Recommends music to a friend based on their facebook id
-        """
-        # Set up the correct informatio to pass to the notification template
-        c.recommender = session['user'].fbid
-        c.recommendee = id
-        c.recommended = request.params.get('recommended')
-        c.playlink = request.params.get('playlink')
-        notification = render('/fbprofile/recnotif.mako')
-        facebook.notifications.send([id], notification)
+        user = Session.query(User).get(session['userid'])
+        # moving this to a separate action to fix buffering bug
+        user.nowplaying = song
+        Session.add(user)
+        Session.commit()
+        self.update_fbml()
+        return 'true'
+
+    def album_details(self):
+        user = Session.query(User).get(session['userid'])
+        c.songs = user.song_query.filter(
+            Song.albumid == request.params.get('album')
+        ).order_by(Song.tracknumber).all()
+        c.album = user.album_query.filter(
+            Album.id == request.params.get('album')
+        ).one()
+        return render('/album_details.mako')
 
     def username(self):
         return get_user_info()['name']
@@ -220,7 +223,6 @@ class PlayerController(BaseController):
         bdata = cjson.decode(urllib.unquote(user_browser))
         browser = screen = user = ''
         user = Session.query(User).get(session['userid'])
-        user = user.name
 
         for key, value in bdata['browser'].items():
             browser = browser + "%s = %s\n" % (key, value)
@@ -228,17 +230,29 @@ class PlayerController(BaseController):
         for key, value in bdata['screen'].items():
             screen = screen + "%s = %s\n" % (key, value)
         message = feedback_template % \
-                (user, user_feedback, browser, screen)
+                (user.name, user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
-            subject = 'Site feedback from %s' % user_email
+            if user.email != user_email:
+                user.email = user_email
+                Session.add(user)
+                Session.commit()
         else:
-            subject = 'Site feedback'
+            user_email = None
+
+        subject = 'harmonize.fm feedback from %s' % user.name
         
         def sendmail():
+            cc = user_email
+            if config['use_gmail'] == 'yes' or not user_email:
+                frm = config['feedback_email']
+                pword = config['feedback_password']
+            else:
+                frm = user_email
+                pword = None
             mail(config['smtp_server'], config['smtp_port'],
-                config['feedback_email'], config['feedback_password'],
-                'founders@harmonize.fm', subject, message)
+                frm, pword,
+                'justin@harmonize.fm', subject, message, cc=cc)
 
         thread.start_new_thread(sendmail, ())
         return '1'
@@ -254,7 +268,9 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, albumid, comment)
         Session.save(spotlight)
         Session.commit()
-        
+
+        self.update_fbml()
+        self.publish_spotlight_to_facebook(spotlight)
         return '1'
 
     def blog(self, id):
@@ -267,6 +283,9 @@ class PlayerController(BaseController):
         c.main = True
         c.user = Session.query(User).get(session['userid'])
         c.num_songs = c.user.song_count
+
+        c.fbapp_href = "http://www.facebook.com/apps/application.php?id=%s" % \
+            config['pyfacebook.appid']
         c.appid = config['pyfacebook.appid']
         if 'Windows' in request.headers['User-Agent']:
             c.platform = 'windows'
@@ -292,6 +311,7 @@ class PlayerController(BaseController):
         if (spot):
             Session.delete(spot)
             Session.commit()
+            self.update_fbml()
             return "True"
         else:
             return "False"
@@ -308,5 +328,30 @@ class PlayerController(BaseController):
         spotlight = Spotlight(uid, None, comment, True, playlistid)
         Session.save(spotlight)
         Session.commit()
-        
+
+        self.update_fbml()
+        self.publish_spotlight_to_facebook(spotlight)
         return '1'
+
+    def publish_spotlight_to_facebook(self, spot):
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
+        title_d = '{"album":"'+ spot.title +'"}'
+        r = ''
+        try:
+            r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
+        except:
+            return r
+        return r
+
+
+    def update_fbml(self):
+        c.user = Session.query(User).get(session['userid'])
+        fbml = render('facebook/profile.mako.fbml')
+        facebook.profile.setFBML(fbml)
+
+    def set_volume(self, id):
+        user = Session.query(User).get(session['userid'])
+        user.lastvolume = id
+        Session.add(user)
+        Session.commit()
+        return True

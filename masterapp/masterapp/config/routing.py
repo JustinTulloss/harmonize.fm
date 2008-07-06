@@ -29,6 +29,8 @@ def make_map():
     # The recommender needs an id and a friend
     map.connect('recommend/:action/:entity/:friend', controller='recommend', 
         requirements=dict(id='\d+', friend='\d+'))
+    map.connect('metadata/remove/:type/:id', controller='metadata',
+        action='remove', requirements=dict(id='\d+'))
     map.connect(':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 

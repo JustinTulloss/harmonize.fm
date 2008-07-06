@@ -244,6 +244,19 @@ class TestActions(TestBase):
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
         assert a.covercache.has_key(nf['asin'])
+    
+    def testAmazonASINConvert(self):
+        a = AmazonASINConvert()
+        a.cleanup_handler = Mock()
+        assert a is not None, "AmazonASINConvert Action not constructed"
+
+        nf = a.process(self.fdata['goodfile'])
+        assert not nf.has_key('mp3_asin')
+
+        nf = a.process(self.fdata['dbrec'])
+        assert nf.has_key('mp3_asin')
+        assert nf['mp3_asin'] != None
+        assert a.cache.has_key(nf['album'])
 
     def testHasher(self):
         h = Hasher()
@@ -389,16 +402,24 @@ class TestDBActions(TestBase):
         self.fdata['dbrec']['fbid'] = 1908861 
         self._create_user('dbrec')
         nf = r.process(self.fdata['dbrec'])
-        assert nf != False
+        assert nf == False
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song insertion")
 
         # Test insertion of same record with different sha
         self.fdata['dbrec']['sha'] = '1dfbc8174c31551c3f7698a344fe6dc2d6a0f431'
         nf = r.process(self.fdata['dbrec'])
-        assert nf != False
+        assert nf == False
         assert_false(c.process(self.fdata['dbrec']),
             "Checker did not detect duplicate song and user insertion")
+
+        # Test insertion of a record with the same PUID but different tags
+        self._create_user('dbpuid')
+        nf = r.process(self.fdata['dbpuid'])
+        assert nf != False
+        assert_false(c.process(self.fdata['dbpuid']),
+            "Checker did not detect duplicate puid insertion")
+        assert nf.get('sha') != None, "Did not fill in sha from other song"
 
         # Test insertion of incomplete record
         assert_raises(AssertionError, r.process,  self.fdata['goodtags'])

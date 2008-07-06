@@ -9,6 +9,10 @@ input {
     border: 1px solid ${Profile.light_form}
 }
 
+.h-dlg-buttons {
+    text-align: right;
+}
+
 .h-mask {
     opacity: .5;
 }
@@ -29,7 +33,7 @@ input {
     color: ${Profile.dark_txt};
 }
 
-button {
+button, .h-button {
 	background-color: ${Profile.top_bg};
 	color: white;
 	padding: 2px 3px;
@@ -53,7 +57,7 @@ button:hover {
 	color: #333;
 }
 
-h-menu-a a {
+.h-menu-a a {
     padding: 0px;
     margin: 0px;
 }

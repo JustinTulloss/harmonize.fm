@@ -93,53 +93,6 @@ function Browser()
         this.fireEvent('chgstatus', 'Loading...');
     }
     
-    var friend_music_menu_link = null;
-    var friend_music_menu = null;
-
-    function browse_friends_music(friend, target) {
-        if (friend == null) return;
-        
-        friend_music_menu = new Ext.menu.Menu({
-            width: target.offsetWidth,
-            defaultAlign: 'tr-br'
-        });
-        
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'artists',
-            href: '#/bc/friend=' + friend + '/artist',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'albums',
-            href: '#/bc/friend=' + friend + '/album',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'songs',
-            href: '#/bc/friend=' + friend + '/song',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'    
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'playlists',
-            href: '#/bc/friend=' + friend + '/playlist',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'    
-        }));
-        friend_music_menu.show(target);
-    }
-
-    urlm.register_action('browse_friend', browse_friends_music);
     
 }
 Ext.extend(Browser, Ext.util.Observable);
@@ -168,50 +121,11 @@ function BaseGrid(config)
         chgstatus: true
     });
 
-    this.actions={
-        addtoqueue: function(record) {my.fireEvent('enqueue', [record]);},
-		show_spotlight: function(record) {
-            //we need to check and make sure this spotlight doesn't already exist
-            var album_id = record.get('Album_id');
-            var playlist_id = record.get('Playlist_id');
-            if (album_id) {
-                Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_album',
-                    params: {album_id: album_id},
-                    success: function(response, options) {
-                        if (response.responseText == "True") {
-                            show_status_msg("You already have a spotlight for this album.");
-                        } else {
-                            show_spotlight(record, "add");
-                        }                
-                    },
-                    failure: function(response, options) {
-                        show_spotlight(record, "add");                
-                    }            
-                });
-            } else if (playlist_id) {
-                Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_playlist',
-                    params: {playlist_id: playlist_id},
-                    success: function(response, options) {
-                        if (response.responseText == "True") {
-                            show_status_msg("You already have a spotlight for this playlist.");
-                        } else {
-                            show_spotlight(record, "add_playlist");
-                        }
-                    },
-                    failure: function(response, options) {
-                        show_spotlight(record, "add_playlist");
-                    }                
-                });
-            }
-		},
-        recommendtofriend: friend_recommend,
-		play_record: function(record) {
-							playqueue.insert([record], true);
-		},
-		delete_record: playlistmgr.delete_playlist
-    };
+    my.find_record = function(el) {
+        var row = el.findParent('.x-grid3-row')
+        var record = my.getStore().getAt(row.rowIndex);
+        return record
+    }
 
     my.onMouseDown = function(e, div) {
         /* XXX: Does this loop scale to lots of actions? */
@@ -289,7 +203,7 @@ function AlbumGrid(config)
     function search(text)
     {   
         if (text == "")
-            this.getStore.clearFilter();
+            this.getStore().clearFilter();
         else
             this.getStore().filter('Album_title', text, true, false);
         return true;

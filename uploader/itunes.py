@@ -2,6 +2,7 @@ import xml.parsers.expat as expat
 from base64 import b64decode
 from urllib import url2pathname
 import urllib
+from excepthandler import exception_managed
 
 class ITunes(object):
 	def __init__(self, filename=None):
@@ -16,12 +17,18 @@ class ITunes(object):
 		self.cur_str = unicode("", "utf-8")
 		if filename == None:
 			filename = get_library_file()
-		self.itunes_data = self.parse_itunes(filename)
+		try:
+			self.itunes_data = self.parse_itunes(filename)
+		except IOError:
+			self.itunes_data = None
 
 	def parse_itunes(self, filename):
 		"""Takes in the filename of the iTunes Library file and returns a data 
 		structure made up of dicts, lists, ints, and strings that represent the
 		data in the file"""
+		if filename == None:
+			return None
+
 		parser = expat.ParserCreate('utf-8')
 		parser.StartElementHandler = self.start_element
 		parser.EndElementHandler = self.end_element
@@ -47,7 +54,11 @@ class ITunes(object):
 				return playlist
 		return None
 
+	@exception_managed
 	def get_all_track_filenames(self):
+		if self.itunes_data == None:
+			return []
+
 		for name in ('Library', 'Music'):
 			playlist = self.get_playlist_by_name(name)
 			if playlist != None: break

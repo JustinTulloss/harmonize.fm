@@ -21,6 +21,7 @@ from masterapp.lib.base import *
 import cPickle as pickle
 
 from masterapp import model
+from sqlalchemy.sql import and_
 import thread
 from mailer import mail
 
@@ -40,36 +41,74 @@ class UploadController(BaseController):
         self.apikey = config['pyfacebook.apikey']
         self.secret = config['pyfacebook.secret']
 
-    def _file_already_uploaded(self, f_sha, fbid):
-        """Checks to see if a song has already been uploaded and marks that user
-            as having uploaded it if true"""
-        user = model.Session.query(model.User).filter_by(fbid=fbid).first()
-        if user == None:
-            user = model.User(fbid)
-            model.Session.save(user)
-        
-        # Check so see if the user has already uploaded the file
-        song = model.Session.query(model.File).join(model.SongOwner)
-        song = song.filter(model.File.sha == f_sha)
-        song = song.filter(model.SongOwner.user == user)
-        song = song.first()
-        if song != None:
-            return True
+    def _check_tags(self, user):
+        song = None
+        if request.params.has_key('title') and request.params.has_key('album') and \
+                request.params.has_key('artist'):
+            qry = model.Session.query(model.Song).join(
+                model.Song.artist, model.Song.album).filter(
+                model.Artist.name == request.params['artist']).filter(
+                model.Album.title == request.params['album']).filter(
+                model.Song.title == request.params['title'])
+            song = qry.first()
 
-        # Check to see if anybody else already has the song
-        song = model.Session.query(model.File).filter_by(sha=f_sha).first()
-        if song == None:
+        if not song:
             return False
 
-        #We already have the song, mark the user as having it
-        new_owner = model.SongOwner(song=song, user=user)
-        model.Session.save(new_owner)
+        # Check to see if this user owns this songs
+        owner = model.Session.query(model.SongOwner).filter(
+            and_(model.SongOwner.songid==song.id, 
+                model.SongOwner.uid == user.id)
+        ).first()
+        if owner:
+            # This request.params has already been uploaded by this fella
+            log.debug('%s has already been uploaded by %s', 
+                request.params.get('title'), user.name)
+            return True
 
+        # Make a new owner
+        owner = model.SongOwner(song = song, user = user)
+        model.Session.add(owner)
         model.Session.commit()
+        log.debug('%s added to %s\'s files', request.params['title'], user.name)
         return True
+
+
+    def _check_puid(self, user):
+        userpuid = request.params.get('puid')
+        if not userpuid:
+            log.debug("Puid was blank, upload the file")
+            return False
+
+        def build_fdict():
+            return dict(
+                puid = request.params.get('puid'),
+                artist = request.params.get('artist'),
+                album = request.params.get('album'),
+                title = request.params.get('title'),
+                duration = request.params.get('duration'),
+                bitrate = request.params.get('bitrate'),
+                date = request.params.get('date'),
+                tracknumber = request.params.get('tracknumber'),
+                genre = request.params.get('genre'),
+                fbid = user.fbid
+            )
+
+        dbpuids = model.Session.query(model.Puid).filter(
+            model.Puid.puid == userpuid
+        ).all()
+        if len(dbpuids) > 0:
+            self._process(build_fdict())
+            log.debug("We have the puid for %s in our db, don't need the song",
+                request.params.get('title'))
+            return True
+        return False
 
     def _get_fb(self):
         return facebook.Facebook(self.apikey, self.secret)
+
+    def _get_user(self, fbid):
+        return model.Session.query(model.User).filter_by(fbid = fbid).one()
 
     def _get_fbid(self, request):
         session_key = request.params.get('session_key')
@@ -186,39 +225,19 @@ class UploadController(BaseController):
         fbid = self._get_fbid(request)
         if not fbid:
             return Response.reauthenticate
+        user = self._get_user(fbid)
 
         # Check for api version
         version = request.params.get('version')
         if not version=='1.0':
             abort(400, 'Version must be 1.0')
 
+        # Check our database for tag match
+        if self._check_tags(user):
+            return Response.done
+
         # Check our database for PUID
-        userpuid = request.params.get('puid')
-        if not userpuid:
-            log.debug("Puid was blank, upload the file")
-            return Response.upload
-
-        def build_fdict():
-            return dict(
-                puid = request.params.get('puid'),
-                artist = request.params.get('artist'),
-                album = request.params.get('album'),
-                title = request.params.get('title'),
-                duration = request.params.get('duration'),
-                bitrate = request.params.get('bitrate'),
-                date = request.params.get('date'),
-                tracknumber = request.params.get('tracknumber'),
-                genre = request.params.get('genre'),
-                fbid = fbid
-            )
-
-        dbpuids = model.Session.query(model.Puid).filter(
-            model.Puid.puid == userpuid
-        ).all()
-        if len(dbpuids) > 0:
-            self._process(build_fdict())
-            log.debug("We have the puid for %s in our db, don't need the song",
-                request.params.get('title'))
+        if self._check_puid(user):
             return Response.done
 
         # We haven't seen the song, let's get the whole file

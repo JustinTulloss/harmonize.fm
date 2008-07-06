@@ -114,6 +114,13 @@ function ViewManager(crumb, objects)
     });
     var username=global_config.fullname;
 
+    urlm.register_action('reload', function(){
+        var panel = my.centerpanel.getLayout().activeItem
+        if (panel == browserpanel)
+            bread_crumb.reload();
+        else
+            urlm.invalidate_page();
+    });
     set_status(null);
 
     var music_menu_link = Ext.get('music_menu_link');
@@ -179,11 +186,11 @@ function ViewManager(crumb, objects)
     function set_status(text)
     {
         if (text == null)
-            text = '<a class="logout" href="/player/logout">logout</a>';
-
+            text = '<a href="#/action/reload">refresh</a>'
+        
         var el = statusbar.getEl().child('.cstatus');
 		if (el)
-			el.innerHTML = text;
+			el.update(text);
 		else
 			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
     }
@@ -194,8 +201,8 @@ function ViewManager(crumb, objects)
 		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
 		'<input id="playlist-name" maxlength="100" class="dlg-focus" />'+
 		'<br/>playlist name<br/><br/>' +
-		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
+		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'</td></tr></table></center>';
 	Ext.get('create-playlist').on('click', function(e, el) {
 		e.preventDefault();

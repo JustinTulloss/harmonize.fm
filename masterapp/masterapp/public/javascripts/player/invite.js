@@ -6,35 +6,18 @@
 
 /* Takes a record and displays a box that you can pick a friend */
 function invite_friend() {
-    var friendstore = new Ext.data.JsonStore({
-        url: '/metadata',
-        baseParams: {
-            type: 'friend',
-            all: 'true'
-        },
-        fields: ['name', 'uid'],
-        autoLoad: true,
-        root: 'data'
-    });
-    var field = new Ext.form.ComboBox({
-        store: friendstore,
-        displayField: 'name',
-        fieldLabel: 'Friend',
-        labelAlign: 'right',
-        valueField: 'uid',
-        typeAhead: true,
-        mode: 'local',
-        emptyText: 'Select a Friend...'
-    });
-
+    var field = make_friend_combo();
+    var button_t = new Ext.Template('<span><button>{0}</button></span>');
     var button = new Ext.Button({
-        text: 'invite'
+        text: 'invite',
+        template: button_t
     });
     var cancel = new Ext.Button({
-        text:'cancel'
+        text:'cancel',
+        template: button_t
     });
 
-    var win = new Ext.Window({
+    var win = new Ext.Panel({
         layout: 'fit',
         resizable: false,
         items: [field],
@@ -50,9 +33,9 @@ function invite_friend() {
                     show_status_msg("Invitation Sent");
                 }
             });
-            win.close();
+            hide_dialog();
         }
     );
-    cancel.setHandler(function(){win.close()});
-    win.show();
+    cancel.setHandler(function(){hide_dialog()});
+    show_dialog(win, true);
 }

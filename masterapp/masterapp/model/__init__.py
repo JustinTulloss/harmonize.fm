@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
-from pylons import cache
+from pylons import cache, request
 
 from time import sleep
 from decorator import decorator
@@ -44,6 +44,7 @@ puids_table = Table('puids', metadata, autoload=True)
 songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
 notifications_table = Table('notifications', metadata, autoload=True)
+removedowners_table = Table('removedowners', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -96,7 +97,8 @@ class User(object):
                     'pic_big',
                     'pic_square',
                     'music',
-                    'sex'
+                    'sex',
+                    'has_added_app'
                 ]
                 info = facebook.users.getInfo(self.fbid, fields=fields)[0]
             except FacebookError, e:
@@ -139,6 +141,11 @@ class User(object):
         return self.fbinfo['sex']
     sex = property(get_sex)
 
+    @fbattr
+    def get_hasfbapp(self):
+        return self.fbinfo['has_added_app']
+    hasfbapp = property(get_hasfbapp)
+
     def are_friends(self, user):
         return user in self.friends
 
@@ -168,6 +175,10 @@ class User(object):
         Session.add(stats)
     nowplaying = property(get_nowplaying, set_nowplaying)
 
+    def get_url(self):
+        return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
+    url = property(get_url)
+
     def get_from_fbid(fbid, create=False):
         """
         Fetches a user by facebook id. Set create to true to create it if it
@@ -191,7 +202,7 @@ class User(object):
         query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(Song.files, SongOwner).filter(SongOwner.uid == self.id)
+        query = query.join(SongOwner).filter(SongOwner.uid == self.id)
         return query
         
     def get_song_query(self):
@@ -285,6 +296,7 @@ class User(object):
         return Session.query(Spotlight).filter(sql.and_(\
                 Spotlight.uid==self.id, Spotlight.active==True)).\
                 order_by(sql.desc(Spotlight.timestamp))
+    active_spotlights = property(get_active_spotlights)
         
     def get_playlist_by_id(self, id):
         qry = self.playlist_query
@@ -305,7 +317,8 @@ class File(object):
 
 class Song(object): 
     def __init__(self, title=None, albumid=None, mbid=None, 
-            length=0, tracknumber=None, sha=None, size=None, bitrate=None):
+            length=0, tracknumber=None, sha=None, size=None, bitrate=None,
+            pristine=None):
         self.title = title
         self.albumid = albumid
         self.mbid = mbid
@@ -314,15 +327,16 @@ class Song(object):
         self.sha = sha
         self.size = size
         self.bitrate = bitrate
-        self.pristine = False
+        self.pristine = pristine
     
 class Album(object):
     def __init__(self, title=None, mbid=None,
-            asin=None, year=None, totaltracks=0,
+            asin=None, mp3_asin=None, year=None, totaltracks=0,
             smallart=None, medart=None, largeart=None, swatch=None):
         self.title = title
         self.mbid = mbid
         self.asin = asin
+        self.mp3_asin = mp3_asin
         self.year = year
         self.totaltracks = totaltracks
 
@@ -435,6 +449,11 @@ class Notification(object):
         self.type = type
         self.data = pickle.dumps(data)
 
+class RemovedOwner(object):
+    def __init__(self, song=None, user=None):
+        self.song = song
+        self.user = user
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -544,6 +563,11 @@ mapper(Puid, puids_table)
 
 mapper(SongOwner, songowners_table, properties={
     'user': relation(User, lazy=True, backref='owners')
+})
+
+mapper(RemovedOwner, removedowners_table, properties={
+    'user': relation(User),
+    'song': relation(Song)
 })
 
 mapper(Whitelist, whitelists_table)
