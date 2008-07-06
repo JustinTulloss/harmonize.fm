@@ -77,3 +77,12 @@ production_logging = {
 live_logging = {
     'handler_args': ('/var/log/harmonize/filepipe', 'midnight', 0, 7)
 }
+
+def update_config(nconfig):
+    global config
+    config.update(nconfig)
+
+def lupdate_config(nconfig):
+    global base_logging
+    base_logging.update(config)
+    

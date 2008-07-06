@@ -24,15 +24,15 @@ def main():
     global config
     lconfig = base_logging
     if '--production' in sys.argv:
-        config.update(production_config)
-        lconfig.update(production_logging)
+        update_config(production_config)
+        lupdate_config(production_logging)
     elif '--live' in sys.argv:
-        config.update(production_config)
-        config.update(live_config)
-        lconfig.update(production_logging)
+        update_config(production_config)
+        update_config(live_config)
+        lupdate_config(production_logging)
     else:
-        config.update(dev_config)
-        lconfig.update(dev_logging)
+        update_config(dev_config)
+        lupdate_config(dev_logging)
 
 
     # Initialize Logging
