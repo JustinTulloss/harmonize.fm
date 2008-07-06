@@ -41,6 +41,9 @@ def main():
     handler = lconfig['handler'](*lconfig['handler_args'])
     log.addHandler(handler)
 
+    log.debug('Starting with config: %s and logging %s',
+        config, lconfig)
+
     # Initialize the processing thread
     fp = FileUploadThread()
     set_fp(fp)
