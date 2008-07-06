@@ -370,13 +370,16 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
+        """
         query = Session.query(SongOwner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
             numalbums.c.Artist_numalbums,
             *dbfields['artist'])
-        joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
+        """
+        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['artist'])
+        #joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
         #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
-        query = query.select_from(joined)
-        query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
+        #query = query.select_from(joined)
+        #query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
         query = query.join(Artist.albums, Song, SongOwner)
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
