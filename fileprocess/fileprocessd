@@ -118,9 +118,9 @@ def monitor(pipeline):
                 status['handlers'].append(tuple)
                     
             
-            del heap
             csock.sendall(pickle.dumps(status))
             csock.close()
+            del heap
         except Exception, e:
             log.exception("An exception occurred in the monitor")
 
