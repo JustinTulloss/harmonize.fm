@@ -50,7 +50,7 @@ production_config = {
 
 live_config = {
     'port': 48262,
-    'upload_dir': '/var/opt/uplods',
+    'upload_dir': '/var/opt/uploads',
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
     'cache_dir': '/tmp/live_cache'
