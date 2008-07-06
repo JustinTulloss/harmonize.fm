@@ -7,6 +7,7 @@ import cPickle as pickle
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join, or_, and_
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -294,6 +295,56 @@ class User(object):
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
+
+    @beaker_cache(expire=600, type='memory')
+    def get_feed_entries(self):
+        max_count=20
+        entries = Session.query(BlogEntry)[:max_count]
+        myor = or_()
+        for friend in self.friends:
+            myor.append(User.fbid == friend['uid'])
+
+        entries.extend(Session.query(Spotlight).join(User).filter(and_(
+                myor, Spotlight.active==True))\
+                [:max_count])
+
+        CommentUser = aliased(User)
+        SpotlightUser = aliased(User)
+        commentor = or_()
+        spotlightor = or_()
+        for friend in self.friends:
+            commentor.append(CommentUser.fbid == friend['uid'])
+            spotlightor.append(SpotlightUser.fbid == friend['uid'])
+            
+
+        entries.extend(Session.query(SpotlightComment).\
+                join(CommentUser,
+                    (Spotlight, SpotlightComment.spotlight), 
+                    (SpotlightUser, Spotlight.user)).\
+                filter(and_(
+                    SpotlightComment.uid!=session['userid'],
+                    or_(Spotlight.uid==session['userid'],
+                        and_(commentor, spotlightor)),
+                    Spotlight.active == True))[:max_count])
+
+        def sort_by_timestamp(x, y):
+            if x.timestamp == None:
+                if y.timestamp == None:
+                    return 0
+                return 1
+            elif y.timestamp == None:
+                return -1
+            elif x.timestamp > y.timestamp:
+                return -1
+            elif x.timestamp == y.timestamp:
+                return 0
+            else:
+                return 1
+
+        entries.sort(sort_by_timestamp)
+        return entries[:max_count]
+    feed_entries = property(get_feed_entries)
+        
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields

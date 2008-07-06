@@ -26,7 +26,6 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
 import pylons
-from sqlalchemy.orm import aliased
 from sqlalchemy.sql import or_, and_
 import sqlalchemy.sql as sql
 
@@ -61,52 +60,6 @@ class PlayerController(BaseController):
     def __before__(self):
         if not ensure_fb_session():
             redirect_to("/request/invitation")
-
-    def _get_feed_entries(self, user, max_count=20):
-        entries = Session.query(BlogEntry)[:max_count]
-        myor = or_()
-        for friend in user.friends:
-            myor.append(User.fbid == friend['uid'])
-
-        entries.extend(Session.query(Spotlight).join(User).filter(and_(
-                myor, Spotlight.active==True))\
-                [:max_count])
-
-        CommentUser = aliased(User)
-        SpotlightUser = aliased(User)
-        commentor = or_()
-        spotlightor = or_()
-        for friend in user.friends:
-            commentor.append(CommentUser.fbid == friend['uid'])
-            spotlightor.append(SpotlightUser.fbid == friend['uid'])
-            
-
-        entries.extend(Session.query(SpotlightComment).\
-                join(CommentUser,
-                    (Spotlight, SpotlightComment.spotlight), 
-                    (SpotlightUser, Spotlight.user)).\
-                filter(and_(
-                    SpotlightComment.uid!=session['userid'],
-                    or_(Spotlight.uid==session['userid'],
-                        and_(commentor, spotlightor)),
-                    Spotlight.active == True))[:max_count])
-
-        def sort_by_timestamp(x, y):
-            if x.timestamp == None:
-                if y.timestamp == None:
-                    return 0
-                return 1
-            elif y.timestamp == None:
-                return -1
-            elif x.timestamp > y.timestamp:
-                return -1
-            elif x.timestamp == y.timestamp:
-                return 0
-            else:
-                return 1
-
-        entries.sort(sort_by_timestamp)
-        return entries[:max_count]
 
     def index(self):
         c.profile = Profile()
@@ -265,7 +218,7 @@ class PlayerController(BaseController):
 
     def home(self):
         user = Session.query(User).get(session['userid'])
-        c.entries = self._get_feed_entries(user)
+        c.entries = user.feed_entries
         c.main = True
         c.user = user
         c.num_songs = c.user.song_count
