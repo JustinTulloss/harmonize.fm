@@ -9,22 +9,27 @@ kwargs = {
     #author:'',
     #author_email:'',
     #url:'',
-    'packages':find_packages(),
+    'install_requires': [
+        "Pyrex>=0.9.8.4"
+    ],
+    'packages': find_packages(),
     'py_modules':['S3', 'guid', 'mailer', 'mock', 'ecs', 'alert', 'df', 'puid',
         'tag_compare', 'tag_utils'],
     'include_package_data':True,
-    'test_suite':'nose.collector',
-    'ext_modules' : ext
+    'test_suite': 'nose.collector',
+    'ext_modules': ext
 }
 # This is all stolen from the sizer setup.py --JMT
 try:
     from Pyrex.Distutils import build_ext
     
+    """
     # Hack for Pyrex versions which define swig_sources
     # to only take two parameters.
     class my_build_ext(build_ext):
         def swig_sources(self, sources, ext = None):
             return build_ext.swig_sources(self, sources)
+    """
             
     kwargs["cmdclass"] = {"build_ext": build_ext}
     ext.append(
