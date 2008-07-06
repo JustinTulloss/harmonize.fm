@@ -26,7 +26,6 @@ from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
 import pylons
-from sqlalchemy.orm import aliased
 from sqlalchemy.sql import or_, and_
 import sqlalchemy.sql as sql
 
@@ -62,56 +61,11 @@ class PlayerController(BaseController):
         if not ensure_fb_session():
             redirect_to("/request/invitation")
 
-    def _get_feed_entries(self, uid, max_count=20):
-        entries = Session.query(BlogEntry)[:max_count]
-        myor = or_()
-        for friend in session['fbfriends']:
-            myor.append(User.fbid == friend)
-
-        entries.extend(Session.query(Spotlight).join(User).filter(and_(
-                myor, Spotlight.active==True))\
-                [:max_count])
-
-        CommentUser = aliased(User)
-        SpotlightUser = aliased(User)
-        commentor = or_()
-        spotlightor = or_()
-        for friend in session['fbfriends']:
-            commentor.append(CommentUser.fbid == friend)
-            spotlightor.append(SpotlightUser.fbid == friend)
-            
-
-        entries.extend(Session.query(SpotlightComment).\
-                join(CommentUser,
-                    (Spotlight, SpotlightComment.spotlight), 
-                    (SpotlightUser, Spotlight.user)).\
-                filter(and_(
-                    SpotlightComment.uid!=session['userid'],
-                    or_(Spotlight.uid==session['userid'],
-                        and_(commentor, spotlightor)),
-                    Spotlight.active == True))[:max_count])
-
-        def sort_by_timestamp(x, y):
-            if x.timestamp == None:
-                if y.timestamp == None:
-                    return 0
-                return 1
-            elif y.timestamp == None:
-                return -1
-            elif x.timestamp > y.timestamp:
-                return -1
-            elif x.timestamp == y.timestamp:
-                return 0
-            else:
-                return 1
-
-        entries.sort(sort_by_timestamp)
-        return entries[:max_count]
-
     def index(self):
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
+        c.fblogin_url = facebook.get_login_url(canvas=False)
 
         if snippets.is_ie6(request.environ['HTTP_USER_AGENT']):
             redirect_to('/ie6')
@@ -196,22 +150,6 @@ class PlayerController(BaseController):
     def username(self):
         return get_user_info()['name']
 
-    @jsonify
-    def get_checked_friends(self):
-        userStore = facebook.friends.getAppUsers()
-        userList = facebook.users.getInfo(userStore)
-        for user in userList:
-            user["checked"]=self.get_active(user["uid"])
-        
-        userDict = dict(data = userList) 
-        return userDict
-    
-    def get_active(self, uid):
-        if uid == 1908861:
-            return True 
-        else:
-            return False
-
     def feedback(self):
         if not request.params.has_key('email') or\
                 not request.params.has_key('feedback'):
@@ -279,9 +217,10 @@ class PlayerController(BaseController):
         return render('/blog.mako')
 
     def home(self):
-        c.entries = self._get_feed_entries(session['userid'])
+        user = Session.query(User).get(session['userid'])
+        c.entries = user.feed_entries
         c.main = True
-        c.user = Session.query(User).get(session['userid'])
+        c.user = user
         c.num_songs = c.user.song_count
 
         c.fbapp_href = "http://www.facebook.com/apps/application.php?id=%s" % \

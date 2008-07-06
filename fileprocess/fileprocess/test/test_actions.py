@@ -8,7 +8,7 @@ from nose.tools import *
 from mockfiles import mockfiles
 from fileprocess.actions import *
 import fileprocess
-from fileprocess.processingthread import na
+from fileprocess.processingthread import na, init_caches
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
@@ -26,6 +26,7 @@ class TestBase(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
         config.update(dev_config)
         config.update(test_config)
+        init_caches()
 
     def setUp(self):
         os.mkdir(config['media_dir'])

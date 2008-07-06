@@ -30,30 +30,29 @@ from tag_compare import (
     match_file_to_track
 )
 
-from beaker.cache import Cache
-
 from tag_utils import totaltracks, get_year
 
 log = logging.getLogger(__name__)
-CACHE_EXPIRATION = 60*60*60
+CACHE_EXPIRATION = 60*60
 
 class BrainzTagger(BaseAction):
     def __init__(self, *args):
         super(BrainzTagger, self).__init__(args)
 
         # Keyed by musicbrainz ids
-        self.artistcache = Cache(
-            namespace = 'brainz.artists',
+        from fileprocess.processingthread import caches
+        self.artistcache = caches.get_cache(
+            'brainz.artists',
             expires = CACHE_EXPIRATION
         )
-        self.albumcache = Cache(
-            namespace = 'brainz.albums',
+        self.albumcache = caches.get_cache(
+            'brainz.albums',
             expires = CACHE_EXPIRATION
         )
 
         # Keyed by tuple(album, artist, totaltracks)
-        self.releasecache = Cache(
-            namespace = 'brainz.releases',
+        self.releasecache = caches.get_cache(
+            'brainz.releases',
             expires = CACHE_EXPIRATION
         )
 
@@ -139,7 +138,7 @@ class BrainzTagger(BaseAction):
         file[u'title'] = track.title
         file[u'artist'] = artist.name
         if not file.get('album'):
-            file[u'album'] = album.title
+            file['album'] = album.title
         file[u'duration'] = track.duration #in milliseconds
         year = get_year(album)
         if year:

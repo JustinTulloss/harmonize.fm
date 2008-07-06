@@ -9,6 +9,7 @@
 	</div>
 </%def>
 
+
 <%def name="build_top_artists()" >
     % for i in xrange(0,10):
         % if len(c.user.top_10_artists)>i:

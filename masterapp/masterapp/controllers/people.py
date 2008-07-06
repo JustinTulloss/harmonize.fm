@@ -12,6 +12,7 @@ from facebook.wsgi import facebook
 
 from pylons import config
 import pylons
+import time
 
 class PeopleController(BaseController):
     def __before__(self):

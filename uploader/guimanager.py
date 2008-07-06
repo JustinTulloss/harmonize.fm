@@ -59,6 +59,7 @@ class GuiManager(object):
 		self.tracks_analyzed = 0
 
 	def file_analyzed(self):
+		self.gui.set_msg('Analyzing library...')
 		self.tracks_analyzed += 1
 		self.gui.set_progress(False, (self.tracks_analyzed/self.total_tracks))
 
