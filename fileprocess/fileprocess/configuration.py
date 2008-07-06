@@ -50,7 +50,7 @@ production_config = {
 
 live_config = {
     'port': 48262,
-    'upload_dir': '/var/opt/uplods',
+    'upload_dir': '/var/opt/uploads',
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
     'cache_dir': '/tmp/live_cache'
@@ -65,6 +65,7 @@ base_logging = {
 }
 
 dev_logging = {
+    'level': logging.DEBUG
 }
 
 production_logging = {
@@ -72,3 +73,16 @@ production_logging = {
     'handler': handlers.TimedRotatingFileHandler,
     'handler_args': ('/var/log/rubicon/filepipe', 'midnight', 0, 7)
 }
+
+live_logging = {
+    'handler_args': ('/var/log/harmonize/filepipe', 'midnight', 0, 7)
+}
+
+def update_config(nconfig):
+    global config
+    config.update(nconfig)
+
+def lupdate_config(nconfig):
+    global base_logging
+    base_logging.update(config)
+    

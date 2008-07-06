@@ -24,7 +24,6 @@ from musicbrainz2.webservice import (
     ReleaseIncludes)
 from musicbrainz2 import model
 from fileprocess.configuration import config
-from fileprocess.processingthread import caches
 from tag_compare import (
     compare_to_release,
     match_file_to_release,
@@ -41,6 +40,7 @@ class BrainzTagger(BaseAction):
         super(BrainzTagger, self).__init__(args)
 
         # Keyed by musicbrainz ids
+        from fileprocess.processingthread import caches
         self.artistcache = caches.get_cache(
             'brainz.artists',
             expires = CACHE_EXPIRATION
