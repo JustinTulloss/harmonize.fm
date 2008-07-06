@@ -100,6 +100,10 @@ def monitor(pipeline):
                     else:
                         heap[c.show()] = c.size
 
+                del objs
+                del classes
+                del diff
+
                 heap = sorted(heap.items(), key=itemgetter(1), reverse=True)
                 
             status = {
@@ -114,6 +118,7 @@ def monitor(pipeline):
                 status['handlers'].append(tuple)
                     
             
+            del heap
             csock.sendall(pickle.dumps(status))
             csock.close()
         except Exception, e:
