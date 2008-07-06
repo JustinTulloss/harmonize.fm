@@ -1,7 +1,6 @@
 import sqlite3, os
 from itunes import get_library_file, ITunes
 from hplatform import get_db_path, get_default_path
-#some imports at end of program
 
 def get_music_files(dir):
 	music_files = []
@@ -21,58 +20,6 @@ def get_music_files(dir):
 def is_music_file(file):
 	return file.endswith('.mp3') or file.endswith('.m4a')
 
-def get_conn():
-	global db_dir
-	return sqlite3.connect(db_dir)
-
-def get_cursor():
-	return get_conn().cursor()
-
-def get_upload_src():
-	c = get_cursor()
-	return c.execute('select src from upload_src').fetchone()[0]
-
-def set_upload_src(value):
-	conn = get_conn()
-	c = conn.cursor()
-	if value not in ['itunes', 'folder']:
-		raise Exception('Invalid upload src')
-	c.execute('update upload_src set src=?', (value,))
-	conn.commit()
-
-def set_upload_dirs(values):
-	conn = get_conn()
-	data = [(val,) for val in values]
-	c = conn.cursor()
-	c.execute('delete from upload_dirs')
-	c.executemany('insert into upload_dirs values (?)', data)
-	conn.commit()
-
-def get_upload_dirs():
-	c = get_cursor()
-	values = c.execute('select dir from upload_dirs').fetchall()
-	return [val[0] for val in values]
-
-def get_tracks():
-	src = get_upload_src()
-	if src == 'itunes':
-		tracks =  filter(is_music_file,
-					  ITunes().get_all_track_filenames())
-	elif src == 'folder':
-		tracks = []
-		for dir in unique_dirs(get_upload_dirs()):
-			tracks.extend(get_music_files(dir))
-
-	if tracks == []:
-		return None
-	else:
-		return filter(lambda x: not is_file_uploaded(x), tracks)
-
-def total_uploaded_tracks():
-	c = get_cursor()
-	val = c.execute('select count(*) from files_uploaded').fetchone()
-	return val[0]
-
 def unique_dirs(dirs):
 	unique_dirs = []
 	dirs.sort()
@@ -87,65 +34,148 @@ def unique_dirs(dirs):
 	
 	return unique_dirs
 
-def set_file_uploaded(filename, puid=None, sha=None):
-	conn = get_conn()
-	c = conn.cursor()
+class DB(object):
+	def __init__(self, db_path):
+		self.db_path = db_path
 
-	c.execute('insert into files_uploaded (filename, puid, sha) values (?,?,?)',
-				(filename, puid, sha))
-	conn.commit()
+		self.versions = [self.version_1]
 
-def is_file_uploaded(filename):
-	c = get_cursor()
-	return c.execute(
-				'''select filename from files_uploaded where filename=? union
-				   select filename from files_skipped where filename=?''',
-				(filename,filename)).fetchone() != None
+		try:
+			conn = self.get_conn()
+			version = int(conn.execute('select value from settings where key=?',
+									('version',)).fetchone()[0])
+		except sqlite3.OperationalError:
+			conn.close()
+			os.remove(self.db_path)
+			version = 0
 
-def is_sha_uploaded(sha):
-	c = get_cursor()
-	return c.execute(
-				'select count(sha) from files_uploaded where sha=?', (sha,)).\
-				fetchone()[0] > 0
+		for upgrade_version in self.versions[version:]:
+			upgrade_version()
 
-def add_skipped(filename):
-	conn = get_conn()
-	c = conn.cursor()
-	c.execute('insert into files_skipped values(?)', (filename,))
-	conn.commit()
+	def get_conn(self):
+		return sqlite3.connect(self.db_path)
 
-def init_db():
-	global db_dir
+	def version_1(self):
+		conn = self.get_conn()
+		c = conn.cursor()
 
-	conn = get_conn()
-	c = conn.cursor()
-	c.execute('create table upload_src (src text)')
-	c.execute('create table upload_dirs (dir text)')
-	c.execute('create table files_uploaded (puid text, filename text,sha text)')
-	c.execute('create table files_skipped (filename text)')
+		c.execute('create table settings (key text, value text)')
+		c.execute('create table upload_dirs (dir text)')
+		c.execute('''create table files
+					(filename text, puid text, uploaded int)''')
+		c.execute('create table files_skipped (filename text)')
 
-	c.execute('insert into upload_dirs values (?)', (get_default_path(),))
+		c.execute('insert into settings (key, value) values (?, ?)',
+			('version', '1'))
+		
+		if get_library_file:
+			upload_src = 'itunes'
+		else:
+			upload_src = 'folder'
+		c.execute('insert into settings (key, value) values (?, ?)',
+			('upload_src', upload_src))
 
-	if get_library_file():
-		c.execute('insert into upload_src values (?)', ('itunes',))
-	else:
-		c.execute('insert into upload_src values (?)', ('folder',))
-	
-	conn.commit()
+		c.execute('insert into upload_dirs values (?)', (get_default_path(),))
 
-def update_db():
-	conn = get_conn()
-	try:
-		conn.execute('create table files_skipped (filename text)')
 		conn.commit()
-	except sqlite3.OperationalError:
-		pass
 
-db_dir = get_db_path()
+	def add_skipped(self, filename):
+		conn = self.get_conn()
+		conn.execute('insert into files_skipped values(?)', (filename,))
+		conn.commit()
 
-if not os.path.exists(db_dir):
-	init_db()
-else:
-	update_db()
-	if not get_library_file():
-		set_upload_src('folder')
+	def is_file_uploaded(self, filename):
+		c = self.get_conn().cursor()
+		return c.execute(
+					'''select filename from files where 
+							filename=? and uploaded=? union
+					   select filename from files_skipped where filename=?''',
+					(filename, 1, filename)).fetchone() != None
+
+	def total_uploaded_tracks(self):
+		c = self.get_conn()
+		return c.execute('select count(*) from files where uploaded=?',
+							(1,)).fetchone()[0]
+
+	def get_tracks(self):
+		if self.upload_src == 'itunes':
+			tracks =  filter(is_music_file,
+						  ITunes().get_all_track_filenames())
+		else:
+			tracks = []
+			for dir in unique_dirs(self.upload_dirs):
+				tracks.extend(get_music_files(dir))
+
+		if tracks == []:
+			return None
+		else:
+			return filter(lambda x: not self.is_file_uploaded(x), tracks)
+
+	def get_upload_src(self):
+		c = self.get_conn()
+		return c.execute('select value from settings where key=?',
+			('upload_src',)).fetchone()[0]
+
+	def set_upload_src(self, value):
+		conn = self.get_conn()
+		if value not in ['itunes', 'folder']:
+			raise Exception('Invalid upload src')
+		conn.execute('update settings set value=? where key=?', 
+			(value,'upload_src'))
+		conn.commit()
+
+	upload_src = property(get_upload_src, set_upload_src)
+
+	def set_upload_dirs(self, values):
+		conn = self.get_conn()
+		data = [(val,) for val in values]
+		c = conn.cursor()
+		c.execute('delete from upload_dirs')
+		c.executemany('insert into upload_dirs values (?)', data)
+		conn.commit()
+
+	def get_upload_dirs(self):
+		c = self.get_conn()
+		values = c.execute('select dir from upload_dirs').fetchall()
+		return [val[0] for val in values]
+
+	upload_dirs = property(get_upload_dirs, set_upload_dirs)
+	
+	def get_puid(self, filename):
+		c = self.get_conn()
+		res = c.execute('select puid from files where filename=?', 
+				(filename,)).fetchone()
+		if res == None:
+			return None
+		else:
+			return res[0]
+
+	def file_exists(self, filename, conn):
+		return (conn.execute('select count(*) from files where filename=?',
+							(filename,)).fetchone()[0] > 0)
+
+	def set_puid(self, filename, puid):
+		conn = self.get_conn()
+		if self.file_exists(filename, conn):
+			conn.execute('update files set puid=? where filename=?',
+						(puid, filename))
+		else:
+			conn.execute('''insert into files (filename, puid, uploaded) values
+							(?, ?, ?)''', (filename, puid, 0))
+		conn.commit()
+	
+	def set_uploaded(self, filename, puid=None):
+		conn = self.get_conn()
+		if self.file_exists(filename, conn):
+			conn.execute('update files set uploaded=? where filename=?',
+							(1, filename))
+		else:
+			conn.execute('''insert into files (filename, puid, uploaded) values
+							(?, ?, ?)''', (filename, puid, 1))
+		conn.commit()
+
+db = DB(get_db_path())
+
+def use_new_db(path):
+	global db
+	db = DB(path)

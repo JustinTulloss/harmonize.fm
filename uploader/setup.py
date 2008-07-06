@@ -1,18 +1,36 @@
-import sys
+import sys, os, re
 from distutils.core import setup
-import os
-import create_build
+from mako.template import Template
+from popen2 import popen2
 
 r_scripts = ['fb.py', 'dir_browser.py', 'upload.py', 'itunes.py', 'tags.py', 
 			 'config.py', 'genpuid.py', 'db.py', 'hplatform.py', 'hfile.py',
-			 'singleton.py', 'excepthandler.py', 'build.py']
+			 'singleton.py', 'excepthandler.py', 'build.py', 'guimanager.py']
 
-create_build.create()
+def get_repo_version():
+	stdout, stdin = popen2('hg identify')
+	stdin.close()
+	match = re.match('^[a-fA-F0-9]+', stdout.read())
+	if not match:
+		raise Exception('Unable to determine build version')
+	return match.group(0)
+
+excepthandler_py = open('excepthandler.py', 'w+')
+excepthandler_py.write(
+	Template(filename='excepthandler.mako.py').\
+	render(repo_version=get_repo_version()))
+excepthandler_py.close()
 
 if sys.platform == 'darwin':
 	if not os.path.exists('genpuid'):
 		print 'genpuid directory missing, download it at musicip.com'
 		sys.exit(1)
+
+	main_py = open('main.py', 'w+')
+	main_py.write(
+		Template(filename='main.mako.py').render(window_file='Harmonize_osx'))
+	main_py.close()
+
 	import py2app
 	setup(
 		name='Harmonize',
@@ -25,11 +43,17 @@ if sys.platform == 'darwin':
 		options=dict(py2app=dict(plist=dict(LSUIElement=True)))
 	)
 elif sys.platform == 'win32':
+	main_py = open('main.py', 'w+')
+	main_py.write(
+		Template(filename='main.mako.py').render(window_file='Harmonize_win'))
+	main_py.close()
+
 	import py2exe
 	setup(
-		windows=[{'script':'Harmonize_win.py',
+		windows=[{'script':'main.py',
 				  'dest_base':'Harmonize'}],
-		scripts=r_scripts,
+		scripts=r_scripts + \
+				['Harmonize_win.py', 'win_options.py', 'win_upload.py'],
 		data_files=['Python.Runtime.dll', 
 					'folder.bmp', 'hd.bmp', 'cd.bmp', 'icon.bmp',
 					'genpuid\\genpuid.exe', 'genpuid\\AACTagReader.exe',
