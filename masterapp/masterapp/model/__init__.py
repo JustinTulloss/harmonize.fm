@@ -15,6 +15,7 @@ from facebook import FacebookError
 
 from masterapp.lib import fblogin
 
+from pylons.decorators.cache import beaker_cache
 from decorator import decorator
 from operator import itemgetter
 import time
@@ -282,6 +283,7 @@ class User(object):
         """
         pass
 
+    @beaker_cache(expire=600, type='memory')
     def get_top_10_artists(self):
         totalcount = Session.query(Artist.id, Artist.name,
             func.sum(SongStat.playcount).label('totalcount')
