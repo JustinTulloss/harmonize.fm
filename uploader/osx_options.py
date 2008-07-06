@@ -1,4 +1,4 @@
-import db, itunes, upload
+import itunes, upload
 import objc
 from Foundation import *
 from AppKit import *
@@ -12,38 +12,48 @@ class OptionsController(NSObject):
 	uploadFolders = objc.ivar('uploadFolders')
 	optionsVisible = objc.ivar('optionsVisible')
 
-	def closeWindow_(self, sender):
-		self.window.orderOut_(self)
-
 	def awakeFromNib(self):
-		#Set up the default upload location
-		if itunes.get_library_file() == None:
-			self.iTunesButton.setEnabled_(False)
-
-		if db.get_upload_src() == 'folder':
-			self.iTunesButton.setState_(0)
-			self.folderButton.setState_(1)
-
 		#Set up the file chooser dialog
 		self.folderChooser = NSOpenPanel.openPanel()
 		self.folderChooser.setCanChooseFiles_(False)
 		self.folderChooser.setCanChooseDirectories_(True)
 		self.folderChooser.setAllowsMultipleSelection_(True)
+		self.options_changed = None
+		self.changed = False
 
-		self.options_changed = False
+	def init_options(self, upload_mode, upload_dirs, 
+					itunes_enabled, changed_callback):
+		self.changed_callback = changed_callback
 
-	def windowDidResignMain_(self, notification):
-		if self.options_changed:
-			upload.options_changed()
-			self.options_changed = False
+		if upload_mode == 'itunes':
+			self.iTunesButton.setState_(1)
+			self.folderButton.setState_(0)
+		else:
+			self.iTunesButton.setState_(0)
+			self.folderButton.setState_(1)
+
+		self.iTunesButton.setEnabled_(itunes_enabled)
+		self.uploadFolders.dirs = upload_dirs
+		self.folderGrid.reloadData()
+
+	def windowWillClose_(self, notification):
+		NSApp().stopModalWithCode_(0)
+		if self.changed:
+			self.changed = False
+			if self.iTunesButton.state() == 1:
+				src = 'itunes'
+			else:
+				src = 'folder'
+			self.changed_callback(src, self.uploadFolders.dirs)
+
+	def optionsClosed_(self, sender):
+		self.window.close()
 
 	def setUploadFolder_(self, sender):
-		db.set_upload_src('folder')
-		self.options_changed = True
+		self.changed = True
 	
 	def setUploadITunes_(self, sender):
-		db.set_upload_src('itunes')
-		self.options_changed = True
+		self.changed = True
 
 	def addFolders_(self, sender):
 		res = self.folderChooser.runModalForTypes_(None)
@@ -51,18 +61,18 @@ class OptionsController(NSObject):
 		if res == NSOKButton and len(self.folderChooser.filenames()) > 0:
 			self.uploadFolders.add(self.folderChooser.filenames())
 			self.folderGrid.reloadData()
-			self.options_changed = True
+			self.changed = True
 
 	def removeFolders_(self, sender):
 		self.uploadFolders.remove(self.folderGrid.selectedRowIndexes())
 		self.folderGrid.reloadData()
-		self.options_changed = True
+		self.changed = True
 
 class UploadFolders(NSObject):
 	def init(self):
 		self = super(UploadFolders, self).init()
 
-		self.dirs = db.get_upload_dirs()
+		self.dirs = []
 		return self
 
 	def numberOfRowsInTableView_(self, tableView):
@@ -71,11 +81,13 @@ class UploadFolders(NSObject):
 	def tableView_objectValueForTableColumn_row_(self, tableView, col, row):
 		return self.dirs[row]
 
+	def set_dirs(dirs):
+		self.dirs = dirs
+
 	def add(self, new_dirs):
 		for new_dir in new_dirs:
 			if new_dir not in self.dirs:
 				self.dirs.append(new_dir)
-		db.set_upload_dirs(self.dirs)
 	
 	def remove(self, selected_rows):
 		new_dirs = []
@@ -84,4 +96,3 @@ class UploadFolders(NSObject):
 				new_dirs.append(self.dirs[i])
 
 		self.dirs = new_dirs
-		db.set_upload_dirs(self.dirs)

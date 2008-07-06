@@ -31,12 +31,19 @@ if sys.platform == 'darwin':
 		Template(filename='main.mako.py').render(window_file='Harmonize_osx'))
 	main_py.close()
 
+	app = ['main.py']
+	scripts = r_scripts + \
+				['Harmonize_osx.py', 'osx_options.py', 'osx_upload.py']
+	if len(sys.argv) == 4 and sys.argv[3] == 'test':
+		app = ['test_win_upload.py']
+		scripts = ['Harmonize_osx.py', 'osx_options.py', 'osx_upload.py']
+
 	import py2app
 	setup(
-		name='Harmonize',
+		name='Harmonizer',
 		setup_requires=['py2app'],		
-		app=['Harmonize_osx.py'],
-		scripts=r_scripts + ['osx_options.py', 'osx_upload.py'],
+		app=app,
+		scripts=scripts,
 		data_files=['MainMenu.nib', 
 					'genpuid/genpuid', 'genpuid/AACTagReader',
 					'genpuid/mipcore'],

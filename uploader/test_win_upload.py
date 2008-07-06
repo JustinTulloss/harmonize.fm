@@ -1,4 +1,7 @@
-from Harmonize_win import Application
+try:
+	from Harmonize_win import Application
+except ImportError:
+	from Harmonize_osx import Application
 from guimanager import GuiManager
 
 import thread
@@ -35,6 +38,7 @@ def app_started():
 		window.enable_login(False)
 		raw_input()
 		window.fatal_error('An error occurred')
+		window.enable_options(False)
 		
 	def test_guimgr():
 		guimgr = GuiManager(window, 5)
