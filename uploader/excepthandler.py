@@ -13,6 +13,7 @@ def exception_managed(fn):
 			contents = f_contents.getvalue()
 			f_contents.close()
 
+			contents += '%s' % e
 			contents += '\nplatform.uname():\n' + str(platform.uname())
 			contents += '\nRepo version: ' + build.repo_version
 
