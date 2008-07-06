@@ -157,13 +157,9 @@ class MetadataController(BaseController):
     def friends(self, user):
         dtype = request.params.get('type')
         if request.params.get('all') == 'true':
-            users = facebook.friends.get()
-            data = facebook.users.getInfo(users)
-            data = sorted(data, key=itemgetter('name'))
+            data = user.allfriends
         else:
-            userStore = session['fbfriends']
-            data=facebook.users.getInfo(userStore)
-
+            data = user.friends
             qry = Session.query(User).join(['owners'])
             cond = or_()
             for friend in data:
@@ -178,8 +174,6 @@ class MetadataController(BaseController):
                         item['type'] = dtype
                         item['Friend_name'] = item['name']
                         item['Friend_id'] = results[0].id
-                        del item['uid']
-                        del item['name']
                         del results[0]
                         return True
                     else:
@@ -228,10 +222,9 @@ class MetadataController(BaseController):
     def next_radio_song(self,user, **kwargs):
         #todo: replace this with recommendations
         
-        userStore = session['fbfriends']
         fbids = []
-        for user in userStore:
-            fbids.append(user)
+        for friend in user.friends:
+            fbids.append(friend.uid)
         #songlist is a list where each element is a song id.
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        

@@ -1,20 +1,26 @@
 # vim:expandtab:smarttab
 import logging
 from pylons import config
+from pylons import cache, request, session
+from pylons.controllers.util import abort
 import cPickle as pickle
 from datetime import datetime
 from sqlalchemy import Column, MetaData, Table, ForeignKey, types, sql
 from sqlalchemy.sql import func, select, join, or_, and_
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from facebook.wsgi import facebook
 from facebook import FacebookError
 
-from pylons import cache, request
+from masterapp.lib import fblogin
 
-from time import sleep
+from pylons.decorators.cache import beaker_cache
 from decorator import decorator
+from operator import itemgetter
+import time
+
 
 log = logging.getLogger(__name__)
 
@@ -51,23 +57,83 @@ Classes that represent above tables. You can add abstractions here
 (like constructors) that make the tables even easier to work with
 """
 
+
 class User(object):
     fbid = None
     fbinfo = None
     listeningto = None
     fbcache = None
+    fbfriendscache = None
+    fballfriendscache = None
+    present_mode = False
     def __init__(self, fbid=None):
         self.fbid = fbid
 
+
+    @decorator
+    def fbaccess(func, self, *args, **kwargs):
+        tries = 0
+        while tries < 4:
+            try:
+                return func(self, *args, **kwargs)
+            except FacebookError, e:
+                if e.code == 102:
+                    method = request.environ.get('HTTP_X_REQUESTED_WITH')
+                    if method == 'XMLHttpRequest':
+                        abort(401, 'Please re-login to facebook')
+                    else: 
+                        fblogin.login()
+                else:
+                    tries = tries + 1
+                    time.sleep(.1)
+    @decorator
+    def fbfriends(func, self, *args, **kwargs):
+        self._setup_fbfriends_cache()
+        self._fbfriends = self.fbfriendscache.get_value(
+            key = self.fbid,
+            expiretime = self._fbexpiration,
+            createfunc = self._get_fbfriends
+        )
+        try:
+            return func(self, *args, **kwargs)
+        except:
+            # Try invalidating the cache
+            self.fbfriendscache.remove_value(self.fbid)
+            self._setup_fbfriends_cache()
+            self._fbfriends = self.fbfriendscache.get_value(
+                key = self.fbid,
+                expiretime = self._fbexpiration,
+                createfunc = self._get_fbfriends
+            )
+            return func(self, *args, **kwargs)
+
+    @decorator
+    def fballfriends(func, self, *args, **kwargs):
+        self._setup_fballfriends_cache()
+        self._fballfriends = self.fballfriendscache.get_value(
+            key = self.fbid,
+            expiretime = self._fbexpiration,
+            createfunc = self._get_fballfriends
+        )
+        try:
+            return func(self, *args, **kwargs)
+        except:
+            # Try invalidating the cache
+            self.fballfriendscache.remove_value(self.fbid)
+            self._setup_fballfriends_cache()
+            self._fballfriends = self.fballfriendscache.get_value(
+                key = self.fbid,
+                expiretime = self._fbexpiration,
+                createfunc = self._get_fballfriends
+            )
+            return func(self, *args, **kwargs)
+
     @decorator
     def fbattr (func, self, *args, **kwargs):
-        if not self.fbcache:
-            self._create_cache()
-        if not self.fbcache.has_key(self.fbid):
-            self.fbcache[self.fbid] = self._get_fbinfo()
+        self._setup_fbinfo_cache()
         self.fbinfo = self.fbcache.get_value(
             key = self.fbid,
-            expiretime = 24*60*60, # 24 hours
+            expiretime = self._fbexpiration,
             createfunc = self._get_fbinfo
         )
         try:
@@ -77,35 +143,67 @@ class User(object):
             self.fbcache[self.fbid] = self._get_fbinfo()
             self.fbinfo = self.fbcache.get_value(
                 key = self.fbid,
-                expiretime = 24*60*60*60, # 24 hours
+                expiretime = self._fbexpiration,
                 createfunc = self._get_fbinfo
             )
             return func(self, *args, **kwargs)
             
 
-    def _create_cache(self):
+    def _get_caches(self):
         self.fbcache = cache.get_cache('fbprofile')
+        self.fbfriendscache = cache.get_cache('fbfriends')
+        self.fballfriendscache = cache.get_cache('fballfriends')
+        # Facebook session_key_expires is not set for some reason
+        #self._fbexpiration = facebook.session_key_expires - time.time()
+        self._fbexpiration = 24*60*60 #24 hours
 
+    def _setup_fbinfo_cache(self):
+        if not self.fbcache:
+            self._get_caches()
+        if not self.fbcache.has_key(self.fbid):
+            self.fbcache[self.fbid] = self._get_fbinfo()
+
+    def _setup_fbfriends_cache(self):
+        if not self.fbfriendscache:
+            self._get_caches()
+        if not self.fbfriendscache.has_key(self.fbid):
+            self.fbfriendscache[self.fbid] = self._get_fbfriends()
+
+    def _setup_fballfriends_cache(self):
+        if not self.fballfriendscache:
+            self._get_caches()
+        if not self.fballfriendscache.has_key(self.fbid):
+            self.fballfriendscache[self.fbid] = self._get_fballfriends()
+
+    @fbaccess
     def _get_fbinfo(self):
-        info = None
-        while not info:
-            try:
-                fields = [
-                    'name',
-                    'first_name',
-                    'pic',
-                    'pic_big',
-                    'pic_square',
-                    'music',
-                    'sex',
-                    'has_added_app'
-                ]
-                info = facebook.users.getInfo(self.fbid, fields=fields)[0]
-            except FacebookError, e:
-                log.warn("Could not connect to facebook, retrying: %s", e)
-                sleep(.1)
+        fields = [
+            'name',
+            'first_name',
+            'pic',
+            'pic_big',
+            'pic_square',
+            'music',
+            'sex',
+            'has_added_app'
+        ]
+        info = facebook.users.getInfo(self.fbid, fields=fields)[0]
         return info
 
+    @fbaccess
+    def _get_fbfriends(self):
+        ids = facebook.friends.getAppUsers()
+        if self.present_mode:
+            ids.extend([1909354, 1908861])
+        users = facebook.users.getInfo(ids)
+        return sorted(users, key=itemgetter('name'))
+
+    @fbaccess
+    def _get_fballfriends(self):
+        ids = facebook.friends.get()
+        users = facebook.users.getInfo(ids)
+        return sorted(users, key=itemgetter('name'))
+    
     @fbattr
     def get_name(self):
         return self.fbinfo['name']
@@ -149,15 +247,15 @@ class User(object):
     def are_friends(self, user):
         return user in self.friends
 
+    @fbfriends
     def get_friends(self):
-        if self._friendids == None:
-            self._friendids = facebook.friends.getAppUsers()
-            allfriends = or_()
-            for id in self._friendids:
-                allfriends.append(User.fbid == id)
-            self._friends == Session.query(User).filter(allfriends).all()
-        return self._friends
+        return self._fbfriends
     friends = property(get_friends)
+
+    @fballfriends
+    def get_all_friends(self):
+        return self._fballfriends
+    allfriends = property(get_all_friends)
     
     def get_nowplaying(self):
         return self._nowplaying
@@ -186,6 +284,7 @@ class User(object):
         """
         pass
 
+    @beaker_cache(expire=600, type='memory')
     def get_top_10_artists(self):
         totalcount = Session.query(Artist.id, Artist.name,
             func.sum(SongStat.playcount).label('totalcount')
@@ -196,6 +295,56 @@ class User(object):
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
+
+    @beaker_cache(expire=600, type='memory')
+    def get_feed_entries(self):
+        max_count=20
+        entries = Session.query(BlogEntry)[:max_count]
+        myor = or_()
+        for friend in self.friends:
+            myor.append(User.fbid == friend['uid'])
+
+        entries.extend(Session.query(Spotlight).join(User).filter(and_(
+                myor, Spotlight.active==True))\
+                [:max_count])
+
+        CommentUser = aliased(User)
+        SpotlightUser = aliased(User)
+        commentor = or_()
+        spotlightor = or_()
+        for friend in self.friends:
+            commentor.append(CommentUser.fbid == friend['uid'])
+            spotlightor.append(SpotlightUser.fbid == friend['uid'])
+            
+
+        entries.extend(Session.query(SpotlightComment).\
+                join(CommentUser,
+                    (Spotlight, SpotlightComment.spotlight), 
+                    (SpotlightUser, Spotlight.user)).\
+                filter(and_(
+                    SpotlightComment.uid!=session['userid'],
+                    or_(Spotlight.uid==session['userid'],
+                        and_(commentor, spotlightor)),
+                    Spotlight.active == True))[:max_count])
+
+        def sort_by_timestamp(x, y):
+            if x.timestamp == None:
+                if y.timestamp == None:
+                    return 0
+                return 1
+            elif y.timestamp == None:
+                return -1
+            elif x.timestamp > y.timestamp:
+                return -1
+            elif x.timestamp == y.timestamp:
+                return 0
+            else:
+                return 1
+
+        entries.sort(sort_by_timestamp)
+        return entries[:max_count]
+    feed_entries = property(get_feed_entries)
+        
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields
@@ -274,13 +423,16 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
+        """
         query = Session.query(SongOwner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
             numalbums.c.Artist_numalbums,
             *dbfields['artist'])
-        joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
+        """
+        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['artist'])
+        #joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
         #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
-        query = query.select_from(joined)
-        query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
+        #query = query.select_from(joined)
+        #query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
         query = query.join(Artist.albums, Song, SongOwner)
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
@@ -302,7 +454,6 @@ class User(object):
         qry = self.playlist_query
         qry = qry.filter(Playlist.id == id)
         return qry.first()            
-
 class Owner(object):
     def __init__(self, user=None, file=None):
         self.file = file
@@ -496,7 +647,7 @@ mapper(Song, songs_table, properties = {
     'stats': relation(SongStat, backref='song', lazy=True, cascade='all, delete-orphan'),
     'puids': relation(Puid, backref='song', lazy=True, cascade='all, delete-orphan'),
     'artist': relation(Artist, 
-        lazy = False,
+        lazy = True,
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
     )
@@ -513,7 +664,7 @@ mapper(Album, albums_table, allow_column_override = True,
         order_by = songs_table.c.tracknumber
     ),
     'artist': relation(Artist,
-        lazy = False,
+        lazy = True,
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid
     )

@@ -22,7 +22,7 @@ function make_friend_combo() {
         valueField: 'uid',
         typeAhead: true,
         mode: 'local',
-        shadow: 'false',
+        shadow: false,
         emptyText: 'Select a Friend...'
     });
     return field;

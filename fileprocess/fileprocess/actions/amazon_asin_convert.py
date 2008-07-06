@@ -6,16 +6,19 @@ import logging
 from pylons import config
 from baseaction import BaseAction
 from ecs import *
-from beaker.cache import Cache
 log = logging.getLogger(__name__)
 from time import sleep
-CACHE_EXPIRATION = 60*60*60
+from fileprocess.processingthread import caches
+CACHE_EXPIRATION = 60*60
 
 class AmazonASINConvert(BaseAction):
-    cache = Cache(
-        namespace = 'amazon.mp3_asins',
-        expires = CACHE_EXPIRATION
-    )
+    def __init__(self, *args, **kwargs):
+        super(AmazonASINConvert, self).__init__(*args, **kwargs)
+        from fileprocess.processingthread import caches
+        self.cache = caches.get_cache(
+            'amazon.mp3_asins',
+            expires = CACHE_EXPIRATION
+        )
 
     def process(self, file):
         if not file.has_key(u'asin'):

@@ -84,6 +84,7 @@
 }
 
 .profile-sp-comment {
+    clear: right;
 	margin-top: 5px;
 }
 
@@ -115,6 +116,7 @@
 }
 
 .profile-sp-comment-pic {
+    float: right;
     padding-left: 8px;
 }
 

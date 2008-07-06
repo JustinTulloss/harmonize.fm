@@ -24,6 +24,7 @@ fields = {
         'Album_length',
         'Album_year',
         'Album_smallart',
+        'Album_mp3_asin',
         'Artist_name'
     ],
     'artist': [

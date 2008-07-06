@@ -11,6 +11,7 @@ from pylons.middleware import error_mapper, ErrorDocuments, ErrorHandler, \
 from pylons.wsgiapp import PylonsApp
 
 from masterapp.config.environment import load_environment
+from masterapp.middleware.timer import TimerApp
 
 def make_app(global_conf, full_stack=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -39,7 +40,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
     from facebook.wsgi import create_pylons_facebook_middleware
     app = create_pylons_facebook_middleware(app, app_conf)
-    
+
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, error_template=error_template,
@@ -52,8 +53,13 @@ def make_app(global_conf, full_stack=True, **app_conf):
     # Establish the Registry for this application
     app = RegistryManager(app)
 
+    # Time requests that are for more than static files
+    if app_conf.get('time_requests') == 'true':
+        app = TimerApp(app, app_conf)
+    
     # Static files
     javascripts_app = StaticJavascripts()
     static_app = StaticURLParser(config['pylons.paths']['static_files'])
     app = Cascade([static_app, javascripts_app, app])
+
     return app

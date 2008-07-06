@@ -98,7 +98,10 @@ class AdminController(BaseController):
         except socket.error:
             return "Could not connect to file pipeline"
 
-        msock.send('1') #Wakes up the monitor thread
+        if request.params.get('heap') == 'true':
+            msock.send('2') #Wakes up the monitor thread
+        else:
+            msock.send('1')
         received = None
         msg = ''
         while received != '':

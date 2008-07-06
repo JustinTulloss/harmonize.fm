@@ -70,6 +70,18 @@ function init()
         /*['/profile/', urlm.generate_panel(profile_factory)]*/
     ]);
 	init_feedback();
+    /* Handles login excpetions universally */
+    Ext.Ajax.on('requestexception', function(conn, response, options) {
+        if (response.status == 401){
+            alert(['Your login has expired.\n\n',
+                'You will now be directed to a facebook login page. ',
+                'After you login, you be directed back to harmonize.fm'].join('')
+            );
+            var href = global_config.fblogin_url+
+                '&next='+location.pathname+location.hash;
+            location.href= href;
+        }
+    });
 }
 
 function add_grid_listeners(crumb, e)
