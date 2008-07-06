@@ -1,13 +1,17 @@
 import webbrowser, cgi, thread, urlparse, socket
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import config
+from excepthandler import exception_managed
 
 server_url = 'http://'+config.current['server_addr']+':'+ \
 		str(config.current['server_port'])+'/desktop_login'
 thread_started = False
 
 def listen_now():
-	webbrowser.open('http://harmonize.fm/player')
+	try:
+		webbrowser.open('http://harmonize.fm/player')
+	except Exception:
+		pass
 
 def login(callback):
 	"""A non-blocking function that handles facebook login through a web
@@ -18,7 +22,10 @@ def login(callback):
 		thread.start_new_thread(wait_login, (callback,))
 		thread_started = True
 
-	webbrowser.open(server_url)
+	try:
+		webbrowser.open(server_url)
+	except Exception:
+		pass
 
 def synchronous_login():
 	global session_key, server_url
@@ -26,7 +33,10 @@ def synchronous_login():
 	session_key = None #This needs to be reset for reauthenticating uploader
 
 	server = HTTPServer(('localhost', 26504), LoginServer)
-	webbrowser.open(server_url)
+	try:
+		webbrowser.open(server_url)
+	except Exception:
+		pass
 	while session_key == None:
 		server.handle_request()
 
@@ -38,6 +48,7 @@ def get_session_key():
 	global session_key
 	return session_key
 
+@exception_managed
 def wait_login(callback=None):
 	global session_key
 	server = HTTPServer(('localhost', 26504), LoginServer)

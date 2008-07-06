@@ -14,10 +14,8 @@ class UploadWin(winforms.Form):
 		self.Icon = icon
 		self.MaximizeBox = False
 
-		self.quit = False
-
 		def closing(s, e):
-			if not self.quit:
+			if e.CloseReason == winforms.CloseReason.UserClosing:
 				e.Cancel = True
 				self.Hide()
 			else:
@@ -38,7 +36,6 @@ This program will synchronize your music library with our servers so you can lis
 
 		def nextClicked(sender, args):
 			self.Controls.Remove(intro)
-			#thread.start_new_thread(upload.start_uploader, (self,))
 		
 		nextButton = winforms.Button()
 		nextButton.Location = Point(233, 144)
@@ -91,12 +88,6 @@ This program will synchronize your music library with our servers so you can lis
 		self.loginButton.Text = 'Login'
 		self.Controls.Add(self.loginButton)
 
-		"""
-		def optionsClicked(sender, args):
-			self.AddOwnedForm(self.optionWin)
-			self.optionWin.ShowDialog()
-		"""
-
 		self.optionsButton = winforms.Button()
 		self.optionsButton.Size = Size(54, 23)
 		self.optionsButton.Location = Point(173, 144)
@@ -148,3 +139,23 @@ This program will synchronize your music library with our servers so you can lis
 		if self.WindowState == winforms.FormWindowState.Minimized:
 			self.WindowState = winforms.FormWindowState.Normal
 		self.Activate()
+
+	def fatal_error(self, msg):
+		self.Controls.Clear()
+
+		panel = winforms.Panel()
+		panel.Size = self.Size
+
+		text = winforms.Label()
+		text.Location = Point(13, 13)
+		text.Size = Size(275, 125)
+		text.Text = msg
+		panel.Controls.Add(text)
+
+		self.exitButton = winforms.Button()
+		self.exitButton.Location = Point(233, 144)
+		self.exitButton.Size = Size(54, 23)
+		self.exitButton.Text = 'Exit'
+		panel.Controls.Add(self.exitButton)
+
+		self.Controls.Add(panel)

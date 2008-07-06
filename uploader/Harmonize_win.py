@@ -13,7 +13,8 @@ winforms.Application.EnableVisualStyles()
 
 def Application(upload_mode, upload_dirs, itunes_enabled,
 				listen_clicked=None, login_clicked=None, 
-				exit_clicked=None, options_changed=None):
+				exit_clicked=None, options_changed=None,
+				app_started=None):
 
 	icon = Icon.FromHandle(Bitmap('icon.bmp').GetHicon())
 	mainWin = UploadWin(icon)
@@ -22,7 +23,8 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 
 	def main_thread_invoke(fn):
 		def wrapper(*args, **kws):
-			mainWin.Invoke(winforms.MethodInvoker(lambda: fn(*args, **kws)))
+			if mainWin.IsHandleCreated:
+				mainWin.Invoke(winforms.MethodInvoker(lambda: fn(*args, **kws)))
 		return wrapper
 
 	class Delegate(object):
@@ -31,6 +33,7 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 			self.login_clicked = login_clicked
 			self.exit_clicked = exit_clicked
 			self.options_changed = options_changed
+			self.app_started = app_started
 
 			self.options_dialog_open = False
 
@@ -43,6 +46,7 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 			mainWin.listenButton.Click += create_handler('listen_clicked')
 			mainWin.loginButton.Click += create_handler('login_clicked')
 			mainWin.exitMenuItem.Click += create_handler('exit_clicked')
+			mainWin.Shown += create_handler('app_started')
 
 			def options_clicked(s, e):
 				if self.options_dialog_open:
@@ -58,7 +62,8 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 					else:
 						src = 'folder'
 						
-					options_changed(src, optionWin.upload_dirs)
+					if self.options_changed != None:
+						self.options_changed(src, optionWin.upload_dirs)
 				self.options_dialog_open = False
 
 			options_handler = EventHandler(options_clicked)
@@ -85,8 +90,8 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 			else:
 				mainWin.progress.Style = winforms.ProgressBarStyle.Continuous
 
-			if val != None:
-				mainWin.progress.Value = int(val*100)
+			if value != None:
+				mainWin.progress.Value = int(max(0, min(value*100, 100)))
 
 		@main_thread_invoke
 		def set_msg(self, msg):
@@ -110,8 +115,15 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 
 		@main_thread_invoke
 		def quit(self):
-			mainWin.quit = True
 			winforms.Application.Exit()
+
+		@main_thread_invoke
+		def fatal_error(self, msg):
+			mainWin.fatal_error(msg)
+			def exit_clicked(s, e):
+				if self.exit_clicked != None:
+					self.exit_clicked()
+			mainWin.exitButton.Click += EventHandler(exit_clicked)
 
 		def start(self):
 			winforms.Application.Run(mainWin)

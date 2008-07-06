@@ -19,10 +19,6 @@ def post(connection, url, contents, callback=None):
 
 	interval = 1.0
 
-	if callback:
-		total_len = float(len(contents))
-		callback.set_progress(False, 0.0)
-
 	while contents != '':
 		amount = pinger.get_rate()*1024
 
@@ -39,7 +35,7 @@ def post(connection, url, contents, callback=None):
 			logger.debug('Interval exceeded, ran for %s seconds' % elapsed)
 
 		if callback:
-			callback.set_progress(False, (total_len-len(contents))/total_len)
+			callback(amount)
 	
 	return connection.getresponse()
 

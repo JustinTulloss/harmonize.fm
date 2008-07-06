@@ -1,7 +1,7 @@
 import subprocess, platform
-import re
+import re, os
 import config
-from hplatform import get_genpuid_path
+import os.path as path
 
 if platform.system() not in ('Darwin', 'Linux'):
 	import clr
@@ -25,7 +25,7 @@ if platform.system() not in ('Darwin', 'Linux'):
 else:
 	def gen_posix(filename):
 		prog = subprocess.Popen(
-					[get_genpuid_path(), 'ffa7339e1b6bb1d26593776b4257fce1', 
+					['./genpuid', 'ffa7339e1b6bb1d26593776b4257fce1', 
 							'-noanalysis', filename],
 					stdout=subprocess.PIPE,
 					stderr=subprocess.PIPE)
@@ -36,7 +36,15 @@ else:
 
 def gen(filename):
 	try:
+		subdir = False
+		if path.exists('genpuid') and path.isdir('genpuid'):
+			subdir = True
+			os.chdir('genpuid')
+
 		match = re.search(r'puid: ([0-9a-z-]+)', plat_gen(filename))
+
+		if subdir: os.chdir('..')
+
 		if not match:
 			return None
 		
@@ -44,5 +52,4 @@ def gen(filename):
 	except Exception, e:
 		if config.current['debug']:
 			import pdb; pdb.set_trace()
-		print 'Exception caught in genpuid.py'
 		return None

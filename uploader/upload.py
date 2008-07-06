@@ -1,20 +1,22 @@
 import os, re, hashlib, httplib, sys, time, urllib
 import os.path as path
-from thread import start_new_thread
-import config, rate_limit, fb, db
-from db import is_file_uploaded, is_sha_uploaded, set_file_uploaded
-from hfile import HFile
+import config, rate_limit, fb
+from db import db
 from config import get_conn
-from Queue import Queue
+from Queue import Queue, Empty
 from excepthandler import exception_managed
+from hfile import HFile, HFileException
 
 actionq = Queue()
 actions = set(['login_complete', 'options_changed'])
-def get_action():
-	action = actionq.get()
-	if action not in actions:
-		raise Exception('Unknown action added: %s' % action)
-	return action
+def get_action(timeout=None):
+	try:
+		action = actionq.get(True, timeout)
+		if action not in actions:
+			raise Exception('Unknown action added: %s' % action)
+		return action
+	except Empty:
+		return None
 
 def login_callback(session_key=None):
 	actionq.put('login_complete')
@@ -25,54 +27,6 @@ def options_changed():
 def empty_actions():
 	while not actionq.empty():
 		actionq.get()
-
-class Callback(object):
-	def __init__(self, base_callback):
-		self.base = base_callback
-
-	def __getattr__(self, name):
-		if hasattr(self.base.a, name):
-			def wrapper(*args):
-				fn = getattr(self.base.a, name)
-				self.base.do_action(fn, args)
-			return wrapper
-		else: raise ValueError, name
-
-	def error(self, msg):
-		base = self.base
-		base.add_action(base.a.set_msg, (msg,))
-		base.add_action(base.a.set_progress, (True,))
-		base.complete_actions()
-
-	def start_reauth(self, msg):
-		self.set_msg(msg)
-		self.set_progress(True)
-		self.loginEnabled(True)
-
-	def end_reauth(self, msg):
-		self.set_msg(msg)
-		self.loginEnabled(False)
-
-	def start_auth(self):
-		if db.get_upload_src() == 'itunes':
-			msg = 'Click Login to start uploading your iTunes library'
-		else:
-			msg = 'Click Login to start uploading your music'
-		self.set_msg(msg)
-		self.loginEnabled(True)
-
-	def track_uploaded(self):
-		self.inc_totalUploaded()
-		self.listenEnabled(True)
-
-	def end_auth(self):
-		self.loginEnabled(False)
-
-	def start(self, total_uploaded):
-		self.init()
-		self.set_totalUploaded(total_uploaded)
-		if total_uploaded > 0:
-			self.listenEnabled(True)
 
 class RetryException(Exception):
 	pass
@@ -99,19 +53,48 @@ def check_response(response):
 	return response_body
 
 @exception_managed
-def start_uploader(base_callback):
-	callback = Callback(base_callback)
+def start_uploader(guimgr):
+	listen_enabled = False
 
-	def reauthenticate():
-		callback.start_reauth('You need to re-login to continue\nClick "Save my login" on login page to stay logged in')
-		fb.synchronous_login()
-		callback.end_reauth("Login complete, uploading will resume shortly")
+	while True:
+		guimgr.start_search()
 
+		song_list = db.get_tracks()
+		if song_list == None:
+			guimgr.no_music_found()
+			while get_action() != 'options_changed': pass
+			guimgr.activate()
+			continue
+		elif song_list == []:
+			guimgr.no_new_music()
+			get_action(300)
+			continue
+
+		if not fb.get_session_key():
+			guimgr.start_auth(db.upload_src)
+			action = get_action()
+			if action == 'options_changed':
+				guimgr.activate()
+				continue
+			elif action != 'login_complete':
+				raise Exception('Unknown action received')
+			guimgr.end_auth()
+		
+		upload_files(song_list, guimgr)
+		get_action(30)
+
+
+def upload_files(song_list, guimgr):
 	def retry_fn(fn):
 		def default_action():
 			if config.current['debug']:
 				import pdb; pdb.set_trace()
-			callback.error('Error connecting to server, \nWill retry in a moment')
+			guimgr.conn_error()
+
+		def reauthenticate():
+			guimgr.start_reauth()
+			fb.synchronous_login()
+			guimgr.end_reauth()
 
 		def wrapper(*args, **kws):
 			while True:
@@ -128,11 +111,11 @@ def start_uploader(base_callback):
 					default_action()
 					time.sleep(20)
 		return wrapper
-	
+
 	@retry_fn
 	def start_rate_limit():
-		rate_limit.establish_baseline(config.current['server_addr'],
-										config.current['server_port'])
+		rate_limit.establish_baseline(
+				config.current['server_addr'], config.current['server_port'])
 
 	@retry_fn
 	def is_puid_uploaded(hfile):
@@ -143,111 +126,77 @@ def start_uploader(base_callback):
 		conn.request('POST', url, body, headers)
 		response =  check_response(conn.getresponse())
 		if response == 'done':
-			set_file_uploaded(hfile.name, hfile.puid, hfile.sha)
+			hfile.uploaded = True
 			return True
 		else: return False
 
 	@retry_fn
 	def upload_file(hfile):
-		callback.set_msg('Uploading file:\n%s' % hfile.ppname)
-		callback.set_progress(False, 0.0)
+		contents = hfile.contents
+
+		guimgr.start_upload(hfile.ppname, len(contents))
 
 		url = get_url('/upload/file/' + hfile.sha)
 		conn = get_conn()
 		if hfile.puid:
 			url += '&puid=' + hfile.puid
 		if config.current['rate_limit']:
-			response = rate_limit.post(conn, url, hfile.contents, callback)
+			response = rate_limit.post(conn, url, contents, 
+										guimgr.upload_progress)
 		else:
-			conn.request('POST', url, hfile.contents, 
+			conn.request('POST', url, contents, 
 							{'Content-Type':'audio/x-mpeg-3'})
 			response = conn.getresponse()
 		check_response(response)
-		set_file_uploaded(hfile.name, hfile.puid, hfile.sha)
+		hfile.uploaded = True
 
-	listen_enabled = False
-	callback.start(db.total_uploaded_tracks())
+	guimgr.start_analysis(float(len(song_list)))
 
-	while True:
-		callback.loginEnabled(False)
-		callback.optionsEnabled(True)
-		callback.set_msg('Searching for music...')
+	upload_list = [] #a list of hfiles
+	for song in song_list:
+		hfile = HFile(song)
+		try:
+			hfile.contents
 
-		song_list = db.get_tracks()
-		if song_list == None:
-			callback.set_msg('No music found!\nClick Options to add some')
-			while get_action() != 'options_changed': pass
-			callback.activate()
-			continue
-		elif song_list == []:
-			callback.set_msg('No new music to upload...')
-			time.sleep(300)
-			#time.sleep(10)
-			continue
-
-		if not fb.get_session_key():
-			callback.start_auth()
-			action = get_action()
-			if action == 'options_changed':
-				callback.activate()
-				continue
-			elif action != 'login_complete':
-				raise Exception('Unknown action received')
-			callback.end_auth()
-		
-		#Start uploading process
-		total_tracks = float(len(song_list))
-		tracks_analyzed = 0
-		callback.set_msg('Analyzing library...')
-		callback.set_progress(False, 0.0)
-		callback.optionsEnabled(False)
-
-		upload_list = [] #a list of hfiles
-		for song in song_list:
-			hfile = HFile(song)
-			try:
-				if not hfile.contents: 
-					callback.inc_skipped()
-					db.add_skipped(hfile.name)
-					continue
-			except IOError:
-				callback.inc_skipped()
-				db.add_skipped(hfile.name)
-				continue
-
-			if is_file_uploaded(hfile.name) or is_sha_uploaded(hfile.sha):
+			if hfile.uploaded:
 				continue
 			elif hfile.puid:
 				if not is_puid_uploaded(hfile):
 					upload_list.append(hfile)
-					callback.inc_remaining()
+					guimgr.file_queued()
 				else:
-					callback.track_uploaded()
+					guimgr.file_auto_uploaded()
 			else:
 				upload_list.append(hfile)
-				callback.inc_remaining()
+				guimgr.file_queued()
 
-			tracks_analyzed += 1
-			callback.set_progress(False, tracks_analyzed/total_tracks)
+			guimgr.file_analyzed()
+		except HFileException, e:
+			guimgr.file_skipped()
+			db.add_skipped(hfile.name)
+			continue
 
-		songs_left = len(upload_list)
+	songs_left = len(upload_list)
 
-		start_rate_limit()
+	start_rate_limit()
 
-		for hfile in upload_list:
+	for hfile in upload_list:
+		try:
 			upload_file(hfile)
 			songs_left -= 1
 
-			callback.dec_remaining()
-			callback.track_uploaded()
+			guimgr.file_uploaded()
+		except HFileException, e:
+			guimgr.file_skipped()
+			db.add_skipped(hfile.name)
+			continue
 
-			'''
-			if songs_left % 15 == 0:
-				retry_fn(reset_rate_limit, callback)
-			'''
-		
-		callback.set_msg('Upload complete!')
-		time.sleep(30)
+		'''
+		if songs_left % 15 == 0:
+			retry_fn(reset_rate_limit, callback)
+		'''
+	
+	guimgr.upload_complete()
 
 def get_url(base_url):
 	if '?' not in base_url:
