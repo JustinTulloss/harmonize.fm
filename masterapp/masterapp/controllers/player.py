@@ -62,11 +62,11 @@ class PlayerController(BaseController):
         if not ensure_fb_session():
             redirect_to("/request/invitation")
 
-    def _get_feed_entries(self, uid, max_count=20):
+    def _get_feed_entries(self, user, max_count=20):
         entries = Session.query(BlogEntry)[:max_count]
         myor = or_()
-        for friend in session['fbfriends']:
-            myor.append(User.fbid == friend)
+        for friend in user.friends:
+            myor.append(User.fbid == friend['uid'])
 
         entries.extend(Session.query(Spotlight).join(User).filter(and_(
                 myor, Spotlight.active==True))\
@@ -76,9 +76,9 @@ class PlayerController(BaseController):
         SpotlightUser = aliased(User)
         commentor = or_()
         spotlightor = or_()
-        for friend in session['fbfriends']:
-            commentor.append(CommentUser.fbid == friend)
-            spotlightor.append(SpotlightUser.fbid == friend)
+        for friend in user.friends:
+            commentor.append(CommentUser.fbid == friend['uid'])
+            spotlightor.append(SpotlightUser.fbid == friend['uid'])
             
 
         entries.extend(Session.query(SpotlightComment).\
@@ -264,9 +264,10 @@ class PlayerController(BaseController):
         return render('/blog.mako')
 
     def home(self):
-        c.entries = self._get_feed_entries(session['userid'])
+        user = Session.query(User).get(session['userid'])
+        c.entries = self._get_feed_entries(user)
         c.main = True
-        c.user = Session.query(User).get(session['userid'])
+        c.user = user
         c.num_songs = c.user.song_count
 
         c.fbapp_href = "http://www.facebook.com/apps/application.php?id=%s" % \
