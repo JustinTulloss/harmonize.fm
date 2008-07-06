@@ -11,6 +11,7 @@ from pylons.middleware import error_mapper, ErrorDocuments, ErrorHandler, \
 from pylons.wsgiapp import PylonsApp
 
 from masterapp.config.environment import load_environment
+from masterapp.middleware.timer import TimerApp
 
 def make_app(global_conf, full_stack=True, **app_conf):
     """Create a Pylons WSGI application and return it
@@ -56,4 +57,6 @@ def make_app(global_conf, full_stack=True, **app_conf):
     javascripts_app = StaticJavascripts()
     static_app = StaticURLParser(config['pylons.paths']['static_files'])
     app = Cascade([static_app, javascripts_app, app])
+    if app_conf.get('time_requests') == 'true':
+        app = TimerApp(app, app_conf)
     return app
