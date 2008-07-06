@@ -3,16 +3,15 @@ from baseaction import BaseAction
 import ecs
 from time import sleep
 from fileprocess.configuration import config
-
-from beaker.cache import Cache
+from fileprocess.processingthread import caches
 
 log = logging.getLogger(__name__)
 
 CACHE_EXPIRATION = 60*60
 
 class AmazonCovers(BaseAction):
-    covercache = Cache(
-        namespace = 'amazon.covers',
+    covercache = caches.get_cache(
+        'amazon.covers',
         expires = CACHE_EXPIRATION
     )
 

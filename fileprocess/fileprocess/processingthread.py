@@ -8,7 +8,10 @@ from Queue import Queue
 from configuration import config
 from beaker.cache import CacheManager
 
-caches = CacheManager(type='ext:database', url=config['sqlalchemy.default.url'])
+caches = CacheManager(
+    type='ext:database', 
+    data_dir=config['cache_dir'],
+    url=config['sqlalchemy.default.url'])
 fp = None
 def set_fp(newfp):
     global fp

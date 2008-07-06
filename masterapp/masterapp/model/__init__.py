@@ -591,7 +591,7 @@ mapper(Song, songs_table, properties = {
     'stats': relation(SongStat, backref='song', lazy=True, cascade='all, delete-orphan'),
     'puids': relation(Puid, backref='song', lazy=True, cascade='all, delete-orphan'),
     'artist': relation(Artist, 
-        lazy = False,
+        lazy = True,
         foreign_keys = [songs_table.c.artistid],
         primaryjoin = artists_table.c.id == songs_table.c.artistid,
     )
@@ -608,7 +608,7 @@ mapper(Album, albums_table, allow_column_override = True,
         order_by = songs_table.c.tracknumber
     ),
     'artist': relation(Artist,
-        lazy = False,
+        lazy = True,
         foreign_keys = [albums_table.c.artistid],
         primaryjoin = artists_table.c.id == albums_table.c.artistid
     )

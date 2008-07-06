@@ -138,7 +138,7 @@ class BrainzTagger(BaseAction):
         file[u'title'] = track.title
         file[u'artist'] = artist.name
         if not file.get('album'):
-            file[u'album'] = album.title
+            file['album'] = album.title
         file[u'duration'] = track.duration #in milliseconds
         year = get_year(album)
         if year:

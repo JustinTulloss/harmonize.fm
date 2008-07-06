@@ -90,6 +90,8 @@ class DBRecorder(DBChecker):
             file['na'] = na.FAILURE
             raise
         finally:
+            log.debug('Clearing and closing Session')
+            self.model.Session.clear()
             self.model.Session.close()
 
         return file
@@ -132,6 +134,8 @@ class DBRecorder(DBChecker):
                 albumartist = qry.first()
 
         if artist:
+            if not file.get('album'):
+                file['album'] = 'Unknown Album'
             qry = self.model.Session.query(self.model.Album).\
                 join(self.model.Album.artist).\
                 filter(self.model.Album.title == file['album']).\

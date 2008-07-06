@@ -15,12 +15,18 @@
     </table>
 
     <h2> Heap Details </h2>
-    <table>
-    <tr><th>Class</th><th>Size in bytes</th></tr>
-    % for klass, size in c.status['heap']:
-        <tr><td>${klass}</td><td>${size}</td></tr>
-    % endfor
-    </table>
+    % if c.status['heap'] == {}:
+        <div><a href="/admin/monitor_pipeline?heap=true">
+            View the heap
+        </a></div>
+    % else:
+        <table>
+        <tr><th>Class</th><th>Size in bytes</th></tr>
+        % for klass, size in c.status['heap']:
+            <tr><td>${klass}</td><td>${size}</td></tr>
+        % endfor
+        </table>
+    % endif
 
     <h2> Details </h2>
     % for action, queue, size in c.status['handlers']:
