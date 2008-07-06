@@ -14,6 +14,7 @@ CACHE_EXPIRATION = 60*60
 class AmazonASINConvert(BaseAction):
     def __init__(self, *args, **kwargs):
         super(AmazonASINConvert, self).__init__(*args, **kwargs)
+        from fileprocess.processingthread import caches
         self.cache = caches.get_cache(
             'amazon.mp3_asins',
             expires = CACHE_EXPIRATION
