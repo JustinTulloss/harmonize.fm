@@ -83,41 +83,41 @@ def monitor(pipeline):
 
     while True:
         try:
+
             csock, caddr = msock.accept()
             command = csock.recv(1)
+            # Put this in a function so I don't lose memory here
+            def get_monitor_stats():
+                heap = {}
+                if int(command) & HEAP_DETAILS:
+                    objs = scanner.Objects()
+                    classes = annotate.simplegroupby(objs, classes=True)
+                    for key, c in classes.items():
+                        if type(c.obj) == type:
+                            heap[c.obj.__module__+'.'+c.obj.__name__] = c.size
+                        else:
+                            heap[c.show()] = c.size
 
-            heap = {}
-            if int(command) & HEAP_DETAILS:
-                objs = scanner.Objects()
-                classes = annotate.simplegroupby(objs, classes=True)
-                for key, c in classes.items():
-                    if type(c.obj) == type:
-                        heap[c.obj.__module__+'.'+c.obj.__name__] = c.size
-                    else:
-                        heap[c.show()] = c.size
-
-                del objs
-                del classes
-
-                heap = sorted(heap.items(), key=itemgetter(1), reverse=True)
-                
-            status = {
-                'handlers': [], 
-                'gc': gc.isenabled(),
-                'heap': heap
-            }
-            for handler in pipeline.handlers:
-                #size = classes[id(handler)].size
-                waiting = list(handler.queue.queue)
-                tuple = (handler.__class__.__name__, waiting, 0)
-                status['handlers'].append(tuple)
+                    heap = sorted(heap.items(), key=itemgetter(1), reverse=True)
                     
-            
-            csock.sendall(pickle.dumps(status))
+                status = {
+                    'handlers': [], 
+                    'gc': gc.isenabled(),
+                    'heap': heap
+                }
+                for handler in pipeline.handlers:
+                    #size = classes[id(handler)].size
+                    waiting = list(handler.queue.queue)
+                    tuple = (handler.__class__.__name__, waiting, 0)
+                    status['handlers'].append(tuple)
+
+                return status
+            csock.sendall(pickle.dumps(get_monitor_stats()))
             csock.close()
-            del heap
         except Exception, e:
             log.exception("An exception occurred in the monitor")
 
+                    
+            
 if __name__ == '__main__':
     main()
