@@ -6,6 +6,7 @@ kwargs = {
     'name':'libs.py',
     'version':"0.0.1",
     'description':'Libraries to support harmonize.fm',
+    'zip_safe': False,
     #author:'',
     #author_email:'',
     #url:'',
