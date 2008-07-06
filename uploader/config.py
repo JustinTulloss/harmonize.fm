@@ -15,7 +15,7 @@ test_server = dict(server_addr='harmonize.fm', server_port=3425, debug=True,
 production = dict(server_addr='harmonize.fm', server_port=80, debug=False,
 				rate_limit=True)
 
-current = staging
+current = production
 
 def get_conn():
 	return HTTPConnection(current['server_addr'], current['server_port'])

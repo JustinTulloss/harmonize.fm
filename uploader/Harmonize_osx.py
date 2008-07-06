@@ -183,8 +183,3 @@ class RubiconController(NibClassBuilder.AutoBaseClass):
 			NSApp().runModalForWindow_(self.optionsWindow)
 			self.modal = False
 			self.statusMenuItem.setEnabled_(True)
-
-class QuitController(NibClassBuilder.AutoBaseClass):
-	def performKeyEquivalent_(self, event):
-		print 'Perform key equivalent activated'
-		return False

@@ -10,7 +10,7 @@ devel: $(FILES)
 
 release: $(FILES)
 	python setup.py py2app
-	./mkdmg dist Harmonize
+	./mkdmg dist Harmonizer
 	mv dist.dmg Harmonizer.dmg
 
 publish: release
