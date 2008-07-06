@@ -53,7 +53,7 @@ class DBChecker(BaseAction):
             log.warn("Database error occurred, bailing on %s", file)
             raise
         finally:
-            self.model.Session.remove()
+            self.model.Session.close()
 
     def _success(self, file):
         self.model.Session.commit()

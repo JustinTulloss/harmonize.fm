@@ -90,7 +90,7 @@ class DBRecorder(DBChecker):
             file['na'] = na.FAILURE
             raise
         finally:
-            self.model.Session.remove()
+            self.model.Session.close()
 
         return file
 
