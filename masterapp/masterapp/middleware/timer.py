@@ -9,7 +9,8 @@ class TimerApp:
         start = time.time()
         def measure_time(status, response_headers, exc_info=None):
             response = start_response(status, response_headers, exc_info)
-            log.info('Request took %f milliseconds', (time.time()-start)*1000)
+            log.info('Request for %s took %f milliseconds', 
+                environ['PATH_INFO'], (time.time()-start)*1000)
             return response
 
         return self.application(environ, measure_time)
