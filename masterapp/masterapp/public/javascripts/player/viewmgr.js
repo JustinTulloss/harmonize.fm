@@ -201,8 +201,8 @@ function ViewManager(crumb, objects)
 		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
 		'<input id="playlist-name" maxlength="100" class="dlg-focus" />'+
 		'<br/>playlist name<br/><br/>' +
-		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
+		'<a class="a-button" href="#/action/playlist/create">create</a>' +
 		'</td></tr></table></center>';
 	Ext.get('create-playlist').on('click', function(e, el) {
 		e.preventDefault();

@@ -16,7 +16,6 @@ player_files = IncludeFiles(
         'tree',
         'dd',
         'borders',
-        'panel',
         'toolbar',
         'box',
         'slider'
@@ -24,6 +23,7 @@ player_files = IncludeFiles(
     templated_stylesheets = [
         'window.css.mako',
         'form.css.mako',
+        'panel.mako.css',
         'button.css.mako',
         'combo.css.mako',
         'menu.mako.css',

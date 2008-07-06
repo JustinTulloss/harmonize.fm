@@ -93,53 +93,6 @@ function Browser()
         this.fireEvent('chgstatus', 'Loading...');
     }
     
-    var friend_music_menu_link = null;
-    var friend_music_menu = null;
-
-    function browse_friends_music(friend, target) {
-        if (friend == null) return;
-        
-        friend_music_menu = new Ext.menu.Menu({
-            width: target.offsetWidth,
-            defaultAlign: 'tr-br'
-        });
-        
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'artists',
-            href: '#/bc/friend=' + friend + '/artist',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'albums',
-            href: '#/bc/friend=' + friend + '/album',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'songs',
-            href: '#/bc/friend=' + friend + '/song',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'    
-        }));
-        friend_music_menu.add(new Ext.menu.Item({
-            text: 'playlists',
-            href: '#/bc/friend=' + friend + '/playlist',
-            itemCls: 'music-menu-item',
-            overCls: 'music-menu-item-over',
-            activeClass: 'music-menu-item-active',
-            iconCls: 'no_icon'    
-        }));
-        friend_music_menu.show(target);
-    }
-
-    urlm.register_action('browse_friend', browse_friends_music);
     
 }
 Ext.extend(Browser, Ext.util.Observable);
@@ -250,7 +203,7 @@ function AlbumGrid(config)
     function search(text)
     {   
         if (text == "")
-            this.getStore.clearFilter();
+            this.getStore().clearFilter();
         else
             this.getStore().filter('Album_title', text, true, false);
         return true;

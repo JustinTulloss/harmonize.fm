@@ -20,7 +20,7 @@ function Player() {
     // this.some player variables to save
     var position;
     var state = 0; //stopped, paused, or playing (0, 1, 2)
-    var volume = 80;
+    var volume = global_config.volume ? global_config.volume : 80;
     var playingsong = null;
 	var bufferedsong;
 	var buffer_onload; //Should be a fn to call when a song finishes 	loading
@@ -124,7 +124,7 @@ function Player() {
     this.init_playcontrols();
 
     my.playsong = function(song)
-    {
+    {   
 		if (playingsong) {
 			soundManager.destroySound(playingsong);
 			playingsong = null;
@@ -138,8 +138,17 @@ function Player() {
             id: song.get('Song_id')})
             
 		set_pause(true);
+        // now update the nowplaying field in the database        
+        Ext.Ajax.request({
+            url: '/player/set_now_playing',
+            params: {id:song.get('Song_id')},
+            success: function() {return;},
+            failure: function() {
+                show_status_msg('There was a problem setting your current song statistic.');
+            }
+        });
 
-		if (bufferedsong && bufferedsong === song.get('Song_id')) {
+		if (bufferedsong && bufferedsong == song.get('Song_id')) {
 			if (!buffer_loaded) {
 				clear_buffer();
 			}
@@ -163,7 +172,8 @@ function Player() {
     }
 
     function loadsongurl(response, options) {
-        if (playingsong != options.songid)
+        //if this is the next song being buffered, return
+        if (playingsong != options.songid) 
 			return;
 
 		createSound(response.responseText, playingsong);
@@ -301,7 +311,8 @@ function Player() {
                 },
                 success: function(response, options) {
                     if (response.responseText == "0") {
-                        //do nothing, we don't have an ASIN for this album
+                        //we have no asin for this album, make sure the link is not there
+                        Ext.get('amazon_link').update('');
 
                     } else {
                         Ext.get('amazon_link').update(amazon_link.apply({
@@ -309,7 +320,8 @@ function Player() {
                             album: song_info.album,
                             artist: song_info.artist
                         }));
-                        Ext.get('amazon_link').frame();
+                        //this turned out to be annoying, maybe change later
+                        //Ext.get('amazon_link').frame();
                     }
                 },
                 failure: function(response, options) {
@@ -397,12 +409,25 @@ function Player() {
 		value: volume
 	});
 
+    var lastsaved = 0;
+    function save_volume(){
+        Ext.Ajax.request({
+            url:'player/set_volume/'+volume,
+            disableCaching: false
+        });
+    }
+
 	function onVolumeChange(slider, value) {
 		if (Math.floor(value) != volume) {
 			volume = Math.floor(value);
 			if (playingsong)
 				soundManager.getSoundById(playingsong).setVolume(volume);
 		}
+        var now = new Date().getTime();
+        if (lastsaved+2000 < now) {
+            save_volume.defer(2000);
+            lastsaved = now;
+        }
 	}
 
 	volume_control.on('change', onVolumeChange);

@@ -5,8 +5,10 @@ var spot_template = new Ext.Template(
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
 			'<textarea class="spot-dlg-value" id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_add">add</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_add">add</button>',
+            '</center></td></tr>',
 		'</table></form>');
 		
 var edit_spot_template = new Ext.Template(
@@ -16,8 +18,10 @@ var edit_spot_template = new Ext.Template(
 			'<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
 			'<textarea class="spot-dlg-value" id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_change">change</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_change">change</button>',
+            '</center></td></tr>',
 		'</table></form>');
 		
 var delete_spot_template = new Ext.Template(
@@ -28,8 +32,10 @@ var delete_spot_template = new Ext.Template(
 			'<div class="spot-dlg-value">{current_comment}</div></tr></td>',
 			'<tr><td>Are you sure?</td></tr>',
 			'<tr><td>&nbsp;</td></tr>',
-			'<tr><td><button id="spot_delete">delete</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_delete">delete</button>',
+            '</center></td></tr>',
 		'</table></form>');
 		
 var playlist_spot_template = new Ext.Template(
@@ -38,8 +44,10 @@ var playlist_spot_template = new Ext.Template(
 			'<center><table id="spot_controls"><tr><td>',
 			'<textarea class="spot-dlg-value" id="spot_textarea"></textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_add">add</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_add">add</button>',
+            '</center></td></tr>',
 		'</table></form>');
 		
 var edit_playlist_spot_template = new Ext.Template(
@@ -49,8 +57,10 @@ var edit_playlist_spot_template = new Ext.Template(
 			'<center><table id="spot_controls">',
 			'<textarea class="spot-dlg-value" id="spot_textarea">{current_comment}</textarea><div id="spot_comment">comment</div><div id="spot-error" class="dialog-warning"></div><br /></tr></td>',
 			'<tr><td></td></tr>',
-			'<tr><td><button id="spot_change">change</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_change">change</button>',
+            '</center></td></tr>',
 		'</table></form>');	
 		
 		
@@ -62,8 +72,10 @@ var delete_playlist_spot_template = new Ext.Template(
 			'<div class="spot-dlg-value">{current_comment}</div></tr></td>',
 			'<tr><td>Are you sure?</td></tr>',
 			'<tr><td>&nbsp;</td></tr>',
-			'<tr><td><button id="spot_delete">delete</button>',
-			'<button id="spot_cancel">cancel</button></center></td></tr>',
+			'<tr><td>',
+			'<button id="spot_cancel">cancel</button>',
+            '<button id="spot_delete">delete</button>',
+            '</center></td></tr>',
 		'</table></form>');
 			
 

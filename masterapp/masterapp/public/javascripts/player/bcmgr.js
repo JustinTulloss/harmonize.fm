@@ -2,10 +2,6 @@
  *
  * This is for managing where we are in the world of musical views.
  *
- * TODO: Clean this up a bit. Right now this is very closely tied to the
- * HTML breadcrumb itself while tangling in storage for what parameters are
- * currently in use
- *
  * 03/03/2008 - Starting a cleanup effort to:
  *              1. Pull apart application look and behavior
  *              2. Put more functionality in here.
@@ -21,21 +17,22 @@
  */
 function BcEntry(type, value, qrytype, qryvalue)
 {
-    this.type = type;
-    this.value = value;
-    this.el = null;
-    this.id = null;
-    this.view = null;
+    var my = this;
+    my.type = type;
+    my.value = value;
+    my.el = null;
+    my.id = null;
+    my.view = null;
 
     if (qrytype)
-        this.qrytype = qrytype
+        my.qrytype = qrytype
     else
-        this.qrytype = type;
+        my.qrytype = type;
 
     if (qryvalue)
-        this.qryvalue = qryvalue
+        my.qryvalue = qryvalue
     else
-        this.qryvalue = value;
+        my.qryvalue = value;
 }
 
 /* BreadCrumb object
@@ -75,14 +72,12 @@ function BreadCrumb()
 
 
     /*public functions*/
-    this.current_view = current_view;
-    function current_view()
+    my.current_view = function()
     {
         return bclist[current];
     }
 
-    this.descend = descend;
-    function descend(grid, rowindex, e)
+    my.descend = function(grid, rowindex, e)
     {
         var row = grid.store.getAt(rowindex);
         var clickedtype = row.get('type');
@@ -98,16 +93,16 @@ function BreadCrumb()
         clickedinfo.next(row, this);
     }
 
-    this.addbreadcrumb = addbreadcrumb;
-    function addbreadcrumb(crumb)
+    my.add_breadcrumb = function(crumb, url)
     {
         current++;
 
         /* removes everything after new current and adds on newcrumb */
         bclist.splice(current, bclist.length-current, crumb);
-        this.update_div();
+        update_div();
         var params = create_params(bclist[current]);
-        var url = build_bc_url(bclist.length-1);
+        if (!url)
+            url = build_bc_url(bclist.length-1);
         urlm.goto_url(url);
         bclist[current].url = url;
     }
@@ -139,34 +134,42 @@ function BreadCrumb()
             if (param.length == 2) {
                 params[param[0]] = param[1];
             }
+            function create_bc()
+            {
+                bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
+                if (typeinfo[bclist[i].type].bcurl)
+                    bclist[i].url = String.format(typeinfo[bclist[i].type].bcurl, param[1]);
+                else
+                    bclist[i].url = build_bc_url(i);
+            }
+
             if (bclist[i]) {
                 if (bclist[i].type != param[0]) {
                     /* this is not a currently loaded bc */
-                    bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                    bclist[i].url = build_bc_url(i);
+                    create_bc();
                     splice = true;
                 }
             }
-            else
+            else {
                 bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                bclist[i].url = build_bc_url(i);
+                create_bc();
+            }
             current = i;
         }
         if (splice)
             bclist.splice(current+1, bclist.length-current+1);
-        my.update_div();
+        update_div();
         my.fireEvent('bcupdate', bclist[current], params);
         if (!bclist[current].panel)
             my.fireEvent('newfilter', bclist[current], params);
     }
 
-    this.update_current_div = function(crumb, oldcrumb) {
-        this.setup_current_div(crumb);
+    my.update_current_div = function(crumb, oldcrumb) {
+        setup_current_div(crumb);
         if (oldcrumb)
-            this.setup_inactive_div(oldcrumb);
+            setup_inactive_div(oldcrumb);
     }
 
-    this.setup_current_div = setup_current_div;
     function setup_current_div(crumb)
     {
         /* Make new current not a link */
@@ -174,11 +177,9 @@ function BreadCrumb()
             value = typeinfo[crumb.type].display;
         else
             value = crumb.value;
-        crumb.el.un('click', jump_to)
         t_active_crumb.overwrite(crumb.el, {id:crumb.name, name:value});
     }
 
-    this.setup_inactive_div = setup_inactive_div;
     function setup_inactive_div(crumb)
     {
         /* Make inactive div a link */
@@ -195,7 +196,6 @@ function BreadCrumb()
         }
     }
 
-    my.update_div = update_div;
     function update_div()
     {
         /* For now, clear and rebuild everytime. It should be cheaper than
@@ -229,9 +229,9 @@ function BreadCrumb()
             if (i != bclist.length-1)
                 separator.append(div);
         }
-    }
+    };
 
-    my.update_div();
+    update_div();
 
     function create_params(current_crumb)
     {
@@ -246,9 +246,13 @@ function BreadCrumb()
     my.reload = function() {
         my.fireEvent('chgstatus', 'Loading...');
         if (bclist[current])
+            bclist[current].ds.lastOptions.params.limit = null;
+            bclist[current].ds.lastOptions.params.start = null;
             bclist[current].ds.reload({
                 add: false,
-                callback: function(){my.fireEvent('chgstatus', null);}
+                callback: function(r, options, success){
+                    my.fireEvent('chgstatus', null);
+                }
             });
     }
 }

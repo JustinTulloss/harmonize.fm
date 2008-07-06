@@ -9,7 +9,7 @@ metadata = MetaData(migrate_engine)
 users = Table('users', metadata,
 	Column('id', Integer, primary_key=True))
 
-users = Table('albums', metadata,
+albums = Table('albums', metadata,
 	Column('id', Integer, primary_key=True))
 
 spotlight = Table('spotlights', metadata,

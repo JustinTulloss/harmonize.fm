@@ -95,8 +95,8 @@ function PlaylistMgr() {
 		'<h1>Delete Playlist</h1>',
 		'<h2>{name}</h2>',
 		'<br />',
-		'<a href="#/action/playlist/delete/{id}" class="a-button">delete</a>',
-		'<a href="#/action/dlg/hide" class="a-button">cancel</a>');
+		'<a href="#/action/dlg/hide" class="a-button">cancel</a>',
+		'<a href="#/action/playlist/delete/{id}" class="a-button">delete</a>');
 									
 	my.delete_playlist = function(record) {
 		show_dialog(delete_dlg.apply({

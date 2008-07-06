@@ -16,7 +16,7 @@ var every_action =  {
         action: function(record) {playlistmgr.enqueue([record]);}
     },
     friendrec: { 
-        view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/enqueue.png" /></a>',
+        view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/recommend.png" /></a>',
         action: friend_recommend,
     },
     spotlight: {
@@ -86,9 +86,12 @@ var every_action =  {
                         }
                     });
                 });
-                show_dialog('<h2> Are you sure you want to remove '+title+'?</h2>'+
-                    '<a href="#/action/really_remove" class="a-button">Remove</a>'+
-                    '<a href="#/action/cancel_remove" class="a-button">Cancel</a>');
+                show_dialog(['<h1> Remove from Library</h1><h2>',title,'</h2>',
+                    '<div class="h-dlg-buttons">',
+                        '<a href="#/action/cancel_remove" class="a-button">cancel</a>',
+                        '<a href="#/action/really_remove" class="a-button">remove</a>',
+                    '</div>'].join('')
+                );
             }
         }
     }
@@ -287,7 +290,7 @@ var BrowserColumns = {
         css:'text-align: center;',
         renderer: render.actionColumn,
         fixed: true,
-        width: 80,
+        width: 100,
         sortable: false
     },
     'expander': new Ext.grid.RowExpander()
