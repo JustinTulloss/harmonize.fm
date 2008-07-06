@@ -79,9 +79,6 @@ def monitor(pipeline):
 
     msock.listen(2)
 
-    baseline_objs = scanner.Objects()
-    baseline_classes = annotate.simplegroupby(baseline_objs, classes=True)
-    formatting.printsizes(baseline_classes, count=20)
     log.info("Monitor thread started")
 
     while True:
@@ -93,8 +90,7 @@ def monitor(pipeline):
             if int(command) & HEAP_DETAILS:
                 objs = scanner.Objects()
                 classes = annotate.simplegroupby(objs, classes=True)
-                diff = operations.diff(baseline_classes, classes)
-                for key, c in diff.items():
+                for key, c in classes.items():
                     if type(c.obj) == type:
                         heap[c.obj.__module__+'.'+c.obj.__name__] = c.size
                     else:
@@ -102,7 +98,6 @@ def monitor(pipeline):
 
                 del objs
                 del classes
-                del diff
 
                 heap = sorted(heap.items(), key=itemgetter(1), reverse=True)
                 
