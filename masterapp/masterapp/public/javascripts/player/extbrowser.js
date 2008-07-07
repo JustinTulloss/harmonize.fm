@@ -63,8 +63,7 @@ function Browser()
         params.start = 0;
         params.limit = bufferSize;
 
-        var lazy_load = 
-        function(r, options, success){
+        var lazy_load = function(r, options, success){
             if (r.length < (params.limit - params.start)) {
                 records_remaining = false;
                 viewmgr.search_field.enableKeyEvents = true;
@@ -216,7 +215,10 @@ function AlbumGrid(config)
             url: 'player/album_details',
             callback: function(){ this.fireEvent('chgstatus', null) },
             scope: this,
-            params: {album:record.get('Album_id')},
+            params: {
+                album:record.get('Album_id'), 
+                friend:record.get('Friend_id')
+            },
             add: false
         });
         this.fireEvent('chgstatus', 'Loading...');

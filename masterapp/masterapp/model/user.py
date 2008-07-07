@@ -2,7 +2,6 @@
 # 
 # Putting user in its own file since it's huge
 
-from pylons.decorators.cache import beaker_cache
 from pylons import cache, request, session
 from decorator import decorator
 from sqlalchemy.ext.declarative import declarative_base
@@ -20,6 +19,7 @@ from . import (
     Album,
     Song,
     SongOwner,
+    RemovedOwner,
     Playlist,
     Spotlight,
     SpotlightComment,
@@ -64,6 +64,21 @@ class User(Base):
     fbfriendscache = None
     fballfriendscache = None
     present_mode = False
+
+    def personal_cache(type=None, expiretime=None):
+        def wrapper(func, self, *args, **kwargs):
+            c = cache.get_cache('%s.%s' % 
+                (func.__module__, func.__name__))
+            funcargs = {
+                'key': self.id,
+                'createfunc': lambda: func(self, *args, **kwargs)
+            }
+            if type:
+                funcargs['type'] = type
+            if expiretime:
+                funcargs['expiretime'] = expiretime
+            return c.get_value(**funcargs)
+        return decorator(wrapper)
 
     @decorator
     def fbaccess(func, self, *args, **kwargs):
@@ -272,7 +287,7 @@ class User(Base):
         return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
     url = property(get_url)
 
-    @beaker_cache(expire=600, type='memory')
+    @personal_cache(expiretime=600, type='memory')
     def get_top_10_artists(self):
         totalcount = Session.query(Artist.id, Artist.name,
             func.sum(SongStat.playcount).label('totalcount')
@@ -284,7 +299,7 @@ class User(Base):
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
 
-    @beaker_cache(expire=600, type='memory')
+    @personal_cache(expiretime=600, type='memory')
     def get_feed_entries(self):
         max_count=20
         entries = Session.query(BlogEntry)[:max_count]
@@ -454,6 +469,37 @@ class User(Base):
         Session.add_all([owner, artistc, albumc])
         Session.commit()
         return owner
+
+    def remove_song(self, songrow):
+        """
+        Removes a song from the users's collection and updates the counts.
+        """
+        # the passed song is a RowTuple, so we convert it so a Song object
+        song =  Session.query(Song).get(songrow.Song_id)
+        movedowner = RemovedOwner(
+            song = song,
+            user = self
+        )
+        Session.add(movedowner)
+
+        owner = Session.query(SongOwner).\
+            filter(SongOwner.song == song).\
+            filter(SongOwner.user == self).first()
+        Session.delete(owner) 
+
+        albumc = Session.query(AlbumCounts).get((song.albumid, self.id))
+        albumc.songcount -= 1
+        remove_album = False
+        if albumc.songcount == 0:
+            remove_album = True
+
+        artistc = Session.query(ArtistCounts).get((song.album.artistid, self.id))
+        artistc.songcount -= 1
+        if remove_album:
+            artistc.albumcount -= 1
+        Session.add(artistc)
+        return True
+
 
 class ArtistCounts(Base):
     __table__ = Table('counts_artist', metadata, autoload=True)

@@ -64,6 +64,9 @@ ${rightcol.render()}
                 endif
             %>
 				<img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
+            % if spotlight.albumid == None:
+                Playlist: 
+            % endif
             ${spotlight.title}
             % if not own_profile and spotlight.albumid:
                 ${build_amazon_link(spotlight,"(buy)")}

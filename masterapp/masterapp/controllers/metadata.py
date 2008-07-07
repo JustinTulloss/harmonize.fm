@@ -88,16 +88,7 @@ class MetadataController(BaseController):
         id = kwargs['id']
         songs = user.song_query.filter(self.id_map[type]==id)
         for song in songs:
-            movedowner = RemovedOwner(
-                song=Session.query(Song).get(song.Song_id),
-                user=user
-            )
-            Session.add(movedowner)
-
-            owner = Session.query(SongOwner).\
-                filter(SongOwner.songid == song.Song_id).\
-                filter(SongOwner.user == user).first()
-            Session.delete(owner) 
+            user.remove_song(song)
 
         try:
             Session.commit()
@@ -303,8 +294,3 @@ class MetadataController(BaseController):
             
         else:
             return "False"
-
-    def get_asin(self):
-        if not request.params.has_key('id'):
-            return "0"
-        return get_asin(request.params.get('id'),'song')

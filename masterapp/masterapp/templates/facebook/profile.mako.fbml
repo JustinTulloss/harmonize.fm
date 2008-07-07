@@ -1,23 +1,27 @@
 ## <link rel="stylesheet" type="text/css" media="screen" href="${c.stylesheet}" />
 <div>
-    <h4 style="margin-top:10px; border-bottom: 1px solid #CCC; margin-bottom:5px;">
-        ## <fb:name uid="${c.user.fbid}" useyou="false" firstnameonly="true"/> 
-        Listening to
-    </h4>
-    <fb:wide>
-        % if c.user.nowplaying.album.smallart:
-        <div style="float: right;">
-            <img src="${c.user.nowplaying.album.smallart}" />
-        </div>
-        % endif
-    </fb:wide>
-    <div style="padding-left: 5px;">
-        <div style="font-weight: bold">${c.user.nowplaying.title}</div>
+    % if c.user.nowplaying:
+        <h4 style="margin-top:10px; border-bottom: 1px solid #CCC; margin-bottom:5px;">
+            ## <fb:name uid="${c.user.fbid}" useyou="false" firstnameonly="true"/> 
+            Listening to
+        </h4>
         <fb:wide>
-            <div style="color:#AAA"> on ${c.user.nowplaying.album.title}</div>
+            % if c.user.nowplaying and c.user.nowplaying.album and c.user.nowplaying.album.smallart:
+            <div style="float: right;">
+                <img src="${c.user.nowplaying.album.smallart}" />
+            </div>
+            % endif
         </fb:wide>
-        <div style="color:#AAA;"> by ${c.user.nowplaying.artist.name}</div>
-    </div>
+        <div style="padding-left: 5px;">
+            <div style="font-weight: bold">${c.user.nowplaying.title}</div>
+            <fb:wide>
+                <div style="color:#AAA"> on ${c.user.nowplaying.album.title}</div>
+            </fb:wide>
+            <div style="color:#AAA;"> by ${c.user.nowplaying.artist.name}</div>
+        </div>
+    % else:
+        Not currently listening to anything.
+    % endif
 </div>
 <h4 style="margin-top:10px; border-bottom: 1px solid #CCC; margin-bottom:5px;
 clear:right">
