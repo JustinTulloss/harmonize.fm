@@ -100,8 +100,7 @@ class DBChecker(BaseAction):
                 self.model.Session.add(puid)
 
         # Make a new owner
-        owner = self.model.SongOwner(song = song, user = user)
-        self.model.Session.add(owner)
+        owner = user.add_song(song)
 
         # Check the quality of this song if an actual file was uploaded
         if file.has_key('sha'):
