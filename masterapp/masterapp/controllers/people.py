@@ -45,7 +45,13 @@ class PeopleController(BaseController):
             Session.save(spotcomment)
             Session.commit()
 
-            return '1'
+            # send facebook notification to the person who owns this spotlight
+            spot = Session.query(Spotlight).get(spotcomment.spotlightid)
+            owner = Session.query(User).get(spot.uid)
+            fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
+            response = facebook.notifications.send(owner.fbid, fbml)
+
+            return response
         else:
             return '0'
 
