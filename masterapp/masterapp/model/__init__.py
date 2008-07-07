@@ -411,28 +411,11 @@ class User(object):
     def get_artist_query(self):
         from masterapp.config.schema import dbfields
 
-        # Number of songs by this artist subquery
-        numsongs = Session.query(Artist.id.label('artistid'),
-            func.count(Song.id).label('Artist_availsongs')
-        ).join(Artist.songs, SongOwner).filter(SongOwner.uid == self.id)
-        numsongs = numsongs.group_by(Artist.id).subquery()
-        
-        # Number of albums by this artist subquery
-        albumquery = self._build_song_query().group_by(Song.albumid).subquery()
-        numalbums = Session.query(albumquery.c.Song_artistid.label('artistid'),
-            func.count(albumquery.c.Song_albumid).label('Artist_numalbums')
-        ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
-
         # Build the main query
         query = Session.query(SongOwner.uid.label('Friend_id'),
             counts_artist_table.c.songcount.label('Artist_availsongs'), 
             counts_artist_table.c.albumcount.label('Artist_numalbums'),
             *dbfields['artist'])
-        #query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['artist'])
-        #joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
-        #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
-        #query = query.select_from(joined)
-        #query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
         query = query.join(Artist.albums, Song, SongOwner, counts_artist_table)
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
