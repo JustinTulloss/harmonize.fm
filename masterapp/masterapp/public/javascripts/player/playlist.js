@@ -264,15 +264,9 @@ function Playlist(config) {
 	songqueue.insert([config.record]);
 
 	//We don't want to save after inserting initial playlist
-	var run_once = false;
 	var dirty = false; 
 	songqueue.on('reordered', function() { dirty = true; });
 	function check_dirty() {
-		if (dirty && !run_once) {
-			run_once = true;
-			dirty = false;
-			return;
-		}
 		if (dirty && !saving_playlist) {
 			var res = save_playlist();
 			if (res)
