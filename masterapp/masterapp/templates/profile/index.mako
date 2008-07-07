@@ -4,6 +4,7 @@
 
 ${rightcol.render()}
 <div id="profile-body">
+	<% own_profile = c.current_uid == c.user.id %>
     <div class="profile-status">
         <span class="profile-name">${c.user.name}</span>
         % if c.user.nowplaying:
@@ -17,18 +18,26 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
+		% if own_profile or c.user.premium:
         <div id="friend_music_menu_link">
             <a href="#/action/browse_friend/${c.user.id}">
-                browse ${c.user.firstname}'s music
+                browse 
+				% if own_profile:
+					your
+				% else:
+					${c.user.firstname}'s 
+				% endif
+				music
             </a>
         </div>
+		% endif
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
     <div id="profile-spotlight">
         <div class="profile-subtitle h-subtitle">Spotlight</div>
         % for spotlight in c.user.get_active_spotlights():
-            ${build_spotlight(spotlight, c.current_uid == c.user.id)}
+            ${build_spotlight(spotlight, own_profile)}
         % endfor
     </div>
 </div>
@@ -101,50 +110,6 @@ ${rightcol.render()}
     </div>
 </%def>
 
-<%def name="build_playlist_spotlight(spotlight, own_profile)" >
-    <div class="profile-sp">
-        <div class="h-title">
-            <img src="/images/enqueue.png" onclick="enqueue_playlist(${spotlight.playlist.id}, ${spotlight.uid})" />
-            ${spotlight.playlist.name}
-        </div>
-        <div class="profile-sp-artist">
-            by ${spotlight.user.name} <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
-            % if own_profile:
-                <span class="spot-controls">
-                    <a id="${spotlight.id}" class="edit-playlist-spotlight" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id},'playlist'); return false;">delete</a>
-                </span>
-            % endif
-        </div>
-        <div class="profile-sp-review">${spotlight.comment}</div>
-
-        <%
-            edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-        %>
-        
-        <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
-            
-        </div>
-        
-        <% 
-            comment_url = c.current_url + '/spcomments/' + str(spotlight.id)
-            num_comments = len(spotlight.friend_comments) 
-            aclass = 'class="view-comment"'
-        %>
-        
-        <div id="spot-comment-${spotlight.id}" class="profile-sp-commentcontainer">
-          
-        % if num_comments == 0:
-            <a ${aclass} href="${comment_url}">comment</a>
-        % else:
-            <a ${aclass} href="${comment_url}">comments (${num_comments})</a>
-        % endif
-			<a class="hide-comment" href="${c.current_url}">hide comments</a>
-
-        ${spotcomment.render(spotlight)}
-        </div>
-    </div>
-</%def>
 <%def name="build_amazon_link(spotlight,content)" >
     <%
         asin = c.l_get_asin(spotlight.album.id,'album')

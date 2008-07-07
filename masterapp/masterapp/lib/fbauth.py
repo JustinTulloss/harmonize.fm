@@ -24,7 +24,7 @@ def ensure_fb_session():
             User.fbid==facebook.uid).first()        
         if not user:
             # First time visitor, set up an account for them
-            user = User(fbid = facebook.uid)
+            user = User(fbid = facebook.uid, premium = False)
             Session.add(user)
             
         user.lastseen = datetime.now()
