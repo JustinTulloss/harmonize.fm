@@ -19,6 +19,7 @@ if config.current != config.production:
 	notify_user('Change current configuration to production before running')
 
 run_cmds(
+	'png2ico desktop_icon.ico desktop_icon.png',
 	'python setup.py py2exe',
 	r'"C:\Program Files\Inno Setup 5\iscc" windows_installer.iss',
 	'pscp "Output\Harmonizer Setup.exe" harmonize.fm:/var/opt/uploaders')

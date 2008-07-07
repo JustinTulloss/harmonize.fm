@@ -32,8 +32,8 @@ Source: C:\Documents and Settings\Brian\rubicon-local\uploader\dist\*; DestDir: 
 Source: C:\Program Files\ISTool\isxdl.dll; DestDir: {app}
 
 [Icons]
-Name: {group}\Harmonize; Filename: {app}\Harmonize.exe; WorkingDir: {app}
-Name: {commondesktop}\Harmonize; Filename: {app}\Harmonize.exe; Tasks: desktopicon; WorkingDir: {app}
+Name: {group}\Harmonizer; Filename: {app}\Harmonize.exe; WorkingDir: {app}; IconFilename: "{app}\desktop_icon.ico"
+Name: {commondesktop}\Harmonizer; Filename: {app}\Harmonize.exe; Tasks: desktopicon; WorkingDir: {app}; IconFilename: "{app}\desktop_icon.ico"
 
 [Run]
 Filename: {app}\Harmonize.exe; Description: {cm:LaunchProgram,Harmonize}; Flags: nowait postinstall skipifsilent

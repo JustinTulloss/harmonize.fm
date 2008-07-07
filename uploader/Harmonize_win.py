@@ -104,7 +104,7 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 		@main_thread_invoke
 		def enable_options(self, enabled):
 			mainWin.optionsButton.Enabled = enabled
-			mainWin.optionsMenuButton.Enabled = enabled
+			mainWin.optionsMenuItem.Enabled = enabled
 
 		@main_thread_invoke
 		def enable_login(self, enabled):
