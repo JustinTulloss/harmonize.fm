@@ -35,8 +35,9 @@ def synchronous_login():
 	server = HTTPServer(('localhost', 26504), LoginServer)
 	try:
 		webbrowser.open(server_url)
-	except Exception:
+	except Exception, e:
 		pass
+
 	while session_key == None:
 		server.handle_request()
 

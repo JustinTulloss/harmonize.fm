@@ -4,7 +4,7 @@ import config, rate_limit, fb
 from db import db
 from config import get_conn
 from Queue import Queue, Empty
-from excepthandler import exception_managed
+from excepthandler import exception_managed, get_tb
 from hfile import HFile, HFileException
 
 actionq = Queue()
@@ -88,6 +88,7 @@ def upload_files(song_list, guimgr):
 	def retry_fn(fn):
 		def default_action():
 			if config.current['debug']:
+				contents = get_tb()
 				import pdb; pdb.set_trace()
 			guimgr.conn_error()
 
