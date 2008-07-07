@@ -6,7 +6,7 @@
             Listening to
         </h4>
         <fb:wide>
-            % if c.user.nowplaying.album.smallart:
+            % if c.user.nowplaying and c.user.nowplaying.album and c.user.nowplaying.album.smallart:
             <div style="float: right;">
                 <img src="${c.user.nowplaying.album.smallart}" />
             </div>
