@@ -12,7 +12,9 @@ fields = {
         'Song_artistid',
         'Album_title',
         'Album_totaltracks',
-        'Artist_name'
+        'Artist_name',
+        'Album_asin',
+        'Album_mp3_asin'
     ],
     'album': [
         'type',
@@ -25,6 +27,7 @@ fields = {
         'Album_year',
         'Album_smallart',
         'Album_mp3_asin',
+        'Album_asin',
         'Artist_name'
     ],
     'artist': [
