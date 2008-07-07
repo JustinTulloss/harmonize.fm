@@ -303,8 +303,3 @@ class MetadataController(BaseController):
             
         else:
             return "False"
-
-    def get_asin(self):
-        if not request.params.has_key('id'):
-            return "0"
-        return get_asin(request.params.get('id'),'song')
