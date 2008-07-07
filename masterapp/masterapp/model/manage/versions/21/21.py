@@ -58,11 +58,14 @@ def upgrade():
     # named 'migrate_engine' imported from migrate.
 
     try:
-        artist_count_table.create()
-        album_count_table.create()
+        try:
+            artist_count_table.create()
+            album_count_table.create()
 
-        ix_artist.create()
-        ix_album.create()
+            ix_artist.create()
+            ix_album.create()
+        except Exception, e:
+            print e
         # Populate table
         """
         data = select(
@@ -91,8 +94,8 @@ def upgrade():
         #ins_albums = album_count_table.insert(songs_album_count)
         migrate_engine.execute(artist_counts)
         migrate_engine.execute(songs_album_count)
-    except:
-        print "Couldn't do everything, some things already done?"
+    except Exception, e:
+        print "Couldn't do everything, some things already done?", e
 
 
     

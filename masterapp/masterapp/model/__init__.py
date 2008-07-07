@@ -51,6 +51,7 @@ songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
 notifications_table = Table('notifications', metadata, autoload=True)
 removedowners_table = Table('removedowners', metadata, autoload=True)
+counts_artist_table = Table('counts_artist', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -423,17 +424,16 @@ class User(object):
         ).select_from(albumquery).group_by(albumquery.c.Song_artistid).subquery()
 
         # Build the main query
-        """
-        query = Session.query(SongOwner.uid.label('Friend_id'), numsongs.c.Artist_availsongs,
-            numalbums.c.Artist_numalbums,
+        query = Session.query(SongOwner.uid.label('Friend_id'),
+            counts_artist_table.c.songcount.label('Artist_availsongs'), 
+            counts_artist_table.c.albumcount.label('Artist_numalbums'),
             *dbfields['artist'])
-        """
-        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['artist'])
+        #query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['artist'])
         #joined = join(Artist, numsongs, Artist.id == numsongs.c.artistid)
         #joined2 = join(Artist, numalbums, Artist.id == numalbums.c.artistid)
         #query = query.select_from(joined)
         #query = query.join((numalbums, numalbums.c.artistid == Artist.id)).reset_joinpoint()
-        query = query.join(Artist.albums, Song, SongOwner)
+        query = query.join(Artist.albums, Song, SongOwner, counts_artist_table)
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
         return query
