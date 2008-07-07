@@ -20,10 +20,11 @@ class GuiManager(object):
 
 	def start_auth(self, upload_src):
 		self.gui.enable_login(True)
+		msg = 'Music has been found that has not been uploaded\n'
 		if upload_src == 'itunes':
-			msg = 'Click Login to start uploading your iTunes library'
+			msg += 'Click Login to start uploading your iTunes library'
 		else:
-			msg = 'Click Login to start uploading your music'
+			msg += 'Click Login to start uploading your music'
 		self.gui.set_msg(msg)
 
 	def end_auth(self):
