@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 #vim:expandtab:smarttab
-import upload, os, sys, fb, db, thread, time
+import os, sys, fb
+from db import use_new_db
+from guimanager import GuiManager
+from excepthandler import exception_managed
 
 session_key = None
 
+@exception_managed
 def main():
     if len(sys.argv)>1:
         path = sys.argv[1]
@@ -11,72 +15,61 @@ def main():
         print "Please give a directory to upload"
         return
 
-    db.set_upload_src('folder')
-    db.set_upload_dirs([path])
+    if len(sys.argv) > 2:
+        use_new_db(sys.argv[2])
+
+    from db import db
+    db.upload_src = 'folder'
+    db.upload_dirs = [path]
     print 'starting uploader'
-    #fb.login(upload.login_callback) 
-    thread.start_new_thread(upload.start_uploader, (TextView(),))
-    while True:
-        time.sleep(10)
+    fb.synchronous_login()
+    guimgr = GuiManager(TextView(), 0)
+    import upload
+    upload.upload_files(db.get_tracks(), guimgr)
 
 
 class TextView(object):
-    def __init__(self):
-        my = self
-        class Actions(object):
-            def init(self):
-                print 'Initializing'
-                my.remaining = 0
-                my.skipped = 0
+    def init(self):
+        print 'Initializing'
+        my.remaining = 0
+        my.skipped = 0
 
-            def inc_totalUploaded(self):
-                my.totalUploaded += 1
+    def set_uploaded(self, val):
+        print 'Total songs uploaded:', str(val)
 
-            def set_totalUploaded(self, val):
-                my.totalUploaded = val
+    def set_remaining(self, val):
+        print 'Song remaining to upload:', str(val)
 
-            def inc_skipped(self):
-                my.skipped += 1
+    def set_skipped(self, val):
+        print 'Song skipped'
 
-            def dec_remaining(self):
-                my.remaining -= 1
-                print '%s songs remaining' % my.remaining
+    def set_progress(self, spinning, val=None):
+        pass
 
-            def inc_remaining(self):
-                my.remaining += 1
+    def set_msg(self, msg):
+        if msg in ['Analyzing library...']:
+            return
+        print msg
 
-            def set_progress(self, spinning, val=None):
-                pass
+    def enable_login(self, val):
+        if val:
+            fb.login(upload.login_callback)
 
-            def set_msg(self, msg):
-                print msg
+    def enable_options(self, val):
+        pass
 
-            def loginEnabled(self, val):
-                if val:
-                    fb.login(upload.login_callback)
+    def enable_listen(self, val):
+        pass
 
-            def optionsEnabled(self, val):
-                pass
+    def activate(self):
+        pass
 
-            def listenEnabled(self, val):
-                pass
+    def fatal_error(self, msg):
+        print 'Fatal error occured!'
+        sys.exit(1)
 
-            def activate(self):
-                pass
-        self.a = Actions()
-
-        self.actions = []
-    def add_action(self, fn, params):
-        self.actions.append((fn, params))
-
-    def complete_actions(self):
-        while self.actions != []:
-            fn, params = self.actions.pop(0)
-            fn(*params)
-
-    def do_action(self, fn, params):
-        self.add_action(fn, params)
-        self.complete_actions() 
+    def start(self):
+        pass
 
 if __name__ == '__main__':
     main()

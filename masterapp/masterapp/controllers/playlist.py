@@ -33,7 +33,7 @@ class PlaylistController(BaseController):
 			json['data'][0]['type'] = 'playlist'
 			return json
 		else:
-			return ''
+			return '0'
 
 	def save(self):
 		if not (request.params.has_key('playlist') or\
@@ -59,7 +59,7 @@ class PlaylistController(BaseController):
 				i += 1
 
 		Session.commit()
-		return ''
+		return '1'
 
 	def delete(self, id):
 		playlist = Session.query(Playlist).get(int(id))

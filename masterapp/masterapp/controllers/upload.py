@@ -67,9 +67,7 @@ class UploadController(BaseController):
             return True
 
         # Make a new owner
-        owner = model.SongOwner(song = song, user = user)
-        model.Session.add(owner)
-        model.Session.commit()
+        user.add_song(song)
         log.debug('%s added to %s\'s files', request.params['title'], user.name)
         return True
 

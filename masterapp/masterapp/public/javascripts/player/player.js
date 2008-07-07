@@ -135,7 +135,10 @@ function Player() {
 			artist : song.get('Artist_name'),
 			album : song.get('Album_title'),
 			length : song.get('Song_length'),
-            id: song.get('Song_id')})
+            id: song.get('Song_id'),
+            asin: song.get('Album_asin'),
+            mp3asin: song.get('Album_mp3_asin')
+        })
             
 		set_pause(true);
         // now update the nowplaying field in the database        
@@ -283,7 +286,7 @@ function Player() {
 
 	var now_playing_title = document.getElementById('now-playing-title');
 	var now_playing_artist = document.getElementById('now-playing-artist');
-	/*Takes an object with the fields {title, artist, album, length} */
+	/*Takes an object with the fields {title, artist, album, length, asin, mp3asin} */
 	function update_now_playing(song_info) {
 		if (song_info.title)
 			now_playing_title.innerHTML = song_info.title;
@@ -303,31 +306,30 @@ function Player() {
 		now_playing_artist.innerHTML = new_artist;
         
         if (song_info.id) {
-            // call the serve and get the asin for the currently playing song (album)
-            Ext.Ajax.request({
-                url: 'metadata/get_asin',
-                params: {
-                    id:song_info.id
-                },
-                success: function(response, options) {
-                    if (response.responseText == "0") {
-                        //we have no asin for this album, make sure the link is not there
-                        Ext.get('amazon_link').update('');
+        }
 
-                    } else {
-                        Ext.get('amazon_link').update(amazon_link.apply({
-                            asin: response.responseText,
-                            album: song_info.album,
-                            artist: song_info.artist
-                        }));
-                        //this turned out to be annoying, maybe change later
-                        //Ext.get('amazon_link').frame();
-                    }
-                },
-                failure: function(response, options) {
-                    show_status_msg("Error retrieving Amazon link information");
-                }
-            });
+        if (song_info.mp3asin) {
+            //apply template
+            Ext.get('amazon_link').update(
+                amazon_link.apply({
+                    asin: song_info.mp3asin,
+                    album: song_info.album,
+                    artist: song_info.artist
+                })
+            );
+        } else {
+            if (song_info.asin) {
+                Ext.get('amazon_link').update(
+                    amazon_link.apply({
+                        asin: song_info.asin,
+                        album: song_info.album,
+                        artist: song_info.artist
+                    })
+                );
+            } else {
+                //no asin present, set to blank
+                Ext.get('amazon_link').update('');
+            }
         }
 
 		if (song_info.length) 

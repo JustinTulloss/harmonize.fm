@@ -68,10 +68,10 @@ class DBRecorder(DBChecker):
                 self.model.Session.add_all([dbfile, fowner])
 
             # add the file to this user's library
-            owner = self.model.SongOwner(user = user, song = song)
+            owner = user.add_song(song)
             log.debug("Adding %s to %s's music", file.get('title'), file['fbid'])
 
-            self.model.Session.add_all([song, owner])
+            self.model.Session.add(song)
             self.model.Session.commit() # Woot! Write baby, write!
 
             log.info('%s by %s successfully inserted into the database', 

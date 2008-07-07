@@ -2,7 +2,7 @@ import time
 import pylons
 from facebook import FacebookError
 from facebook.wsgi import facebook
-from masterapp.model import User, Session, users_table, Whitelist
+from masterapp.model import User, Session, Whitelist
 from masterapp.lib.base import *
 from sqlalchemy import or_
 from fblogin import login
@@ -24,7 +24,7 @@ def ensure_fb_session():
             User.fbid==facebook.uid).first()        
         if not user:
             # First time visitor, set up an account for them
-            user = User(fbid = facebook.uid)
+            user = User(fbid = facebook.uid, premium = False)
             Session.add(user)
             
         user.lastseen = datetime.now()
@@ -72,6 +72,7 @@ def filter_friends(qry):
         qry = qry.filter(User.id == session['userid'])
     return qry
 
+"""
 def filter_sql_friends(qry):
     friend = request.params.get('friend')
     friend_fbid = None
@@ -85,6 +86,7 @@ def filter_sql_friends(qry):
         qry = qry.where(users_table.c.id == session['userid'])
 
     return qry
+"""
 
 def filter_any_friend(qry):
     """

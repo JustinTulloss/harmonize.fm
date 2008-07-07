@@ -48,7 +48,8 @@ function friend_recommend(record) {
         resizable: false,
         items: [field],
         buttons: [cancel, button],
-        title: 'Recommend "' + entity +'" to a friend'
+        title: '<h1>Recommend to a friend</h1><h2>' + entity + '</h2>',
+		baseCls:'x-plain'
     });
     button.setHandler(
         function() {

@@ -259,6 +259,16 @@ class TestActions(TestBase):
         assert nf['mp3_asin'] != None
         assert a.cache.has_key(nf['album'])
 
+    def testCheckForBadAsin(self):
+        a = CheckForBadAsin()
+        a.cleanup_handler = Mock()
+        assert a is not None, "CheckForBadAsin Action is not constructed"
+
+        nf = a.process(self.fdata['dbrec'])
+        assert nf.has_key('asin')
+        assert a.cache.has_key(nf['asin'])
+
+
     def testHasher(self):
         h = Hasher()
         h.cleanup_handler = Mock()

@@ -42,6 +42,7 @@ class DBChecker(BaseAction):
             if user == None:
                 user = self.model.User()
                 user.fbid = file['fbid']
+                user.premium = False
                 self.model.Session.save(user)
                 self.model.Session.commit()
 
@@ -100,8 +101,7 @@ class DBChecker(BaseAction):
                 self.model.Session.add(puid)
 
         # Make a new owner
-        owner = self.model.SongOwner(song = song, user = user)
-        self.model.Session.add(owner)
+        owner = user.add_song(song)
 
         # Check the quality of this song if an actual file was uploaded
         if file.has_key('sha'):
