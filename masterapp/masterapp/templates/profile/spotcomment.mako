@@ -25,7 +25,7 @@ from masterapp.model import Session, User
         You wrote:
     % else:
         <a href="#/people/profile/${spot_comment.uid}">
-                ${spot_comment.user.get_name()}</a> wrote:
+                ${spot_comment.user.get_name()}</a> wrote: <span class="spotlight_timestamp">(${spot_comment.timestamp.strftime("%b %d")})</span>
     % endif
     <div>
     % if user.swatch:
