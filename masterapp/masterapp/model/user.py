@@ -16,8 +16,6 @@ from . import (
     songs_table,
     artists_table,
     playlists_table,
-    counts_artist_table,
-    counts_album_table,
     Artist,
     Album,
     Song,
@@ -394,10 +392,10 @@ class User(Base):
 
         # Build the main query
         query = Session.query(SongOwner.uid.label('Friend_id'),
-            counts_artist_table.c.songcount.label('Artist_availsongs'), 
-            counts_artist_table.c.albumcount.label('Artist_numalbums'),
+            ArtistCounts.songcount.label('Artist_availsongs'), 
+            ArtistCounts.albumcount.label('Artist_numalbums'),
             *dbfields['artist'])
-        query = query.join(Artist.albums, Song, SongOwner, counts_artist_table)
+        query = query.join(Artist.albums, Song, SongOwner, ArtistCounts)
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
         return query
@@ -418,3 +416,49 @@ class User(Base):
         qry = self.playlist_query
         qry = qry.filter(Playlist.id == id)
         return qry.first()            
+
+    def add_song(self, song):
+        """
+        Adds a song to this user's collection. Keeps counts up to date.
+        """
+
+        # Add to collection
+        owner = SongOwner(song = song, user = self)
+
+        # Keep counts up to date
+        new_album = False
+        albumc = Session.query(AlbumCounts).get((song.albumid, self.id))
+        if albumc:
+            albumc.songcount += 1
+        else:
+            new_album = True
+            albumc = AlbumCounts(user = self, album = song.album, songcount=1)
+
+        artistc = Session.query(ArtistCounts).get((song.album.artistid, self.id))
+        if artistc:
+            artistc.songcount += 1
+            if new_album:
+                artistc.albumcount += 1
+        else:
+            artistc = ArtistCounts(
+                user=self, artist=song.artist, songcount=1, albumcount=1)
+
+        Session.add_all([owner, artistc, albumc])
+        Session.commit()
+        return owner
+
+class ArtistCounts(Base):
+    __table__ = Table('counts_artist', metadata, autoload=True)
+    key = [__table__.c.artistid, __table__.c.userid]
+    __mapper_args__ = {'primary_key': key}
+
+    artist = relation(Artist)
+    user = relation(User)
+
+class AlbumCounts(Base):
+    __table__ = Table('counts_album', metadata, autoload=True)
+
+    key = [__table__.c.albumid, __table__.c.userid]
+    __mapper_args__ = {'primary_key': key}
+    album = relation(Album)
+    user = relation(User)

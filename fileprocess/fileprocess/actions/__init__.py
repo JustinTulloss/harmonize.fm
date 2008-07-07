@@ -6,7 +6,6 @@ from hasher import Hasher
 from tagsaver import TagSaver
 from transcoder import Transcoder
 from dbchecker import DBChecker
-from dbtagger import DBTagger
 from brainztagger import BrainzTagger
 from amazoncovers import AmazonCovers
 from dbrecorder import DBRecorder
@@ -23,7 +22,6 @@ __all__=[
     'TagSaver',
 	'Transcoder',
     'DBChecker', 
-    'DBTagger',
     'BrainzTagger',
     'AmazonCovers',
     'DBRecorder',

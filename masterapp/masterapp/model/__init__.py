@@ -49,8 +49,6 @@ songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
 notifications_table = Table('notifications', metadata, autoload=True)
 removedowners_table = Table('removedowners', metadata, autoload=True)
-counts_artist_table = Table('counts_artist', metadata, autoload=True)
-counts_album_table = Table('counts_album', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
