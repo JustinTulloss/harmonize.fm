@@ -19,6 +19,7 @@ from . import (
     Album,
     Song,
     SongOwner,
+    RemovedOwner,
     Playlist,
     Spotlight,
     SpotlightComment,
@@ -468,6 +469,37 @@ class User(Base):
         Session.add_all([owner, artistc, albumc])
         Session.commit()
         return owner
+
+    def remove_song(self, songrow):
+        """
+        Removes a song from the users's collection and updates the counts.
+        """
+        # the passed song is a RowTuple, so we convert it so a Song object
+        song =  Session.query(Song).get(songrow.Song_id)
+        movedowner = RemovedOwner(
+            song = song,
+            user = self
+        )
+        Session.add(movedowner)
+
+        owner = Session.query(SongOwner).\
+            filter(SongOwner.song == song).\
+            filter(SongOwner.user == self).first()
+        Session.delete(owner) 
+
+        albumc = Session.query(AlbumCounts).get((song.albumid, self.id))
+        albumc.songcount -= 1
+        remove_album = False
+        if albumc.songcount == 0:
+            remove_album = True
+
+        artistc = Session.query(ArtistCounts).get((song.album.artistid, self.id))
+        artistc.songcount -= 1
+        if remove_album:
+            artistc.albumcount -= 1
+        Session.add(artistc)
+        return True
+
 
 class ArtistCounts(Base):
     __table__ = Table('counts_artist', metadata, autoload=True)
