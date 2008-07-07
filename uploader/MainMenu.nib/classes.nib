@@ -1,12 +1,31 @@
 {
     IBClasses = (
+        {
+            ACTIONS = {exit = id; listen = id; login = id; }; 
+            CLASS = Director; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                listenButton = NSButton; 
+                loginButton = NSButton; 
+                msg = NSTextField; 
+                optionsButton = NSButton; 
+                optionsController = OptionsController; 
+                optionsMenuItem = NSMenuItem; 
+                progressb = NSProgressIndicator; 
+                remaining = NSTextField; 
+                skipped = NSTextField; 
+                uploadController = UploadController; 
+                uploaded = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {CLASS = NSLevelIndicator; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
         {CLASS = NSSegmentedControl; LANGUAGE = ObjC; SUPERCLASS = NSControl; }, 
         {
             ACTIONS = {
                 addFolders = id; 
-                closeWindow = id; 
+                optionsClosed = id; 
                 removeFolders = id; 
                 setUploadFolder = id; 
                 setUploadITunes = id; 
@@ -22,30 +41,38 @@
             }; 
             SUPERCLASS = NSObject; 
         }, 
+        {CLASS = QuitController; LANGUAGE = ObjC; SUPERCLASS = NSResponder; }, 
         {
-            ACTIONS = {options = id; quit = id; upload = id; }; 
+            ACTIONS = {exit = id; listen = id; login = id; options = id; upload = id; }; 
             CLASS = RubiconController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                listenButton = NSButton; 
+                loginButton = NSButton; 
+                msg = NSTextField; 
+                optionsButton = NSButton; 
+                optionsController = OptionsController; 
+                optionsMenuItem = NSMenuItem; 
                 optionsWindow = NSWindow; 
+                progressb = NSProgressIndicator; 
+                remaining = NSTextField; 
+                skipped = NSTextField; 
                 statusMenu = NSMenu; 
+                statusMenuItem = NSMenuItem; 
                 uploadController = UploadController; 
                 uploadWindow = NSWindow; 
+                uploaded = NSTextField; 
             }; 
             SUPERCLASS = NSObject; 
         }, 
         {
-            ACTIONS = {listen = id; login = id; next = id; options = id; }; 
+            ACTIONS = {activate = id; listen = id; login = id; next = id; options = id; }; 
             CLASS = UploadController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                errorView = NSView; 
                 introView = NSView; 
-                listenButton = NSButton; 
-                loginButton = NSButton; 
-                optionsButton = NSButton; 
-                optionsMenu = NSMenuItem; 
                 optionsWindow = NSWindow; 
-                progress = NSProgressIndicator; 
                 window = NSWindow; 
             }; 
             SUPERCLASS = NSObject; 

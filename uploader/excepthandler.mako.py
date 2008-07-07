@@ -18,27 +18,29 @@ def exception_managed(fn):
 		try:
 			return fn(*args, **kws)
 		except Exception, e:
+			f_contents = StringIO()
+			tb.print_tb(sys.exc_traceback, file=f_contents)
+			contents = f_contents.getvalue()
+			f_contents.close()
+
+			contents += str(e) + '\n'
+			contents += '\nplatform.uname():\n' + str(platform.uname())
+			contents += '\nRepo version: ' + repo_version
+
+			if config.current['debug']:
+				import pdb; pdb.set_trace()
+
+			if gui_error != None:
+				gui_error()
+
 			try:
-				f_contents = StringIO()
-				tb.print_tb(sys.exc_traceback, file=f_contents)
-				contents = f_contents.getvalue()
-				f_contents.close()
-
-				contents += str(e) + '\n'
-				contents += '\nplatform.uname():\n' + str(platform.uname())
-				contents += '\nRepo version: ' + repo_version
-
-				if config.current['debug']:
-					import pdb; pdb.set_trace()
-
-				if gui_error != None:
-					gui_error()
-
 				conn = config.get_conn()
 				conn.request('POST', '/upload/error', contents, 
 								{'Content-Type':'text/plain'})
 				conn.getresponse().read()
 			except Exception:
+				open('error.log', 'w+').write(
+						'Error sending traceback:\n' + contents)
 				return
 
 	return wrapper
