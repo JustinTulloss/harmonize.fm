@@ -71,11 +71,12 @@ class HFile(object):
 	def get_ppname(self):
 		"""The pretty print name of the file"""
 		if self.tags.has_key('title') and self.tags.has_key('artist'):
-			return self.tags['title'] + ' - ' + self.tags['artist']
+			val = self.tags['title'] + ' - ' + self.tags['artist']
 		elif self.tags.has_key('title'):
-			return self.tags['title']
+			val = self.tags['title']
 		else:
 			return os.path.basename(self.name)
+		return val.decode('utf-8')
 	ppname = property(get_ppname)
 
 	def get_uploaded(self):
