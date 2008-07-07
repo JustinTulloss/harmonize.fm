@@ -48,9 +48,9 @@ album_count_table = Table("counts_album", metadata,
 )
 
 # New Indexes
-ix_artist = Index('ix_counts_artist', artist_count_table.c.artistid,
+ix_artist = Index('ix_counts_artists', artist_count_table.c.artistid,
     artist_count_table.c.userid, unique=True)
-ix_album = Index('ix_counts_album', album_count_table.c.albumid,
+ix_album = Index('ix_counts_albums', album_count_table.c.albumid,
     album_count_table.c.userid, unique=True)
 
 def upgrade():
