@@ -7,7 +7,6 @@ from masterapp.lib.decorators import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
     filter_friends,
-    filter_sql_friends,
     filter_any_friend
 )
 from sqlalchemy import sql, or_, and_
@@ -160,7 +159,7 @@ class MetadataController(BaseController):
             data = user.allfriends
         else:
             data = user.friends
-            qry = Session.query(User).join(['owners'])
+            qry = Session.query(User).join(User.owners)
             cond = or_()
             for friend in data:
                 cond.append(User.fbid == friend['uid'])
@@ -224,7 +223,7 @@ class MetadataController(BaseController):
         
         fbids = []
         for friend in user.friends:
-            fbids.append(friend.uid)
+            fbids.append(friend['uid'])
         #songlist is a list where each element is a song id.
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        

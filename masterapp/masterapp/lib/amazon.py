@@ -6,7 +6,6 @@ from masterapp.lib.decorators import *
 from masterapp.lib.fbauth import (
     ensure_fb_session, 
     filter_friends,
-    filter_sql_friends,
     filter_any_friend
 )
 from sqlalchemy import sql, or_, and_

@@ -6,9 +6,9 @@ import os
 import S3
 import urllib
 import cjson
-import masterapp.controllers.metadata
 from masterapp.config.include_files import player_files, compressed_player_files
 from masterapp.lib.base import *
+from masterapp.lib.decorators import pass_user
 from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.profile import Profile
@@ -137,8 +137,8 @@ class PlayerController(BaseController):
         self.update_fbml()
         return 'true'
 
-    def album_details(self):
-        user = Session.query(User).get(session['userid'])
+    @pass_user
+    def album_details(self, user):
         c.songs = user.song_query.filter(
             Song.albumid == request.params.get('album')
         ).order_by(Song.tracknumber).all()
