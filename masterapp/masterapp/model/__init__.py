@@ -10,14 +10,8 @@ from sqlalchemy.sql import func, select, join, or_, and_
 from sqlalchemy.orm import mapper, relation, column_property, deferred, join
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from facebook.wsgi import facebook
-from facebook import FacebookError
-
-from masterapp.lib import fblogin
-
 from pylons.decorators.cache import beaker_cache
 from decorator import decorator
-from operator import itemgetter
 import time
 
 
