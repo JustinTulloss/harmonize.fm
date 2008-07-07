@@ -138,7 +138,7 @@ class PlayerController(BaseController):
         return 'true'
 
     @pass_user
-    def album_details(self, user):
+    def album_details(self, user, **kwargs):
         c.songs = user.song_query.filter(
             Song.albumid == request.params.get('album')
         ).order_by(Song.tracknumber).all()
