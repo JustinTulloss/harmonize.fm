@@ -62,6 +62,9 @@ class PlayerController(BaseController):
             redirect_to("/request/invitation")
 
     def index(self):
+        assert request.environ.get('HTTP_USER_AGENT'),\
+            "Cannot serve to unidentified clients"
+
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields
@@ -92,6 +95,8 @@ class PlayerController(BaseController):
         song= Session.query(Song).\
             join([Song.owners]).filter(Song.id==int(id))
         song= song.first()
+        if not song:
+            abort(404)
         self.update_fbml()
         # XXX: Remove this to enable locking implemented below
         qsgen = S3.QueryStringAuthGenerator(
@@ -168,7 +173,7 @@ class PlayerController(BaseController):
         for key, value in bdata['screen'].items():
             screen = screen + "%s = %s\n" % (key, value)
         message = feedback_template % \
-                (user.name, user_feedback, browser, screen)
+                (user_feedback, browser, screen)
 
         if (self.email_regex.match(user_email) != None):
             if user.email != user_email:

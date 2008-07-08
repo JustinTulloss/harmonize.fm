@@ -118,7 +118,7 @@ class RubiconController(NibClassBuilder.AutoBaseClass):
 		item = statusBar.statusItemWithLength_(NSVariableStatusItemLength)
 		item.retain()
 
-		item.setTitle_("H")
+		item.setTitle_("h")
 		item.setHighlightMode_(True)
 		item.setMenu_(self.statusMenu)
 		#NSApp().setMainMenu_(self.statusMenu)

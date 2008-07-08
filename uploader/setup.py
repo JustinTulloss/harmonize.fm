@@ -47,10 +47,12 @@ if sys.platform == 'darwin':
 		setup_requires=['py2app'],		
 		app=app,
 		scripts=scripts,
-		data_files=['MainMenu.nib', 
+		data_files=['MainMenu.nib', 'desktop_icon.icns',
 					'genpuid/genpuid', 'genpuid/AACTagReader',
 					'genpuid/mipcore'],
-		options=dict(py2app=dict(plist=dict(LSUIElement=True)))
+		options=dict(py2app=dict(plist=dict(
+			LSUIElement=True,
+			CFBundleIconFile='desktop_icon.icns')))
 	)
 elif sys.platform == 'win32':
 	main_py = open('main.py', 'w+')
