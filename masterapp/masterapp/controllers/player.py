@@ -195,7 +195,7 @@ class PlayerController(BaseController):
                 pword = None
             mail(config['smtp_server'], config['smtp_port'],
                 frm, pword,
-                'justin@harmonize.fm', subject, message, cc=cc)
+                'founders@harmonize.fm', subject, message, cc=cc)
 
         thread.start_new_thread(sendmail, ())
         return '1'
