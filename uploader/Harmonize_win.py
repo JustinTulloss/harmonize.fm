@@ -4,7 +4,7 @@ pythoncom.CoInitialize()
 import clr
 import System.Windows.Forms as winforms
 from System import EventHandler
-from System.Drawing import Size, Point, ContentAlignment, Bitmap, Icon
+from System.Drawing import Size, Point, ContentAlignment, Icon
 
 from win_upload import UploadWin
 from win_options import OptionWin
@@ -16,7 +16,7 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 				exit_clicked=None, options_changed=None,
 				app_started=None):
 
-	icon = Icon.FromHandle(Bitmap('icon.bmp').GetHicon())
+	icon = Icon('harmonize_icon.ico', Size(16, 16))
 	mainWin = UploadWin(icon)
 	optionWin = OptionWin(icon, upload_mode, upload_dirs, itunes_enabled)
 	mainWin.AddOwnedForm(optionWin)

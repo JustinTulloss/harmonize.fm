@@ -9,6 +9,7 @@ from dbchecker import DBChecker
 from brainztagger import BrainzTagger
 from amazoncovers import AmazonCovers
 from dbrecorder import DBRecorder
+from check_for_bad_asin import CheckForBadAsin
 from amazon_asin_convert import AmazonASINConvert
 from s3uploader import S3Uploader
 from cleanup import Cleanup
@@ -25,6 +26,7 @@ __all__=[
     'BrainzTagger',
     'AmazonCovers',
     'DBRecorder',
+    'CheckForBadAsin',
     'AmazonASINConvert',
     'S3Uploader',
     'Cleanup'

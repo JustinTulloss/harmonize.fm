@@ -44,10 +44,12 @@ if sys.platform == 'darwin':
 		setup_requires=['py2app'],		
 		app=app,
 		scripts=scripts,
-		data_files=['MainMenu.nib', 
+		data_files=['MainMenu.nib', 'desktop_icon.icns',
 					'genpuid/genpuid', 'genpuid/AACTagReader',
 					'genpuid/mipcore'],
-		options=dict(py2app=dict(plist=dict(LSUIElement=True)))
+		options=dict(py2app=dict(plist=dict(
+			LSUIElement=True,
+			CFBundleIconFile='desktop_icon.icns')))
 	)
 elif sys.platform == 'win32':
 	main_py = open('main.py', 'w+')
@@ -61,8 +63,8 @@ elif sys.platform == 'win32':
 				  'dest_base':'Harmonize'}],
 		scripts=r_scripts + \
 				['Harmonize_win.py', 'win_options.py', 'win_upload.py'],
-		data_files=['Python.Runtime.dll', 'desktop_icon.ico',
-					'folder.bmp', 'hd.bmp', 'cd.bmp', 'icon.bmp',
+		data_files=['Python.Runtime.dll', 'harmonize_icon.ico',
+					'folder.bmp', 'hd.bmp', 'cd.bmp',
 					'genpuid\\genpuid.exe', 'genpuid\\AACTagReader.exe',
 					'genpuid\\mipcore.exe', 'genpuid\\libexpat.dll']
 	)

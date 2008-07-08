@@ -3,8 +3,22 @@ try:
 except ImportError:
 	from Harmonize_osx import Application
 from guimanager import GuiManager
+from hfile import HFile
 
-import thread
+import thread, os
+
+def get_uni_hfile():
+	filename = \
+		[os.path.join('test', name) for name in os.listdir('test') if
+			name.startswith('03. T')][0]
+	return HFile(filename)
+
+def get_tagless_hfile():
+	filename = os.path.join('test', 'no_tags.m4a')
+	return HFile(filename)
+
+def get_noartist_hfile():
+	return HFile(os.path.join('test', 'no_artist.mp3'))
 
 def create_printer(val):
 	def fn():
@@ -72,6 +86,13 @@ def app_started():
 		guimgr.start_reauth()
 		raw_input()
 		guimgr.end_reauth()
+		raw_input()
+		guimgr.start_upload(get_uni_hfile().ppname, 5)
+		guimgr.upload_progress(3)
+		raw_input()
+		guimgr.start_upload(get_tagless_hfile().ppname, 5)
+		raw_input()
+		guimgr.start_upload(get_noartist_hfile().ppname, 5)
 		raw_input()
 		guimgr.fatal_error()
 

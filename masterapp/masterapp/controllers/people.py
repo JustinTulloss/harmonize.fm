@@ -41,6 +41,7 @@ class PeopleController(BaseController):
     def add_spotcomment(self, id):
         comment = request.params.get('comment')
         if comment:
+            comment = h.util.html_escape(comment)
             spotcomment = SpotlightComment(session['userid'], id, comment)
             Session.save(spotcomment)
             Session.commit()
