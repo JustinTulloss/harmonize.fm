@@ -62,7 +62,7 @@ elif sys.platform == 'win32':
 		scripts=r_scripts + \
 				['Harmonize_win.py', 'win_options.py', 'win_upload.py'],
 		data_files=['Python.Runtime.dll', 'harmonize_icon.ico',
-					'folder.bmp', 'hd.bmp', 'cd.bmp', 'icon.bmp',
+					'folder.bmp', 'hd.bmp', 'cd.bmp',
 					'genpuid\\genpuid.exe', 'genpuid\\AACTagReader.exe',
 					'genpuid\\mipcore.exe', 'genpuid\\libexpat.dll']
 	)

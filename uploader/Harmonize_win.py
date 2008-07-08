@@ -16,7 +16,7 @@ def Application(upload_mode, upload_dirs, itunes_enabled,
 				exit_clicked=None, options_changed=None,
 				app_started=None):
 
-	icon = Icon('harmonize_icon.ico')
+	icon = Icon('harmonize_icon.ico', Size(16, 16))
 	mainWin = UploadWin(icon)
 	optionWin = OptionWin(icon, upload_mode, upload_dirs, itunes_enabled)
 	mainWin.AddOwnedForm(optionWin)
