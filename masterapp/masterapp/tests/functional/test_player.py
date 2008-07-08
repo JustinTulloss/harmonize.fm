@@ -6,15 +6,15 @@ class TestPlayerController(TestController):
         """
         Testing <root>/player
         """
-        response = self.app.get(url_for(controller='player'))
+        response = self.app.get(
+            url_for(controller='player'), headers = self.dheaders)
         # Test response...
         assert response.c.profile != None
-        assert 'harmonize.fm | connect with your music' in response
+        assert 'player | harmonize.fm' in response
 
     def test_get_song_url(self):
         """
         Testing <root>/player/songurl/<songid>
-        """
         """
         response = self.app.get(url_for(
             controller='player',
@@ -42,4 +42,3 @@ class TestPlayerController(TestController):
         ))
         assert 'false' in response, \
             "file was found when it should not have been"
-        """

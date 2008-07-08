@@ -62,6 +62,9 @@ class PlayerController(BaseController):
             redirect_to("/request/invitation")
 
     def index(self):
+        assert request.environ.get('HTTP_USER_AGENT'),\
+            "Cannot serve to unidentified clients"
+
         c.profile = Profile()
         c.user = Session.query(User).get(session['userid'])
         c.fields = schema.fields

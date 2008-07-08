@@ -1,5 +1,6 @@
 import time
 import pylons
+from pylons import cache
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from masterapp.model import User, Session, Whitelist
@@ -38,7 +39,7 @@ def ensure_fb_session():
 
     if 'paste.testing_variables' in request.environ:
         #We're testing. Setup a permanent facebook session
-        facebook.session_key = '08bd66d3ebc459d32391d0d2-1909354'
+        facebook.session_key = 'dec36916ce201f1f834ad59c-1909354'
         facebook.uid = 1909354
         return setup_user()
 
@@ -52,9 +53,6 @@ def ensure_fb_session():
         facebook.uid = session['fbuid']
         return True
 
-friendcache = cache.get_cache('fbfriends')
-def get_friend_ids():
-    return friendcache.get_value    
 def filter_friends(qry):
     """
     This function ensures that songs belong to you by default. If you are
