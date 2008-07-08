@@ -259,7 +259,9 @@ class UploadController(BaseController):
         return ''
 
     def error(self):
-        stack_trace = request.environ['wsgi.input'].read(4096)
+        client_size = int(request.environ["CONTENT_LENGTH"])
+        read_size = min(client_size, 4096)
+        stack_trace = request.environ['wsgi.input'].read(read_size)
         if stack_trace == '':
             return '0'
         def sendmail():

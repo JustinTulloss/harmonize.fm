@@ -38,6 +38,9 @@ if sys.platform == 'darwin':
 		app = ['test_win_upload.py']
 		scripts = ['Harmonize_osx.py', 'osx_options.py', 'osx_upload.py']
 
+	if len(sys.argv) == 1 or sys.argv[1] != 'py2app':
+		sys.exit(0)
+
 	import py2app
 	setup(
 		name='Harmonizer',
@@ -54,6 +57,9 @@ elif sys.platform == 'win32':
 	main_py.write(
 		Template(filename='main.mako.py').render(window_file='Harmonize_win'))
 	main_py.close()
+
+	if len(sys.argv) == 1 or sys.argv[1] != 'py2exe':
+		sys.exit(0)
 
 	import py2exe
 	setup(
