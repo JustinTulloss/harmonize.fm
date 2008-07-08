@@ -24,6 +24,7 @@ def ensure_fb_session():
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()        
         if not user:
+            return False #XXX: Remove this line to open up harmonize!
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid, premium = False)
             Session.add(user)
@@ -31,10 +32,10 @@ def ensure_fb_session():
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
         user.present_mode = True if request.params.get('present') == 'true' else False
-        session['userid'] = user.id
-        session.save()
         Session.add(user)
         Session.commit()
+        session['userid'] = user.id
+        session.save()
         return True
 
     if 'paste.testing_variables' in request.environ:
