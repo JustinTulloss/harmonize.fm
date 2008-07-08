@@ -1,6 +1,6 @@
 import time
 import pylons
-from pylons import cache
+from pylons import cache, config
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from masterapp.model import User, Session, Whitelist
@@ -40,7 +40,7 @@ def ensure_fb_session():
 
     if 'paste.testing_variables' in request.environ:
         #We're testing. Setup a permanent facebook session
-        facebook.session_key = 'dec36916ce201f1f834ad59c-1909354'
+        facebook.session_key = config['pyfacebook.sessionkey']
         facebook.uid = 1909354
         return setup_user()
 

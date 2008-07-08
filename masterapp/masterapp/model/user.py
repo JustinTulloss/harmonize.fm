@@ -266,6 +266,17 @@ class User(Base):
     def get_all_friends(self):
         return self._fballfriends
     allfriends = property(get_all_friends)
+
+    def is_friends_with(self, friend):
+        """
+        Tells you if a user is friends with another user.
+        """
+        if friend.id == self.id:
+            return True
+        elif friend.fbid in self.friends:
+            return True
+        else:
+            return False
     
     def get_nowplaying(self):
         return self._nowplaying

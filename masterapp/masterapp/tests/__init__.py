@@ -24,7 +24,7 @@ from sqlalchemy import engine
 from pylons import config,cache
 
 __all__ = ['url_for', 'TestController', 'TestModel', 'here_dir',
-    'conf_dir', 'model']
+    'conf_dir', 'model', 'generate_fake_song', 'generate_fake_user']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
@@ -40,16 +40,16 @@ wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
 reflectengine = engine_from_config(config,
     prefix = 'sqlalchemy.default.'
 )
-config['pylons.g'].sa_engine = reflectengine
 memengine = engine_from_config(config,
     prefix = 'sqlalchemy.memory.')
 
+config['pylons.g'].sa_engine = reflectengine
 from masterapp import model
 
 # Bind to memory database and create all
 config['pylons.g'].sa_engine = memengine
 model.metadata.bind = memengine
-model.Session.bind=memengine
+model.Session.configure(bind = memengine)
 model.metadata.create_all()
 
 test_file = os.path.join(conf_dir, 'test.ini')
@@ -70,16 +70,43 @@ class TestController(TestCase):
 class TestModel(TestController):
     def __init__(self, *args):
         super(TestModel, self).__init__(*args)
+        model.metadata.bind = memengine
+        model.Session.configure(bind=memengine)
 
     def setUp(self):
         super(TestModel, self).setUp()
+        model.Session.remove()
         model.metadata.create_all()
 
     def tearDown(self):
         super(TestModel, self).tearDown()
         model.metadata.drop_all()
-        model.Session.remove()
 
-        #self.model.Session.configure(bind=reflectengine)
-        #self.model.metadata.bind = reflectengine
+rnum = 0
+def generate_fake_song(owner):
+        global rnum
+        rnum +=1
+        rstr = str(rnum)
+        nal = model.Album(title = 'album'+rstr)
+        nar = model.Artist(name = 'artist'+rstr)
+        nal.artist = nar
+        ns = model.Song(title="A song"+rstr, sha = 'sha'+rstr)
+        ns.artist = nar
+        ns.album = nal
 
+        owner.add_song(ns)
+
+        model.Session.add_all([owner, nal, nar, ns])
+        model.Session.commit()
+        return ns
+
+def generate_fake_user(fbid=None):
+    global rnum
+    rnum += 1
+    rstr = str(rnum)
+    user = model.User(
+        fbid = fbid if fbid else 'id'+rstr)
+    model.Session.add(user)
+    model.Session.commit()
+    return user
+    

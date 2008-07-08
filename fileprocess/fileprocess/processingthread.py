@@ -25,8 +25,6 @@ def init_caches():
         url=config['sqlalchemy.default.url']
     )
 
-
-
 class MsgQueue(object):
     def __init__(self):
         self.msglock = threading.Lock()

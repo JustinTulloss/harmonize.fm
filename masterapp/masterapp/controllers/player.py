@@ -80,7 +80,8 @@ class PlayerController(BaseController):
 	
         return render('/player.mako')
 
-    def songurl(self, id):
+    @pass_user
+    def songurl(self, friend, **kwargs):
         """
         Fetches the S3 authenticated url of a song.
         Right now, this provides no security at all since anybody with a 
@@ -88,46 +89,24 @@ class PlayerController(BaseController):
         who's doing what, and if we can come up with conclusive proof that
         somebody is stealing music through our logs, we can ban them.
         """
-        if session.get('playing') != None:
-            if g.usedfiles.has_key(session['playing']):
-                g.usedfiles.pop(session['playing'])
+        user = Session.query(User).get(session['userid'])
+        if not user.is_friends_with(friend):
+            abort(401)
 
-        song= Session.query(Song).\
-            join([Song.owners]).filter(Song.id==int(id))
-        song= song.first()
+        song = Session.query(Song).\
+            join([Song.owners]).filter(Song.id==int(kwargs['id']))
+        song = song.first()
         if not song:
             abort(404)
-        self.update_fbml()
-        # XXX: Remove this to enable locking implemented below
+
         qsgen = S3.QueryStringAuthGenerator(
         config['S3.accesskey'], config['S3.secret'],
             is_secure = False
         )
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
+
         return qsgen.get(config['S3.music_bucket'], song.sha)
         
-        # TODO: Think of a more efficient way of doing this. Perhaps the inuse
-        # flag should be in the database?
-        for file in files:
-            for owner in file.owners:
-                if not g.usedfiles.has_key((file.id, owner.id)):
-                    qsgen = S3.QueryStringAuthGenerator(
-                        config['S3.accesskey'], config['S3.secret'],
-                        is_secure = False
-                    )
-                    qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
-                    
-                    #Mark the file as in use, with the time it can come back
-                    g.usedfiles[(file.id, owner.id)] = \
-                        time.time()+DEFAULT_EXPIRATION*60
-                    session['playing'] = (file.id, owner.id)
-                    session.save()
-                    return qsgen.get(config['S3.music_bucket'], file.sha)
-        #if we get here, all files are in use! Damn it!
-        session['playing'] = None
-        session.save()
-        return 'false'
-
     def set_now_playing(self):
         if not request.params.has_key('id'):
             return 'false'

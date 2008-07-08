@@ -1,7 +1,9 @@
 from masterapp.tests import *
+import re
+from mock import Mock
 #from masterapp import model
 
-class TestPlayerController(TestController):
+class TestPlayerController(TestModel):
     def test_index(self):
         """
         Testing <root>/player
@@ -16,29 +18,31 @@ class TestPlayerController(TestController):
         """
         Testing <root>/player/songurl/<songid>
         """
+        # Test 404 for a non-existent song
         response = self.app.get(url_for(
             controller='player',
             action = 'songurl',
             id = 7
+        ), status=404)
+
+
+        # Test for a song I do own
+        ns = generate_fake_song(model.Session.query(model.User).one())
+        response = self.app.get(url_for(
+            controller='player',
+            action = 'songurl',
+            id = ns.id
         ))
 
-        assert response.session.has_key('playing') == True,\
-            "file being played not inserted into session as expected"
-        assert 'music.rubiconmusicplayer.com' in response, \
-            "Incorrect url was returned"
-
-        # Now we'll mark a particular file as completely consumed (should die)
-        files=model.Session.query(model.File).\
-            filter(model.File.songid == 8).all()
-        not_friend = model.Session.query(model.User).\
-            filter(model.User.fbid == 1906978).first()
-        for file in files:
-            g.usedfiles[(file.id, file.ownerid)] = file.owners
+        assert re.search(ns.sha, response.body),\
+            'Did not return the sha in the URL'
+        
+        # Test for a song none of my friends own
+        anewuser = generate_fake_user()
+        anewsong = generate_fake_song(anewuser)
 
         response = self.app.get(url_for(
             controller='player',
             action = 'songurl',
-            id = 8
-        ))
-        assert 'false' in response, \
-            "file was found when it should not have been"
+            id = anewsong.id
+        ), params={'friend': anewuser.id}, status=401)
