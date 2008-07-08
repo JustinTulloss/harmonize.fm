@@ -52,6 +52,7 @@ if sys.platform == 'darwin':
 					'genpuid/mipcore'],
 		options=dict(py2app=dict(plist=dict(
 			LSUIElement=True,
+			CFBundleIdentifier='fm.harmonize.Harmonizer',
 			CFBundleIconFile='desktop_icon.icns')))
 	)
 elif sys.platform == 'win32':

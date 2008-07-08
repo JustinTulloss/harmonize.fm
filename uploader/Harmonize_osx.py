@@ -121,7 +121,8 @@ class RubiconController(NibClassBuilder.AutoBaseClass):
 		item.setTitle_("h")
 		item.setHighlightMode_(True)
 		item.setMenu_(self.statusMenu)
-		#NSApp().setMainMenu_(self.statusMenu)
+
+		NSApp().setDelegate_(self)
 
 		global director
 		director = self
@@ -163,6 +164,10 @@ class RubiconController(NibClassBuilder.AutoBaseClass):
 	def worksWhenModal(self):
 		return True
 
+	def applicationShouldHandleReopen_hasVisibleWindows_(self, app, vis):
+		self.uploadController.activate()
+		return False
+
 	#actions
 	def listen_(self, sender):
 		d_invoke('listen_clicked')
@@ -175,8 +180,8 @@ class RubiconController(NibClassBuilder.AutoBaseClass):
 
 	def options_(self, sender):
 		if self.modal:
-			self.optionsWindow.makeKeyAndOrderFront_(self)
 			NSApp().activateIgnoringOtherApps_(True)
+			self.optionsWindow.makeKeyAndOrderFront_(self)
 		else:
 			self.statusMenuItem.setEnabled_(False)
 			self.modal = True
