@@ -307,7 +307,7 @@ function SongQueue(label, is_playlist) {
 			last = my.root.item(0);
         
         if (bread_crumb.is_friends_library()) source = 1;
-        else source = 0;
+        else source = '0';
         for (var i = 0; i < (records.length); i++) {
             records[i].set('source', source);
             var nn = newnode({record:records[i]});
