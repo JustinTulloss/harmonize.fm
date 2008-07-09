@@ -402,7 +402,7 @@ function QueueNode(config)
     this.record = config.record;
     this.queue = config.queue;
 	this.loaded = false;
-    this.source = null;
+    
     this.dequeue = function(k) {};
 	this.peek = function(k) {};
     this.update_text = function () {};
@@ -429,9 +429,9 @@ function SongQueueNode(config)
 		config.disabled = true;
 
 	this.songid = config.record.get('Song_id');
-
+    
     SongQueueNode.superclass.constructor.call(this, config);
-
+    
     this.dequeue = function(k) {
         this.remove();
         k(this.record);
@@ -498,6 +498,7 @@ function AlbumQueueNode(config)
     this.dequeue = function(k) {
 		function dequeue_aux() {
 			var record = my.firstChild.record;
+            record.set('source',config.record.get('source'));
 			my.firstChild.remove();
 			update_text();
 			k(record);
