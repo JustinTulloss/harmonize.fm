@@ -2,7 +2,7 @@
 import sys
 import gc
 import fileprocess
-from fileprocess.processingthread import FileUploadThread, set_fp, init_caches
+from fileprocess.processingthread import FileUploadThread, set_fp
 import logging
 import signal
 import threading
@@ -46,9 +46,6 @@ def main():
 
     log.debug('Starting with config: %s and logging %s',
         config, lconfig)
-
-    # Initialize the caches
-    init_caches()
 
     # Initialize the processing thread
     fp = FileUploadThread()

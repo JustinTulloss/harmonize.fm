@@ -3,6 +3,7 @@ from baseaction import BaseAction
 import ecs
 from time import sleep
 from fileprocess.configuration import config
+from lrucache import LRUCache
 
 log = logging.getLogger(__name__)
 
@@ -11,17 +12,13 @@ CACHE_EXPIRATION = 60*60
 class AmazonCovers(BaseAction):
     def __init__(self, *args, **kwargs):
         super(AmazonCovers, self).__init__(*args, **kwargs)
-        from fileprocess.processingthread import caches
-        self.covercache = caches.get_cache(
-            'amazon.covers',
-            expires = CACHE_EXPIRATION
-        )
+        self.covercache = LRUCache(size=100)
 
     def process(self, file):
         if not file.has_key(u'asin'):
             return file
 
-        if self.covercache.has_key(file[u'asin']):
+        if file[u'asin'] in self.covercache:
             return self.fill_file(file, self.covercache[file[u'asin']])
 
         ecs.setLicenseKey(config['S3.accesskey'])
