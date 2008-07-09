@@ -292,7 +292,7 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 
 /* Selection Styles */
 .x-grid3-row-selected {
-	background: #FFF4EA !important;
+	background: #FFF1D9 !important;
 	/*border:1px dotted #a3bae9;*/
 }
 
