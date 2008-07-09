@@ -274,15 +274,22 @@ class User(Base):
         self._nowplayingid = song.id
         stats = Session.query(SongStat).\
             filter(SongStat.song == song).\
-            filter(SongStat.user == self).first()
+            filter(SongStat.user == self)
+        
+        if session.has_key('src'):
+            stats = stats.filter(SongStat.source == session['src'])
+
+        stats = stats.first()
         if not stats:
             stats = SongStat(user = self, song = song)
 
         stats.playcount = stats.playcount + 1
         stats.lastplayed = datetime.now()
+        if session.has_key('src'):
+            stats.source = session['src']
         Session.add(stats)
-    nowplaying = property(get_nowplaying, set_nowplaying)
 
+    nowplaying = property(get_nowplaying,set_nowplaying)
     def get_url(self):
         return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
     url = property(get_url)

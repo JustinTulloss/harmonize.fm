@@ -142,9 +142,18 @@ function Player() {
             
 		set_pause(true);
         // now update the nowplaying field in the database        
+        req_params = {
+            id: song.get('Song_id')
+        };
+        if (playqueue.is_friend_radio()) {
+            req_params = {
+                id: song.get('Song_id'),
+                source: 3
+            };
+        }
         Ext.Ajax.request({
             url: '/player/set_now_playing',
-            params: {id:song.get('Song_id')},
+            params: req_params,
             success: function() {return;},
             failure: function() {
                 show_status_msg('There was a problem setting your current song statistic.');

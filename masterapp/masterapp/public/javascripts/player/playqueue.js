@@ -144,6 +144,8 @@ function PlayQueue(config) {
             return;    
         songQueue.shuffle();
     }
+
+    my.is_friend_radio = songQueue.is_friend_radio;
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
