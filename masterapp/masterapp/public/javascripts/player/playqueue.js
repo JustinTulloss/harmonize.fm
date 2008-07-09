@@ -402,7 +402,7 @@ function QueueNode(config)
     this.record = config.record;
     this.queue = config.queue;
 	this.loaded = false;
-
+    this.source = null;
     this.dequeue = function(k) {};
 	this.peek = function(k) {};
     this.update_text = function () {};
