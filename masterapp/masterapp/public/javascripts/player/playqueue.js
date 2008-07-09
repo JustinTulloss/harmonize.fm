@@ -674,6 +674,7 @@ function PlaylistQueueNode(config) {
 			}
 			var record = my.firstChild.record;
 			my.firstChild.remove();
+            record.set('source',config.record.get('source'));
 			update_text();
 			k(record);
 		}
