@@ -23,9 +23,9 @@ import masterapp.lib.snippets as snippets
 log = logging.getLogger(__name__)
 
 class SpotlightController(BaseController):
+
     def __before__(self):
-        if not ensure_fb_session():
-            redirect_to("/request/invitation")
+        ensure_fb_session()
 
     def album(self, id):
         if not request.params.has_key('comment') or not id:

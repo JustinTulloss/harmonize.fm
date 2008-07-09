@@ -77,7 +77,7 @@ class MockFacebook(object):
     friends.getAppUsers = Mock()
     friends.getAppUsers.return_value = configured_friends
 
-    def getuserinfo(self, fbid, fields):
+    def getuserinfo(fbid, fields=None):
         if fields:
             return configured_user_info
         else:

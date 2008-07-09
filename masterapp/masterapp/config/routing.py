@@ -26,17 +26,12 @@ def make_map():
     map.connect('upload_ping', controller='upload', 
 		action='upload_ping', conditions=dict(method=['GET']))
 
-    # Filter functions. These are necessary to groom the arguments correctly, so
-    # that we can use decorators with our controller actions. I think. --JMT
-    def default_expand(kargs):
-        return {'id': kargs['id']}
-        
     # The recommender needs an id and a friend
     map.connect('recommend', 'recommend/:action/:entity/:friend', controller='recommend', 
         requirements=dict(id='\d+', friend='\d+'))
     map.connect('remove', 'metadata/remove/:type/:id', controller='metadata',
         action='remove', requirements=dict(id='\d+'))
-    map.connect('default', ':controller/:action/:id', _filter=default_expand)
+    map.connect('default', ':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 
     return map

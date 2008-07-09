@@ -24,7 +24,8 @@ from sqlalchemy import engine
 from pylons import config,cache
 
 __all__ = ['url_for', 'TestController', 'TestModel', 'here_dir',
-    'conf_dir', 'model', 'generate_fake_song', 'generate_fake_user']
+    'conf_dir', 'model', 'generate_fake_song', 'generate_fake_user',
+    'generate_fake_playlist']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
@@ -116,6 +117,15 @@ def generate_fake_song(owner):
         model.Session.add_all([owner, nal, nar, ns])
         model.Session.commit()
         return ns
+
+def generate_fake_playlist(owner):
+    global rnum
+    rnum += 1
+    rstr = str(rnum)
+    playlist = model.Playlist('Playlist'+rstr, owner.id)
+    model.Session.add(playlist)
+    model.Session.commit()
+    return playlist
 
 def generate_fake_user(fbid=None):
     global rnum

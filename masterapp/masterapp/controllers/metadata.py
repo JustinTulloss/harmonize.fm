@@ -100,7 +100,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def songs(self, user):
+    def songs(self, user, **kwargs):
         qry = user.song_query
         
         sort = [Artist.sort, Album.title, Song.tracknumber]
@@ -124,7 +124,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def albums(self, user):
+    def albums(self, user, **kwargs):
         qry = user.album_query
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
@@ -136,7 +136,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def artists(self, user):
+    def artists(self, user, **kwags):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
         qry = self._apply_offset(qry)
@@ -144,7 +144,7 @@ class MetadataController(BaseController):
         
     @cjsonify
     @pass_user
-    def friends(self, user):
+    def friends(self, user, **kwargs):
         dtype = request.params.get('type')
         if request.params.get('all') == 'true':
             data = user.allfriends
@@ -185,7 +185,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def playlists(self, user):
+    def playlists(self, user, **kwargs):
         qry = Session.query(Playlist.ownerid.label('Friend_id'), 
                             *dbfields['playlist']).\
                 join(Playlist.owner).\

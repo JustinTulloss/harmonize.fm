@@ -1,12 +1,12 @@
 from masterapp.tests import *
+from masterapp.lib.fakefacebook import friends
 #from masterapp import model
 
-class TestMetadataController(TestController):
+class TestMetadataController(TestModel):
 
     def test_index(self):
         """
-        Testing <root>/metadata
-        """
+        Testing /metadata
         """
         # Test that failure is returned on bad invocation
         response = self.app.get(url_for(
@@ -23,11 +23,9 @@ class TestMetadataController(TestController):
             'song',
             'friend',
             'playlist',
-            'playlistsong'
         ]
         for type in types:
             self.check_metadata(type)
-        """
 
     def check_metadata(self, type):
         """
@@ -43,38 +41,112 @@ class TestMetadataController(TestController):
 
     def test_artists(self):
         """
-        Testing <root>/metadata/artists
+        Testing /metadata/artists
         """
-        pass
+        # Test my own artist
+        song = generate_fake_song(self.user)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'artists',
+        ))
+        assert song.artist.name in response.body,\
+            "Did not return my artist"
+
+        # Test a friend's artist
+        friend = generate_fake_user(friends[0])
+        song = generate_fake_song(friend)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'artists',
+        ), params={'friend': friend.id})
+        assert song.artist.name in response.body,\
+            "Did not return my friend's artist"
+
 
     def test_songs(self):
         """
-        Testing <root>/metadata/artists
+        Testing /metadata/songs
         """
-        pass
+        # Test my own song
+        song = generate_fake_song(self.user)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'songs',
+        ))
+        assert song.title in response.body,\
+            "Did not return my song"
+
+        # Test a friend's song
+        friend = generate_fake_user(friends[0])
+        song = generate_fake_song(friend)
+        response = self.app.post(
+            url_for(
+                controller = 'metadata',
+                action = 'songs'), 
+            params={
+                'friend': friend.id,
+                'album': song.albumid,
+                'artist': song.artistid,
+            }
+        )
+        assert song.title in response.body,\
+            "Did not return my friend's song"
 
     def test_albums(self):
         """
-        Testing <root>/metadata/albums
+        Testing /metadata/albums
         """
-        pass
+        # Test my own album
+        song = generate_fake_song(self.user)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'albums',
+        ))
+        assert song.album.title in response.body,\
+            "Did not return my album"
+
+        # Test a friend's album
+        friend = generate_fake_user(friends[0])
+        song = generate_fake_song(friend)
+        response = self.app.post(
+            url_for(
+                controller = 'metadata',
+                action = 'albums'), 
+            params={
+                'friend': friend.id,
+                'artist': song.artistid,
+            }
+        )
+        assert song.album.title in response.body,\
+            "Did not return my friend's album"
 
     def test_playlists(self):
         """
-        Testing <root>/metadata/playlists
+        Testing /metadata/playlists
         """
-        pass
+        # Test my own playlist
+        playlist = generate_fake_playlist(self.user)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'playlists',
+        ))
+        assert playlist.name in response.body,\
+            "Did not return my playlist"
 
-    def test_playlistsongs(self):
-        """
-        Testing <root>/metadata/playlistsongs
-        """
-        pass
+        # Test a friend's playlist
+        friend = generate_fake_user(friends[0])
+        playlist = generate_fake_playlist(friend)
+        response = self.app.post(
+            url_for(
+                controller = 'metadata',
+                action = 'playlists'), 
+            params={'friend': friend.id}
+        )
+        assert playlist.name in response.body,\
+            "Did not return my friend's playlist"
 
     def test_friends(self):
         """
-        Testing <root>/metadata/friends
+        Testing /metadata/friends
         """
         pass
-        
- 
