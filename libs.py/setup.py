@@ -15,7 +15,7 @@ kwargs = {
     ],
     'packages': find_packages(),
     'py_modules':['S3', 'guid', 'mailer', 'mock', 'ecs', 'alert', 'df', 'puid',
-        'tag_compare', 'tag_utils'],
+        'tag_compare', 'tag_utils', 'lrucache'],
     'include_package_data':True,
     'test_suite': 'nose.collector',
     'ext_modules': ext
