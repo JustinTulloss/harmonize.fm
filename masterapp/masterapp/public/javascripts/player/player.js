@@ -145,18 +145,10 @@ function Player() {
         req_params = {
             id: song.get('Song_id')
         };
-        if (song.get('source') == 2) { // from spotlight
-            req_params = {
-                id: song.get('Song_id'),
-                source: 2
-            };
-        }
-        if (playqueue.is_friend_radio()) {
-            req_params = {
-                id: song.get('Song_id'),
-                source: 3
-            };
-        }
+        if (song.get('source')) // this handles everything but the radio source
+            req_params['source'] = song.get('source');
+        if (playqueue.is_friend_radio()) //from radio
+            req_params['source'] = 3
         Ext.Ajax.request({
             url: '/player/set_now_playing',
             params: req_params,
