@@ -255,6 +255,12 @@ function BreadCrumb()
                 }
             });
     }
+
+    my.is_friends_library = function() {
+        if (bclist[0] == null) return false;        
+        if (bclist[0].type == 'friend') return true;
+        else return false;
+    }
 }
 
 Ext.extend(BreadCrumb, Ext.util.Observable);

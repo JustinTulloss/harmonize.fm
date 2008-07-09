@@ -59,7 +59,13 @@ function PlayQueue(config) {
 	songQueue.on('reordered', onreorder);
 
     my.playgridrow = function(grid, songindex, e) {
-        playnow(grid.store.getAt(songindex));
+        record = grid.store.getAt(songindex);
+        if (bread_crumb.is_friends_library()) {
+            record.set('source', 1);
+        } else {
+            record.set('source', '0'); //this is a string b/c an int appears as undefined. wft?!
+        }
+        playnow(record);
     }
 
     function playnow(record) {
@@ -206,7 +212,10 @@ function SongQueue(label, is_playlist) {
     });
 
 	my.enqueue = function(records) {
+        if (bread_crumb.is_friends_library()) source = 1;
+        else source = '0';
         for (i = 0; i < (records.length); i++) {
+            records[i].set('source',source);
             var nn = newnode({record:records[i]});
             my.root.appendChild(nn);
         }
@@ -296,8 +305,11 @@ function SongQueue(label, is_playlist) {
 
 		if (!last && my.root.hasChildNodes())
 			last = my.root.item(0);
-
+        
+        if (bread_crumb.is_friends_library()) source = 1;
+        else source = 0;
         for (var i = 0; i < (records.length); i++) {
+            records[i].set('source', source);
             var nn = newnode({record:records[i]});
             if (last) 
                 my.root.insertBefore(nn, last);
