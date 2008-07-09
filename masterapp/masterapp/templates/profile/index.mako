@@ -4,7 +4,7 @@
 
 ${rightcol.render()}
 <div id="profile-body">
-	<% own_profile = c.current_uid == c.user.id %>
+	<% own_profile = c.current_user.id == c.user.id %>
     <div class="profile-status">
         <span class="profile-name">${c.user.name}</span>
         % if c.user.nowplaying:
@@ -18,7 +18,7 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
-		% if own_profile or c.user.premium:
+		% if own_profile or c.current_user.premium:
         <div id="friend_music_menu_link">
             <a href="#/action/browse_friend/${c.user.id}">
                 browse 
