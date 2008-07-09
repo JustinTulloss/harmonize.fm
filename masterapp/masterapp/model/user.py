@@ -3,6 +3,7 @@
 # Putting user in its own file since it's huge
 
 from pylons import cache, request, session, c
+from pylons.templating import render
 from decorator import decorator
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Table, sql
@@ -274,11 +275,25 @@ class User(Base):
         """
         if friend.id == self.id:
             return True
-        elif friend.fbid in self.friends:
+        else:
+            for friend in self.friends:
+                if friend['uid'] == friend:
+                    return True
+            return False
+
+    def is_fbfriends_with(self, fbid):
+        """
+        Tells you if a user is friends with another user on any network we know
+        about
+        """
+        if fbid == self.fbid:
             return True
         else:
+            for fbuser in self.allfriends:
+                if fbuser['uid'] == fbid:
+                    return True
             return False
-    
+
     def get_nowplaying(self):
         return self._nowplaying
 
@@ -537,7 +552,7 @@ class User(Base):
         spotlight.user = self
         spotlight.unactivate_lru()
         Session.add(spotlight)
-        self.publish_spotlight(spot)
+        self.publish_spotlight(spotlight)
         self.update_profile()
 
 

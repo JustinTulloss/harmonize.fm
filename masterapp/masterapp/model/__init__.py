@@ -130,7 +130,7 @@ class Spotlight(object):
         self.comment = comment[:255]
         self.timestamp = datetime.now()
         self.active = active
-        self.playlistid = playlist
+        self.playlist = playlist
         if active and self.user:
             self.unactivate_lru()
 
@@ -147,8 +147,7 @@ class Spotlight(object):
         if self.albumid:
             return self.album.artist.name
         elif self.playlistid:
-            user = Session.query(User).get(self.uid)
-            return user.name
+            return self.user.name
     author = property(get_author)
 
     def unactivate_lru(self):
@@ -288,7 +287,10 @@ mapper(BlogEntry, blog_table)
 mapper(Spotlight, spotlights_table, properties={
     'album': relation(Album, lazy=False),
     'user' : relation(User, lazy=False, backref='spotlights'),
-    'playlist' : relation(Playlist, foreign_keys = [spotlights_table.c.playlistid], primaryjoin = playlists_table.c.id == spotlights_table.c.playlistid),
+    'playlist' : relation(Playlist, 
+        foreign_keys = [spotlights_table.c.playlistid], 
+        primaryjoin = playlists_table.c.id == spotlights_table.c.playlistid
+    ),
 })
 
 mapper(SpotlightComment, spotlight_comments_table, properties={
