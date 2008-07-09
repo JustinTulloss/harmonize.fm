@@ -211,10 +211,18 @@ function SongQueue(label, is_playlist) {
 		header: true,
         items: [my.inspanel, my.tree]
     });
-
-	my.enqueue = function(records) {
+    
+    function get_source() {
         if (bread_crumb.is_friends_library()) source = 1;
         else source = '0';
+        if (location.vars != null) {
+            source = location.vars.charAt(location.vars.indexOf('source') + 7);
+        }
+        return source;
+    }
+
+	my.enqueue = function(records) {
+        source = get_source();
         for (i = 0; i < (records.length); i++) {
             records[i].set('source',source);
             var nn = newnode({record:records[i]});
@@ -307,8 +315,7 @@ function SongQueue(label, is_playlist) {
 		if (!last && my.root.hasChildNodes())
 			last = my.root.item(0);
         
-        if (bread_crumb.is_friends_library()) source = 1;
-        else source = '0';
+        source = get_source();
         if (location.hash.indexOf('source') != -1) // this means the source has been passed in the url
             source = location.hash.charAt(location.hash.indexOf('=') + 1);
         for (var i = 0; i < (records.length); i++) {

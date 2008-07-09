@@ -120,11 +120,17 @@ function BreadCrumb()
     }
 
 
-    my.load_url = function(url) { 
+    my.load_url = function(url) {
         build_bc(url);
     }
 
     function build_bc(url) {
+        if (url.indexOf('?') != -1) {
+            //this means there is a variable somewhere
+            url = url.split('?');
+            location.vars = url[1];
+            url = url[0];
+        }
         var parts = url.split('/')
         var params = {};
         var param;
