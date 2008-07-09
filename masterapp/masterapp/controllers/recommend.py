@@ -21,7 +21,7 @@ class RecommendController(BaseController):
         c.entity = album.title
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://%s/player#/bc/friend=%s/album=%s/song' % \
+        c.href = 'http://%s/player#/bc/friend=%s/album=%s/song?source=4' % \
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
@@ -33,7 +33,7 @@ class RecommendController(BaseController):
         c.entity = artist.name
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://%s/player#/bc/friend=%s/artist=%s/album' % \
+        c.href = 'http://%s/player#/bc/friend=%s/artist=%s/album?source=4' % \
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
@@ -46,7 +46,7 @@ class RecommendController(BaseController):
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
         c.href = \
-            'http://%s/player#/bc/friend=%s/artist=%s/album=%s/song=%s/song' %\
+            'http://%s/player#/bc/friend=%s/artist=%s/album=%s/song=%s/song?source=4' %\
             (request.host, session['userid'], song.artistid, 
                 song.albumid, song.id)
         facebook.notifications.send(c.recommendee,
@@ -59,7 +59,7 @@ class RecommendController(BaseController):
         c.entity = playlist.name
         c.recommender = Session.query(User).get(session['userid'])
         c.recommendee = kwargs['friend']
-        c.href = 'http://%s/player#/bc/friend=%s/playlist=%s/playlistsong' % \
+        c.href = 'http://%s/player#/bc/friend=%s/playlist=%s/playlistsong?source=4' % \
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))

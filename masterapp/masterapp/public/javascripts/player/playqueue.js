@@ -65,6 +65,7 @@ function PlayQueue(config) {
         } else {
             record.set('source', '0'); //this is a string b/c an int appears as undefined. wft?!
         }
+
         playnow(record);
     }
 
@@ -308,6 +309,8 @@ function SongQueue(label, is_playlist) {
         
         if (bread_crumb.is_friends_library()) source = 1;
         else source = '0';
+        if (location.hash.indexOf('source') != -1) // this means the source has been passed in the url
+            source = location.hash.charAt(location.hash.indexOf('=') + 1);
         for (var i = 0; i < (records.length); i++) {
             records[i].set('source', source);
             var nn = newnode({record:records[i]});

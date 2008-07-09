@@ -213,7 +213,7 @@ class PlayerController(BaseController):
             return '0'
 
         albumid = id
-        comment = request.params['comment']
+        comment = h.util.html_escape(request.params['comment'])
         uid = session['userid']
 
         spotlight = Spotlight(uid, albumid, comment)
@@ -253,7 +253,7 @@ class PlayerController(BaseController):
         id = request.params.get('spot_id')
         comment = request.params.get('comment')
         spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
-        spotlight.comment = comment
+        spotlight.comment = h.util.html_escape(comment)
         Session.commit()
         
         return "True"
