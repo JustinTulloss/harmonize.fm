@@ -1,5 +1,5 @@
 from masterapp.tests import *
-from masterapp.lib.fakefacebook import friends
+from masterapp.lib.fakefacebook import friends, friends_info
 #from masterapp import model
 
 class TestMetadataController(TestModel):
@@ -149,4 +149,9 @@ class TestMetadataController(TestModel):
         """
         Testing /metadata/friends
         """
-        pass
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'friends',
+        ))
+        assert friends_info[0]['name'] in response.body,\
+            "Did not return my friends"

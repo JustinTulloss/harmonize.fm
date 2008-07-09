@@ -150,36 +150,9 @@ class MetadataController(BaseController):
             data = user.allfriends
         else:
             data = user.friends
-            qry = Session.query(User).join(User.owners)
-            cond = or_()
             for friend in data:
-                cond.append(User.fbid == friend['uid'])
-            qry = qry.filter(cond)
-            qry = qry.order_by(User.fbid)
-            results = qry.all()
-
-            def _intersect(item):
-                if len(results) > 0:
-                    if results[0].fbid == item['uid']:
-                        item['type'] = dtype
-                        item['Friend_name'] = item['name']
-                        item['Friend_id'] = results[0].id
-                        del results[0]
-                        return True
-                    else:
-                        return False
-                else:
-                    return False
-
-            # This is a bit confusing. It looks at all the friends you have that own
-            # the app and then check to see if they have any songs. Those that do
-            # get passed through and their names are passed back. We do this because
-            # we fetch the name from facebook and the ownership information
-            # from our own database.
-            data = sorted(data, key=itemgetter('uid'))
-            data = filter(_intersect, data)
+                friend['Friend_name'] = friend['name']
             data = sorted(data, key=itemgetter('Friend_name'))
-
         return {'success':True, 'data':data}
 
     @cjsonify
