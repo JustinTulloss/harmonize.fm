@@ -2,7 +2,7 @@
 # 
 # Putting user in its own file since it's huge
 
-from pylons import cache, request, session
+from pylons import cache, request, session, c
 from decorator import decorator
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Table, sql
@@ -15,6 +15,7 @@ from . import (
     songs_table,
     artists_table,
     playlists_table,
+    spotlights_table,
     Artist,
     Album,
     Song,
@@ -510,6 +511,34 @@ class User(Base):
             artistc.albumcount -= 1
         Session.add(artistc)
         return True
+
+    def update_profile(self):
+        c.user = self
+        fbml = render('facebook/profile.mako.fbml')
+        facebook.profile.setFBML(fbml)
+
+    @fbaccess
+    def publish_spotlight(self, spot):
+        title_t = """
+        {actor} created 
+        <fb:if-multiple-actors>Spotlights
+        <fb:else>a Spotlight</fb:else>
+        </fb:if-multiple-actors> on {album} at 
+        <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>
+        """
+        title_d = '{"album":"%s"}' % spot.title
+        r = facebook.feed.publishTemplatizedAction(
+            title_template=title_t, 
+            title_data=title_d
+        )
+        return r
+
+    def add_spotlight(self, spotlight):
+        spotlight.user = self
+        spotlight.unactivate_lru()
+        Session.add(spotlight)
+        self.publish_spotlight(spot)
+        self.update_profile()
 
 
 class ArtistCounts(Base):

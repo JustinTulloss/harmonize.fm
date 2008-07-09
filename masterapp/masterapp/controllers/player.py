@@ -94,7 +94,7 @@ class PlayerController(BaseController):
             abort(401)
 
         song = Session.query(Song).\
-            join([Song.owners]).filter(Song.id==int(kwargs['id']))
+            join(Song.owners).filter(Song.id==int(kwargs['id']))
         song = song.first()
         if not song:
             abort(404)
@@ -107,18 +107,18 @@ class PlayerController(BaseController):
 
         return qsgen.get(config['S3.music_bucket'], song.sha)
         
-    def set_now_playing(self):
+    @pass_user
+    def set_now_playing(self, user, **kwargs):
         if not request.params.has_key('id'):
             return 'false'
         
         song = Session.query(Song).get(request.params.get('id'))
 
-        user = Session.query(User).get(session['userid'])
         # moving this to a separate action to fix buffering bug
         user.nowplaying = song
         Session.add(user)
         Session.commit()
-        self.update_fbml()
+        user.update_profile()
         return 'true'
 
     @pass_user
@@ -126,31 +126,35 @@ class PlayerController(BaseController):
         c.songs = user.song_query.filter(
             Song.albumid == request.params.get('album')
         ).order_by(Song.tracknumber).all()
+        if len(c.songs) == 0:
+            abort(404)
         c.album = user.album_query.filter(
             Album.id == request.params.get('album')
         ).one()
         return render('/album_details.mako')
 
-    def username(self):
-        return get_user_info()['name']
+    @pass_user
+    def username(self, user, **kwargs):
+        return user.name
 
     def feedback(self):
         if not request.params.has_key('email') or\
-                not request.params.has_key('feedback'):
+                not request.params.get('feedback'):
             return '0';
         user_email = request.params['email']
         user_feedback = request.params['feedback']
-        user_browser = request.params['browser']
+        user_browser = request.params.get('browser')
 
-        bdata = cjson.decode(urllib.unquote(user_browser))
         browser = screen = user = ''
         user = Session.query(User).get(session['userid'])
 
-        for key, value in bdata['browser'].items():
-            browser = browser + "%s = %s\n" % (key, value)
+        if user_browser:
+            bdata = cjson.decode(urllib.unquote(user_browser))
+            for key, value in bdata['browser'].items():
+                browser = browser + "%s = %s\n" % (key, value)
 
-        for key, value in bdata['screen'].items():
-            screen = screen + "%s = %s\n" % (key, value)
+            for key, value in bdata['screen'].items():
+                screen = screen + "%s = %s\n" % (key, value)
         message = feedback_template % \
                 (user_feedback, browser, screen)
 
@@ -176,23 +180,8 @@ class PlayerController(BaseController):
                 frm, pword,
                 'founders@harmonize.fm', subject, message, cc=cc)
 
-        thread.start_new_thread(sendmail, ())
-        return '1'
-
-    def spotlight_album(self, id):
-        if not request.params.has_key('comment'):
-            return '0'
-
-        albumid = id
-        comment = request.params['comment']
-        uid = session['userid']
-
-        spotlight = Spotlight(uid, albumid, comment)
-        Session.save(spotlight)
-        Session.commit()
-
-        self.update_fbml()
-        self.publish_spotlight_to_facebook(spotlight)
+        if not 'paste.testing_variables' in request.environ:
+            thread.start_new_thread(sendmail, ())
         return '1'
 
     def blog(self, id):
@@ -216,65 +205,9 @@ class PlayerController(BaseController):
             c.platform = 'mac'
         return render('/home.mako')
         
-    def spotlight_edit(self):
-        if not request.params.has_key('comment'):
-            return "False"
-        elif not request.params.has_key('spot_id'):
-            return "False"
-        id = request.params.get('spot_id')
-        comment = request.params.get('comment')
-        spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
-        spotlight.comment = comment
-        Session.commit()
-        
-        return "True"
-
-    def delete_spotlight(self,id):
-        spot = Session.query(Spotlight).get(id)
-        if (spot):
-            Session.delete(spot)
-            Session.commit()
-            self.update_fbml()
-            return "True"
-        else:
-            return "False"
-        
-        
-    def spotlight_playlist(self, id):
-        if not request.params.has_key('comment'):
-            return '0'
-
-        playlistid = id
-        comment = request.params['comment']
-        uid = session['userid']
-
-        spotlight = Spotlight(uid, None, comment, True, playlistid)
-        Session.save(spotlight)
-        Session.commit()
-
-        self.update_fbml()
-        self.publish_spotlight_to_facebook(spotlight)
-        return '1'
-
-    def publish_spotlight_to_facebook(self, spot):
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
-        title_d = '{"album":"'+ spot.title +'"}'
-        r = ''
-        try:
-            r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
-        except:
-            return r
-        return r
-
-
-    def update_fbml(self):
-        c.user = Session.query(User).get(session['userid'])
-        fbml = render('facebook/profile.mako.fbml')
-        facebook.profile.setFBML(fbml)
-
     def set_volume(self, id):
         user = Session.query(User).get(session['userid'])
         user.lastvolume = id
         Session.add(user)
         Session.commit()
-        return True
+        return '1'

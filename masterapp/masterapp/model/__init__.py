@@ -124,15 +124,15 @@ class BlogEntry(object):
         self.timestamp = datetime.now()
 
 class Spotlight(object):
-    def __init__(self, uid, albumid, comment=None, active=True, playlistid=None):
-        self.uid = uid
-        self.albumid = albumid
+    def __init__(self, user=None, album=None, playlist=None, comment=None, active=True):
+        self.user = user
+        self.album = album
         self.comment = comment[:255]
         self.timestamp = datetime.now()
         self.active = active
-        self.playlistid = playlistid
-        if active:
-            self._unactivate_lru()
+        self.playlistid = playlist
+        if active and self.user:
+            self.unactivate_lru()
 
     def get_title(self):
         if self.albumid:
@@ -151,7 +151,7 @@ class Spotlight(object):
             return user.name
     author = property(get_author)
 
-    def _unactivate_lru(self):
+    def unactivate_lru(self):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
                 Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:
             lru = Session.query(Spotlight).\

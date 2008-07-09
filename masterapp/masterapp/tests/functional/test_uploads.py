@@ -12,7 +12,7 @@ class TestUploadController(TestModel):
 
     def test_tags(self):
         """
-        Testing <root>/upload/tags
+        Testing /upload/tags
         """
         res = self.app.get('/upload/tags')
         assert res.body == 'reauthenticate'
@@ -27,8 +27,6 @@ class TestUploadController(TestModel):
             date = 1999,
             genre = 'Rock'
         )
-
-        generate_fake_user(config['pyfacebook.fbid'])
 
         # Test malformed request
         self.app.post('/upload/tags', params=debra, status=400)
@@ -67,14 +65,12 @@ class TestUploadController(TestModel):
 
     def test_file(self):
         """
-        Testing <root>/upload/file
+        Testing /upload/file
         """
         res = self.app.post(
             '/upload/file/23620cde3a549a043a20d1e9c2b4c1c85899d2f9'
         )
         assert res.body == 'reauthenticate'
-
-        user = generate_fake_user(config['pyfacebook.fbid'])
 
         testfilepath = os.path.join(here_dir, 'functional', '02 Vacileo.mp3')
         testfile = open(testfilepath)

@@ -63,9 +63,25 @@ class TestController(TestCase):
         self.app = paste.fixture.TestApp(wsgiapp)
         super(TestController, self).__init__(*args, **kwargs)
 
-        self.dheaders = {
+        self.linux_ff3_headers = {
             'USER_AGENT': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008052912 Firefox/3.0'
         }
+
+        self.mac_ff3_headers = {
+            'USER_AGENT': "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9) Gecko/2008061004 Firefox/3.0"
+        }
+
+        self.mac_safari3_headers = {
+            'USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
+        }
+
+        self.win_ff2_headers = {
+            'USER_AGENT':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15'
+        }
+        self.win_ie6_headers = {
+            'USER_AGENT': "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; IBP; .NET CLR 1.1.4322)"
+        }
+
 
 class TestModel(TestController):
     def __init__(self, *args):
@@ -77,6 +93,7 @@ class TestModel(TestController):
         super(TestModel, self).setUp()
         model.Session.remove()
         model.metadata.create_all()
+        self.user = generate_fake_user(config['pyfacebook.fbid'])
 
     def tearDown(self):
         super(TestModel, self).tearDown()

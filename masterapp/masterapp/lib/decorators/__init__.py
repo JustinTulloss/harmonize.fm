@@ -35,8 +35,8 @@ def d_build_json(func):
     return wrapper
 
 def pass_user(func):
-    def pu_wrapper(self, **kwargs):
+    def pu_wrapper(self, *args, **kwargs):
         user = get_user()
-        return func(self, user, **kwargs)
+        return func(self, user, *args, **kwargs)
     return pu_wrapper
 
