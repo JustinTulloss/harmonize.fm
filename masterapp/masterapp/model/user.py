@@ -301,6 +301,8 @@ class User(Base):
         )
         totalcount = totalcount.join([Artist.songs, SongStat])
         totalcount = totalcount.filter(SongStat.uid == self.id)
+        # this excludes any songs listened to on friend radio:
+        totalcount = totalcount.filter(or_(SongStat.source == SongStat.FROM_OWN_LIBRARY, SongStat.source == SongStat.FROM_BROWSE, SongStat.source == SongStat.FROM_SPOTLIGHT, SongStat.source == None))
         totalcount = totalcount.group_by(Artist.id)
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()

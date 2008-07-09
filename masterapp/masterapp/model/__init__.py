@@ -182,7 +182,8 @@ class SongStat(object):
     FROM_SPOTLIGHT = 2
     FROM_RADIO = 3
     FROM_RECOMMENDATION = 4
-
+    
+    countable_sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT]
     sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT, FROM_RADIO, FROM_RECOMMENDATION]
 
 class Puid(object):
