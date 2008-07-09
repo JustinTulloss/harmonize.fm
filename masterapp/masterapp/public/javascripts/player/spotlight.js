@@ -116,7 +116,7 @@ function show_spotlight(record,mode) {
 		var comment = document.getElementById('spot_textarea').value;
 		if (comment.length <= 255) {
 			Ext.Ajax.request({
-				url:'/player/spotlight_album/'+record.get('Album_id'),
+				url:'/spotlight/album/'+record.get('Album_id'),
 				success: function(response, options) {
 				    if (response.responseText == "1") {
 							hide_dialog(); 
@@ -140,7 +140,7 @@ function show_spotlight(record,mode) {
 	    var comment = document.getElementById('spot_textarea').value;
 		if (comment.length <= 255) {
 			Ext.Ajax.request({
-				url:'/player/spotlight_playlist/'+record.get('Playlist_id'),
+				url:'/spotlight/playlist/'+record.get('Playlist_id'),
 				success: function(response, options) {
 				    if (response.responseText == "1") {
 							hide_dialog(); 
@@ -166,7 +166,7 @@ function show_spotlight(record,mode) {
 	    if (comment.length <= 255) {
 	        if ((mode == "edit") || (mode == "edit_playlist")) {
     	        Ext.Ajax.request({
-                    url:'/player/spotlight_edit',
+                    url:'/spotlight/edit',
                     params: {comment: comment, spot_id: id},
                     success: function(response, options) {
                         if (response.responseText == "True") {
@@ -187,7 +187,7 @@ function show_spotlight(record,mode) {
 	function do_delete_spotlight(e) {
 	    e.preventDefault();
         Ext.Ajax.request({
-            url: 'player/delete_spotlight/'+ record.get('id'),
+            url: '/spotlight/delete'+ record.get('id'),
             success: function (response, options) {
                 if (response.responseText == "True") {
                     hide_dialog();

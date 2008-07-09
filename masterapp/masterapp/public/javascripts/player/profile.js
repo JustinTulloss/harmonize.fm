@@ -186,8 +186,4 @@ function Profile(id)
     my.go = function(url) {
         alert(url);
     }
-    function view_comments(spotlightid)
-    {
-        alert(spotlightid);
-    }
 }
