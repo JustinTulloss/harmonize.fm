@@ -112,11 +112,13 @@ function enqueue_spotlight(id, friendid, type) {
     if (type == "playlist") enqueue_playlist(id, friendid);
     else enqueue_album(id, friendid);
 }
-
+/* enqueue_album is only used for spotlight albums
+ */
 function enqueue_album(albumid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
+        record.set('source', 2); //from a spotlight
 		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({
@@ -126,10 +128,13 @@ function enqueue_album(albumid, friendid) {
     });
 }
 
+/* enqueue_playlist is only used for playlist spotlights
+ */
 function enqueue_playlist(playlistid, friendid) {
 	function enqueue_result(response) {
 		var record = untyped_record(response);
 		record.set('Friend_id',  friendid);
+        record.set('source',2); // from a spotlight
 		playlistmgr.enqueue([record]);
 	}
 	Ext.Ajax.request({

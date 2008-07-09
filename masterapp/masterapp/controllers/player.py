@@ -21,7 +21,9 @@ from masterapp.model import (
     BlogEntry, 
     Spotlight,
     SpotlightComment,
-    Song)
+    Song,
+    SongStat
+    )
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -133,9 +135,15 @@ class PlayerController(BaseController):
             return 'false'
         
         song = Session.query(Song).get(request.params.get('id'))
-
+        
         user = Session.query(User).get(session['userid'])
-        # moving this to a separate action to fix buffering bug
+        # we need to now add the database entries for this song being played.
+        # this includes setting the now playing and updating the song statistic song and source
+        if request.params.has_key('source'):
+            src = int(request.params.get('source'))
+            if src in SongStat.sources:
+                session['src'] = src
+        
         user.nowplaying = song
         Session.add(user)
         Session.commit()
@@ -205,7 +213,7 @@ class PlayerController(BaseController):
             return '0'
 
         albumid = id
-        comment = request.params['comment']
+        comment = h.util.html_escape(request.params['comment'])
         uid = session['userid']
 
         spotlight = Spotlight(uid, albumid, comment)
@@ -245,7 +253,7 @@ class PlayerController(BaseController):
         id = request.params.get('spot_id')
         comment = request.params.get('comment')
         spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
-        spotlight.comment = comment
+        spotlight.comment = h.util.html_escape(comment)
         Session.commit()
         
         return "True"
