@@ -148,6 +148,9 @@
 }
 
 .h-title a {
-    font-size: 14px;
     text-decoration: none;
+}
+
+.h-title {
+	font-size: 14px;
 }
