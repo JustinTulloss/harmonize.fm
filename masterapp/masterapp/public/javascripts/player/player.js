@@ -22,6 +22,7 @@ function Player() {
     var state = 0; //stopped, paused, or playing (0, 1, 2)
     var volume = global_config.volume ? global_config.volume : 80;
     var playingsong = null;
+    var playingsong_src = null;
 	var bufferedsong;
 	var buffer_onload; //Should be a fn to call when a song finishes 	loading
 	var buffer_loaded;
@@ -141,6 +142,7 @@ function Player() {
         })
             
 		set_pause(true);
+        /*
         // now update the nowplaying field in the database        
         req_params = {
             id: song.get('Song_id')
@@ -156,7 +158,7 @@ function Player() {
             failure: function() {
                 show_status_msg('There was a problem setting your current song statistic.');
             }
-        });
+        });*/
 
 		if (bufferedsong && bufferedsong == song.get('Song_id')) {
 			if (!buffer_loaded) {
@@ -170,10 +172,20 @@ function Player() {
 				return;
 			}
 		}
-
+        //set the params for the songurl and set_now_playing (which is done at the same time):
+        req_params = {
+            pid: song.get('Song_id'),
+        };
+        if (song.get('source')) // this handles everything but the radio source
+            req_params['source'] = song.get('source');
+        if (playqueue.is_friend_radio()) //from radio
+            req_params['source'] = 3;
+ 
 		playingsong = song.get('Song_id');
+        playingsong_src = req_params['source'];
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('Song_id'),
+            params: req_params,
             success: loadsongurl,
             failure: badsongurl,
             songid: song.get('Song_id'),
@@ -214,10 +226,20 @@ function Player() {
 			buffer_loaded = true;
 			soundManager.getSoundById(bufferedsong).load({});
 		}
-
 		function buffer() {
-			Ext.Ajax.request({
+            show_status_msg('buffering...');
+	        var req_params = {
+                pid: playingsong
+            };
+
+            if (playingsong_src) // this handles everything but the radio source
+                req_params['source'] = playingsong_src;
+            if (playqueue.is_friend_radio()) //from radio
+                req_params['source'] = 3;
+            
+    		Ext.Ajax.request({
 				url: '/player/songurl/'+newid,
+                params: req_params,
 				success: loadbufferedurl,
 				failure: badsongurl
 			});
