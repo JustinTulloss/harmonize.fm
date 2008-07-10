@@ -3,13 +3,15 @@ import logging
 import os
 
 from masterapp.lib.base import *
-from masterapp.lib.decorators import pass_user
+from masterapp.lib.decorators import pass_user, cjsonify, d_build_json
 from masterapp.lib.fbauth import ensure_fb_session
+from masterapp.config.schema import dbfields
 from masterapp.model import (
     Session, 
     User, 
     File, 
     Album,
+    Artist,
     Playlist,
     BlogEntry, 
     Spotlight,
@@ -89,3 +91,61 @@ class SpotlightController(BaseController):
         Session.commit()
         user.update_profile()
         return "1"
+
+    @cjsonify
+    @d_build_json
+    @pass_user
+    def find_album(self, user, **kwargs):
+        id = kwargs['id']
+        if not id:
+            abort(400)
+        qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).\
+            join(Album.artist).filter(Spotlight.id == id).\
+            filter(User.id == user.id)
+        return qry.all()
+        
+    @cjsonify
+    @d_build_json
+    @pass_user
+    def find_playlist(self, user, **kwargs):
+        id = kwargs['id']
+        if not id:
+            abort(400)
+        qry = Session.query(*dbfields['spotlight']).\
+        join(Spotlight.playlist).filter(Spotlight.id == id).\
+        filter(User.id == user.id).limit(1)
+        return qry.all()
+    
+    # right now this only returns true or false
+    # depending on whether or not a spotlight exists
+    # for the album    
+    def find_by_album(self, id):
+        if not id:
+            abort(400)
+        album = Session.query(Album).filter(Album.id == id)
+        if album.first():
+            qry = Session.query(Spotlight).filter(and_(
+                    Spotlight.albumid == album[0].id,
+                    Spotlight.uid == get_user().id,
+                    Spotlight.active == 1))
+            if qry.first():
+                return "1"
+            else:
+                return "0"
+        else:
+            return "0"
+
+    #this returns true or false depending on whether or not the spotlight already exists
+    def find_by_playlist(self, id):
+        if not id:
+            abort(400)
+        
+        playlist = Session.query(Playlist).filter(Playlist.id == request.params['playlist_id'])
+        if playlist.first():
+            qry = Session.query(Spotlight).filter(and_(
+                    Spotlight.playlistid == playlist[0].id,
+                    Spotlight.uid == get_user().id,
+                    Spotlight.active == 1))
+            if qry.first():
+                return "1"
+        return "0"

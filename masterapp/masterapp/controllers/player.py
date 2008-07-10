@@ -211,3 +211,4 @@ class PlayerController(BaseController):
         Session.add(user)
         Session.commit()
         return '1'
+

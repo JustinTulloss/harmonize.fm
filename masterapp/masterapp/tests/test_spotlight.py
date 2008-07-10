@@ -159,4 +159,121 @@ class TestSpotlightController(TestModel):
             "delete spotlight did not return success"
         assert not model.Session.query(model.Spotlight).all(),\
             "Spotlight not deleted"
-            
+
+    def test_find_album(self):
+        """
+        Testing /spotlight/find_album/<spotlightid>
+        """
+        # Test illegit request
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_album',
+            id = None
+        ), status = 400)
+        
+        # Create a spotlight
+        song = generate_fake_song(self.user)
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'album',
+            id = song.albumid
+        ), params={'comment': 'Making a spotlight'})
+        id = str(response.body)
+
+        # Fetch that spotlight
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_album',
+            id = id
+        ))
+        assert '"Spotlight_id": %s' % id in response.body,\
+            "Did not return created spotlight"
+
+    def test_find_playlist(self):
+        """
+        Testing /spotlight/find_playlist/<spotlightid>
+        """
+        # Test illegit request
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_playlist',
+            id = None
+        ), status = 400)
+        
+        # Create a spotlight
+        playlist = generate_fake_playlist(self.user)
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'playlist',
+            id = playlist.id
+        ), params={'comment': 'Making a spotlight'})
+        id = str(response.body)
+
+        # Fetch that spotlight
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_playlist',
+            id = id
+        ))
+        assert '"Spotlight_id": %s' % id in response.body,\
+            "Did not return created spotlight"
+
+    def find_by_album(self, id):
+        """
+        Testing /spotlight/find_by_album/<albumid>
+        """
+        # Test illegit request
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_by_album',
+            id = None
+        ), status = 400)
+        
+        # Create a spotlight
+        song = generate_fake_song(self.user)
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'album',
+            id = song.albumid
+        ), params={'comment': 'Making a spotlight'})
+        id = str(response.body)
+
+        # Fetch that spotlight
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_by_album',
+            id = song.albumid
+        ))
+        assert responze.body == '1',\
+            "Did not return created spotlight"
+
+    def find_by_playlist(self, id):
+        """
+        Testing /spotlight/find_by_playlist/<playlistid>
+        """
+        # Test illegit request
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_by_playlist',
+            id = None
+        ), status = 400)
+        
+        # Create a spotlight
+        playlist = generate_fake_playlist(self.user)
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'playlist',
+            id = playlist.id
+        ), params={'comment': 'Making a spotlight'})
+        id = str(response.body)
+
+        # Fetch that spotlight
+        response = self.app.get(url_for(
+            controller = 'spotlight',
+            action = 'find_by_playlist',
+            id = playlist.id
+        ))
+        assert response.body == '1',\
+            "Did not find spotlight"
+        
+        

@@ -124,6 +124,9 @@ def generate_fake_playlist(owner):
     rstr = str(rnum)
     playlist = model.Playlist('Playlist'+rstr, owner.id)
     model.Session.add(playlist)
+    song=generate_fake_song(owner)
+    plsong = model.PlaylistSong(playlist.id, 1, song.id)
+    playlist.songs.append(plsong)
     model.Session.commit()
     return playlist
 
