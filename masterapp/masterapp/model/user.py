@@ -565,6 +565,7 @@ class User(Base):
         Session.add(artistc)
         return True
 
+    @fbaccess
     def update_profile(self):
         c.user = self
         fbml = render('facebook/profile.mako.fbml')

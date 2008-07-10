@@ -105,7 +105,7 @@ def qualified_for_login(fbuser, breadth):
         if b.is_fbfriends_with(fbuser):
             return True
     # next see if this user is on the whitelist
-    qry = Session.query(Whitelist).filter(Whitelist.fbid == user)
+    qry = Session.query(Whitelist).filter(Whitelist.fbid == fbuser)
     if qry.count() != 0:
         return True
 
