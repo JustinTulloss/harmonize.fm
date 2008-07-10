@@ -27,8 +27,7 @@ var every_action =  {
             var playlist_id = record.get('Playlist_id');
             if (album_id) {
                 Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_album',
-                    params: {album_id: album_id},
+                    url: '/spotlight/find_by_album/' + album_id,
                     success: function(response, options) {
                         if (response.responseText == "True") {
                             show_status_msg("You already have a spotlight for this album.");
@@ -42,8 +41,7 @@ var every_action =  {
                 });
             } else if (playlist_id) {
                 Ext.Ajax.request({
-                    url: 'metadata/find_spotlight_by_playlist',
-                    params: {playlist_id: playlist_id},
+                    url: '/spotlight/find_by_playlist/'+playlist_id,
                     success: function(response, options) {
                         if (response.responseText == "True") {
                             show_status_msg("You already have a spotlight for this playlist.");

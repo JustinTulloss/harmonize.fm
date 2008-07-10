@@ -149,11 +149,12 @@ class TestMetadataController(TestModel):
         """
         Testing /metadata/friends
         """
+        friend = generate_fake_user(friends[0])
         response = self.app.post(url_for(
             controller = 'metadata',
             action = 'friends',
         ))
-        assert friends_info[0]['name'] in response.body,\
+        assert '"Friend_id": %s' % friend.id in response.body,\
             "Did not return my friends"
 
     def test_album(self):

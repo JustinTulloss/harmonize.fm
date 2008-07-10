@@ -218,7 +218,7 @@ class TestSpotlightController(TestModel):
         assert '"Spotlight_id": %s' % id in response.body,\
             "Did not return created spotlight"
 
-    def find_by_album(self, id):
+    def test_find_by_album(self):
         """
         Testing /spotlight/find_by_album/<albumid>
         """
@@ -244,10 +244,10 @@ class TestSpotlightController(TestModel):
             action = 'find_by_album',
             id = song.albumid
         ))
-        assert responze.body == '1',\
+        assert response.body == '1',\
             "Did not return created spotlight"
 
-    def find_by_playlist(self, id):
+    def test_find_by_playlist(self):
         """
         Testing /spotlight/find_by_playlist/<playlistid>
         """

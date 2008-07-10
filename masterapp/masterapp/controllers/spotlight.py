@@ -2,6 +2,7 @@
 import logging
 import os
 
+from sqlalchemy.sql import and_
 from masterapp.lib.base import *
 from masterapp.lib.decorators import pass_user, cjsonify, d_build_json
 from masterapp.lib.fbauth import ensure_fb_session
@@ -119,14 +120,16 @@ class SpotlightController(BaseController):
     # right now this only returns true or false
     # depending on whether or not a spotlight exists
     # for the album    
-    def find_by_album(self, id):
+    @pass_user
+    def find_by_album(self, user, **kwargs):
+        id = kwargs['id']
         if not id:
             abort(400)
         album = Session.query(Album).filter(Album.id == id)
         if album.first():
             qry = Session.query(Spotlight).filter(and_(
                     Spotlight.albumid == album[0].id,
-                    Spotlight.uid == get_user().id,
+                    Spotlight.uid == user.id,
                     Spotlight.active == 1))
             if qry.first():
                 return "1"
@@ -136,15 +139,17 @@ class SpotlightController(BaseController):
             return "0"
 
     #this returns true or false depending on whether or not the spotlight already exists
-    def find_by_playlist(self, id):
+    @pass_user
+    def find_by_playlist(self,user, **kwargs):
+        id = kwargs['id']
         if not id:
             abort(400)
         
-        playlist = Session.query(Playlist).filter(Playlist.id == request.params['playlist_id'])
+        playlist = Session.query(Playlist).filter(Playlist.id == id)
         if playlist.first():
             qry = Session.query(Spotlight).filter(and_(
                     Spotlight.playlistid == playlist[0].id,
-                    Spotlight.uid == get_user().id,
+                    Spotlight.uid == user.id,
                     Spotlight.active == 1))
             if qry.first():
                 return "1"

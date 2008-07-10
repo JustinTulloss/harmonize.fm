@@ -226,8 +226,7 @@ function show_spotlight(record,mode) {
 function delete_spotlight(spot_id,type) {
     if (type == "album") {
         Ext.Ajax.request({
-            url: 'metadata/find_spotlight_by_id/',
-            params: {id: spot_id},
+            url: '/spotlight/find_album/'+spot_id,
             success: 
                 function(response, options) {
                     if (response.responseText != "False") {
@@ -241,8 +240,7 @@ function delete_spotlight(spot_id,type) {
         });    
     } else if (type == "playlist") {
         Ext.Ajax.request({
-            url: 'metadata/find_playlist_spotlight_by_id/',
-            params: {id: spot_id},
+            url: '/spotlight/find_playlist/'+spot_id,
             success: 
                 function(response, options) {
                     if (response.responseText != "False") {

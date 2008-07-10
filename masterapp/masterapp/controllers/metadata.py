@@ -95,7 +95,6 @@ class MetadataController(BaseController):
             Session.rollback()
             raise
 
-
     @cjsonify
     @d_build_json
     @pass_user
@@ -150,8 +149,11 @@ class MetadataController(BaseController):
         else:
             data = user.friends
             for friend in data:
-                friend['Friend_name'] = friend['name']
-            data = sorted(data, key=itemgetter('Friend_name'))
+                dbfriend = Session.query(User).filter(User.fbid==friend['uid']).first()
+                if dbfriend:
+                    friend['Friend_name'] = friend['name']
+                    friend['Friend_id'] = dbfriend.id
+            data = sorted(data, key=itemgetter('name'))
         return {'success':True, 'data':data}
 
     @cjsonify
