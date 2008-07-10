@@ -33,6 +33,14 @@ input {
     color: ${Profile.dark_txt};
 }
 
+.h-title a{
+    color: ${Profile.dark_txt} !important;
+}
+
+.h-title a:hover{
+    color: ${Profile.click} !important;
+}
+
 button, .h-button {
 	background-color: ${Profile.top_bg};
 	color: white;

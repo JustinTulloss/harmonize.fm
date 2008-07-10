@@ -19,7 +19,7 @@ var profile_handler;
     //this function is called whenever the profile page is loaded
 	profile_handler = function(rest) {
 		hide_all();
-		
+
 		var components = rest.split('/');
 		//find all the edit_spotlight links and assign onclick handlers to them
 		var edit_links = Ext.query('.edit-spotlight');
@@ -160,21 +160,6 @@ function profile_factory(url) {
 function Profile(id)
 {
     var my = this;
-    my.panel = new Ext.Panel({
-        layout: 'column',
-        autoScroll: true,
-        nocrumb: true,
-        items: [{
-            autoLoad: 'people/profile_body/'+id,
-            layout: 'fit',
-            columnWidth: .98
-        },{
-            autoLoad: 'people/profile_right/'+id,
-            layout:'fit',
-            width: 220
-        }]
-    });
-
     my.panel.on('show', function(){my.panel.syncSize()});
 
     urlm.register_handlers([

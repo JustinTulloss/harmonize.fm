@@ -67,7 +67,9 @@ ${rightcol.render()}
             % if spotlight.albumid == None:
                 Playlist: 
             % endif
-            ${spotlight.title}
+            <a class="h-title-a" href="#/bc/friend=${spotlight.uid}/profile=${spotlight.uid}/${enqueue_type}=${enqueue_id}/song">
+                ${spotlight.title}
+            </a>
             % if not own_profile and spotlight.albumid:
                 ${build_amazon_link(spotlight,"(buy)")}
             % endif
