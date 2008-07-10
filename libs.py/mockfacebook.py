@@ -77,6 +77,11 @@ class MockFacebook(object):
     friends.getAppUsers = Mock()
     friends.getAppUsers.return_value = configured_friends
 
+    # Make this more legit in the future so we can test people who are not
+    # necessarily friends
+    friends.areFriends = Mock()
+    friends.areFriends.return_value = [{'are_friends':True}]
+
     def getuserinfo(fbid, fields=None):
         if fields:
             return configured_user_info
