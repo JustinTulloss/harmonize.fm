@@ -156,6 +156,8 @@ class TestMetadataController(TestModel):
         ))
         assert '"Friend_id": %s' % friend.id in response.body,\
             "Did not return my friends"
+        assert '"type": "friend"' in response.body,\
+            "Did not send back correct type"
 
     def test_album(self):
         """
@@ -239,4 +241,3 @@ class TestMetadataController(TestModel):
         ))
         assert song.title in response.body,\
             "did not return friend's song"
-
