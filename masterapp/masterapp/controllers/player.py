@@ -84,6 +84,26 @@ class PlayerController(BaseController):
 
     @pass_user
     def songurl(self, friend, **kwargs):
+        
+        def set_now_playing():
+            if not request.params.has_key('pid'):
+                return 'false'
+            
+            song = Session.query(Song).get(request.params.get('pid'))
+            user = Session.query(User).get(session['userid'])
+            # we need to now add the database entries for this song being played.
+            # this includes setting the now playing and updating the song statistic song and source
+            if request.params.has_key('source'):
+                src = int(request.params.get('source'))
+                if src in SongStat.sources:
+                    session['src'] = src
+            
+            user.nowplaying = song
+            Session.add(user)
+            Session.commit()
+            user.update_profile()
+            return 'true'
+ 
         """
         Fetches the S3 authenticated url of a song.
         Right now, this provides no security at all since anybody with a 
@@ -106,28 +126,9 @@ class PlayerController(BaseController):
             is_secure = False
         )
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
-
-        return qsgen.get(config['S3.music_bucket'], song.sha)
-        
-    @pass_user
-    def set_now_playing(self, user, **kwargs):
-        if not request.params.has_key('id'):
-            return 'false'
-        
-        song = Session.query(Song).get(request.params.get('id'))
-        user = Session.query(User).get(session['userid'])
-        # we need to now add the database entries for this song being played.
-        # this includes setting the now playing and updating the song statistic song and source
-        if request.params.has_key('source'):
-            src = int(request.params.get('source'))
-            if src in SongStat.sources:
-                session['src'] = src
-        
-        user.nowplaying = song
-        Session.add(user)
-        Session.commit()
-        user.update_profile()
-        return 'true'
+        if request.params.has_key('pid'):
+            worked = set_now_playing();
+        return qsgen.get(config['S3.music_bucket'], song.sha)      
 
     @pass_user
     def album_details(self, user, **kwargs):
