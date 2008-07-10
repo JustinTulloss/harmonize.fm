@@ -240,9 +240,8 @@ table {
     height: 436px;
 }
 
-.grid-actions img {
-	margin-left: 1px;
-	margin-right: 1px;
+.grid-actions a {
+	margin-right: 2px;
 }
 
 #shuffle-playqueue {

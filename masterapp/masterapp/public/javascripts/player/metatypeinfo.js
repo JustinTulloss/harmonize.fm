@@ -47,7 +47,7 @@ var typeinfo = {
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['spotlight', 'friendrec', 'delrow'],
+        ownactions: ['friendrec', 'spotlight', 'delrow'],
     }, 
     playlist:{
         next: 'openplaylist',
