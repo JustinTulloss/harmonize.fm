@@ -33,9 +33,9 @@ from facebook.wsgi import facebook
 from facebook import FacebookError
 
 from masterapp.lib import fblogin
+from masterapp.lib.fbaccess import fbaccess
 from operator import itemgetter
 import time
-
 
 
 Base = declarative_base(metadata=metadata)
@@ -82,22 +82,6 @@ class User(Base):
             return c.get_value(**funcargs)
         return decorator(wrapper)
 
-    @decorator
-    def fbaccess(func, self, *args, **kwargs):
-        tries = 0
-        while tries < 4:
-            try:
-                return func(self, *args, **kwargs)
-            except FacebookError, e:
-                if e.code == 102:
-                    method = request.environ.get('HTTP_X_REQUESTED_WITH')
-                    if method == 'XMLHttpRequest':
-                        abort(401, 'Please re-login to facebook')
-                    else: 
-                        fblogin.login()
-                else:
-                    tries = tries + 1
-                    time.sleep(.1)
     @decorator
     def fbfriends(func, self, *args, **kwargs):
         self._setup_fbfriends_cache()
@@ -289,19 +273,6 @@ class User(Base):
                     if friend['uid'] == someguy['uid']:
                         return True
                 return False
-
-    def is_fbfriends_with(self, fbid):
-        """
-        Tells you if a user is friends with another user on any network we know
-        about
-        """
-        if fbid == self.fbid:
-            return True
-        else:
-            for fbuser in self.allfriends:
-                if fbuser['uid'] == fbid:
-                    return True
-            return False
 
     @personal_cache(expiretime=600, type='memory')
     def get_songcount(self):

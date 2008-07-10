@@ -7,6 +7,7 @@ from masterapp.model import User, Session, Whitelist
 from masterapp.lib.base import *
 from sqlalchemy import or_
 from fblogin import login
+from masterapp.lib.fbaccess import fbaccess
 
 
 from datetime import datetime
@@ -90,20 +91,20 @@ def get_user_info():
             time.sleep(.1)
     return info
 
+@fbaccess
 def qualified_for_login(fbuser, breadth):
     # right now the base users are dave paola, justin tulloss, and brian smith.
     # TODO: pull these base_users from a database table?
     base_users = ['1932106','1909354','1908861']
-    if base_users.count(fbuser) != 0:
+    if fbuser in base_users:
         return True
-    orit = or_()
-    for u in base_users:
-        orit.append(User.fbid == u)
 
-    base_users = Session.query(User).filter(orit).all()
-    for b in base_users:
-        if b.is_fbfriends_with(fbuser):
+    test_user = [fbuser for i in range(3)]
+    results = facebook.friends.areFriends(base_users, test_user)
+    for res in results:
+        if res['are_friends']:
             return True
+
     # next see if this user is on the whitelist
     qry = Session.query(Whitelist).filter(Whitelist.fbid == fbuser)
     if qry.count() != 0:
