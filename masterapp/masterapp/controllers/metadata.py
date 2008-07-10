@@ -147,13 +147,21 @@ class MetadataController(BaseController):
         if request.params.get('all') == 'true':
             data = user.allfriends
         else:
-            data = user.friends
-            for friend in data:
-                dbfriend = Session.query(User).filter(User.fbid==friend['uid']).first()
-                if dbfriend:
-                    friend['Friend_name'] = friend['name']
-                    friend['Friend_id'] = dbfriend.id
-            data = sorted(data, key=itemgetter('name'))
+            friendor = or_()
+            for friend in user.friends:
+                friendor.append(User.fbid == friend['uid'])
+
+            dbfriends = Session.query(User).filter(friendor)
+            data = []
+            for dbfriend in dbfriends:
+                data.append({
+                    'Friend_name': dbfriend.name,
+                    'Friend_id': dbfriend.id,
+                    'friend': dbfriend.id,
+                    'type': 'friend'
+                })
+
+            data = sorted(data, key=itemgetter('Friend_name'))
         return {'success':True, 'data':data}
 
     @cjsonify
