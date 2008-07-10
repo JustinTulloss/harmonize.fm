@@ -83,17 +83,15 @@ function init()
         }
         if (response.status == 500) {
             //dialog displaying message and when click ok, refresh
-            var content = '<form id="500_form">' +
-                    '<h1 id="title">500 Server Error</h1>' +
+            var content =
+                    '<h1 id="title">Server Error!</h1>' +
                     '<h2>Reload required</h2>' +
-                    '<tr><td>We\'re sorry, we made a mistake and we need to reload the page to recover.</td></tr>' +
-                    '<tr><td>Our engineers have been notified, and we\'ll fix the problem as soon as possible. Sorry for the inconvenience!</td></tr>' +
-                    '<tr><td>' +
-                    '<button id="500_ok">OK</button>' +
-                    '</center></td></tr>' +
-                '</table></form>';
+                    '<div>We\'re sorry, we made a mistake and we need to reload the page to recover.</div>'+
+                    '<div>Our engineers have been notified, and we\'ll fix the problem as soon as possible.</div>' +
+					'<div>Sorry for the inconvenience!</div>' +
+                    '<button id="error-reload">Reload</button>';
             show_dialog(content);
-            Ext.get('500_ok').on('click', function(e) {
+            Ext.get('error-reload').on('click', function(e) {
                 prevent_default(hide_dialog());
                 location = location.href;
             });

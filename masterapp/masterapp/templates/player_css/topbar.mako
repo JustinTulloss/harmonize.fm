@@ -281,7 +281,7 @@ body .x-menu {
 }
 */
 
-#music_menu_link:hover #music_menu_img{
+#music_menu_link:hover .music_menu_img{
 	background-position: 0 -8px;
 }
 
@@ -289,7 +289,7 @@ body .x-menu {
     padding-right: 3px;
 }
 
-#music_menu_img {
+.music_menu_img {
     width: 9px;
     height: 5px;
 	background: url(/images/menu_arrows.png) no-repeat 0 -15px;
@@ -305,7 +305,7 @@ body .x-menu {
  *********************************************/
 
 #amazon_link {
-    left: 255px;
+    left: 223px;
     top: 3px;
     position: absolute;
     width: 50%;

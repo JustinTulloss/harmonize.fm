@@ -9,15 +9,27 @@ body, html {
 
 ul {
 	margin-left: 0;
+	padding-left: 30px;
 }
 
 #no_music {
-    margin-left: 12px;
+    margin-left: 20px;
+	padding-left: 5px;
 }
 
-#no_music h2{
+#no_music h1, #no_music h2{
     color: ${c.profile.dark_txt};
     font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
+}
+
+#no_music h1 {
+	margin-bottom: 10px;
+	font-size: 24px;
+}
+
+#no_music h2 {
+	margin-top: 0;
+	font-size: 18px;
 }
 
 #no_music a {
@@ -26,6 +38,16 @@ ul {
 
 #no_music a:hover {
     color: ${c.profile.click};
+}
+
+#no_music #music {
+	color: white;
+	background-color: ${c.profile.dark_txt};
+	padding: 0 1px;
+}
+
+#no_music img {
+	vertical-align: middle;
 }
 
 #mainlogo {
@@ -240,11 +262,14 @@ table {
     height: 436px;
 }
 
-.grid-actions img {
-	margin-left: 1px;
-	margin-right: 1px;
+.grid-actions a {
+	margin-right: 2px;
 }
 
 #shuffle-playqueue {
     margin-left: 15px;
+}
+
+#error-reload {
+	float: right;
 }

@@ -31,12 +31,12 @@
             fburl: '${c.fburl}',
             fblogin_url: '${c.fblogin_url}',
 			uid: ${c.user.id},
-            fbid: ${c.user.fbid},
+            fbid: ${c.user.fbid}
             % if c.user.lastvolume:
-            volume: ${c.user.lastvolume},
+            ,volume: ${c.user.lastvolume}
             % endif
             % if c.user.email:
-            email: '${c.user.email}'
+            ,email: '${c.user.email}'
             % endif
         };
     </script>
@@ -87,7 +87,7 @@
 		<a id="music_link" href="#/bc/artist">
             music
 		    <span id="music_menu_link">
-                <img id="music_menu_img" src="/images/s.gif" />
+                <img class="music_menu_img" src="/images/s.gif" />
             </span>
         </a>
 		<a href="#" id="friend_radio_link">radio</a>

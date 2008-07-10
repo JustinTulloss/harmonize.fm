@@ -18,7 +18,18 @@
             endif
             %>
             % if href:
-                <h2>You haven't added any music yet.  Install the <a href="${href}">uploader</a> to get started.</h2>
+				<h1>Welcome to harmonize.fm!</h1>
+				<h2>Here's how to get started:</h2>
+				<ul>
+					<li>Add music with the <a href="${href}">harmonizer</a></li>
+					<li>Listen to your music with the 
+						<span id="music">music <img src="/images/s.gif" class="music_menu_img"/></span> 
+						button in the top right</li>
+					<li>Share music with your friends by creating a 
+						<img src="/images/spotlight.png" />Spotlight 
+						or by 
+						<img src="/images/recommend.png" />recommending music</li>
+				</ul>
             % endif
             </div>					
 			<div id="home-bg">	
