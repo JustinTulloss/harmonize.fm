@@ -261,26 +261,28 @@ var BrowserColumns = {
     },
     'Friend_name': {
         id:'friend',
+        width: 50,
         header: "Friend",
         dataIndex: 'Friend_name'
     },
-    'Friend_numartists': {
-        id:'numartists',
-        width: 60,
-        header: "# Artists",
-        dataIndex: 'Friend_numartists'
-    },
-    'Friend_numalbums': {
+    'Friend_albumcount': {
         id:'numalbums',
         width: 60,
         fixed: true,
         header: "Albums",
-        dataIndex: 'Friend_numalbums'
+        dataIndex: 'Friend_albumcount'
     },
-    'Friend_likes': {
+    'Friend_songcount': {
+        id:'numsongs',
+        width: 60,
+        fixed: true,
+        header: "Songs",
+        dataIndex: 'Friend_songcount'
+    },
+    'Friend_tastes': {
         id:'likesartists',
-        header: "Likes",
-        dataIndex: 'Friend_likes'
+        header: "Tastes",
+        dataIndex: 'Friend_tastes'
     },
     'actions': {  
         id: 'add',
@@ -325,8 +327,9 @@ var ColConfig = {
 		BrowserColumns['Playlist_length']],
     friend: [
         BrowserColumns['Friend_name'],
-        BrowserColumns['Friend_numalbums'],
-        BrowserColumns['Friend_likes']
+        BrowserColumns['Friend_songcount'],
+        BrowserColumns['Friend_albumcount'],
+        BrowserColumns['Friend_tastes']
     ]
 };
 

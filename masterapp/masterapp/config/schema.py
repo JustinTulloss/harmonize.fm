@@ -51,6 +51,9 @@ fields = {
         'type',
         'Friend_id',
         'Friend_name',
+        'Friend_songcount',
+        'Friend_albumcount',
+        'Friend_tastes'
     ],
     'spotlight': [
         'type',

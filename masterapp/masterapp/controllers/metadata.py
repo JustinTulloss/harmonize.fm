@@ -162,7 +162,9 @@ class MetadataController(BaseController):
                 data.append({
                     'Friend_name': dbfriend.name,
                     'Friend_id': dbfriend.id,
-                    'friend': dbfriend.id,
+                    'Friend_songcount': dbfriend.songcount,
+                    'Friend_albumcount': dbfriend.albumcount,
+                    'Friend_tastes': dbfriend.musictastes,
                     'type': 'friend'
                 })
 

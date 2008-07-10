@@ -303,6 +303,19 @@ class User(Base):
                     return True
             return False
 
+    @personal_cache(expiretime=600, type='memory')
+    def get_songcount(self):
+        return Session.query(func.sum(AlbumCounts.songcount).label('songs')).\
+            filter(AlbumCounts.userid == self.id).first().songs or 0
+    songcount = property(get_songcount)
+
+    @personal_cache(expiretime=600, type='memory')
+    def get_albumcount(self):
+        return Session.query(func.count(AlbumCounts.albumid).label('albums')).\
+            filter(AlbumCounts.userid == self.id).first().albums
+    albumcount = property(get_albumcount)
+
+        
     def get_nowplaying(self):
         return self._nowplaying
 
