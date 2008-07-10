@@ -568,8 +568,8 @@ class User(Base):
 
     def add_spotlight(self, spotlight):
         spotlight.user = self
-        spotlight.unactivate_lru()
         Session.add(spotlight)
+        spotlight.unactivate_lru()
         self.publish_spotlight(spotlight)
         self.update_profile()
 

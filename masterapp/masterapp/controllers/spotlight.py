@@ -36,10 +36,12 @@ class SpotlightController(BaseController):
 
         comment = request.params['comment']
 
+        user = Session.query(User).get(session['userid'])
         album = Session.query(Album).get(id)
         if album:
-            spotlight = Spotlight(album = album, comment=comment)
-            self._spotlight(spotlight)
+            spotlight = Spotlight(user=user, album = album, comment=comment)
+            Session.add(spotlight)
+            Session.commit()
             return str(spotlight.id)
         else:
             abort(404)
@@ -50,18 +52,15 @@ class SpotlightController(BaseController):
 
         comment = request.params['comment']
 
+        user = Session.query(User).get(session['userid'])
         playlist = Session.query(Playlist).get(id)
         if playlist:
-            spotlight = Spotlight(playlist = playlist, comment=comment)
-            self._spotlight(spotlight)
+            spotlight = Spotlight(user=user, playlist = playlist, comment=comment)
+            Session.add(spotlight)
+            Session.commit()
             return str(spotlight.id)
         else:
             abort(404)
-
-    def _spotlight(self, spotlight):
-        user = Session.query(User).get(session['userid'])
-        user.add_spotlight(spotlight)
-        Session.commit()
 
     def edit(self, id):
         if not request.params.has_key('comment') or not id:

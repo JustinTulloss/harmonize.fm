@@ -118,7 +118,7 @@ function show_spotlight(record,mode) {
 			Ext.Ajax.request({
 				url:'/spotlight/album/'+record.get('Album_id'),
 				success: function(response, options) {
-				    if (response.responseText == "1") {
+				    if (response.responseText != "0") {
 							hide_dialog(); 
 							show_status_msg("Spotlight Added!");
 					} else {
@@ -166,10 +166,10 @@ function show_spotlight(record,mode) {
 	    if (comment.length <= 255) {
 	        if ((mode == "edit") || (mode == "edit_playlist")) {
     	        Ext.Ajax.request({
-                    url:'/spotlight/edit',
-                    params: {comment: comment, spot_id: id},
+                    url:'/spotlight/edit/'+id,
+                    params: {comment: comment},
                     success: function(response, options) {
-                        if (response.responseText == "True") {
+                        if (response.responseText == "1") {
                             hide_dialog();    
                             show_status_msg("Spotlight changed!");
                             urlm.invalidate_page();
@@ -187,9 +187,9 @@ function show_spotlight(record,mode) {
 	function do_delete_spotlight(e) {
 	    e.preventDefault();
         Ext.Ajax.request({
-            url: '/spotlight/delete'+ record.get('id'),
+            url: '/spotlight/delete/'+ record.get('id'),
             success: function (response, options) {
-                if (response.responseText == "True") {
+                if (response.responseText == "1") {
                     hide_dialog();
                     show_status_msg("Spotlight deleted.");
                     urlm.invalidate_page();
