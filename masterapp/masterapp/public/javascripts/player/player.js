@@ -228,7 +228,6 @@ function Player() {
 			soundManager.getSoundById(bufferedsong).load({});
 		}
 		function buffer() {
-            show_status_msg('buffering...');
 	        var req_params = {
                 pid: playingsong
             };

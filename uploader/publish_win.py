@@ -18,8 +18,10 @@ def run_cmds(*cmds):
 if config.current != config.production:
 	notify_user('Change current configuration to production before running')
 
+logo_dir = r'..\sandbox\logos\icons'
+
 run_cmds(
-	'png2ico harmonize_icon.ico small_icon.png med_icon.png large_icon.png',
+	r'png2ico harmonize_icon.ico %s\orangecircle16.png %s\orangecircle32.png %s\orangecircle48.png' % (logo_dir, logo_dir, logo_dir),
 	'python setup.py py2exe',
 	r'"C:\Program Files\Inno Setup 5\iscc" windows_installer.iss',
 	'pscp "Output\Harmonizer Setup.exe" harmonize.fm:/var/opt/uploaders')
