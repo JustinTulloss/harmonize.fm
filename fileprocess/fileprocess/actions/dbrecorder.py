@@ -126,21 +126,6 @@ class DBRecorder(DBChecker):
         qry = self.model.Session.query(self.model.Artist).\
             filter(self.model.Artist.name == file['artist'])
         artist = qry.first()
-        albumartist = artist
-        if file.get('albumartist'):
-            if file['albumartist'] != file['artist']:
-                qry = self.model.Session.query(self.model.Artist).\
-                    filter(self.model.Artist.name == file['albumartist'])
-                albumartist = qry.first()
-
-        if artist:
-            if not file.get('album'):
-                file['album'] = 'Unknown Album'
-            qry = self.model.Session.query(self.model.Album).\
-                join(self.model.Album.artist).\
-                filter(self.model.Album.title == file['album']).\
-                filter(self.model.Album.artist == albumartist)
-            album = qry.first()
 
         if not artist:
             artist = self.create_artist(file)
@@ -148,6 +133,23 @@ class DBRecorder(DBChecker):
             if not artist.mbid and file.get('mbartistid'):
                 artist.mbid = file.get('mbartistid')
                 self.model.Session.add(artist)
+
+        albumartist = artist
+        if file.get('albumartist'):
+            if file['albumartist'] != file['artist']:
+                qry = self.model.Session.query(self.model.Artist).\
+                    filter(self.model.Artist.name == file['albumartist'])
+                albumartist = qry.first()
+
+
+        if not file.get('album'):
+            file['album'] = 'Unknown Album'
+        qry = self.model.Session.query(self.model.Album).\
+            join(self.model.Album.artist).\
+            filter(self.model.Album.title == file['album']).\
+            filter(self.model.Album.artist == albumartist)
+        album = qry.first()
+
         if not album:
             album = self.create_album(file, artist)
         else:

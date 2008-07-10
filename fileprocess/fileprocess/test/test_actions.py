@@ -243,7 +243,7 @@ class TestActions(TestBase):
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('swatch')
         assert nf['swatch'] != None and nf['swatch'] != ''
-        assert a.covercache.has_key(nf['asin'])
+        assert nf['asin'] in a.covercache
     
     def testAmazonASINConvert(self):
         a = AmazonASINConvert()
@@ -256,7 +256,7 @@ class TestActions(TestBase):
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('mp3_asin')
         assert nf['mp3_asin'] != None
-        assert a.cache.has_key(nf['album'])
+        assert nf['album'] in a.cache
 
     def testCheckForBadAsin(self):
         a = CheckForBadAsin()
@@ -265,7 +265,7 @@ class TestActions(TestBase):
 
         nf = a.process(self.fdata['dbrec'])
         assert nf.has_key('asin')
-        assert a.cache.has_key(nf['asin'])
+        assert nf['asin'] in a.cache
 
 
     def testHasher(self):
