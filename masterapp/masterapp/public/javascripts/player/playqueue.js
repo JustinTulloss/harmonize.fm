@@ -464,6 +464,7 @@ function SongQueueNode(config)
 	};
 
 	this.loaded = true;
+    
 }
 Ext.extend(SongQueueNode, QueueNode);
 

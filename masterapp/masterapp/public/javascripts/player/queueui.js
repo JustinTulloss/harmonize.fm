@@ -177,6 +177,16 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         this.removeClass('x-tree-node-over');
         if (this.checkbox)
             Ext.DomHelper.applyStyles(this.checkbox, "visibility: hidden");
+    },
+
+    onDblClick : function (e) {
+        //default action is to check (which deletes) the queuenode object
+        e.preventDefault();
+        node = this.node;
+        //we want to dequeue the song and  play it immediately.  dequeue() takes a function.
+        if (node.record.get('type') == 'song') {
+            node.dequeue(player.playsong);
+        }
     }
     
 });
