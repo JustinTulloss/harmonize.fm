@@ -573,6 +573,20 @@ class User(Base):
         self.publish_spotlight(spotlight)
         self.update_profile()
 
+    def _get_fbfriend_users(self):
+        """
+        Returns a list of your facebook users, except they're our user objects
+        """
+        friendor = or_()
+        for friend in self.friends:
+            friendor.append(User.fbid == friend['uid'])
+        return Session.query(User).filter(friendor).all()
+
+    def update_friends_caches(self):
+        friends = self._get_fbfriend_users()
+        for friend in friends:
+            self.fbfriendscache.remove_value(friend.id)
+
 
 class ArtistCounts(Base):
     __table__ = Table('counts_artist', metadata, autoload=True)
