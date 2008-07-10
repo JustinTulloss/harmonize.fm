@@ -17,7 +17,7 @@ var every_action =  {
     },
     friendrec: { 
         view: '<a href="#/action/friendrec"><img title="Recommend to a friend" src="/images/recommend.png" /></a>',
-        action: friend_recommend,
+        action: friend_recommend
     },
     spotlight: {
         view: '<a href="#/action/spotlight"><img title="Spotlight" src="/images/spotlight.png" /></a>',

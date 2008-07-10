@@ -35,7 +35,7 @@ function Player() {
         showprev: true
     });
     
-    var amazon_link = new Ext.Template('<a href="http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}" target="_blank">Buy this album</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a={asin}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />');
+    var amazon_link = new Ext.Template('<a href="http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}" target="_blank">Buy!</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a={asin}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />');
 	
     function init_seekbar() 
     {

@@ -27,7 +27,7 @@ var typeinfo = {
         emptyText: 'There aren\'t any artists here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['delrow'],
+        ownactions: ['delrow']
     }, 
     album:{
         next: function (row, breadcrumb) {
@@ -47,7 +47,7 @@ var typeinfo = {
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['friendrec', 'spotlight', 'delrow'],
+        ownactions: ['friendrec', 'spotlight', 'delrow']
     }, 
     playlist:{
         next: 'openplaylist',
@@ -72,7 +72,7 @@ var typeinfo = {
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
-        ownactions: ['friendrec', 'delrow'],
+        ownactions: ['friendrec', 'delrow']
     },
     nowplayingsong:{
         nodeclass: PlayingQueueNode,
@@ -109,7 +109,7 @@ var typeinfo = {
         lblindex: 'Friend_name',
         qryindex: 'Friend_id',
         display: 'Friend',
-        bcurl: '/people/profile/{0}',
+        bcurl: '/people/profile/{0}'
     },
     friend_radio:{
         display: 'FriendRadio',
