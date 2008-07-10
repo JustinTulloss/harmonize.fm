@@ -138,7 +138,8 @@ function Player() {
 			length : song.get('Song_length'),
             id: song.get('Song_id'),
             asin: song.get('Album_asin'),
-            mp3asin: song.get('Album_mp3_asin')
+            mp3asin: song.get('Album_mp3_asin'),
+            record: song
         })
             
 		set_pause(true);
@@ -336,31 +337,33 @@ function Player() {
         
         if (song_info.id) {
         }
-
-        if (song_info.mp3asin) {
-            //apply template
-            Ext.get('amazon_link').update(
-                amazon_link.apply({
-                    asin: song_info.mp3asin,
-                    album: song_info.album,
-                    artist: song_info.artist
-                })
-            );
-        } else {
-            if (song_info.asin) {
+        if (!own_record(song_info.record)) {
+            if (song_info.mp3asin) {
+                //apply template
                 Ext.get('amazon_link').update(
                     amazon_link.apply({
-                        asin: song_info.asin,
+                        asin: song_info.mp3asin,
                         album: song_info.album,
                         artist: song_info.artist
                     })
                 );
             } else {
-                //no asin present, set to blank
-                Ext.get('amazon_link').update('');
+                if (song_info.asin) {
+                    Ext.get('amazon_link').update(
+                        amazon_link.apply({
+                            asin: song_info.asin,
+                            album: song_info.album,
+                            artist: song_info.artist
+                        })
+                    );
+                } else {
+                    //no asin present, set to blank
+                    Ext.get('amazon_link').update('');
+                }
             }
+        } else {
+            Ext.get('amazon_link').update('');
         }
-
 		if (song_info.length) 
 			reset_progress_bar(song_info.length);
 		else
