@@ -24,6 +24,9 @@ class TestPlayerController(TestModel):
         """
         Testing /player/songurl/<songid>
         """
+
+        self.user.update_profile = Mock()
+
         # Test 404 for a non-existent song
         response = self.app.get(url_for(
             controller='player',
@@ -40,6 +43,22 @@ class TestPlayerController(TestModel):
             id = ns.id
         ))
 
+        # Test for a song i own and set now playing
+        ns = generate_fake_song(model.Session.query(model.User).one())
+        ns2 = generate_fake_song(model.Session.query(model.User).one())
+        response = self.app.get(url_for(
+            controller = 'player',
+            action = 'songurl',
+            id = ns.id
+        ), params = { 'pid': ns2.id})
+
+        model.Session.add(self.user) #rebind user
+        model.Session.add(ns2)
+        assert self.user.nowplaying.id == ns2.id, \
+            'Did not set nowplaying correctly'
+        assert self.user.update_profile.called, \
+            'Did not update facebook profile'
+
         assert re.search(ns.sha, response.body),\
             'Did not return the sha in the URL'
         
@@ -52,29 +71,6 @@ class TestPlayerController(TestModel):
             action = 'songurl',
             id = anewsong.id
         ), params={'friend': anewuser.id}, status=401)
-
-    def test_set_now_playing(self):
-        """
-        Testing /player/set_now_playing
-        """
-
-        self.user.update_profile = Mock()
-
-        song = generate_fake_song(self.user)
-
-        response = self.app.get(url_for(
-            controller = 'player',
-            action = 'set_now_playing',
-        ), params={'id': song.id})
-
-        model.Session.add(self.user) #rebind user
-        model.Session.add(song)
-        assert response.body == 'true', \
-            'Did not return expected response'
-        assert self.user.nowplaying.id == song.id, \
-            'Did not set nowplaying correctly'
-        assert self.user.update_profile.called, \
-            'Did not update facebook profile'
 
     def test_album_details(self):
         """
