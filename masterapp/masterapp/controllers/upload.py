@@ -259,12 +259,19 @@ class UploadController(BaseController):
         return ''
 
     def error(self):
-        stack_trace = request.environ['wsgi.input'].read(4096)
+        client_size = int(request.environ["CONTENT_LENGTH"])
+        read_size = min(client_size, 4096)
+        stack_trace = request.environ['wsgi.input'].read(read_size)
         if stack_trace == '':
             return '0'
         def sendmail():
+            if config['use_gmail'] == 'yes':
+                password = config['feedback_password']
+            else:
+                password = None
+
             mail(config['smtp_server'], config['smtp_port'],
-                config['feedback_email'], config['feedback_password'],
+                config['feedback_email'], password,
                 'brian@harmonize.fm', 'Uploader exception', stack_trace)
         thread.start_new_thread(sendmail, ())
         return '1'

@@ -168,11 +168,22 @@ class SpotlightComment(object):
         self.timestamp = datetime.now()
 
 class SongStat(object):
-    def __init__(self, user = None, song = None):
+    def __init__(self, user = None, song = None, source = None):
         self.user = user
         self.song = song
         self.playcount = 0
         self.lastrecommended = datetime.now() #we don't currently use this
+        self.source = source
+
+    # constants used for sources of each song statistic
+    FROM_OWN_LIBRARY = 0
+    FROM_BROWSE = 1
+    FROM_SPOTLIGHT = 2
+    FROM_RADIO = 3
+    FROM_RECOMMENDATION = 4
+    
+    countable_sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT]
+    sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT, FROM_RADIO, FROM_RECOMMENDATION]
 
 class Puid(object):
     def __init__(self, puid = None, song = None):

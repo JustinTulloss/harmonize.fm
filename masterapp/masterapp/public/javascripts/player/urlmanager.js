@@ -11,7 +11,7 @@ urlm = {}; //urlmanager is a singleton
 	var last_url_matched = 'undefined';
 	var current_url = 'undefined';
 	var current_panel;
-
+    
 	function get_url(hash) {
 		if (hash === '' || hash === '#')
 			return '/player/home';

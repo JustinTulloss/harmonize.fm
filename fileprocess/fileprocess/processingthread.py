@@ -6,9 +6,7 @@ import sys, os
 import threading
 from Queue import Queue
 from configuration import config
-from beaker.cache import CacheManager
 
-caches = None 
 fp = None
 def set_fp(newfp):
     global fp
@@ -16,14 +14,6 @@ def set_fp(newfp):
 
 def get_fp():
     return fp
-
-def init_caches():
-    global caches
-    caches = CacheManager(
-        type='ext:database', 
-        data_dir=config['cache_dir'],
-        url=config['sqlalchemy.default.url']
-    )
 
 class MsgQueue(object):
     def __init__(self):

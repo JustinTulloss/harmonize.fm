@@ -37,7 +37,7 @@ class PeopleController(BaseController):
 
         c.user = friend
         c.current_url = '#/people/profile/'+id
-        c.current_uid = session['userid']
+        c.current_user = Session.query(User).get(session['userid'])
         c.profile = Profile()
         def l_get_asin(id,type):
             return get_asin(id, type)

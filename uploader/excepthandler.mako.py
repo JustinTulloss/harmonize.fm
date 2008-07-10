@@ -40,7 +40,8 @@ def exception_managed(fn):
 			try:
 				conn = config.get_conn()
 				conn.request('POST', '/upload/error', contents, 
-								{'Content-Type':'text/plain'})
+								{'Content-Type':'text/plain',
+								 'Content-Length':str(len(contents))})
 				conn.getresponse().read()
 			except Exception:
 				open('error.log', 'w+').write(

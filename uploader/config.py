@@ -1,7 +1,7 @@
 from httplib import HTTPConnection
 
 local = dict(server_addr='127.0.0.1', server_port=2985, debug=True, 
-			rate_limit=True)
+			rate_limit=False)
 
 local_test = dict(server_addr='127.0.0.1', server_port=3425, debug=True,
 				rate_limit=True)

@@ -98,7 +98,7 @@ class GuiManager(object):
 
 	def upload_complete(self):
 		self.gui.set_msg('Upload complete!')
-		self.gui.enabled_options(True)
+		self.gui.enable_options(True)
 
 	def fatal_error(self):
 		self.gui.enable_options(False)
