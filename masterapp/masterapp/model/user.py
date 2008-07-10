@@ -112,8 +112,7 @@ class User(Base):
             # Try invalidating the cache
             self.fbfriendscache.remove_value(self.fbid)
             self._setup_fbfriends_cache()
-            self._fbfriends = self.fbfriendscache.get_value(
-                key = self.fbid,
+            self._fbfriends = self.fbfriendscache.get_value(self.fbid,
                 expiretime = self._fbexpiration,
                 createfunc = self._get_fbfriends
             )
@@ -122,8 +121,7 @@ class User(Base):
     @decorator
     def fballfriends(func, self, *args, **kwargs):
         self._setup_fballfriends_cache()
-        self._fballfriends = self.fballfriendscache.get_value(
-            key = self.fbid,
+        self._fballfriends = self.fballfriendscache.get_value(self.fbid,
             expiretime = self._fbexpiration,
             createfunc = self._get_fballfriends
         )
@@ -172,20 +170,14 @@ class User(Base):
     def _setup_fbinfo_cache(self):
         if not self.fbcache:
             self._get_caches()
-        if not self.fbcache.has_key(self.fbid):
-            self.fbcache[self.fbid] = self._get_fbinfo()
 
     def _setup_fbfriends_cache(self):
         if not self.fbfriendscache:
             self._get_caches()
-        if not self.fbfriendscache.has_key(self.fbid):
-            self.fbfriendscache[self.fbid] = self._get_fbfriends()
 
     def _setup_fballfriends_cache(self):
         if not self.fballfriendscache:
             self._get_caches()
-        if not self.fballfriendscache.has_key(self.fbid):
-            self.fballfriendscache[self.fbid] = self._get_fballfriends()
 
     @fbaccess
     def _get_fbinfo(self):
