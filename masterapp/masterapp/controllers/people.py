@@ -22,14 +22,20 @@ class PeopleController(BaseController):
         return Session.query(Spotlight).filter(Spotlight.uid==uid).\
                 order_by(sql.desc(Spotlight.timestamp))[:3]
 
-    def profile(self, id):
+    @pass_user
+    def profile(self, user, **kwargs):
         """
         Display the main profile for a user identified by id
         """
+        id = kwargs['id']
+        if not id:
+            id = str(user.id)
         # Make sure this user is allowed to access this profile
-        #ensure_friends(id)
-        
-        c.user = Session.query(User).get(id)
+        friend = Session.query(User).get(id)
+        if not user.is_friends_with(friend):
+            abort(404)
+
+        c.user = friend
         c.current_url = '#/people/profile/'+id
         c.current_uid = session['userid']
         c.profile = Profile()
@@ -40,27 +46,32 @@ class PeopleController(BaseController):
 
     def add_spotcomment(self, id):
         comment = request.params.get('comment')
-        if comment:
-            comment = h.util.html_escape(comment)
-            spotcomment = SpotlightComment(session['userid'], id, comment)
-            Session.save(spotcomment)
-            Session.commit()
+        if not comment or not id:
+            abort(400)
+        comment = h.util.html_escape(comment)
+        spotcomment = SpotlightComment(session['userid'], id, comment)
+        Session.save(spotcomment)
+        Session.commit()
 
-            # send facebook notification to the person who owns this spotlight
-            spot = Session.query(Spotlight).get(spotcomment.spotlightid)
-            owner = Session.query(User).get(spot.uid)
-            fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
-            response = facebook.notifications.send(owner.fbid, fbml)
+        # send facebook notification to the person who owns this spotlight
+        spot = Session.query(Spotlight).get(spotcomment.spotlightid)
+        owner = Session.query(User).get(spot.uid)
+        fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
+        response = facebook.notifications.send(owner.fbid, fbml)
 
-            return response
-        else:
-            return '0'
+        return str(spotcomment.id)
 
-    def invite(self,**kwargs):
-        fbml = '<fb:notif-page> invited you as a private beta user to <a href="http://harmonize.fm/player">Harmonize.fm</a></fb:notif-page>'
+    def invite(self, **kwargs):
+        id = kwargs['id']
+        if not id:
+            abort(400)
+        fbml = """<fb:notif-page> invited you as a private beta user to 
+            <a href="http://harmonize.fm/player">Harmonize.fm</a>
+        </fb:notif-page>
+        """
         # TODO: right now, we only have one id coming in.  when we change this, we need to
         # split them up into an array and pass that to the send() function below.
-        response = facebook.notifications.send(kwargs['id'],fbml)
+        response = facebook.notifications.send(id,fbml)
         # CANNOT find a way to get any sort of response from this call, for now just assume it worked
         # :-/
         return '1'

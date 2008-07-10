@@ -269,17 +269,26 @@ class User(Base):
         return self._fballfriends
     allfriends = property(get_all_friends)
 
-    def is_friends_with(self, friend):
+    def is_friends_with(self, someguy):
         """
         Tells you if a user is friends with another user.
         """
-        if friend.id == self.id:
-            return True
+        if isinstance(someguy, User):
+            if someguy.id == self.id:
+                return True
+            else:
+                for friend in self.friends:
+                    if friend['uid'] == someguy.fbid:
+                        return True
+                return False
         else:
-            for friend in self.friends:
-                if friend['uid'] == friend:
-                    return True
-            return False
+            if someguy['uid'] == self.fbid:
+                return True
+            else:
+                for friend in self.friends:
+                    if friend['uid'] == someguy['uid']:
+                        return True
+                return False
 
     def is_fbfriends_with(self, fbid):
         """
