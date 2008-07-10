@@ -103,7 +103,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def songs(self, user):
+    def songs(self, user, **kwargs):
         qry = user.song_query
         
         sort = [Artist.sort, Album.title, Song.tracknumber]

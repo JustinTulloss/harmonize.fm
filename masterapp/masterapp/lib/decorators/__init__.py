@@ -32,11 +32,11 @@ def cjsonify(func, *args, **kwargs):
 def d_build_json(func):
     def json_wrapper(*args, **kwargs):
         return build_json(func(*args, **kwargs))
-    return decorator(json_wrapper)
+    return json_wrapper
 
 def pass_user(func):
     def pu_wrapper(self, *args, **kwargs):
         user = get_user()
         return func(self, user, *args, **kwargs)
-    return decorator(pu_wrapper)
+    return pu_wrapper
 
