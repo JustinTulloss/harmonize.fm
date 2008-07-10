@@ -85,7 +85,11 @@ class MetadataController(BaseController):
     def remove(self, user, **kwargs):
         type = kwargs['type']
         id = kwargs['id']
+        if not type or not id:
+            abort(400)
         songs = user.song_query.filter(self.id_map[type]==id)
+        if not songs:
+            abort(404)
         for song in songs:
             user.remove_song(song)
 
@@ -94,6 +98,7 @@ class MetadataController(BaseController):
         except Exception, e:
             Session.rollback()
             raise
+        return '1'
 
     @cjsonify
     @d_build_json

@@ -241,3 +241,40 @@ class TestMetadataController(TestModel):
         ))
         assert song.title in response.body,\
             "did not return friend's song"
+
+    def test_remove(self):
+        """
+        Testing /metadata/remove/<entity type>/<entityid>
+        """
+        # Test removing song
+        song = generate_fake_song(self.user)
+        response = self.app.get(url_for(
+            controller = 'metadata',
+            action = 'remove',
+            type = 'song',
+            id = song.id
+        ))
+        assert not model.Session.query(model.SongOwner).all(),\
+            "did not delete song"
+
+        # Test removing album
+        song = generate_fake_song(self.user)
+        response = self.app.get(url_for(
+            controller = 'metadata',
+            action = 'remove',
+            type = 'album',
+            id = song.albumid
+        ))
+        assert not model.Session.query(model.SongOwner).all(),\
+            "did not delete song by album"
+
+        # Test removing artist
+        song = generate_fake_song(self.user)
+        response = self.app.get(url_for(
+            controller = 'metadata',
+            action = 'remove',
+            type = 'artist',
+            id = song.artistid
+        ))
+        assert not model.Session.query(model.SongOwner).all(),\
+            "did not delete song by arist"
