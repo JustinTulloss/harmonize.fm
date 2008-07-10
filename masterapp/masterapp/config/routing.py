@@ -27,11 +27,11 @@ def make_map():
 		action='upload_ping', conditions=dict(method=['GET']))
 
     # The recommender needs an id and a friend
-    map.connect('recommend/:action/:entity/:friend', controller='recommend', 
+    map.connect('recommend', '/recommend/:action/:entity/:friend', controller='recommend', 
         requirements=dict(id='\d+', friend='\d+'))
-    map.connect('metadata/remove/:type/:id', controller='metadata',
+    map.connect('remove', '/metadata/remove/:type/:id', controller='metadata',
         action='remove', requirements=dict(id='\d+'))
-    map.connect(':controller/:action/:id')
+    map.connect('default', ':controller/:action/:id')
     map.connect('*url', controller='template', action='view')
 
     return map

@@ -2,8 +2,6 @@
 import logging
 import time
 
-
-
 from masterapp.lib.base import *
 from masterapp.config import schema
 from masterapp.model import (

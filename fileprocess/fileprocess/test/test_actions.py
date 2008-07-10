@@ -8,7 +8,7 @@ from nose.tools import *
 from mockfiles import mockfiles
 from fileprocess.actions import *
 import fileprocess
-from fileprocess.processingthread import na, init_caches
+from fileprocess.processingthread import na
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
@@ -26,7 +26,6 @@ class TestBase(unittest.TestCase):
         logging.basicConfig(level=logging.DEBUG)
         config.update(dev_config)
         config.update(test_config)
-        init_caches()
 
     def setUp(self):
         os.mkdir(config['media_dir'])
@@ -299,12 +298,23 @@ class TestActions(TestBase):
             'Transcoder not enabled, make sure lame and faad are installed'
 
         origname = self.fdata['goodmp4']['fname']
+        origsha = self.fdata['goodmp4']['usersha'] = 'asdf'
+        self.fdata['goodmp4']['fbid'] = '123'
+        dir_name = \
+            os.path.join(config['upload_dir'], self.fdata['goodmp4']['fbid'])
+        print 'dir_name:', dir_name
+        os.mkdir(dir_name)
         self.fdata['goodmp4']['filetype'] = 'mp4'
         self.fdata['goodmp4']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodmp4']['fname'])
         nf = t.process(self.fdata['goodmp4'])
-        assert nf != None, 'Transcoding of mp4 file failed'
+        assert nf != False, 'Transcoding of mp4 file failed'
         assert nf['fname'] != origname, 'File did not get transcoded'
+        assert nf['usersha'] != origsha, 'sha did not get updated'
+        assert nf['fname'].endswith(nf['usersha']), \
+                'File did not get renamed correctly'
+        os.remove(nf['fname'])
+        os.rmdir(dir_name)
 
     def testPuidGenerator(self):
         p = PuidGenerator()

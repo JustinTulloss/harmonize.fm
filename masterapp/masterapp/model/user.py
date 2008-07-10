@@ -2,7 +2,8 @@
 # 
 # Putting user in its own file since it's huge
 
-from pylons import cache, request, session
+from pylons import cache, request, session, c
+from pylons.templating import render
 from decorator import decorator
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Table, sql
@@ -15,6 +16,7 @@ from . import (
     songs_table,
     artists_table,
     playlists_table,
+    spotlights_table,
     Artist,
     Album,
     Song,
@@ -266,7 +268,41 @@ class User(Base):
     def get_all_friends(self):
         return self._fballfriends
     allfriends = property(get_all_friends)
-    
+
+    def is_friends_with(self, someguy):
+        """
+        Tells you if a user is friends with another user.
+        """
+        if isinstance(someguy, User):
+            if someguy.id == self.id:
+                return True
+            else:
+                for friend in self.friends:
+                    if friend['uid'] == someguy.fbid:
+                        return True
+                return False
+        else:
+            if someguy['uid'] == self.fbid:
+                return True
+            else:
+                for friend in self.friends:
+                    if friend['uid'] == someguy['uid']:
+                        return True
+                return False
+
+    def is_fbfriends_with(self, fbid):
+        """
+        Tells you if a user is friends with another user on any network we know
+        about
+        """
+        if fbid == self.fbid:
+            return True
+        else:
+            for fbuser in self.allfriends:
+                if fbuser['uid'] == fbid:
+                    return True
+            return False
+
     def get_nowplaying(self):
         return self._nowplaying
 
@@ -274,15 +310,22 @@ class User(Base):
         self._nowplayingid = song.id
         stats = Session.query(SongStat).\
             filter(SongStat.song == song).\
-            filter(SongStat.user == self).first()
+            filter(SongStat.user == self)
+        
+        if session.has_key('src'):
+            stats = stats.filter(SongStat.source == session['src'])
+
+        stats = stats.first()
         if not stats:
             stats = SongStat(user = self, song = song)
 
         stats.playcount = stats.playcount + 1
         stats.lastplayed = datetime.now()
+        if session.has_key('src'):
+            stats.source = session['src']
         Session.add(stats)
-    nowplaying = property(get_nowplaying, set_nowplaying)
 
+    nowplaying = property(get_nowplaying,set_nowplaying)
     def get_url(self):
         return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
     url = property(get_url)
@@ -294,6 +337,8 @@ class User(Base):
         )
         totalcount = totalcount.join([Artist.songs, SongStat])
         totalcount = totalcount.filter(SongStat.uid == self.id)
+        # this excludes any songs listened to on friend radio:
+        totalcount = totalcount.filter(or_(SongStat.source == SongStat.FROM_OWN_LIBRARY, SongStat.source == SongStat.FROM_BROWSE, SongStat.source == SongStat.FROM_SPOTLIGHT, SongStat.source == None))
         totalcount = totalcount.group_by(Artist.id)
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
@@ -499,6 +544,34 @@ class User(Base):
             artistc.albumcount -= 1
         Session.add(artistc)
         return True
+
+    def update_profile(self):
+        c.user = self
+        fbml = render('facebook/profile.mako.fbml')
+        facebook.profile.setFBML(fbml)
+
+    @fbaccess
+    def publish_spotlight(self, spot):
+        title_t = """
+        {actor} created 
+        <fb:if-multiple-actors>Spotlights
+        <fb:else>a Spotlight</fb:else>
+        </fb:if-multiple-actors> on {album} at 
+        <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>
+        """
+        title_d = '{"album":"%s"}' % spot.title
+        r = facebook.feed.publishTemplatizedAction(
+            title_template=title_t, 
+            title_data=title_d
+        )
+        return r
+
+    def add_spotlight(self, spotlight):
+        spotlight.user = self
+        Session.add(spotlight)
+        spotlight.unactivate_lru()
+        self.publish_spotlight(spotlight)
+        self.update_profile()
 
 
 class ArtistCounts(Base):

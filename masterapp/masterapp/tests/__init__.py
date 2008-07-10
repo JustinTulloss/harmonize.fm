@@ -24,7 +24,8 @@ from sqlalchemy import engine
 from pylons import config,cache
 
 __all__ = ['url_for', 'TestController', 'TestModel', 'here_dir',
-    'conf_dir', 'model']
+    'conf_dir', 'model', 'generate_fake_song', 'generate_fake_user',
+    'generate_fake_playlist']
 
 here_dir = os.path.dirname(os.path.abspath(__file__))
 conf_dir = os.path.dirname(os.path.dirname(here_dir))
@@ -40,16 +41,16 @@ wsgiapp = loadapp('config:test.ini', relative_to=conf_dir)
 reflectengine = engine_from_config(config,
     prefix = 'sqlalchemy.default.'
 )
-config['pylons.g'].sa_engine = reflectengine
 memengine = engine_from_config(config,
     prefix = 'sqlalchemy.memory.')
 
+config['pylons.g'].sa_engine = reflectengine
 from masterapp import model
 
 # Bind to memory database and create all
 config['pylons.g'].sa_engine = memengine
 model.metadata.bind = memengine
-model.Session.bind=memengine
+model.Session.configure(bind = memengine)
 model.metadata.create_all()
 
 test_file = os.path.join(conf_dir, 'test.ini')
@@ -63,23 +64,79 @@ class TestController(TestCase):
         self.app = paste.fixture.TestApp(wsgiapp)
         super(TestController, self).__init__(*args, **kwargs)
 
-        self.dheaders = {
+        self.linux_ff3_headers = {
             'USER_AGENT': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008052912 Firefox/3.0'
         }
+
+        self.mac_ff3_headers = {
+            'USER_AGENT': "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US; rv:1.9) Gecko/2008061004 Firefox/3.0"
+        }
+
+        self.mac_safari3_headers = {
+            'USER_AGENT': 'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_5_3; en-us) AppleWebKit/525.18 (KHTML, like Gecko) Version/3.1.1 Safari/525.20'
+        }
+
+        self.win_ff2_headers = {
+            'USER_AGENT':'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.15) Gecko/20080623 Firefox/2.0.0.15'
+        }
+        self.win_ie6_headers = {
+            'USER_AGENT': "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; IBP; .NET CLR 1.1.4322)"
+        }
+
 
 class TestModel(TestController):
     def __init__(self, *args):
         super(TestModel, self).__init__(*args)
+        model.metadata.bind = memengine
+        model.Session.configure(bind=memengine)
 
     def setUp(self):
         super(TestModel, self).setUp()
+        model.Session.remove()
         model.metadata.create_all()
+        self.user = generate_fake_user(config['pyfacebook.fbid'])
 
     def tearDown(self):
         super(TestModel, self).tearDown()
         model.metadata.drop_all()
-        model.Session.remove()
 
-        #self.model.Session.configure(bind=reflectengine)
-        #self.model.metadata.bind = reflectengine
+rnum = 0
+def generate_fake_song(owner):
+        global rnum
+        rnum +=1
+        rstr = str(rnum)
+        nal = model.Album(title = 'album'+rstr)
+        nar = model.Artist(name = 'artist'+rstr)
+        nal.artist = nar
+        ns = model.Song(title="A song"+rstr, sha = 'sha'+rstr)
+        ns.artist = nar
+        ns.album = nal
 
+        owner.add_song(ns)
+
+        model.Session.add_all([owner, nal, nar, ns])
+        model.Session.commit()
+        return ns
+
+def generate_fake_playlist(owner):
+    global rnum
+    rnum += 1
+    rstr = str(rnum)
+    playlist = model.Playlist('Playlist'+rstr, owner.id)
+    model.Session.add(playlist)
+    song=generate_fake_song(owner)
+    plsong = model.PlaylistSong(playlist.id, 1, song.id)
+    playlist.songs.append(plsong)
+    model.Session.commit()
+    return playlist
+
+def generate_fake_user(fbid=None):
+    global rnum
+    rnum += 1
+    rstr = str(rnum)
+    user = model.User(
+        fbid = fbid if fbid else 'id'+rstr)
+    model.Session.add(user)
+    model.Session.commit()
+    return user
+    

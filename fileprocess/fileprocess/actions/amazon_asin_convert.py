@@ -8,17 +8,12 @@ from baseaction import BaseAction
 from ecs import *
 log = logging.getLogger(__name__)
 from time import sleep
-from fileprocess.processingthread import caches
-CACHE_EXPIRATION = 60*60
+from lrucache import LRUCache
 
 class AmazonASINConvert(BaseAction):
     def __init__(self, *args, **kwargs):
         super(AmazonASINConvert, self).__init__(*args, **kwargs)
-        from fileprocess.processingthread import caches
-        self.cache = caches.get_cache(
-            'amazon.mp3_asins',
-            expires = CACHE_EXPIRATION
-        )
+        self.cache = LRUCache(size=100)
 
     def process(self, file):
         if not file.has_key(u'asin'):
@@ -28,7 +23,7 @@ class AmazonASINConvert(BaseAction):
         if not file.has_key(u'album'):
             return file
         
-        if self.cache.has_key(file[u'album']):
+        if file[u'album'] in self.cache:
             file[u'mp3_asin'] = self.cache[file[u'album']]
             return file
         return self.get_asin(file)

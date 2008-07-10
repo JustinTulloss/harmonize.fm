@@ -38,8 +38,12 @@ def make_app(global_conf, full_stack=True, **app_conf):
     app = PylonsApp()
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
-    from facebook.wsgi import create_pylons_facebook_middleware
-    app = create_pylons_facebook_middleware(app, app_conf)
+    from facebook.wsgi import PylonsFacebook, FacebookWSGIMiddleware
+    if app_conf['pyfacebook.mock'] == 'true':
+        from masterapp.lib.fakefacebook import setup_fake_facebook
+        app = setup_fake_facebook(app, app_conf)
+    else:
+        app = FacebookWSGIMiddleware(app, app_conf, facebook_class=PylonsFacebook)
 
     if asbool(full_stack):
         # Handle Python exceptions

@@ -8,23 +8,19 @@ from baseaction import BaseAction
 from ecs import *
 log = logging.getLogger(__name__)
 from time import sleep
-from fileprocess.processingthread import caches
+from lrucache import LRUCache
 CACHE_EXPIRATION = 60*60
 
 class CheckForBadAsin(BaseAction):
     def __init__(self, *args, **kwargs):
         super(CheckForBadAsin, self).__init__(*args, **kwargs)
-        from fileprocess.processingthread import caches
-        self.cache = caches.get_cache(
-            'amazon.asin_cache',
-            expires = CACHE_EXPIRATION
-        )
+        self.cache = LRUCache(size=100)
     
     def process(self, file):
         if not file.has_key(u'asin'):
             return file
         
-        if self.cache.has_key(file[u'asin']):
+        if file[u'asin'] in self.cache:
             file[u'asin'] = self.cache[file[u'asin']]
             return file
 

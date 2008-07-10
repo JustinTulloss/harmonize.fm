@@ -6,20 +6,19 @@ from paste.fixture import AppError
 from masterapp.controllers.upload import Response
 from pylons import config
 
-class TestUploadController(TestController):
+class TestUploadController(TestModel):
     def __init__(self, *args, **kwargs):
         super(TestUploadController, self).__init__(*args, **kwargs)
-        self.response = Response()
 
     def test_tags(self):
         """
-        Testing <root>/upload/tags
+        Testing /upload/tags
         """
         res = self.app.get('/upload/tags')
         assert res.body == 'reauthenticate'
 
         debra = dict(
-            session_key = '08bd66d3ebc459d32391d0d2-1909354',
+            session_key = config['pyfacebook.sessionkey'],
             puid = '1a375417-16a7-4d26-80c1-b8500253b28a',
             artist = 'Beck',
             album = 'Midnite Vultures',
@@ -30,15 +29,15 @@ class TestUploadController(TestController):
         )
 
         # Test malformed request
-        assert_raises(AppError, self.app.post, '/upload/tags', params=debra)
+        self.app.post('/upload/tags', params=debra, status=400)
 
         debra['version'] = '1.0' # Make the request legit
 
+        #self._listen()
         # A test of a file we haven't seen before
         res = self.app.post('/upload/tags', params=debra)
-        assert res.body == 'upload'
+        assert res.body == Response.upload
 
-        self._listen()
         # Put a file in the database that has the same mbid but different puid
         nsong = model.Song(
             title = 'Debra',
@@ -56,17 +55,17 @@ class TestUploadController(TestController):
 
         # Test to make sure the song we just put in the db is found
         res = self.app.post('/upload/tags', params=debra)
-        assert res.body == 'done'
+        assert res.body == Response.done
 
-        # Test a song without a puid
+        # Test a song with the same tags
         debra['puid'] = None
         res = self.app.post('/upload/tags', params = debra)
-        assert res.body == 'upload'
-        self._stop_listening()
+        assert res.body == Response.done
+        #self._stop_listening()
 
     def test_file(self):
         """
-        Testing <root>/upload/file
+        Testing /upload/file
         """
         res = self.app.post(
             '/upload/file/23620cde3a549a043a20d1e9c2b4c1c85899d2f9'
@@ -77,7 +76,7 @@ class TestUploadController(TestController):
         testfile = open(testfilepath)
         size = os.stat(testfilepath)[os.path.stat.ST_SIZE]
         url ='/upload/file/23620cde3a549a043a20d1e9c2b4c1c85899d2f9'+\
-            '?session_key=08bd66d3ebc459d32391d0d2-1909354'
+            '?session_key=%s' % config['pyfacebook.sessionkey']
 
         self._listen()
         res = self.app.post(url,
@@ -87,7 +86,7 @@ class TestUploadController(TestController):
                 'content-type': 'audio/x-mpeg-3'
             }
         )
-        assert res.body == self.response.done, "File not properly uploaded"
+        assert res.body == Response.done, "File not properly uploaded"
 
         assert os.path.exists(
             os.path.join(conf_dir,'tmp','1909354',

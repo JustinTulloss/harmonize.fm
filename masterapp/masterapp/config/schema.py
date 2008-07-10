@@ -61,9 +61,7 @@ fields = {
         'Album_title',
         'Album_smallart',
         'Artist_id',
-        'Artist_name',
-        'Playlist_id',
-        'Playlist_name',
+        'Artist_name'
     ],
 }
 

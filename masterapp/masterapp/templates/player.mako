@@ -31,6 +31,7 @@
             fburl: '${c.fburl}',
             fblogin_url: '${c.fblogin_url}',
 			uid: ${c.user.id},
+            fbid: ${c.user.fbid},
             % if c.user.lastvolume:
             volume: ${c.user.lastvolume},
             % endif

@@ -30,8 +30,7 @@ var profile_handler;
             Ext.get(edit_links[i].id).removeAllListeners();
 		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
     		    Ext.Ajax.request({
-                    url: '/metadata/find_spotlight_by_id',
-                    params: {id: parseInt(spot_id)},
+                    url: '/spotlight/find_album/'+spot_id,
                     success: function(response, options) {
                         record = eval('(' + response.responseText + ')');
                         record = record.data[0];
@@ -53,8 +52,7 @@ var profile_handler;
             Ext.get(edit_links[i].id).removeAllListeners();
 		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
     		    Ext.Ajax.request({
-                    url: '/metadata/find_playlist_spotlight_by_id',
-                    params: {id: parseInt(spot_id)},
+                    url: '/spotlight/find_playlist/'+spot_id,
                     success: function(response, options) {
                         record = eval('(' + response.responseText + ')');
                         record = record.data[0];
@@ -185,9 +183,5 @@ function Profile(id)
 
     my.go = function(url) {
         alert(url);
-    }
-    function view_comments(spotlightid)
-    {
-        alert(spotlightid);
     }
 }

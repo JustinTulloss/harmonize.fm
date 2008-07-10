@@ -21,7 +21,9 @@ from masterapp.model import (
     BlogEntry, 
     Spotlight,
     SpotlightComment,
-    Song)
+    Song,
+    SongStat
+    )
 from facebook import FacebookError
 from facebook.wsgi import facebook
 from pylons import config
@@ -80,7 +82,8 @@ class PlayerController(BaseController):
 	
         return render('/player.mako')
 
-    def songurl(self, id):
+    @pass_user
+    def songurl(self, friend, **kwargs):
         """
         Fetches the S3 authenticated url of a song.
         Right now, this provides no security at all since anybody with a 
@@ -88,58 +91,42 @@ class PlayerController(BaseController):
         who's doing what, and if we can come up with conclusive proof that
         somebody is stealing music through our logs, we can ban them.
         """
-        if session.get('playing') != None:
-            if g.usedfiles.has_key(session['playing']):
-                g.usedfiles.pop(session['playing'])
+        user = Session.query(User).get(session['userid'])
+        if not user.is_friends_with(friend):
+            abort(401)
 
-        song= Session.query(Song).\
-            join([Song.owners]).filter(Song.id==int(id))
-        song= song.first()
+        song = Session.query(Song).\
+            join(Song.owners).filter(Song.id==int(kwargs['id']))
+        song = song.first()
         if not song:
             abort(404)
-        self.update_fbml()
-        # XXX: Remove this to enable locking implemented below
+
         qsgen = S3.QueryStringAuthGenerator(
         config['S3.accesskey'], config['S3.secret'],
             is_secure = False
         )
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
+
         return qsgen.get(config['S3.music_bucket'], song.sha)
         
-        # TODO: Think of a more efficient way of doing this. Perhaps the inuse
-        # flag should be in the database?
-        for file in files:
-            for owner in file.owners:
-                if not g.usedfiles.has_key((file.id, owner.id)):
-                    qsgen = S3.QueryStringAuthGenerator(
-                        config['S3.accesskey'], config['S3.secret'],
-                        is_secure = False
-                    )
-                    qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
-                    
-                    #Mark the file as in use, with the time it can come back
-                    g.usedfiles[(file.id, owner.id)] = \
-                        time.time()+DEFAULT_EXPIRATION*60
-                    session['playing'] = (file.id, owner.id)
-                    session.save()
-                    return qsgen.get(config['S3.music_bucket'], file.sha)
-        #if we get here, all files are in use! Damn it!
-        session['playing'] = None
-        session.save()
-        return 'false'
-
-    def set_now_playing(self):
+    @pass_user
+    def set_now_playing(self, user, **kwargs):
         if not request.params.has_key('id'):
             return 'false'
         
         song = Session.query(Song).get(request.params.get('id'))
-
         user = Session.query(User).get(session['userid'])
-        # moving this to a separate action to fix buffering bug
+        # we need to now add the database entries for this song being played.
+        # this includes setting the now playing and updating the song statistic song and source
+        if request.params.has_key('source'):
+            src = int(request.params.get('source'))
+            if src in SongStat.sources:
+                session['src'] = src
+        
         user.nowplaying = song
         Session.add(user)
         Session.commit()
-        self.update_fbml()
+        user.update_profile()
         return 'true'
 
     @pass_user
@@ -147,31 +134,35 @@ class PlayerController(BaseController):
         c.songs = user.song_query.filter(
             Song.albumid == request.params.get('album')
         ).order_by(Song.tracknumber).all()
+        if len(c.songs) == 0:
+            abort(404)
         c.album = user.album_query.filter(
             Album.id == request.params.get('album')
         ).one()
         return render('/album_details.mako')
 
-    def username(self):
-        return get_user_info()['name']
+    @pass_user
+    def username(self, user, **kwargs):
+        return user.name
 
     def feedback(self):
         if not request.params.has_key('email') or\
-                not request.params.has_key('feedback'):
+                not request.params.get('feedback'):
             return '0';
         user_email = request.params['email']
         user_feedback = request.params['feedback']
-        user_browser = request.params['browser']
+        user_browser = request.params.get('browser')
 
-        bdata = cjson.decode(urllib.unquote(user_browser))
         browser = screen = user = ''
         user = Session.query(User).get(session['userid'])
 
-        for key, value in bdata['browser'].items():
-            browser = browser + "%s = %s\n" % (key, value)
+        if user_browser:
+            bdata = cjson.decode(urllib.unquote(user_browser))
+            for key, value in bdata['browser'].items():
+                browser = browser + "%s = %s\n" % (key, value)
 
-        for key, value in bdata['screen'].items():
-            screen = screen + "%s = %s\n" % (key, value)
+            for key, value in bdata['screen'].items():
+                screen = screen + "%s = %s\n" % (key, value)
         message = feedback_template % \
                 (user_feedback, browser, screen)
 
@@ -195,25 +186,10 @@ class PlayerController(BaseController):
                 pword = None
             mail(config['smtp_server'], config['smtp_port'],
                 frm, pword,
-                'justin@harmonize.fm', subject, message, cc=cc)
+                'founders@harmonize.fm', subject, message, cc=cc)
 
-        thread.start_new_thread(sendmail, ())
-        return '1'
-
-    def spotlight_album(self, id):
-        if not request.params.has_key('comment'):
-            return '0'
-
-        albumid = id
-        comment = request.params['comment']
-        uid = session['userid']
-
-        spotlight = Spotlight(uid, albumid, comment)
-        Session.save(spotlight)
-        Session.commit()
-
-        self.update_fbml()
-        self.publish_spotlight_to_facebook(spotlight)
+        if not 'paste.testing_variables' in request.environ:
+            thread.start_new_thread(sendmail, ())
         return '1'
 
     def blog(self, id):
@@ -237,65 +213,10 @@ class PlayerController(BaseController):
             c.platform = 'mac'
         return render('/home.mako')
         
-    def spotlight_edit(self):
-        if not request.params.has_key('comment'):
-            return "False"
-        elif not request.params.has_key('spot_id'):
-            return "False"
-        id = request.params.get('spot_id')
-        comment = request.params.get('comment')
-        spotlight = Session.query(Spotlight).filter(Spotlight.id == id)[0]
-        spotlight.comment = comment
-        Session.commit()
-        
-        return "True"
-
-    def delete_spotlight(self,id):
-        spot = Session.query(Spotlight).get(id)
-        if (spot):
-            Session.delete(spot)
-            Session.commit()
-            self.update_fbml()
-            return "True"
-        else:
-            return "False"
-        
-        
-    def spotlight_playlist(self, id):
-        if not request.params.has_key('comment'):
-            return '0'
-
-        playlistid = id
-        comment = request.params['comment']
-        uid = session['userid']
-
-        spotlight = Spotlight(uid, None, comment, True, playlistid)
-        Session.save(spotlight)
-        Session.commit()
-
-        self.update_fbml()
-        self.publish_spotlight_to_facebook(spotlight)
-        return '1'
-
-    def publish_spotlight_to_facebook(self, spot):
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights<fb:else>a Spotlight</fb:else></fb:if-multiple-actors> on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
-        title_d = '{"album":"'+ spot.title +'"}'
-        r = ''
-        try:
-            r = facebook.feed.publishTemplatizedAction(title_template=title_t, title_data=title_d)
-        except:
-            return r
-        return r
-
-
-    def update_fbml(self):
-        c.user = Session.query(User).get(session['userid'])
-        fbml = render('facebook/profile.mako.fbml')
-        facebook.profile.setFBML(fbml)
-
     def set_volume(self, id):
         user = Session.query(User).get(session['userid'])
         user.lastvolume = id
         Session.add(user)
         Session.commit()
-        return True
+        return '1'
+

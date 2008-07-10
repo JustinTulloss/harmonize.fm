@@ -54,8 +54,7 @@ class MetadataController(BaseController):
             'song': self.songs,
             'friend': self.friends,
             'playlist': self.playlists,
-            'next_radio_song': self.next_radio_song,
-            'find_spotlight_by_id': self.find_spotlight_by_id
+            'next_radio_song': self.next_radio_song
         }
         self.id_map = {
             'artist': Artist.id,
@@ -86,7 +85,11 @@ class MetadataController(BaseController):
     def remove(self, user, **kwargs):
         type = kwargs['type']
         id = kwargs['id']
+        if not type or not id:
+            abort(400)
         songs = user.song_query.filter(self.id_map[type]==id)
+        if not songs:
+            abort(404)
         for song in songs:
             user.remove_song(song)
 
@@ -95,12 +98,12 @@ class MetadataController(BaseController):
         except Exception, e:
             Session.rollback()
             raise
-
+        return '1'
 
     @cjsonify
     @d_build_json
     @pass_user
-    def songs(self, user):
+    def songs(self, user, **kwargs):
         qry = user.song_query
         
         sort = [Artist.sort, Album.title, Song.tracknumber]
@@ -124,7 +127,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def albums(self, user):
+    def albums(self, user, **kwargs):
         qry = user.album_query
         if request.params.get('artist'):
             qry = qry.filter(Artist.id == request.params.get('artist'))
@@ -136,7 +139,7 @@ class MetadataController(BaseController):
     @cjsonify
     @d_build_json
     @pass_user
-    def artists(self, user):
+    def artists(self, user, **kwags):
         qry = user.artist_query
         qry = qry.order_by(Artist.sort)
         qry = self._apply_offset(qry)
@@ -144,48 +147,32 @@ class MetadataController(BaseController):
         
     @cjsonify
     @pass_user
-    def friends(self, user):
+    def friends(self, user, **kwargs):
         dtype = request.params.get('type')
         if request.params.get('all') == 'true':
             data = user.allfriends
         else:
-            data = user.friends
-            qry = Session.query(User).join(User.owners)
-            cond = or_()
-            for friend in data:
-                cond.append(User.fbid == friend['uid'])
-            qry = qry.filter(cond)
-            qry = qry.order_by(User.fbid)
-            results = qry.all()
+            friendor = or_()
+            for friend in user.friends:
+                friendor.append(User.fbid == friend['uid'])
 
-            def _intersect(item):
-                if len(results) > 0:
-                    if results[0].fbid == item['uid']:
-                        item['type'] = dtype
-                        item['Friend_name'] = item['name']
-                        item['Friend_id'] = results[0].id
-                        del results[0]
-                        return True
-                    else:
-                        return False
-                else:
-                    return False
+            dbfriends = Session.query(User).filter(friendor)
+            data = []
+            for dbfriend in dbfriends:
+                data.append({
+                    'Friend_name': dbfriend.name,
+                    'Friend_id': dbfriend.id,
+                    'friend': dbfriend.id,
+                    'type': 'friend'
+                })
 
-            # This is a bit confusing. It looks at all the friends you have that own
-            # the app and then check to see if they have any songs. Those that do
-            # get passed through and their names are passed back. We do this because
-            # we fetch the name from facebook and the ownership information
-            # from our own database.
-            data = sorted(data, key=itemgetter('uid'))
-            data = filter(_intersect, data)
             data = sorted(data, key=itemgetter('Friend_name'))
-
         return {'success':True, 'data':data}
 
     @cjsonify
     @d_build_json
     @pass_user
-    def playlists(self, user):
+    def playlists(self, user, **kwargs):
         qry = Session.query(Playlist.ownerid.label('Friend_id'), 
                             *dbfields['playlist']).\
                 join(Playlist.owner).\
@@ -193,15 +180,23 @@ class MetadataController(BaseController):
         return qry.all()
         
     def album(self, id):
+        if not id:
+            abort(400)
         user = get_user()
         album = user.get_album_by_id(id)
+        if not album:
+            abort(404)
         json = build_json([album])
         json['data'][0]['type'] = 'album'
         return cjson.encode(json)
         
     def playlist(self, id):
+        if not id:
+            abort(400)
         user = get_user()
         playlist = user.get_playlist_by_id(id)
+        if not playlist:
+            abort(404)
         json = build_json([playlist])
         json['data'][0]['type'] = 'playlist'
         return cjson.encode(json)
@@ -210,7 +205,7 @@ class MetadataController(BaseController):
     @d_build_json
     @pass_user
     def next_radio_song(self,user, **kwargs):
-        #todo: replace this with recommendations
+        #TODO: replace this with recommendations
         
         fbids = []
         for friend in user.friends:
@@ -219,7 +214,10 @@ class MetadataController(BaseController):
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        
         songlist = []
-        data = Session.query(*dbfields['song']).join(Song.album).reset_joinpoint().join(Song.artist).reset_joinpoint().join(SongOwner,User)
+        data = Session.query(*dbfields['song']).\
+            join(Song.album).reset_joinpoint().\
+            join(Song.artist).reset_joinpoint().\
+            join(SongOwner,User)
         for uid in fbids:
             # grab each users songs and append their song_ids to songlist
             temp = data.filter(User.fbid == uid)
@@ -227,6 +225,8 @@ class MetadataController(BaseController):
                 songlist.append(record.Song_id)
         
         num_songs = len(songlist)
+        if num_songs == 0:
+            abort(404)
         song_index = random.randint(0,num_songs-1)
         song_id = songlist[song_index]
         
@@ -234,63 +234,3 @@ class MetadataController(BaseController):
         song = data.filter(Song.id == song_id)
         return song
         
-    @cjsonify
-    @d_build_json
-    @pass_user
-    def find_spotlight_by_id(self,user, **kwargs):
-        if request.params.get('id') != '':
-            qry = Session.query(*dbfields['spotlight']).join(Spotlight.album).join(Album.artist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id)
-            return qry.all()
-        else:
-            return "False"
-        
-    @cjsonify
-    @d_build_json
-    @pass_user
-    def find_playlist_spotlight_by_id(self, user, **kwargs):
-        if request.params.get('id') != '':
-            qry = Session.query(*dbfields['spotlight']).join(Spotlight.playlist).filter(Spotlight.id == request.params.get('id')).filter(User.id == user.id).limit(1)
-            return qry.all()
-        else:
-            return "False"    
-        
-    
-    # right now this only returns true or false
-    # depending on whether or not a spotlight exists
-    # for the album    
-    def find_spotlight_by_album(self):
-        if not request.params.has_key('album_id'):
-            return "False"
-        
-        album = Session.query(Album).filter(Album.id == request.params['album_id'])
-        if album.first():
-            qry = Session.query(Spotlight).filter(and_(
-                    Spotlight.albumid == album[0].id,
-                    Spotlight.uid == get_user().id,
-                    Spotlight.active == 1))
-            if qry.first():
-                return "True"
-            else:
-                return "False"
-            
-        else:
-            return "False"
-
-    #this returns true or false depending on whether or not the spotlight already exists
-    def find_spotlight_by_playlist(self):
-        if not request.params.has_key('playlist_id'):
-            return "False"
-        
-        playlist = Session.query(Playlist).filter(Playlist.id == request.params['playlist_id'])
-        if playlist.first():
-            qry = Session.query(Spotlight).filter(and_(
-                    Spotlight.playlistid == playlist[0].id,
-                    Spotlight.uid == get_user().id,
-                    Spotlight.active == 1))
-            if qry.first():
-                return "True"
-            else:
-                return "False"
-            
-        else:
-            return "False"

@@ -124,15 +124,15 @@ class BlogEntry(object):
         self.timestamp = datetime.now()
 
 class Spotlight(object):
-    def __init__(self, uid, albumid, comment=None, active=True, playlistid=None):
-        self.uid = uid
-        self.albumid = albumid
+    def __init__(self, user=None, album=None, playlist=None, comment=None, active=True):
+        self.user = user
+        self.album = album
         self.comment = comment[:255]
         self.timestamp = datetime.now()
         self.active = active
-        self.playlistid = playlistid
-        if active:
-            self._unactivate_lru()
+        self.playlist = playlist
+        if active and self.user:
+            self.unactivate_lru()
 
     def get_title(self):
         if self.albumid:
@@ -147,11 +147,10 @@ class Spotlight(object):
         if self.albumid:
             return self.album.artist.name
         elif self.playlistid:
-            user = Session.query(User).get(self.uid)
-            return user.name
+            return self.user.name
     author = property(get_author)
 
-    def _unactivate_lru(self):
+    def unactivate_lru(self):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
                 Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:
             lru = Session.query(Spotlight).\
@@ -169,11 +168,22 @@ class SpotlightComment(object):
         self.timestamp = datetime.now()
 
 class SongStat(object):
-    def __init__(self, user = None, song = None):
+    def __init__(self, user = None, song = None, source = None):
         self.user = user
         self.song = song
         self.playcount = 0
         self.lastrecommended = datetime.now() #we don't currently use this
+        self.source = source
+
+    # constants used for sources of each song statistic
+    FROM_OWN_LIBRARY = 0
+    FROM_BROWSE = 1
+    FROM_SPOTLIGHT = 2
+    FROM_RADIO = 3
+    FROM_RECOMMENDATION = 4
+    
+    countable_sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT]
+    sources = [FROM_OWN_LIBRARY, FROM_BROWSE, FROM_SPOTLIGHT, FROM_RADIO, FROM_RECOMMENDATION]
 
 class Puid(object):
     def __init__(self, puid = None, song = None):
@@ -288,7 +298,10 @@ mapper(BlogEntry, blog_table)
 mapper(Spotlight, spotlights_table, properties={
     'album': relation(Album, lazy=False),
     'user' : relation(User, lazy=False, backref='spotlights'),
-    'playlist' : relation(Playlist, foreign_keys = [spotlights_table.c.playlistid], primaryjoin = playlists_table.c.id == spotlights_table.c.playlistid),
+    'playlist' : relation(Playlist, 
+        foreign_keys = [spotlights_table.c.playlistid], 
+        primaryjoin = playlists_table.c.id == spotlights_table.c.playlistid
+    ),
 })
 
 mapper(SpotlightComment, spotlight_comments_table, properties={
