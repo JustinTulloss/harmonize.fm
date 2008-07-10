@@ -81,6 +81,25 @@ function init()
                 '&next='+location.pathname+location.hash;
             location.href= href;
         }
+        if (response.status == 500) {
+            //dialog displaying message and when click ok, refresh
+            var content = new Ext.Template(
+                '<form id="500_form">',
+                    '<h1 id="title">500 Error</h1>',
+                    '<h2>500 Server Error</h2>',
+                    '<center><table id="spot_controls"><tr><td><img id="spot_art" src="{album_art}" />',
+                    '<tr><td>We\'re sorry, we made a mistake and we need to reload the page to recover. Our engineers have been notified, and we\'ll fix the problem as soon as possible. Sorry for the inconvenience!</td></tr>',
+                    '<tr><td>',
+                    '<button id="500_ok">OK</button>',
+                    '</center></td></tr>',
+                '</table></form>');
+            show_dialog(content);
+            Ext.get('500_ok').on('click', function(e) {
+                prevent_default(hide_dialog());
+                urlm.invalidate_page();
+            });
+        }
+
     });
 }
 
