@@ -65,7 +65,7 @@ ul {
 }
 
 #home-sidebar {
-    margin-right: 56px;
+    margin-right: 40px;
 	font-size: 11pt;
 	border-left: 1px solid ${c.profile.profile_border};
 	padding-left: 8px;
@@ -182,6 +182,7 @@ table {
 
 #news_feed {
 	margin-left: 20px;
+	margin-right: 40px;
 }
 
 #news_feed h1 {
@@ -203,7 +204,7 @@ table {
 	margin-top: 0;
 	color: ${c.profile.dark_txt};
 	margin-bottom: 2px;
-	font-size: 11pt;
+	font-size: 14px;
 	font-weight: normal;
 }
 
@@ -215,6 +216,13 @@ table {
 .feed_content a:hover {
     color: ${c.profile.click};
 	text-decoration: underline;
+}
+
+.feed-separator {
+	border-bottom: solid 1px ${c.profile.profile_border};
+	padding-left: 5px;
+	margin-bottom: 5px;
+	color: ${c.profile.profile_subtitle};
 }
 
 .feed_entry img {
