@@ -337,7 +337,7 @@ function Player() {
         if (song_info.id) {
         }
         if (!own_record(song_info.record)) {
-            alert('asin: ' + song_info.mp3asin);
+            
             if (song_info.mp3asin != null && song_info.mp3asin != '0' && song_info.mp3asin != '') {
                 //apply template
                 Ext.get('amazon_link').update(
