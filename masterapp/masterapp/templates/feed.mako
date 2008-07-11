@@ -1,7 +1,18 @@
 <%!
     from masterapp.model import BlogEntry, Spotlight, SpotlightComment
     from simplejson import dumps
+    from datetime import date
 %>
+
+<%def name="feed_separator(entry_date)">
+    <div class="feed-separator">
+        % if (date.today() - entry_date).days == 1:
+            Yesterday
+        % else:
+            ${entry_date.strftime('%B %d')}
+        % endif
+    </div>
+</%def>
 
 <%def name="render(entries)">
 
@@ -60,11 +71,11 @@
             % else:
                 ${entry.spotlight.user.get_firstname()}'s 
             % endif
-				% if entry.spotlight.album:
-                	Spotlight of ${entry.spotlight.album.title}
-				% elif entry.spotlight.playlist:
-                	Spotlight of ${entry.spotlight.playlist.name}
-				% endif
+                % if entry.spotlight.album:
+                    Spotlight of ${entry.spotlight.album.title}
+                % elif entry.spotlight.playlist:
+                    Spotlight of ${entry.spotlight.playlist.name}
+                % endif
             </a></h2>
             <div class="blog_feed_comment">
                 ${quote_comment(entry.comment, 75)}
@@ -92,8 +103,18 @@
             Spotlight : spotlight_feed,
             SpotlightComment: comment_feed
         }
+
+        last_date = date.today()
     %>
     %   for entry in entries:
+            % if hasattr(entry, 'timestamp'):
+                <% curr_date = entry.timestamp.date() %>
+                % if curr_date != last_date:
+                    ${feed_separator(curr_date)}
+                    <% last_date = curr_date %>
+                % endif
+            % endif
+
             <div class="feed_entry">
             ${type_table[type(entry)](entry)}
             </div>
