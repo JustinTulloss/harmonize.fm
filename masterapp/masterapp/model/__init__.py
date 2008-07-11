@@ -132,7 +132,7 @@ class Spotlight(object):
         self.active = active
         self.playlist = playlist
         if active and self.user:
-            self.unactivate_lru()
+            self.unactivate_lru(self.user.id)
 
     def get_title(self):
         if self.albumid:
@@ -150,12 +150,12 @@ class Spotlight(object):
             return self.user.name
     author = property(get_author)
 
-    def unactivate_lru(self):
+    def unactivate_lru(self, uid):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
-                Spotlight.uid==self.uid, Spotlight.active==True)).one()[0] >= 3:
+                Spotlight.uid==uid, Spotlight.active==True)).one()[0] >= 3:
             lru = Session.query(Spotlight).\
                     filter(sql.and_(
-                            Spotlight.uid==self.uid, 
+                            Spotlight.uid==uid, 
                             Spotlight.active==True))\
                     .order_by(Spotlight.timestamp)[0]
             lru.active = False

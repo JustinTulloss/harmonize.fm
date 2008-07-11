@@ -13,6 +13,7 @@ class TestPeopleController(TestModel):
             id = None
         ))
 
+
         assert self.user.name in response.body,\
             "Did not give user own profile without a userid"
 
@@ -25,6 +26,13 @@ class TestPeopleController(TestModel):
 
         assert friends_info[0]['name'] in response.body,\
             "Did load friend profile correctly"
+
+        # Test non-existent profile
+        response = self.app.get(url_for(
+            controller = 'people',
+            action = 'profile',
+            id = 100
+        ), status=404)
 
     def test_invite(self):
         """

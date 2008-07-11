@@ -118,7 +118,8 @@ function show_spotlight(record,mode) {
 			Ext.Ajax.request({
 				url:'/spotlight/album/'+record.get('Album_id'),
 				success: function(response, options) {
-				    if (response.responseText != "0") {
+					res = Number(response.responseText, 10);
+				    if (res !== 0) {
 							hide_dialog(); 
 							show_status_msg("Spotlight Added!");
 					} else {
@@ -142,9 +143,10 @@ function show_spotlight(record,mode) {
 			Ext.Ajax.request({
 				url:'/spotlight/playlist/'+record.get('Playlist_id'),
 				success: function(response, options) {
-				    if (response.responseText == "1") {
-							hide_dialog(); 
-							show_status_msg("Spotlight Added!");
+					res = Number(response.responseText, 10);
+				    if (res !== 0) {
+						hide_dialog(); 
+						show_status_msg("Spotlight Added!");
 					} else {
 					    hide_dialog();
 					    show_status_msg("Spotlight was NOT added.");

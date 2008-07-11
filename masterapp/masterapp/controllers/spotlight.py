@@ -55,7 +55,7 @@ class SpotlightController(BaseController):
         user = Session.query(User).get(session['userid'])
         playlist = Session.query(Playlist).get(id)
         if playlist:
-            spotlight = Spotlight(user=user, playlist = playlist, comment=comment)
+            spotlight = Spotlight(user=user, playlist=playlist, comment=comment)
             Session.add(spotlight)
             Session.commit()
             return str(spotlight.id)

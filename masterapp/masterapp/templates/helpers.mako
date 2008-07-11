@@ -9,13 +9,11 @@
             href = '/uploaders/Harmonizer.dmg'
         else:
             href = '/harmonizer-not-supported'
-            target = None
+            target = '_blank'
     %>
-    % if href:
-        <a href="${href}"
-		% if target != None:
-			target="${target}"
-		% endif
-		>${caller.body()}</a>
-    % endif
+	<a href="${href}"
+	% if target != None:
+		target="${target}"
+	% endif
+	>${caller.body()}</a>
 </%def>

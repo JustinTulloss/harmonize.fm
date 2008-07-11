@@ -1,5 +1,4 @@
 .profile-name {
-    padding-left: 5px;
     font-size: 24pt;
     font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
 }
@@ -11,7 +10,6 @@
 .profile-status {
     color: ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.profile_border};
-	margin-left: 25px;
 }
 
 .profile-links {
@@ -22,22 +20,23 @@
 	text-align: right;
 }
 
-.profile-links a {
+#profile-body a {
     color: ${c.profile.profile_links};
 }
 
-.profile-links a:hover {
+#profile-body a:hover {
     color: ${c.profile.click}
-}
-
-#profile-spotlight .profile-subtitle {
-	margin-left: 25px;
 }
 
 #profile-body {
     padding: 10px;
 	padding-left: 0px;
 	overflow: hidden;
+}
+
+#profile-body > div {
+	margin-left: 25px;
+	padding-left: 5px;
 }
 
 #profile-right {
@@ -50,18 +49,11 @@
 	background-color: white;
 }
 
-.profile-sp {
+#profile-body > .profile-sp {
 	padding-left: 2px;
     clear: right;
     padding-top: 5px;
-}
-
-.profile-sp a {
-    color: ${c.profile.profile_links};
-}
-
-.profile-sp a:hover {
-    color: ${c.profile.click}
+	margin-left: 5px;
 }
 
 .profile-sp-albumart {
@@ -71,7 +63,7 @@
 
 .profile-sp-artist {
     color: ${c.profile.profile_links};
-	margin-left: 28px;
+	margin-left: 25px;
 }
 
 .profile-sp-artist a {
@@ -79,7 +71,7 @@
 }
 
 .profile-sp-review {
-	margin-left: 28px;
+	margin-left: 25px;
     padding-left: 8px;
 }
 
@@ -104,7 +96,7 @@
 }
 
 .profile-sp-commentcontainer {
-	margin-left: 28px;
+	margin-left: 25px;
 	margin-top: 4px;
 	margin-bottom: 8px;
 }
@@ -148,6 +140,13 @@
 }
 
 .h-title a {
-    font-size: 14px;
     text-decoration: none;
+}
+
+.h-title {
+	font-size: 14px;
+}
+
+.h-title > img {
+	vertical-align: text-bottom;
 }
