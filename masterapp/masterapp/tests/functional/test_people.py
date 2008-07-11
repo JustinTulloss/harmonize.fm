@@ -1,5 +1,5 @@
 from masterapp.tests import *
-from masterapp.lib.fakefacebook import friends, friends_info
+from masterapp.lib.fakefacebook import friends, friends_info, friend_info
 
 class TestPeopleController(TestModel):
 
@@ -11,7 +11,7 @@ class TestPeopleController(TestModel):
             controller = 'people',
             action = 'profile',
             id = None
-        ))
+        ), headers=self.mac_safari3_headers)
 
 
         assert self.user.name in response.body,\
@@ -22,9 +22,9 @@ class TestPeopleController(TestModel):
             controller = 'people',
             action = 'profile',
             id = friend.id
-        ))
+        ), headers=self.win_ff2_headers)
 
-        assert friends_info[0]['name'] in response.body,\
+        assert friend_info[0]['name'] in response.body,\
             "Did load friend profile correctly"
 
         # Test non-existent profile
@@ -32,7 +32,7 @@ class TestPeopleController(TestModel):
             controller = 'people',
             action = 'profile',
             id = 100
-        ), status=404)
+        ), headers=self.linux_ff3_headers, status=404)
 
     def test_invite(self):
         """
