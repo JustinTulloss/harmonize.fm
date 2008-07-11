@@ -7,21 +7,12 @@
 
 		<div id="home">
             <div id="no_music">
-            <% 
-            href = None
-            if c.num_songs == 0:
-                if c.platform == 'windows':
-                    href = '/uploaders/Harmonizer Setup.exe'
-                elif c.platform == 'mac':
-                    href = '/uploaders/Harmonize.dmg'
-                endif
-            endif
-            %>
-            % if href:
+            % if c.num_songs == 0 and c.platform != None:
 				<h1>Welcome to harmonize.fm!</h1>
 				<h2>Here's how to get started:</h2>
 				<ul>
-					<li>Add music with the <a href="${href}">harmonizer</a></li>
+					<li>Add music with the 
+					<%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call></li>
 					<li>Listen to your music with the 
 						<span id="music">music <img src="/images/s.gif" class="music_menu_img"/></span> 
 						button in the top right</li>

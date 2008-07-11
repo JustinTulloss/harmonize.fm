@@ -47,7 +47,7 @@ ul {
 }
 
 #no_music img {
-	vertical-align: middle;
+	vertical-align: text-top;
 }
 
 #mainlogo {
@@ -272,4 +272,8 @@ table {
 
 #error-reload {
 	float: right;
+}
+
+.favicon {
+	vertical-align: text-top;
 }

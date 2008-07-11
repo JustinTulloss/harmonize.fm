@@ -52,7 +52,7 @@
             % if entry.spotlight.uid == c.user.id:
                 your
             % elif entry.uid == entry.spotlight.uid:
-                % if c.user.sex == 'female':
+                % if entry.spotlight.user.sex == 'female':
                     her
                 % else:
                     his

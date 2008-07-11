@@ -1,6 +1,7 @@
 ##vim:filetype=html:expandtab:tabstop=4
 <%namespace name="rightcol" file="rightcol.mako" />
 <%namespace name="spotcomment" file="spotcomment.mako" />
+<%namespace file="../helpers.mako" import="dl_harmonizer_a"/>
 
 ${rightcol.render()}
 <div id="profile-body">
@@ -34,12 +35,28 @@ ${rightcol.render()}
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
-    <div id="profile-spotlight">
-        <div class="profile-subtitle h-subtitle">Spotlight</div>
-        % for spotlight in c.user.get_active_spotlights():
-            ${build_spotlight(spotlight, own_profile)}
-        % endfor
-    </div>
+	<div class="profile-subtitle h-subtitle">Spotlight</div>
+	<% spotlights = c.user.get_active_spotlights() %>
+	% if spotlights.count() == 0:
+		<div>
+		<iframe name="dummy_iframe" style="display:none;"></iframe>
+		% if own_profile:
+			You haven't added any spotlights yet, 
+			% if c.user.song_count == 0:
+				download the 
+				<%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call>
+				to add music.
+			% else:
+				click the <img class="favicon" src="/images/spotlight.png"/>Spotlight button on an album or playlist to create one.
+			% endif
+		% else:
+			${c.user.firstname} hasn't created any spotlights yet.
+		% endif
+		</div>
+	% endif
+	% for spotlight in c.user.get_active_spotlights():
+		${build_spotlight(spotlight, own_profile)}
+	% endfor
 </div>
 
 <%def name="build_spotlight(spotlight, own_profile)" >
