@@ -337,7 +337,8 @@ function Player() {
         if (song_info.id) {
         }
         if (!own_record(song_info.record)) {
-            if (song_info.mp3asin) {
+            alert('asin: ' + song_info.mp3asin);
+            if (song_info.mp3asin != null && song_info.mp3asin != '0' && song_info.mp3asin != '') {
                 //apply template
                 Ext.get('amazon_link').update(
                     amazon_link.apply({
@@ -347,7 +348,7 @@ function Player() {
                     })
                 );
             } else {
-                if (song_info.asin) {
+                if (song_info.asin != null && song_info.asin != '0' && song_info.asin != '') {
                     Ext.get('amazon_link').update(
                         amazon_link.apply({
                             asin: song_info.asin,
