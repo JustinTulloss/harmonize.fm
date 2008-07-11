@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 from masterapp.lib.snippets import get_user, build_json
 
 @decorator
-def cjsonify(func, self, *args, **kwargs):
+def cjsonify(func, *args, **kwargs):
     """Action decorator that formats output for JSON
 
     Given a function that will return content, this decorator will
@@ -20,7 +20,7 @@ def cjsonify(func, self, *args, **kwargs):
     and output it.
     """
     pylons.response.headers['Content-Type'] = 'application/json'
-    data = func(self, *args, **kwargs)
+    data = func(*args, **kwargs)
     if isinstance(data, list):
         msg = "JSON responses with Array envelopes are susceptible to " \
               "cross-site data leak attacks, see " \
@@ -30,9 +30,9 @@ def cjsonify(func, self, *args, **kwargs):
     return cjson.encode(data)
 
 def d_build_json(func):
-    def wrapper(self, *args, **kwargs):
-        return build_json(func(self, **kwargs))
-    return wrapper
+    def json_wrapper(*args, **kwargs):
+        return build_json(func(*args, **kwargs))
+    return json_wrapper
 
 def pass_user(func):
     def pu_wrapper(self, *args, **kwargs):

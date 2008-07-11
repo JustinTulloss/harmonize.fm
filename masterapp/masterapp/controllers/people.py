@@ -32,7 +32,7 @@ class PeopleController(BaseController):
             id = str(user.id)
         # Make sure this user is allowed to access this profile
         friend = Session.query(User).get(id)
-        if not user.is_friends_with(friend):
+        if not friend or not user.is_friends_with(friend):
             abort(404)
 
         c.user = friend
