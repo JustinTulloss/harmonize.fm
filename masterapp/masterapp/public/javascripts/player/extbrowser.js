@@ -7,6 +7,7 @@
 
 function Browser()
 {
+    my = this;
     
     this.addEvents({
         newgrid: true,
@@ -14,8 +15,7 @@ function Browser()
     });
 
     /***** public functions ****/
-    this.load = load;
-    function load(crumb, params)
+    my.load = function load(crumb, params)
     {
         if(crumb.ds==null) {
             crumb.ds = new Ext.data.JsonStore({
@@ -91,8 +91,43 @@ function Browser()
         });
         this.fireEvent('chgstatus', 'Loading...');
     }
-    
-    
+
+    my.load_url = function(url) {
+        if (url.indexOf('?') != -1) {
+            //this means there is a variable somewhere
+            url = url.split('?');
+            location.vars = url[1];
+            url = url[0];
+        }
+        var parts = url.split('/')
+        var params = {};
+        var param = null;
+        var splice = false;
+        for (var i =0; i<parts.length; i++) {
+            param = parts[i].split('=');
+            var type = param[0];
+            var value = null;
+            if (param.length == 2) {
+                value = param[1]
+                params[type] = value;
+            }
+            var itercrumb = Hfm.breadcrumb.get(i);
+            if (itercrumb && itercrumb.type === type && itercrumb.queryvalue === value)
+                break;
+
+            var crumb = new Hfm.breadcrumb.Crumb({
+                type: type,
+                queryby: value
+            });
+            var update = false;
+            if (i === parts.length-1)
+                update = true;
+            Hfm.breadcrumb.add({index: i, crumb: crumb, update: update});
+        }
+        //my.fireEvent('bcupdate', bclist[current], params);
+        if (!Hfm.breadcrumb.current_view().panel)
+            my.load(crumb, params);
+    }
 }
 Ext.extend(Browser, Ext.util.Observable);
 
@@ -126,21 +161,21 @@ function BaseGrid(config)
         return record
     }
 
-    my.onMouseDown = function(e, div) {
-        /* XXX: Does this loop scale to lots of actions? */
-        for (action in my.actions) {
-            if (Ext.get(div).hasClass(action)) {
-                e.stopPropagation(); /* Keep this row from getting selected */
-				var row = e.getTarget('.x-grid3-row')
-				var record = my.getStore().getAt(row.rowIndex);
-                my.actions[action](record);
-            }
-        }
-    }
-
     /* Override this to get correct per-type behavior */
-    this.search = search;
-    function search(text) { return true; }
+    my.search = function(text) { return true; }
+
+    /* Default descent, but feel free to override for "special" panels */
+    my.descend = function(grid, rowIndex, evnt) {
+        var row = my.getStore().getAt(rowIndex);
+        var bc = new Hfm.breadcrumb.Crumb({
+            type: my.config.type,
+            value: row.get(typeinfo[my.config.type].lblindex)
+        });
+
+        var url = Hfm.breadcrumb.add({crumb: bc, update:true});
+        Hfm.urlm.goto_url(url);
+    }
+    my.on('rowdblclick', my.descend);
 
     BaseGrid.superclass.constructor.call(this, config);
     Ext.override(Ext.grid.GridView, {
@@ -151,6 +186,7 @@ Ext.extend(BaseGrid, Ext.grid.GridPanel);
 
 function SongGrid(config)
 {
+    my = this;
     this.addEvents({
         newgridleaf : true
     });
@@ -172,6 +208,11 @@ function SongGrid(config)
         else
             this.getStore().filter('Song_title', text, true, false);
         return true;
+    }
+
+    my.descend = function(grid, rowIndex, evnt) {
+        var row = my.getStore().getAt(rowIndex);
+        Hfm.playrow(row);
     }
 }
 Ext.extend(SongGrid, BaseGrid);
@@ -252,6 +293,7 @@ Ext.extend(ArtistGrid, BaseGrid);
 
 function PlaylistGrid(config)
 {
+    var my = this;
     this.addEvents({
         newgridbranch: true
     });
@@ -260,6 +302,11 @@ function PlaylistGrid(config)
     config.cm.defaultSortable = true;
     
     PlaylistGrid.superclass.constructor.call(this, config);
+    my.descend = function(grid, rowIndex, evnt){
+        var row = row.getStore.getAt(rowIndex);
+        Hfm.open_playlist(row);
+    }
+        
 }
 Ext.extend(PlaylistGrid, BaseGrid);
 
@@ -273,19 +320,30 @@ Ext.extend(PlaylistSongGrid, SongGrid);
 
 function FriendGrid(config)
 {
+    var my = this;
+
     config.type = 'friend';
     config.cm = new Ext.grid.ColumnModel(ColConfig.friend);
     config.cm.defaultSortable = true;
     FriendGrid.superclass.constructor.call(this, config);
     
-    this.search = search;
-    function search(text)
-    {
+    my.search = function(text) {
         if (text == "")
             this.getStore().clearFilter();
         else
             this.getStore().filter('Friend_name', text, true, false);
         return true;
+    }
+
+    my.descend = function(grid, rowIndex, evnt) {
+        var row = row.getStore().getAt(rowIndex);
+        var bc = new Hfm.breadcrumb.Crumb({
+            type: 'profile',
+            value: row.get('Friend_name'),
+            queryby: row.get('Friend_id')
+        });
+        var url = Hfm.breadcrumb.add({crumb: bc, update:true});
+        Hfm.urlm.goto_url(url);
     }
 }
 Ext.extend(FriendGrid, BaseGrid);

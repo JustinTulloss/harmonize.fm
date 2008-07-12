@@ -14,7 +14,7 @@
 /* just pass in the home panel's crumb for navigation and an object of objects
  * that viewmanager is supposed to manage
  */
-function ViewManager(crumb, objects)
+function ViewManager(objects)
 {
 	var my = this;
 

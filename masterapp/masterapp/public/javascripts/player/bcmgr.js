@@ -8,6 +8,7 @@
  *              --JMT
  * 06/01/2008 - Updated to use the location instead of jump_to and other such
  *              ugliness --JMT
+ * 07/11/2008 - Began a fairly major rework
  */
 
 /* An entry of data in the breadcrumb. Generally what you display and what
@@ -15,25 +16,6 @@
  * query for IDs that aren't presented anywhere. So, we allow you to
  * differentiate between what is displayed and what you want to query for.
  */
-function BcEntry(type, value, qrytype, qryvalue)
-{
-    var my = this;
-    my.type = type;
-    my.value = value;
-    my.el = null;
-    my.id = null;
-    my.view = null;
-
-    if (qrytype)
-        my.qrytype = qrytype
-    else
-        my.qrytype = type;
-
-    if (qryvalue)
-        my.qryvalue = qryvalue
-    else
-        my.qryvalue = value;
-}
 
 /* BreadCrumb object
  *
@@ -46,7 +28,7 @@ function BreadCrumb()
 	var my = this;
 
     var bclist = [];
-    var current = 0;
+    var current = -1;
     var div = Ext.get("breadcrumb"); /* XXX: Hard coded badness */
     var t_crumb = new Ext.Template(
         '<div class="bc" name="{id}">',
@@ -66,10 +48,28 @@ function BreadCrumb()
 
     this.addEvents({
         'bcupdate' : true,
-        'newfilter' : true,
         'chgstatus' : true
     });
 
+    /* Entries */
+    my.Crumb = function(config)
+    {
+        if (this === window)
+            alert('Use new to create a new crumb');
+        var my = this;
+        my.type = config.type;
+        my.value = config.value;
+        my.el = null;
+        my.id = null;
+        my.view = null;
+
+        my.qrytype = config.type;
+
+        if (config.queryby)
+            my.qryvalue = config.queryby;
+        else
+            my.qryvalue = config.value;
+    }
 
     /*public functions*/
     my.current_view = function()
@@ -77,8 +77,11 @@ function BreadCrumb()
         return bclist[current];
     }
 
-    my.descend = function(grid, rowindex, e)
-    {
+    my.get = function(index) {
+        return bclist[index];
+    }
+
+    my.descend = function(grid, rowindex, e) {
         var row = grid.store.getAt(rowindex);
         var clickedtype = row.get('type');
         var clickedinfo = typeinfo[clickedtype];
@@ -93,82 +96,44 @@ function BreadCrumb()
         clickedinfo.next(row, this);
     }
 
-    my.add_breadcrumb = function(crumb, url)
-    {
-        current++;
+    my.clear = function() {
+        bclist = [];
+    }
+
+    my.add = function(config) {
+        var crumb = config.crumb;
+        if (config.index)
+            current = index;
+        else
+            current++;
 
         /* removes everything after new current and adds on newcrumb */
         bclist.splice(current, bclist.length-current, crumb);
-        update_div();
+        if (config.update)
+            update_div();
         var params = create_params(bclist[current]);
-        if (!url)
-            url = build_bc_url(bclist.length-1);
-        urlm.goto_url(url);
+        var url = typeinfo[crumb.type].urlfunc(crumb);
         bclist[current].url = url;
+        return url;
     }
 
-    function build_bc_url(index){
-        urllist = ['/bc'];
-        for (var i=0; i < index; i++) {
-            part = bclist[i].type;
-            if (bclist[i].qryvalue)
-                part += '='+bclist[i].qryvalue;
+    my.build_url = function(crumb){
+        var urllist = ['/browse'];
+        var itercrumb = bclist[0]
+        while (itercrumb != crumb) {
+            part = itercrumb.type;
+            if (itercrumb.qryvalue)
+                part += '='+itercrumb.qryvalue;
             urllist.push(part);
         }
-        urllist.push(bclist[index].type);
+        urllist.push(crumb.type);
         return urllist.join('/');
     }
-
 
     my.load_url = function(url) {
         build_bc(url);
     }
 
-    function build_bc(url) {
-        if (url.indexOf('?') != -1) {
-            //this means there is a variable somewhere
-            url = url.split('?');
-            location.vars = url[1];
-            url = url[0];
-        }
-        var parts = url.split('/')
-        var params = {};
-        var param;
-        var splice = false;
-        for (var i =0; i<parts.length; i++) {
-            param = parts[i].split('=');
-            if (param.length == 2) {
-                params[param[0]] = param[1];
-            }
-            function create_bc()
-            {
-                bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                if (typeinfo[bclist[i].type].bcurl)
-                    bclist[i].url = String.format(typeinfo[bclist[i].type].bcurl, param[1]);
-                else
-                    bclist[i].url = build_bc_url(i);
-            }
-
-            if (bclist[i]) {
-                if (bclist[i].type != param[0]) {
-                    /* this is not a currently loaded bc */
-                    create_bc();
-                    splice = true;
-                }
-            }
-            else {
-                bclist[i] = new BcEntry(param[0], null, param[0], param[1]);
-                create_bc();
-            }
-            current = i;
-        }
-        if (splice)
-            bclist.splice(current+1, bclist.length-current+1);
-        update_div();
-        my.fireEvent('bcupdate', bclist[current], params);
-        if (!bclist[current].panel)
-            my.fireEvent('newfilter', bclist[current], params);
-    }
 
     my.update_current_div = function(crumb, oldcrumb) {
         setup_current_div(crumb);
@@ -207,6 +172,7 @@ function BreadCrumb()
         /* For now, clear and rebuild everytime. It should be cheaper than
          * fetching the data from the server anyway, so who cares?
          */
+        div = Ext.fly('breadcrumb');
         div.update('');
         for (var i=0; i<bclist.length; i++) {
             var curr_bc = bclist[i];
@@ -237,7 +203,7 @@ function BreadCrumb()
         }
     };
 
-    update_div();
+    //update_div();
 
     function create_params(current_crumb)
     {
@@ -270,3 +236,5 @@ function BreadCrumb()
 }
 
 Ext.extend(BreadCrumb, Ext.util.Observable);
+
+Hfm.breadcrumb = new BreadCrumb();
