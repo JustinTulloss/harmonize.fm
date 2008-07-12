@@ -107,7 +107,7 @@
         last_date = date.today()
     %>
     %   for entry in entries:
-            % if hasattr(entry, 'timestamp'):
+            % if hasattr(entry, 'timestamp') and entry.timestamp:
                 <% curr_date = entry.timestamp.date() %>
                 % if curr_date != last_date:
                     ${feed_separator(curr_date)}
