@@ -478,7 +478,7 @@ class User(Base):
 
         # Keep counts up to date
         new_album = False
-        albumc = Session.query(AlbumCounts).get((song.albumid, self.id))
+        albumc = Session.query(AlbumCounts).get((song.album.id, self.id))
         if albumc:
             albumc.songcount += 1
         else:
@@ -492,7 +492,7 @@ class User(Base):
                 artistc.albumcount += 1
         else:
             artistc = ArtistCounts(
-                user=self, artist=song.artist, songcount=1, albumcount=1)
+                user=self, artist=song.album.artist, songcount=1, albumcount=1)
 
         Session.add_all([owner, artistc, albumc])
         Session.commit()

@@ -1,6 +1,6 @@
 # vim:expandtab:smarttab
 import logging
-from pylons import g, Response, config
+from pylons import g, Response, config, cache
 import os
 import socket
 import os.path as path
@@ -15,6 +15,7 @@ from musicbrainz2.webservice import (
     WebServiceError
 )
 
+from facebook.wsgi import facebook
 from sqlalchemy.sql import or_
 
 from masterapp.lib.base import *
@@ -63,12 +64,12 @@ class UploadController(BaseController):
         if owner:
             # This request.params has already been uploaded by this fella
             log.debug('%s has already been uploaded by %s', 
-                request.params.get('title'), user.name)
+                request.params.get('title'), user.id)
             return True
 
         # Make a new owner
         user.add_song(song)
-        log.debug('%s added to %s\'s files', request.params['title'], user.name)
+        log.debug('%s added to %s\'s files', request.params['title'], user.id)
         return True
 
 
@@ -102,9 +103,6 @@ class UploadController(BaseController):
             return True
         return False
 
-    def _get_fb(self):
-        return facebook.Facebook(self.apikey, self.secret)
-
     def _get_user(self, fbid):
         return model.Session.query(model.User).filter_by(fbid = fbid).one()
 
@@ -113,24 +111,29 @@ class UploadController(BaseController):
         if session_key == None:
             return None
         
-        fb = self._get_fb()
-        retries = 2
-        while retries > 0:
-            try:
-                fb.session_key = session_key
-                fbid = fb.users.getLoggedInUser()
-                retries = 0 
-            except FacebookError:
-                return None
-            except URLError:
-                print 'getLoggedInUser error, retrying'
-                retries -= 1
-                if retries == 0: 
-                    print 'getLoggedInUser failed'
+        def get_fbid():
+            retries = 2
+            while retries > 0:
+                try:
+                    facebook.session_key = session_key
+                    fbid = facebook.users.getLoggedInUser()
+                    retries = 0 
+                except FacebookError:
                     return None
+                except URLError:
+                    print 'getLoggedInUser error, retrying'
+                    retries -= 1
+                    if retries == 0: 
+                        print 'getLoggedInUser failed'
+                        return None
+            return str(fbid)
 
-        return fbid
-
+        sessionc = cache.get_cache('upload.sessions')
+        return sessionc.get(session_key,
+            expiretime = 120,
+            createfunc = get_fbid
+        )
+        
     class PostException(Exception):
         """An exception that means the content-length did not match the actual
            amount of data read"""

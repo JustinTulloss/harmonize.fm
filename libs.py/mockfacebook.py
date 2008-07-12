@@ -18,8 +18,33 @@ class MockFacebook(object):
 
     # Preset return values
     configured_friends = None
-    configured_info = None
-    configured_user_info = None
+
+    class MockUsers(object):
+        """
+        A mock for the users namespace since its a bit more complicated
+        """
+        configured_info = None
+        configured_user_info = None
+
+        def __init__(self, 
+                configured_info, configured_user_info,
+                configured_friend_info, uid):
+            self._uid = uid
+            self.configured_info = configured_info
+            self.configured_user_info = configured_user_info
+            self.configured_friend_info = configured_friend_info
+
+        def getInfo(self, id, fields=None):
+            if fields:
+                if id == self._uid:
+                    return self.configured_user_info
+                else:
+                    return self.configured_friend_info
+            else:
+                return self.configured_info
+
+        def getLoggedInUser(self):
+            return self._uid
 
     # Namespaces
     auth = Mock()
@@ -29,7 +54,6 @@ class MockFacebook(object):
     friends = Mock()
     notifications = Mock()
     profile = Mock()
-    users = Mock()
     pages = Mock()
     events = Mock()
     groups = Mock()
@@ -39,11 +63,21 @@ class MockFacebook(object):
 
     # Base methods
     get_login_url = Mock()
-    get_login_url.return_value = 'loggin now for cheap hookers and light beer!!'
+    get_login_url.return_value = 'login now for cheap hookers and light beer!!'
     check_session = Mock()
     check_session.return_value = True
     def __init__(self, apikey, secret):
-        pass
+        self.users = self.MockUsers(
+            self.configured_info, self.configured_user_info,
+            self.configured_friend_info, self.uid)
+
+        # Namespace mocked methods
+        self.friends.get = Mock()
+        self.friends.get.return_value = self.configured_friends
+
+        self.friends.getAppUsers = Mock()
+        self.friends.getAppUsers.return_value = self.configured_friends
+
 
     def _get_session_key(self):
         if self._session_key:
@@ -70,24 +104,9 @@ class MockFacebook(object):
     def configure_friends(friends):
         self._friends = friends
 
-    # Namespace mocked methods
-    friends.get = Mock()
-    friends.get.return_value = configured_friends
-
-    friends.getAppUsers = Mock()
-    friends.getAppUsers.return_value = configured_friends
 
     # Make this more legit in the future so we can test people who are not
     # necessarily friends
     friends.areFriends = Mock()
     friends.areFriends.return_value = [{'are_friends':True}]
-
-    def getuserinfo(fbid, fields=None):
-        if fields:
-            return configured_user_info
-        else:
-            return configured_info
-    users.getInfo = getuserinfo
-
-
 
