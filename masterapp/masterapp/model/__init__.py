@@ -152,7 +152,7 @@ class Spotlight(object):
 
     def unactivate_lru(self, uid):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
-                Spotlight.uid==uid, Spotlight.active==True)).one()[0] >= 3:
+                Spotlight.uid==uid, Spotlight.active==True)).one()[0] > 3:
             lru = Session.query(Spotlight).\
                     filter(sql.and_(
                             Spotlight.uid==uid, 
