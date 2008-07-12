@@ -166,7 +166,9 @@ function Playlist(config) {
 	var actions = {
 		close_panel: function(panel) { 
 						clearInterval(interval);
-						my.fireEvent('remove', my);
+						check_dirty(function() {
+							my.fireEvent('remove', my);
+						});
 					 },
 		play_playlist: function(panel) {
 						playqueue.insert([config.record], true);
@@ -222,15 +224,16 @@ function Playlist(config) {
 	var saving_playlist = false;
 
 	//Returns true if it succeded in saving the playlist (no nodes were loading)
-	function save_playlist() {
-		saving_playlist = true;
+	function save_playlist(k) {
+		if (saving_playlist) return;
 
 		var i=0;
 		var current = songqueue.root.firstChild;
 		var songs = ''
 		while (current) {
-			if (!current.loaded)
+			if (!current.loaded) {
 				return false;
+			}
 
 			var id = String(current.songid);
 			if (songs == '')
@@ -242,6 +245,8 @@ function Playlist(config) {
 			i++;
 		}
 
+		saving_playlist = true;
+
 		Ext.Ajax.request({
 			url:'/playlist/save',
 			params: {
@@ -250,9 +255,13 @@ function Playlist(config) {
 			},
 			failure: function() {
 						show_status_msg('Failed to save playlist!');
-						saving_playlist = false;},
+						saving_playlist = false;
+						if (k) k();
+					},
 			success: function() {
-						saving_playlist = false;}
+						saving_playlist = false;
+					 	if (k) k();
+					}
 		});
 
 		config.record.set('Playlist_songcount', i);
@@ -263,17 +272,19 @@ function Playlist(config) {
 
 	songqueue.insert([config.record]);
 
-	//We don't want to save after inserting initial playlist
 	var dirty = false; 
-	songqueue.on('reordered', function() { dirty = true; });
-	function check_dirty() {
+	songqueue.on('reordered', function() { 
+		dirty = true; 
+	});
+	function check_dirty(k) {
 		if (dirty && !saving_playlist) {
-			var res = save_playlist();
+			var res = save_playlist(k);
 			if (res)
 				dirty = false;
 		}
+		else if (k) k();
 	}
-	var interval = setInterval(check_dirty, 2000);
+	var interval = setInterval((function() {check_dirty();}), 2000);
 }
 Ext.extend(Playlist, Ext.util.Observable);
 
