@@ -57,6 +57,7 @@ function BreadCrumb()
         if (this === window)
             alert('Use new to create a new crumb');
         var my = this;
+        //my.apply(config);
         my.type = config.type;
         my.value = config.value;
         my.el = null;
@@ -72,8 +73,7 @@ function BreadCrumb()
     }
 
     /*public functions*/
-    my.current_view = function()
-    {
+    my.current_view = function() {
         return bclist[current];
     }
 
@@ -103,7 +103,7 @@ function BreadCrumb()
     my.add = function(config) {
         var crumb = config.crumb;
         if (config.index)
-            current = index;
+            current = config.index;
         else
             current++;
 
@@ -117,16 +117,18 @@ function BreadCrumb()
         return url;
     }
 
-    my.build_url = function(crumb){
+    my.build_url = function(){
         var urllist = ['/browse'];
-        var itercrumb = bclist[0]
-        while (itercrumb != crumb) {
+        var i = 0;
+        var itercrumb = null;
+        while (itercrumb != bclist[current]) {
+            itercrumb = bclist[i];
+            i++;
             part = itercrumb.type;
             if (itercrumb.qryvalue)
                 part += '='+itercrumb.qryvalue;
             urllist.push(part);
         }
-        urllist.push(crumb.type);
         return urllist.join('/');
     }
 

@@ -112,21 +112,28 @@ function Browser()
                 params[type] = value;
             }
             var itercrumb = Hfm.breadcrumb.get(i);
-            if (itercrumb && itercrumb.type === type && itercrumb.queryvalue === value)
-                break;
-
-            var crumb = new Hfm.breadcrumb.Crumb({
-                type: type,
-                queryby: value
-            });
-            var update = false;
-            if (i === parts.length-1)
-                update = true;
-            Hfm.breadcrumb.add({index: i, crumb: crumb, update: update});
+            if (itercrumb && itercrumb.type === type && 
+                    itercrumb.qryvalue == value) {
+                if (itercrumb.row)
+                    itercrumb.value = itercrumb.row.get(
+                        typeinfo[itercrumb.type].lblindex);
+            }
+            else {
+                var crumb = new Hfm.breadcrumb.Crumb({
+                    type: type,
+                    queryby: value
+                });
+                var update = false;
+                if (!value)
+                    update = true; //Update on the final crumb
+                Hfm.breadcrumb.add({index: i, crumb: crumb, update: true});
+            }
         }
         //my.fireEvent('bcupdate', bclist[current], params);
         if (!Hfm.breadcrumb.current_view().panel)
             my.load(crumb, params);
+        else
+            Hfm.view.set_panel(crumb, params);
     }
 }
 Ext.extend(Browser, Ext.util.Observable);
@@ -167,12 +174,14 @@ function BaseGrid(config)
     /* Default descent, but feel free to override for "special" panels */
     my.descend = function(grid, rowIndex, evnt) {
         var row = my.getStore().getAt(rowIndex);
-        var bc = new Hfm.breadcrumb.Crumb({
-            type: my.config.type,
-            value: row.get(typeinfo[my.config.type].lblindex)
-        });
+        var mycrumb = Hfm.breadcrumb.current_view();
+        var myinfo = typeinfo[mycrumb.type];
+        
+        mycrumb.row = row;
+        mycrumb.qryvalue = row.get(myinfo.qryindex);
 
-        var url = Hfm.breadcrumb.add({crumb: bc, update:true});
+        var url = Hfm.breadcrumb.build_url(Hfm.breadcrumb.current_view());
+        url += '/'+config.nexttype;
         Hfm.urlm.goto_url(url);
     }
     my.on('rowdblclick', my.descend);
@@ -228,6 +237,7 @@ function AlbumGrid(config)
     exp.scope = this;
     exp.remoteDataMethod = load_details;
     config.type = 'album';
+    config.nexttype = 'song';
     config.iconCls = 'icon-grid';
     config.plugins = exp;
     config.cm = new Ext.grid.ColumnModel(ColConfig.album);
@@ -273,6 +283,7 @@ function ArtistGrid(config)
         newgridbranch : true
     });
     config.type = 'artist';
+    config.nexttype = 'album';
     config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
     config.cm.defaultSortable = true;
     //config.autoExpandColumn='artist';
@@ -298,6 +309,7 @@ function PlaylistGrid(config)
         newgridbranch: true
     });
     config.type = 'playlist';
+    config.nexttype = 'song';
     config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
     config.cm.defaultSortable = true;
     

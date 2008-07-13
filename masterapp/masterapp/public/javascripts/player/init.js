@@ -66,7 +66,6 @@ function init()
     urlm.init([
         ['/browse/', urlm.ignore_matched(browser.load_url)],
 		['/people/profile/\\d+', urlm.handle_matched(profile_handler)]
-        /*['/profile/', urlm.generate_panel(profile_factory)]*/
     ]);
 	init_feedback();
     /* Handles login excpetions universally */
@@ -101,6 +100,7 @@ function init()
     /* Initialize global namespace */
     Hfm.urlm = urlm;
     Hfm.browser = browser;
+    Hfm.view = viewmgr;
 }
 
 /*

@@ -232,7 +232,7 @@ function ViewManager(objects)
         }
         music_menu.add(new Ext.menu.Item({
             text: 'artists',
-            href: '#/bc/artist',
+            href: '#/browse/artist',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -240,7 +240,7 @@ function ViewManager(objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'albums',
-            href: '#/bc/album',
+            href: '#/browse/album',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -248,7 +248,7 @@ function ViewManager(objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'songs',
-            href: '#/bc/song',
+            href: '#/browse/song',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -256,7 +256,7 @@ function ViewManager(objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'playlists',
-            href: '#/bc/playlist',
+            href: '#/browse/playlist',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
