@@ -43,6 +43,7 @@ songowners_table = Table('songowners', metadata, autoload=True)
 whitelists_table = Table('whitelists', metadata, autoload=True)
 notifications_table = Table('notifications', metadata, autoload=True)
 removedowners_table = Table('removedowners', metadata, autoload=True)
+recommendations_table = Table('recommendations', metadata, autoload=True)
 
 """
 Classes that represent above tables. You can add abstractions here
@@ -211,7 +212,18 @@ class RemovedOwner(object):
         self.song = song
         self.user = user
 
-
+class Recommendation(object):
+    def __init__(self, recommenderid, recommendeefbid, 
+                albumid=None, playlistid=None, songid=None, active=True,
+                comment=''):
+        self.recommenderid = recommenderid
+        self.recommendeefbid = recommendeefbid
+        self.albumid = albumid
+        self.playlistid = playlistid
+        self.songid = songid
+        self.active = active
+        self.timestamp = datetime.now()
+        self.comment = comment
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
@@ -327,6 +339,13 @@ mapper(RemovedOwner, removedowners_table, properties={
 mapper(Whitelist, whitelists_table)
 
 mapper(Notification, notifications_table)
+
+mapper(Recommendation, recommendations_table, properties={
+    'recommender': relation(User),
+    'album': relation(Album, lazy=False),
+    'playlist': relation(Playlist, lazy=False),
+    'song': relation(Song, lazy=False),
+})
 
 #additional mappings for declarative classes
 User._nowplaying = relation(Song,

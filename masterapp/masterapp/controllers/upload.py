@@ -201,6 +201,7 @@ class UploadController(BaseController):
             try:
                 self.read_postdata(dest_file)
             except self.PostException:
+                dest_file.close()
                 os.remove(dest_path)
                 return Response.retry
 
@@ -245,7 +246,7 @@ class UploadController(BaseController):
         return Response.upload
             
     def desktop_redirect(self):
-        fb = self._get_fb()
+        fb = facebook
         if fb.check_session(request):
             url = 'http://localhost:26504/complete_login?session_key='+ \
                 fb.session_key
@@ -255,7 +256,7 @@ class UploadController(BaseController):
         redirect_to(str(url)) 
 
     def desktop_login(self):
-        url = self._get_fb().get_login_url(canvas=False,next='/desktop_redirect')
+        url = facebook.get_login_url(canvas=False,next='/desktop_redirect')
         redirect_to(str(url))
 
     def upload_ping(self):

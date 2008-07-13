@@ -5,7 +5,8 @@ from masterapp.lib.fbauth import ensure_fb_session, filter_friends,\
     get_user_info
 from masterapp.lib.decorators import pass_user
 from facebook.wsgi import facebook
-from masterapp.model import Session, User, Album, Artist, Song, Playlist
+from masterapp.model import \
+        Session, User, Album, Artist, Song, Playlist, Recommendation
 from routes import url_for
 
 log = logging.getLogger(__name__)
@@ -29,6 +30,11 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
+
+        rec = Recommendation(c.recommender.id, int(c.recommendee), 
+                albumid=album.id)
+        Session.save(rec)
+        Session.commit()
         return '1'
 
     @pass_user
@@ -45,6 +51,7 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
+
         return '1'
 
     @pass_user
@@ -63,6 +70,11 @@ class RecommendController(BaseController):
                 song.albumid, song.id)
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
+
+        rec = Recommendation(c.recommender.id, int(c.recommendee), 
+                songid=song.id)
+        Session.save(rec)
+        Session.commit()
         return '1'
 
     @pass_user
@@ -79,4 +91,9 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
+
+        rec = Recommendation(c.recommender.id, int(c.recommendee), 
+                playlistid=playlist.id)
+        Session.save(rec)
+        Session.commit()
         return '1'

@@ -20,6 +20,13 @@ class TestRecommendController(TestModel):
             "Did not return success"
         assert c.recommender == self.user,\
             "Did not put user as recommender"
+        rec = model.Session.query(model.Recommendation).one()
+        assert rec.recommenderid == self.user.id, \
+            'Did not put user as recommender in the database'
+        assert rec.recommendeefbid == friends[0], \
+            'Did not put user as recommendee in the database'
+        assert rec.albumid and not rec.playlistid and not rec.songid, \
+            'Did not set the correct recommendation values'
 
     def test_artist(self):
         """
@@ -54,6 +61,13 @@ class TestRecommendController(TestModel):
             "Did not return success"
         assert c.recommender == self.user,\
             "Did not put me as recommender"
+        rec = model.Session.query(model.Recommendation).one()
+        assert rec.recommenderid == self.user.id, \
+            'Did not put user as recommender in the database'
+        assert rec.recommendeefbid == friends[0], \
+            'Did not put user as recommendee in the database'
+        assert rec.songid and not rec.playlistid and not rec.albumid, \
+            'Did not set the correct recommendation values'
 
     def test_playlist(self):
         """
@@ -71,3 +85,10 @@ class TestRecommendController(TestModel):
             "Did not return success"
         assert c.recommender == self.user,\
             "Did not put me as recommender"
+        rec = model.Session.query(model.Recommendation).one()
+        assert rec.recommenderid == self.user.id, \
+            'Did not put user as recommender in the database'
+        assert rec.recommendeefbid == friends[0], \
+            'Did not put user as recommendee in the database'
+        assert rec.playlistid and not rec.songid and not rec.albumid, \
+            'Did not set the correct recommendation values'
