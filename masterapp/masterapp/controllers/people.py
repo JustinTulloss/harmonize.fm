@@ -69,9 +69,9 @@ class PeopleController(BaseController):
             <a href="http://harmonize.fm/player">Harmonize.fm</a>
         </fb:notif-page>
         """
-        # TODO: right now, we only have one id coming in.  when we change this, we need to
-        # split them up into an array and pass that to the send() function below.
+        id = id.split(',')
+        id.remove('')
         response = facebook.notifications.send(id,fbml)
         # CANNOT find a way to get any sort of response from this call, for now just assume it worked
         # :-/
-        return '1'
+        return response

@@ -151,6 +151,12 @@ class MetadataController(BaseController):
         dtype = request.params.get('type')
         if request.params.get('all') == 'true':
             data = user.allfriends
+        elif request.params.has_key('nonapp') and request.params.get('nonapp') == 'true':
+            data = []
+            for friend in user.allfriends:
+                # check to see if the user is part of the database yet
+                if not friend in user.friends:
+                    data.append(friend)
         else:
             friendor = or_()
             for friend in user.friends:

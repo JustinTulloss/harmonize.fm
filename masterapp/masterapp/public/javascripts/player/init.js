@@ -52,7 +52,7 @@ function init()
 	
 	Ext.get("friend_radio_link").on('click', friend_radio.toggle, friend_radio);
 
-    urlm.register_action('invite', invite_friend);
+    urlm.register_action('invite', invite_friends);
 
     /* Don't think this is necessary anymore
 	function jump_bc(rest) {
