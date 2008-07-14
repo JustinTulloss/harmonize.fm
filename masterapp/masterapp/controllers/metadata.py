@@ -203,6 +203,17 @@ class MetadataController(BaseController):
         json['data'][0]['type'] = 'playlist'
         return cjson.encode(json)
 
+    def song(self, id):
+        if not id:
+            abort(400)
+        user = get_user()
+        song = user.get_song_by_id(id)
+        if not song:
+            abort(404)
+        json = build_json([song])
+        json['data'][0]['type'] = 'song'
+        return cjson.encode(json)
+
     @cjsonify
     @d_build_json
     @pass_user

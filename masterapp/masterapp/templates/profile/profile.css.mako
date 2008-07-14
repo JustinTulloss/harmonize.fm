@@ -49,30 +49,37 @@
 	background-color: white;
 }
 
-#profile-body > .profile-sp {
+#profile-body > .profile-group {
 	padding-left: 2px;
     clear: right;
     padding-top: 5px;
 	margin-left: 5px;
 }
 
-.profile-sp-albumart {
+.profile-group > div {
+    margin-left: 25px;
+}
+
+.profile-group > .h-title {
+    margin-left: 0;
+}
+
+.profile-albumart {
     float: right;
 	margin-left: 3px;
 }
 
-.profile-sp-artist {
+.profile-artist {
     color: ${c.profile.profile_links};
-	margin-left: 25px;
 }
 
 .profile-sp-artist a {
     text-align: right;
 }
 
-.profile-sp-review {
-	margin-left: 25px;
+.profile-review {
     padding-left: 8px;
+    margin-bottom: 4px;
 }
 
 .profile-sp-comment {
@@ -96,8 +103,6 @@
 }
 
 .profile-sp-commentcontainer {
-	margin-left: 25px;
-	margin-top: 4px;
 	margin-bottom: 8px;
 }
 
@@ -147,6 +152,6 @@
 	font-size: 14px;
 }
 
-.h-title > img {
+.h-title img {
 	vertical-align: text-bottom;
 }

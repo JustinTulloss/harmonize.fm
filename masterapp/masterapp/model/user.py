@@ -26,7 +26,8 @@ from . import (
     Spotlight,
     SpotlightComment,
     BlogEntry,
-    SongStat
+    SongStat,
+    Recommendation
 )
 
 from facebook.wsgi import facebook
@@ -452,6 +453,14 @@ class User(Base):
         return query
     artist_query = property(get_artist_query)
 
+    def get_song_query(self):
+        from masterapp.config.schema import dbfields
+
+        return Session.query(SongOwner.uid.label('Friend_id'),
+                        *dbfields['song']).\
+                    filter(SongOwner.uid == self.id)
+    song_query = property(get_song_query)
+
     def get_album_by_id(self, id):
         qry = self.album_query
         qry = qry.filter(Album.id == id)
@@ -467,6 +476,9 @@ class User(Base):
         qry = self.playlist_query
         qry = qry.filter(Playlist.id == id)
         return qry.first()            
+
+    def get_song_by_id(self, id):
+        return self.song_query.filter(Song.id == id).first()
 
     def add_song(self, song):
         """
@@ -570,6 +582,13 @@ class User(Base):
         friends = self._get_fbfriend_users()
         for friend in friends:
             self.fbfriendscache.remove_value(friend.id)
+
+    def get_recommendations(self):
+        return Session.query(Recommendation).filter(
+                sql.and_(Recommendation.recommendeefbid == self.fbid, 
+                    Recommendation.active == True)).\
+                order_by(sql.desc(Recommendation.timestamp))
+    recommendations = property(get_recommendations)
 
 
 class ArtistCounts(Base):
