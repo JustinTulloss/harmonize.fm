@@ -131,6 +131,8 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         Ext.override(Ext.grid.GridView, {
             scrollToTop: Ext.emptyFn    
         });
+
+        
     },
 
     find_record: function(el) {
