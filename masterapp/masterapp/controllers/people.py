@@ -54,10 +54,12 @@ class PeopleController(BaseController):
         Session.commit()
 
         # send facebook notification to the person who owns this spotlight
+        # (unless its yours)
         spot = Session.query(Spotlight).get(spotcomment.spotlightid)
-        owner = Session.query(User).get(spot.uid)
-        fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
-        response = facebook.notifications.send(owner.fbid, fbml)
+        if not spot.uid == session['userid']:
+            owner = Session.query(User).get(spot.uid)
+            fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
+            response = facebook.notifications.send(owner.fbid, fbml)
 
         return str(spotcomment.id)
 
