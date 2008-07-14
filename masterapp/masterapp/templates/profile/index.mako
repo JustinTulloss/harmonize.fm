@@ -84,7 +84,7 @@ ${rightcol.render()}
             % if spotlight.albumid == None:
                 Playlist: 
             % endif
-            <a class="h-title-a" href="#/bc/friend=${spotlight.uid}/profile=${spotlight.uid}/${enqueue_type}=${enqueue_id}/song">
+            <a class="h-title-a" href="#/browse/friend=${spotlight.uid}/profile=${spotlight.uid}/${enqueue_type}=${enqueue_id}/song">
                 ${spotlight.title}
             </a>
             % if not own_profile and spotlight.albumid:

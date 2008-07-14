@@ -28,7 +28,7 @@ def ensure_fb_session():
             #return False #XXX: Remove this line to open up harmonize!
             # First time visitor, set up an account for them
             user = User(fbid = facebook.uid, premium = False)
-            user.update_friends_caches()
+            user.add_me_to_friends()
             Session.add(user)
             
         user.lastseen = datetime.now()

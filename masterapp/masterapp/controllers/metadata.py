@@ -158,13 +158,8 @@ class MetadataController(BaseController):
                 if not friend in user.friends:
                     data.append(friend)
         else:
-            friendor = or_()
-            for friend in user.friends:
-                friendor.append(User.fbid == friend['uid'])
-
-            dbfriends = Session.query(User).filter(friendor)
             data = []
-            for dbfriend in dbfriends:
+            for dbfriend in user.friends:
                 data.append({
                     'Friend_name': dbfriend.name,
                     'Friend_id': dbfriend.id,
@@ -215,9 +210,6 @@ class MetadataController(BaseController):
     def next_radio_song(self,user, **kwargs):
         #TODO: replace this with recommendations
         
-        fbids = []
-        for friend in user.friends:
-            fbids.append(friend['uid'])
         #songlist is a list where each element is a song id.
         #this will be used to generate a random number between 0 and the number
         #of songs (the length of the list)        
@@ -225,10 +217,10 @@ class MetadataController(BaseController):
         data = Session.query(*dbfields['song']).\
             join(Song.album).reset_joinpoint().\
             join(Song.artist).reset_joinpoint().\
-            join(SongOwner,User)
-        for uid in fbids:
+            join(SongOwner)
+        for friend in user.friends:
             # grab each users songs and append their song_ids to songlist
-            temp = data.filter(User.fbid == uid)
+            temp = data.filter(SongOwner.uid == friend.id)
             for record in temp:
                 songlist.append(record.Song_id)
         

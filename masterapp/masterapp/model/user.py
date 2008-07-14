@@ -34,7 +34,7 @@ from facebook import FacebookError
 
 from masterapp.lib import fblogin
 from masterapp.lib.fbaccess import fbaccess
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 import time
 
 
@@ -57,6 +57,7 @@ class User(Base):
     __mapper_args__ = {'allow_column_override': True}
 
     _nowplayingid = __table__.c.nowplayingid
+    _name = __table__.c.name
     playlists = relation(Playlist, order_by=playlists_table.c.name)
 
     fbid = None
@@ -183,8 +184,15 @@ class User(Base):
         ids = facebook.friends.getAppUsers()
         if self.present_mode:
             ids.extend([1909354, 1908861])
-        users = facebook.users.getInfo(ids)
-        return sorted(users, key=itemgetter('name'))
+        # I'm banking on caches in a big way here. I'm assuming that the vast
+        # majority of additional facebook information will be cached per user,
+        # so when we're actually accessing the attributes of these users 1 by 1,
+        # it won't be too expensive.
+        friendor = or_()
+        for id in ids:
+            friendor.append(User.fbid == id)
+        users = Session.query(User).filter(friendor).order_by(User._name)
+        return users.all()
 
     @fbaccess
     def _get_fballfriends(self):
@@ -194,7 +202,12 @@ class User(Base):
     
     @fbattr
     def get_name(self):
-        return self.fbinfo['name']
+        if self._name != self.fbinfo['name']:
+            self._name = self.fbinfo['name']
+            Session.add(self)
+            Session.commit()
+
+        return self._name
     name = property(get_name)
 
     @fbattr
@@ -254,7 +267,7 @@ class User(Base):
                 return True
             else:
                 for friend in self.friends:
-                    if friend['uid'] == someguy.fbid:
+                    if friend.id == someguy.id:
                         return True
                 return False
         else:
@@ -262,7 +275,7 @@ class User(Base):
                 return True
             else:
                 for friend in self.friends:
-                    if friend['uid'] == someguy['uid']:
+                    if friend.fbid == someguy['uid']:
                         return True
                 return False
 
@@ -330,30 +343,33 @@ class User(Base):
         entries = Session.query(BlogEntry)[:max_count]
         myor = or_()
         for friend in self.friends:
-            myor.append(User.fbid == friend['uid'])
+            myor.append(Spotlight.uid == friend.id)
 
-        entries.extend(Session.query(Spotlight).join(User).filter(and_(
-                myor, Spotlight.active==True))\
-                [:max_count])
+        if len(myor)>0:
+            entries.extend(Session.query(Spotlight).filter(and_(
+                    myor, Spotlight.active==True))\
+                    [:max_count])
+        else:
+            entries.extend(Session.query(Spotlight).filter(Spotlight.active==True)\
+                    [:max_count])
 
-        CommentUser = aliased(User)
-        SpotlightUser = aliased(User)
+        #CommentUser = aliased(User)
+        #SpotlightUser = aliased(User)
         commentor = or_()
         spotlightor = or_()
         for friend in self.friends:
-            commentor.append(CommentUser.fbid == friend['uid'])
-            spotlightor.append(SpotlightUser.fbid == friend['uid'])
+            commentor.append(SpotlightComment.uid == friend.id)
+            spotlightor.append(Spotlight.uid == friend.id)
             
 
-        entries.extend(Session.query(SpotlightComment).\
-                join(CommentUser,
-                    (Spotlight, SpotlightComment.spotlight), 
-                    (SpotlightUser, Spotlight.user)).\
-                filter(and_(
-                    SpotlightComment.uid!=session['userid'],
-                    or_(Spotlight.uid==session['userid'],
-                        and_(commentor, spotlightor)),
-                    Spotlight.active == True))[:max_count])
+        if len(commentor)>0 and len(spotlightor)>0:
+            entries.extend(Session.query(SpotlightComment).\
+                    join((Spotlight, SpotlightComment.spotlight)).\
+                    filter(and_(
+                        SpotlightComment.uid!=session['userid'],
+                        or_(Spotlight.uid==session['userid'],
+                            and_(commentor, spotlightor)),
+                        Spotlight.active == True))[:max_count])
 
         def sort_by_timestamp(x, y):
             if x.timestamp == None:
@@ -376,10 +392,11 @@ class User(Base):
 
     def _build_song_query(self):
         from masterapp.config.schema import dbfields
-        query = Session.query(SongOwner.uid.label('Friend_id'), *dbfields['song'])
+        query = Session.query(SongOwner.uid.label('Friend_id'),
+            User._name.label('Friend_name'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(SongOwner).filter(SongOwner.uid == self.id)
+        query = query.join(SongOwner, SongOwner.user).filter(SongOwner.uid == self.id)
         return query
         
     def get_song_query(self):
@@ -404,12 +421,12 @@ class User(Base):
         havesongs = havesongs.group_by(Album.id).subquery()
 
         query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Album_havesongs,
-            havesongs.c.Album_length,
+            havesongs.c.Album_length, User._name.label('Friend_name'),
             *dbfields['album'])
         joined = join(Album, havesongs, Album.id == havesongs.c.albumid)
         query = query.select_from(joined)
         query = query.join(Album.artist).reset_joinpoint()
-        query = query.join(Album.songs, SongOwner).filter(SongOwner.uid == self.id)
+        query = query.join(Album.songs, SongOwner, SongOwner.user).filter(SongOwner.uid == self.id)
         query = query.group_by(Album)
         return query
     album_query = property(get_album_query)
@@ -440,10 +457,11 @@ class User(Base):
 
         # Build the main query
         query = Session.query(SongOwner.uid.label('Friend_id'),
+            User._name.label('Friend_name'),
             ArtistCounts.songcount.label('Artist_availsongs'), 
             ArtistCounts.albumcount.label('Artist_numalbums'),
             *dbfields['artist'])
-        query = query.join(Artist.albums, Song, SongOwner).\
+        query = query.join(Artist.albums, Song, SongOwner, SongOwner.user).\
             join((ArtistCounts, and_( 
                 SongOwner.uid == ArtistCounts.userid,
                 Artist.id == ArtistCounts.artistid)))
@@ -557,18 +575,12 @@ class User(Base):
         self.publish_spotlight(spotlight)
         self.update_profile()
 
-    def _get_fbfriend_users(self):
-        """
-        Returns a list of your facebook users, except they're our user objects
-        """
-        friendor = or_()
-        for friend in self.friends:
-            friendor.append(User.fbid == friend['uid'])
-        return Session.query(User).filter(friendor).all()
+    def add_me_to_friends(self):
+        for friend in self.frends:
+            friend.friends.append(self).sort(key=attrgetter('name'))
 
     def update_friends_caches(self):
-        friends = self._get_fbfriend_users()
-        for friend in friends:
+        for friend in self.friends:
             self.fbfriendscache.remove_value(friend.id)
 
 
