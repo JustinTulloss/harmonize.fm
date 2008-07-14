@@ -152,6 +152,11 @@ function PlayQueue(config) {
     }
 
     my.is_friend_radio = songQueue.is_friend_radio;
+
+    my.clear = clear;
+    function clear() {
+        songQueue.clear();
+    }
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
@@ -198,7 +203,7 @@ function SongQueue(label, is_playlist) {
         header: false,
         html: instructions
     });
-
+    
     my.panel = new Ext.Panel({
 		title: label,
         titlebar:false,
@@ -342,6 +347,12 @@ function SongQueue(label, is_playlist) {
 		while (my.root.firstChild && !my.root.firstChild.is_active())
 			my.root.firstChild.remove();
 	}
+
+    my.clear = function() {
+        while (my.root.firstChild) {
+            my.root.firstChild.remove();
+        }
+    }
 
 	my.peek = function(k) {
 		var node = first_active();
