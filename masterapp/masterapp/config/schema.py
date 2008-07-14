@@ -78,7 +78,7 @@ for k, v in fields.items():
     cols = []
     for column in v:
         try:
-            klass, field = column.split('_')
+            klass, field = column.split('_',1)
             if hasattr(model, klass):
                 entity = getattr(model, klass)
                 if hasattr(entity, field):
