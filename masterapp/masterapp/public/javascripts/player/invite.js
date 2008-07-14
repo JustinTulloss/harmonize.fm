@@ -54,7 +54,9 @@ function make_invite_grid() {
         title: 'Invite friends to Harmonize.fm',
         iconCls: 'icon-grid',
         viewConfig: {
-            forceFit:true
+            forceFit:true,
+            emptyText: 'Loading...',
+            deferEmptyText: false
         },
         bbar: filter
 

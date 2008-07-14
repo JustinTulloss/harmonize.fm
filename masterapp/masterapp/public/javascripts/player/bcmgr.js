@@ -79,6 +79,9 @@ function BreadCrumb()
     }
 
     my.load_url = function(url) {
+        //clear search
+        viewmgr.search_field.reset();
+
         if (url.indexOf('?') != -1) {
             //this means there is a variable somewhere
             url = url.split('?');
