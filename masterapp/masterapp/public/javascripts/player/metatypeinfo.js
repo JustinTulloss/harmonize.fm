@@ -6,55 +6,40 @@
  * just assume that it exists. Let's hope I don't hate myself for that later.
  */
 
-var typeinfo = {
+Hfm.typeinfo = {
     home:{
         display:'Home'
     },
     artist:{
-        next: function (row, breadcrumb) {
-            var bc = new BcEntry(
-                'album',
-                row.get('Artist_name'),
-                'album'
-            );
-            breadcrumb.add_breadcrumb(bc);
-        },
         lblindex: 'Artist_name',
         qryindex: 'Artist_id',
         display:'Artists',
+        urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: ArtistQueueNode,
-        gridclass: ArtistGrid,
+        gridclass: Hfm.browser.ArtistGrid,
         emptyText: 'There aren\'t any artists here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
         ownactions: ['delrow']
     }, 
     album:{
-        next: function (row, breadcrumb) {
-            var bc = new BcEntry(
-                'song', 
-                row.get('Album_title'),
-                'song'
-            );
-            bc.row = row;
-            breadcrumb.add_breadcrumb(bc);
-        },
         lblindex: 'Album_title',
         qryindex:'Album_id', 
         display:'Albums',
+        urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: AlbumQueueNode,
-        gridclass: AlbumGrid,
+        gridclass: Hfm.browser.AlbumGrid,
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
         ownactions: ['friendrec', 'spotlight', 'delrow']
     }, 
     playlist:{
-        next: 'openplaylist',
         lblindex: 'Playlist_name',
         qryindex:'Playlist_id', 
         display:'Playlists',
-        gridclass: PlaylistGrid,
+        urlfunc: Hfm.breadcrumb.build_url,
+        gridclass: Hfm.browser.PlaylistGrid,
 		nodeclass: PlaylistQueueNode,
 		emptyText: 'There aren\'t any playlists here!<br>'+
             'Create one by clicking "create playlist" in the bottom left corner.',
@@ -63,12 +48,12 @@ var typeinfo = {
         remove: function(record) {playlistmgr.delete_playlist(record)}
     },
     song:{
-        next:'play', 
         lblindex: 'Song_title',
         qryindex: 'Song_id',
         display:'Songs',
+        urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: SongQueueNode,
-        gridclass: SongGrid,
+        gridclass: Hfm.browser.SongGrid,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
@@ -85,35 +70,29 @@ var typeinfo = {
     playlistsong:{
         next:'play', 
         display:'Songs',
-        gridclass: PlaylistSongGrid
+        gridclass: Hfm.browser.PlaylistSongGrid
     },
     friend:{
-        next: function(row, breadcrumb){
-            var bc = new BcEntry(
-                'profile',
-                row.get('Friend_name'),
-                'profile',
-                row.get('Friend_id')
-            );
-            var url = '/people/profile/'+row.get('Friend_id');
-            bc.url = url;
-            breadcrumb.add_breadcrumb(bc, url);
-        },
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
-        gridclass: FriendGrid,
+        gridclass: Hfm.browser.FriendGrid,
+        urlfunc: Hfm.breadcrumb.build_url,
         emptyText: 'None of your friends are Harmonize.fm users.  Invite them!'
     },
     profile: {
         lblindex: 'Friend_name',
         qryindex: 'Friend_id',
         display: 'Friend',
-        bcurl: '/people/profile/{0}'
+        urlfunc: function(crumb) {
+            return '/people/profile/'+crumb.qryvalue;
+        }
     },
     friend_radio:{
         display: 'FriendRadio',
         nodeclass: FriendRadioQueueNode
     }
 };
+
+var typeinfo = Hfm.typeinfo; //for backwards compatibilty
 

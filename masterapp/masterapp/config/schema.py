@@ -4,6 +4,7 @@ fields = {
     'song': [
         'type',
         'Friend_id',
+        'Friend_name',
         'Song_id',
         'Song_tracknumber',
         'Song_title',
@@ -19,6 +20,7 @@ fields = {
     'album': [
         'type',
         'Friend_id',
+        'Friend_name',
         'Album_id',
         'Album_title',
         'Album_totaltracks',
@@ -33,6 +35,7 @@ fields = {
     'artist': [
         'type',
         'Friend_id',
+        'Friend_name',
         'Artist_id',
         'Artist_name',
         'Artist_sort',
@@ -41,11 +44,12 @@ fields = {
     ],
     'playlist': [
 		'type',
+		'Friend_id',
+        'Friend_name',
 		'Playlist_name',
 		'Playlist_id',
 		'Playlist_songcount',
-		'Playlist_length',
-		'Friend_id'
+		'Playlist_length'
 	],
     'friend': [
         'type',
@@ -58,6 +62,7 @@ fields = {
     'spotlight': [
         'type',
         'Friend_id',
+        'Friend_name',
         'Spotlight_id',
         'Spotlight_comment',
         'Album_id',

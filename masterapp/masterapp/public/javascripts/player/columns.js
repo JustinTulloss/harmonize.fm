@@ -80,7 +80,7 @@ var every_action =  {
                             show_status_msg('Successfully removed '+ title);
                             urlm.unregister_action('cancel_remove');
                             urlm.unregister_action('really_remove');
-                            bread_crumb.reload();
+                            Hfm.breadcrumb.reload();
                         }
                     });
                 });
@@ -98,7 +98,7 @@ var every_action =  {
 for (action_key in every_action) {
     (function(action_key) {
         urlm.register_action(action_key, function(match, target){
-            var crumb = bread_crumb.current_view()
+            var crumb = Hfm.breadcrumb.current_view()
             var record = crumb.panel.find_record(new Ext.Element(target));
             every_action[action_key].action(record);
         });
