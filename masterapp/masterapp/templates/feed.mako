@@ -1,5 +1,6 @@
 <%!
-    from masterapp.model import BlogEntry, Spotlight, SpotlightComment
+    from masterapp.model import BlogEntry, Spotlight, SpotlightComment, \
+                                Recommendation
     from simplejson import dumps
     from datetime import date
 %>
@@ -83,6 +84,39 @@
         </div>
     </%def>
 
+    <%def name="make_rec_enqueue(type, id)">
+        <a href="#/action/enqueue/${type}/${id}">
+            <img src="/images/enqueue.png" />
+        </a>
+    </%def>
+
+    <%def name="rec_feed(entry)">
+        % if entry.albumid != None:
+            ${make_rec_enqueue('album', entry.albumid)}
+        % elif entry.songid != None:
+            ${make_rec_enqueue('song', entry.songid)}
+        % else:
+            ${make_rec_enqueue('playlist', entry.playlistid)}
+        % endif
+        <div class="feed_content">
+            <h2>
+            <a href="#/people/profile/${entry.recommendeeid}">
+                ${entry.recommender.name} recommended the
+                % if entry.albumid != None:
+                    album ${entry.album.title}
+                % elif entry.songid != None:
+                    song ${entry.song.title}
+                % else:
+                    playlist ${entry.playlist.name}
+                % endif
+                to you
+            </a></h2>
+            % if entry.comment:
+                <div class="blog_feed_content">${entry.comment}</div>
+            % endif
+        </div>
+    </%def>
+
     <%
     max_quote_len = 175
     %>
@@ -101,7 +135,8 @@
         type_table = {
             BlogEntry : blog_feed,
             Spotlight : spotlight_feed,
-            SpotlightComment: comment_feed
+            SpotlightComment: comment_feed,
+            Recommendation: rec_feed
         }
 
         last_date = date.today()

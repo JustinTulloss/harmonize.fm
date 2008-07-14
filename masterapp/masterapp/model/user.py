@@ -356,6 +356,11 @@ class User(Base):
                         and_(commentor, spotlightor)),
                     Spotlight.active == True))[:max_count])
 
+        entries.extend(Session.query(Recommendation).\
+                filter(and_(
+                    Recommendation.recommendeefbid == self.fbid,
+                    Recommendation.active == True))[:max_count])
+
         def sort_by_timestamp(x, y):
             if x.timestamp == None:
                 if y.timestamp == None:
