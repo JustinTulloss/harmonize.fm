@@ -153,6 +153,16 @@ function PlaylistMgr() {
 			hide_dialog();
 		}
 	});
+
+    my.open_record = function(record) {
+        if (record.get('Friend_id') == undefined || 
+            record.get('Friend_id') == global_config.uid) {
+                my.open_playlist(record);
+        }
+        else {
+            Hfm.queue.insert([record]);
+        }
+    }
 }
 
 function Playlist(config) {
@@ -288,12 +298,3 @@ function Playlist(config) {
 }
 Ext.extend(Playlist, Ext.util.Observable);
 
-function playlist_dblclick(record) {
-	if (record.get('Friend_id') === undefined || 
-		record.get('Friend_id') === global_config.uid) {
-			playlistmgr.open_playlist(record);
-	}
-	else {
-		playqueue.insert([record]);
-	}
-}

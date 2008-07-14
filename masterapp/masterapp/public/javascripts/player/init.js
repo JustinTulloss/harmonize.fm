@@ -16,7 +16,6 @@ Ext.BLANK_IMAGE_URL='/images/s.gif';
 
 var player = null;
 var playqueue = null;
-//var browser = null;
 var viewmgr = null;
 var settingspanel = null;
 var errmgr = null;
@@ -36,14 +35,11 @@ function init()
     friend_radio = new FriendRadio();
 
     /* Initialize event handlers */
-    //Hfm.breadcrumb.on('bcupdate', viewmgr.set_panel, viewmgr);
-    //Hfm.breadcrumb.on('newfilter', browser.load, browser);
     Hfm.breadcrumb.on('chgstatus', viewmgr.set_status, viewmgr);
 
     Hfm.browser.on('newgrid', viewmgr.set_panel, viewmgr);
     Hfm.browser.on('newgrid', viewmgr.init_search, viewmgr);
     Hfm.browser.on('chgstatus', viewmgr.set_status, viewmgr);
-    //browser.on('newgrid', add_grid_listeners);
 
     player.on('nextsong', playqueue.dequeue);
     player.on('prevsong', playqueue.prev);
@@ -102,30 +98,12 @@ function init()
     Hfm.urlm = urlm;
     Hfm.view = viewmgr;
     Hfm.queue = playqueue;
+    Hfm.playlist = playlistmgr;
 }
-
-/*
-function add_grid_listeners(crumb, e)
-{
-	function record_handler(handler) {
-		return function(grid, songindex, e) {
-			return handler(grid.store.getAt(songindex));
-		};
-	}
-    crumb.panel.on('enqueue', playlistmgr.enqueue);
-    crumb.panel.on('chgstatus', viewmgr.set_status, viewmgr);
-    if (typeinfo[crumb.type].next == 'play')
-        crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
-	else if (typeinfo[crumb.type].next == 'openplaylist')
-		crumb.panel.on('rowdblclick',record_handler(playlist_dblclick));
-    else
-        crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
-}
-*/
 
 function enqueue(recordid)
 {
-    record = browser.ds.getById(recordid);
+    record = Hfm.browser.ds.getById(recordid);
     playqueue.addRecord(record);
     Ext.EventObject.stopPropagation();
 }

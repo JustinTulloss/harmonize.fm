@@ -263,8 +263,8 @@ Hfm.browser.PlaylistGrid = Ext.extend(Hfm.browser.BaseGrid, {
         Hfm.browser.PlaylistGrid.superclass.constructor.call(this, config);
     },
     descend: function(grid, rowIndex, evnt){
-        var row = row.getStore.getAt(rowIndex);
-        Hfm.open_playlist(row);
+        var row = grid.getStore().getAt(rowIndex);
+        Hfm.playlist.open_record(row);
     }
 });
 

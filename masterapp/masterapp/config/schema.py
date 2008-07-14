@@ -44,7 +44,7 @@ fields = {
     ],
     'playlist': [
 		'type',
-		'Friend_id'
+		'Friend_id',
         'Friend_name',
 		'Playlist_name',
 		'Playlist_id',
