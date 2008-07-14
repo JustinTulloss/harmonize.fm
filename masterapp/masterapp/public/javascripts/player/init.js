@@ -27,7 +27,6 @@ var playlistmgr = null;
 function init()
 {
     //var bread_crumb = new BreadCrumb();
-    var browser = new Browser();
     player = new Player();
 	playlistmgr = new PlaylistMgr();
 	playqueue = playlistmgr.playqueue;
@@ -41,9 +40,9 @@ function init()
     //Hfm.breadcrumb.on('newfilter', browser.load, browser);
     Hfm.breadcrumb.on('chgstatus', viewmgr.set_status, viewmgr);
 
-    browser.on('newgrid', viewmgr.set_panel, viewmgr);
-    browser.on('newgrid', viewmgr.init_search, viewmgr);
-    browser.on('chgstatus', viewmgr.set_status, viewmgr);
+    Hfm.browser.on('newgrid', viewmgr.set_panel, viewmgr);
+    Hfm.browser.on('newgrid', viewmgr.init_search, viewmgr);
+    Hfm.browser.on('chgstatus', viewmgr.set_status, viewmgr);
     //browser.on('newgrid', add_grid_listeners);
 
     player.on('nextsong', playqueue.dequeue);
@@ -59,12 +58,14 @@ function init()
 
     urlm.register_action('invite', invite_friend);
 
+    /* Don't think this is necessary anymore
 	function jump_bc(rest) {
 		bread_crumb.go(rest);
 	}
+    */
 
     urlm.init([
-        ['/browse/', urlm.ignore_matched(browser.load_url)],
+        ['/browse/', urlm.ignore_matched(Hfm.breadcrumb.load_url)],
 		['/people/profile/\\d+', urlm.handle_matched(profile_handler)]
     ]);
 	init_feedback();
@@ -99,8 +100,8 @@ function init()
 
     /* Initialize global namespace */
     Hfm.urlm = urlm;
-    Hfm.browser = browser;
     Hfm.view = viewmgr;
+    Hfm.queue = playqueue;
 }
 
 /*

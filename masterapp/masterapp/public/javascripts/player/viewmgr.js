@@ -117,7 +117,7 @@ function ViewManager(objects)
     urlm.register_action('reload', function(){
         var panel = my.centerpanel.getLayout().activeItem
         if (panel == browserpanel)
-            bread_crumb.reload();
+            Hfm.breadcrumb.reload();
         else
             urlm.invalidate_page();
     });

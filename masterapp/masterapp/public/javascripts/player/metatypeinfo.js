@@ -16,7 +16,7 @@ Hfm.typeinfo = {
         display:'Artists',
         urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: ArtistQueueNode,
-        gridclass: ArtistGrid,
+        gridclass: Hfm.browser.ArtistGrid,
         emptyText: 'There aren\'t any artists here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
@@ -28,7 +28,7 @@ Hfm.typeinfo = {
         display:'Albums',
         urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: AlbumQueueNode,
-        gridclass: AlbumGrid,
+        gridclass: Hfm.browser.AlbumGrid,
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
@@ -39,7 +39,7 @@ Hfm.typeinfo = {
         qryindex:'Playlist_id', 
         display:'Playlists',
         urlfunc: Hfm.breadcrumb.build_url,
-        gridclass: PlaylistGrid,
+        gridclass: Hfm.browser.PlaylistGrid,
 		nodeclass: PlaylistQueueNode,
 		emptyText: 'There aren\'t any playlists here!<br>'+
             'Create one by clicking "create playlist" in the bottom left corner.',
@@ -53,7 +53,7 @@ Hfm.typeinfo = {
         display:'Songs',
         urlfunc: Hfm.breadcrumb.build_url,
         nodeclass: SongQueueNode,
-        gridclass: SongGrid,
+        gridclass: Hfm.browser.SongGrid,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
         actions: ['enqueue', 'playnow'],
@@ -70,13 +70,13 @@ Hfm.typeinfo = {
     playlistsong:{
         next:'play', 
         display:'Songs',
-        gridclass: PlaylistSongGrid
+        gridclass: Hfm.browser.PlaylistSongGrid
     },
     friend:{
         lblindex: 'Friend_name',
         qryindex:'Friend_id', 
         display:'Friends',
-        gridclass: FriendGrid,
+        gridclass: Hfm.browser.FriendGrid,
         urlfunc: Hfm.breadcrumb.build_url,
         emptyText: 'None of your friends are Harmonize.fm users.  Invite them!'
     },
