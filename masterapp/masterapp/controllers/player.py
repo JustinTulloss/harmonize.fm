@@ -36,6 +36,7 @@ import re
 import thread
 
 import masterapp.lib.snippets as snippets
+from masterapp.lib.snippets import get_session_user
 
 feedback_template = """
 %s
@@ -111,8 +112,7 @@ class PlayerController(BaseController):
         who's doing what, and if we can come up with conclusive proof that
         somebody is stealing music through our logs, we can ban them.
         """
-        user = Session.query(User).get(session['userid'])
-        if not user.is_friends_with(friend):
+        if not get_session_user().is_friends_with(friend):
             abort(401)
 
         song = Session.query(Song).\

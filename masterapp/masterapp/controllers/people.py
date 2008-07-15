@@ -4,6 +4,7 @@ from masterapp.lib.base import *
 from masterapp.lib.amazon import *
 from masterapp.lib.profile import Profile
 from masterapp.lib.fbauth import ensure_fb_session
+from masterapp.lib.snippets import get_session_user
 from masterapp.model import User, Session, Spotlight, SpotlightComment
 import sqlalchemy.sql as sql
 
@@ -22,22 +23,21 @@ class PeopleController(BaseController):
         return Session.query(Spotlight).filter(Spotlight.uid==uid).\
                 order_by(sql.desc(Spotlight.timestamp))[:3]
 
-    @pass_user
-    def profile(self, user, **kwargs):
+    def profile(self, **kwargs):
         """
         Display the main profile for a user identified by id
         """
         id = kwargs['id']
         if not id:
-            id = str(user.id)
+            id = str(get_session_user().id)
         # Make sure this user is allowed to access this profile
         friend = Session.query(User).get(id)
-        if not friend or not user.is_friends_with(friend):
+        if not friend or not get_session_user().is_friends_with(friend):
             abort(404)
 
         c.user = friend
         c.current_url = '#/people/profile/'+id
-        c.current_user = Session.query(User).get(session['userid'])
+        c.current_user = get_session_user()
         c.profile = Profile()
         def l_get_asin(id,type):
             return get_asin(id, type)

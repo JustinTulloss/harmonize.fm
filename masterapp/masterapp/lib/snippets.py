@@ -26,6 +26,9 @@ def get_user():
         user = Session.query(User).get(friendid)
     return user
 
+def get_session_user():
+    return Session.query(User).get(session['userid'])
+
 def is_ie6(user_agent):
 	if user_agent.find('MSIE 6.0') >= 0:
 		for not_6 in ('MSIE 7.0', 'Opera', 'Netscape'):

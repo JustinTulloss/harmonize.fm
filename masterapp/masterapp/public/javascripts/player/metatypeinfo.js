@@ -81,7 +81,6 @@ Hfm.typeinfo = {
         emptyText: 'None of your friends are Harmonize.fm users.  Invite them!'
     },
     profile: {
-        lblindex: 'Friend_name',
         qryindex: 'Friend_id',
         display: 'Friend',
         urlfunc: function(crumb) {
