@@ -29,10 +29,10 @@
 }
 
 #shuffle-playqueue {
-    margin-left: 15px;
+    margin-left: 10px;
 }
 
 #clear-playqueue {
-    margin-left: 15px;
+    margin-left: 10px;
 }
 
