@@ -14,7 +14,7 @@
 /* just pass in the home panel's crumb for navigation and an object of objects
  * that viewmanager is supposed to manage
  */
-function ViewManager(crumb, objects)
+function ViewManager(objects)
 {
 	var my = this;
 
@@ -117,7 +117,7 @@ function ViewManager(crumb, objects)
     urlm.register_action('reload', function(){
         var panel = my.centerpanel.getLayout().activeItem
         if (panel == browserpanel)
-            bread_crumb.reload();
+            Hfm.breadcrumb.reload();
         else
             urlm.invalidate_page();
     });
@@ -232,7 +232,7 @@ function ViewManager(crumb, objects)
         }
         music_menu.add(new Ext.menu.Item({
             text: 'artists',
-            href: '#/bc/artist',
+            href: '#/browse/artist',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -240,7 +240,7 @@ function ViewManager(crumb, objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'albums',
-            href: '#/bc/album',
+            href: '#/browse/album',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -248,7 +248,7 @@ function ViewManager(crumb, objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'songs',
-            href: '#/bc/song',
+            href: '#/browse/song',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',
@@ -256,7 +256,7 @@ function ViewManager(crumb, objects)
         }));
         music_menu.add(new Ext.menu.Item({
             text: 'playlists',
-            href: '#/bc/playlist',
+            href: '#/browse/playlist',
             itemCls: 'music-menu-item',
             overCls: 'music-menu-item-over',
             activeClass: 'music-menu-item-active',

@@ -85,6 +85,7 @@ class Album(object):
         self.mbid = mbid
         self.asin = asin
         self.mp3_asin = mp3_asin
+        self.mp3asin = self.mp3_asin
         self.year = year
         self.totaltracks = totaltracks
 

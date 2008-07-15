@@ -58,9 +58,8 @@ function PlayQueue(config) {
 
 	songQueue.on('reordered', onreorder);
 
-    my.playgridrow = function(grid, songindex, e) {
-        record = grid.store.getAt(songindex);
-        if (bread_crumb.is_friends_library()) {
+    my.playgridrow = function(record) {
+        if (Hfm.breadcrumb.is_friends_library()) {
             record.set('source', 1);
         } else {
             record.set('source', '0'); //this is a string b/c an int appears as undefined. wft?!
@@ -153,6 +152,11 @@ function PlayQueue(config) {
     }
 
     my.is_friend_radio = songQueue.is_friend_radio;
+
+    my.clear = clear;
+    function clear() {
+        songQueue.clear();
+    }
 }
 Ext.extend(PlayQueue, Ext.util.Observable);
 
@@ -199,7 +203,7 @@ function SongQueue(label, is_playlist) {
         header: false,
         html: instructions
     });
-
+    
     my.panel = new Ext.Panel({
 		title: label,
         titlebar:false,
@@ -213,7 +217,7 @@ function SongQueue(label, is_playlist) {
     });
     
     function get_source() {
-        if (bread_crumb.is_friends_library()) source = 1;
+        if (Hfm.breadcrumb.is_friends_library()) source = 1;
         else source = '0';
         if (location.vars != null) {
             source = location.vars.charAt(location.vars.indexOf('source') + 7);
@@ -343,6 +347,12 @@ function SongQueue(label, is_playlist) {
 		while (my.root.firstChild && !my.root.firstChild.is_active())
 			my.root.firstChild.remove();
 	}
+
+    my.clear = function() {
+        while (my.root.firstChild) {
+            my.root.firstChild.remove();
+        }
+    }
 
 	my.peek = function(k) {
 		var node = first_active();

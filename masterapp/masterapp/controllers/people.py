@@ -54,10 +54,12 @@ class PeopleController(BaseController):
         Session.commit()
 
         # send facebook notification to the person who owns this spotlight
+        # (unless its yours)
         spot = Session.query(Spotlight).get(spotcomment.spotlightid)
-        owner = Session.query(User).get(spot.uid)
-        fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
-        response = facebook.notifications.send(owner.fbid, fbml)
+        if not spot.uid == session['userid']:
+            owner = Session.query(User).get(spot.uid)
+            fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
+            response = facebook.notifications.send(owner.fbid, fbml)
 
         return str(spotcomment.id)
 
@@ -69,8 +71,9 @@ class PeopleController(BaseController):
             <a href="http://harmonize.fm/player">Harmonize.fm</a>
         </fb:notif-page>
         """
-        # TODO: right now, we only have one id coming in.  when we change this, we need to
-        # split them up into an array and pass that to the send() function below.
+        if ',' in id:
+            id = id.split(',')
+            id.remove('')
         response = facebook.notifications.send(id,fbml)
         # CANNOT find a way to get any sort of response from this call, for now just assume it worked
         # :-/

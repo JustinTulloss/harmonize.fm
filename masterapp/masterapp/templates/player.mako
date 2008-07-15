@@ -84,14 +84,14 @@
     <div id="topmenu">
 		<a href="#">home</a>
 		<a href="#/people/profile/${c.user.id}">profile</a>
-		<a id="music_link" href="#/bc/artist">
+		<a id="music_link" href="#/browse/artist">
             music
 		    <span id="music_menu_link">
                 <img class="music_menu_img" src="/images/s.gif" />
             </span>
         </a>
 		<a href="#" id="friend_radio_link">radio</a>
-		<a href="#/bc/friend">friends</a>
+		<a href="#/browse/friend">friends</a>
         <!--<a href="#/action/invite" id="invite-link">invite</a>-->
 		<a href="#/action/feedback" id="feedback-link">feedback</a>
 	</div>

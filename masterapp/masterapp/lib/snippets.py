@@ -1,6 +1,6 @@
 from masterapp.lib.base import request
 from masterapp.model import Session, User
-from pylons import session
+from pylons import session, g
 from decimal import Decimal
 
 def build_json(results):

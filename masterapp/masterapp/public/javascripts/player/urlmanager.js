@@ -1,8 +1,9 @@
 // vim:noexpandtab
-urlm = {}; //urlmanager is a singleton
+Hfm.urlm = {}; //urlmanager is a singleton
+var urlm = Hfm.urlm; //for backwards compatibility
 
 (function() {
-    var my = urlm;
+    var my = Hfm.urlm;
 
 	var panel_lookup = {};
 	var submanagers = [];

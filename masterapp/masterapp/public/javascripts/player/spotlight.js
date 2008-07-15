@@ -264,8 +264,9 @@ var dialog_template = [
         '<td id="dialog-content" class="dialog-content"></td>',
     '</tr></table></center>'].join('');
 
+Hfm.dialog = {};
 //Takes a string that consists of the dialogs content
-function show_dialog(content, panel) {
+Hfm.dialog.show = function show_dialog(content, panel) {
     mainDiv = Ext.get('dialog-bg');
     if (mainDiv) 
         var contentDiv = Ext.fly('dialog-content');
@@ -291,26 +292,34 @@ function show_dialog(content, panel) {
     */
 }
 
-function hide_dialog() {
+Hfm.dialog.hide = function() {
     var dlg = Ext.fly('dialog-bg');
     if (dlg)
         dlg.remove()
 	//Not clear this is necessary in any cases now so it won't be the default
 	//urlm.invalidate_page(); 
 }
+/* XXX Deprecated */
+show_dialog = Hfm.dialog.show;
+hide_dialog = Hfm.dialog.hide;
 
-function show_status_msg(msg, keepshowing) {
+Hfm.status = {};
+Hfm.status.show = function(msg, keepshowing) {
 	el = Ext.fly('status-box').first();
 	el.update(msg);
 	el.applyStyles('visibility: visible');
 	if (!keepshowing)
-		setTimeout("hide_status_msg();", 5000);
+		Hfm.status.hide.defer(3000);
 }
 
-function hide_status_msg() {
+Hfm.status.hide= function() {
 	el = Ext.fly('status-box').first();
 	el.applyStyles('visibility: hidden');
 }
+
+/* XXX Deprecated */
+show_status_msg = Hfm.status.show;
+hide_status_msg = Hfm.status.hide;
 
 function prevent_default(fn) {
 	return function(e) {
@@ -321,7 +330,7 @@ function prevent_default(fn) {
 
 function basic_dialog_actions(rest) {
 	if (rest == 'hide')
-		hide_dialog();
+		Hfm.dialog.hide();
 }
 
 Ext.onReady(function() {

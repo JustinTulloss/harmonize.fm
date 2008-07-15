@@ -5,30 +5,73 @@
 
 
 /* Takes a record and displays a box that you can pick a friend */
-function invite_friend() {
-    var field = make_friend_combo();
+function invite_friends() {
+    var grid = make_invite_grid();
+    show_dialog(grid, true);
+}
+
+function make_invite_grid() {
+    var invite_store = new Ext.data.JsonStore({
+        url: '/metadata',
+        baseParams: {
+            type: 'friend',
+            all: 'false',
+            nonapp: 'true'
+        },
+        fields: ['name', 'uid'],
+        autoLoad: true,
+        root: 'data'
+    });
+
+    var filter = new Ext.form.TextField({
+        emptyText:'Search...',
+        enableKeyEvents: true
+    });
+    filter.on('keyup', function(e) {
+        invite_store.filter('name', filter.getValue(), true, false);
+    });
     var button_t = new Ext.Template('<span><button>{0}</button></span>');
     var button = new Ext.Button({
         text: 'invite',
         template: button_t
     });
     var cancel = new Ext.Button({
-        text:'cancel',
+        text:'hide',
         template: button_t
     });
 
-    var win = new Ext.Panel({
-        layout: 'fit',
-        resizable: false,
-        items: [field],
+    var sm = new Ext.grid.CheckboxSelectionModel();
+    var grid = new Ext.grid.GridPanel({
+        store: invite_store,
+        cm: new Ext.grid.ColumnModel([
+            sm,
+            {id:'name', header:"Name", dataIndex:'name', width: 120, sortable: true}
+        ]),
+        height: 300,
+        width: 400,
+        sm: sm,
         buttons: [cancel, button],
-        title: 'Invite a friend to Harmonize.fm'
+        title: 'Invite friends to Harmonize.fm',
+        iconCls: 'icon-grid',
+        viewConfig: {
+            forceFit:true,
+            emptyText: 'Loading...',
+            deferEmptyText: false
+        },
+        bbar: filter
+
     });
     button.setHandler(
         function() {
             show_status_msg("Inviting...");
+            invitees = grid.getSelectionModel().getSelections();
+            data = [];
+            for (i = 0; i < invitees.length; i++) {
+                data[i] = invitees[i].get('uid');
+            }
+            data.join(',');
             Ext.Ajax.request({
-                url: ["/people/invite",field.getValue()].join('/'),
+                url: ["/people/invite/",data],
                 success: function(options, response) {
                     show_status_msg("Invitation Sent");
                 }
@@ -37,5 +80,33 @@ function invite_friend() {
         }
     );
     cancel.setHandler(function(){hide_dialog()});
-    show_dialog(win, true);
+
+    return grid;
+}
+
+function make_invite_combo() {
+    var invite_store = new Ext.data.JsonStore({
+        url: '/metadata',
+        baseParams: {
+            type: 'friend',
+            all: 'false',
+            nonapp: 'true'
+        },
+        fields: ['name', 'uid'],
+        autoLoad: true,
+        root: 'data'
+    });
+    var field = new Ext.form.ComboBox({
+        store: invite_store,
+        displayField: 'name',
+        fieldLabel: 'Friend',
+        labelAlign: 'right',
+        valueField: 'uid',
+        typeAhead: true,
+        mode: 'local',
+        shadow: false,
+        emptyText: 'Select a Friend...'
+    });
+    return field;
+
 }

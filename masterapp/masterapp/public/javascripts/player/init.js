@@ -16,9 +16,7 @@ Ext.BLANK_IMAGE_URL='/images/s.gif';
 
 var player = null;
 var playqueue = null;
-var browser = null;
 var viewmgr = null;
-var bread_crumb = null;
 var settingspanel = null;
 var errmgr = null;
 var friend_radio = null;
@@ -27,25 +25,21 @@ var playlistmgr = null;
 /******* Initialization functions ********/
 function init()
 {
-    bread_crumb = new BreadCrumb();
+    //var bread_crumb = new BreadCrumb();
     player = new Player();
 	playlistmgr = new PlaylistMgr();
 	playqueue = playlistmgr.playqueue;
-    browser = new Browser();
     settingspanel = new SettingsPanel();
-    viewmgr = new ViewManager(bread_crumb.current_view(), {queue:playlistmgr});
+    viewmgr = new ViewManager({queue:playlistmgr});
     errmgr = new ErrorManager();
     friend_radio = new FriendRadio();
 
     /* Initialize event handlers */
-    bread_crumb.on('bcupdate', viewmgr.set_panel, viewmgr);
-    bread_crumb.on('newfilter', browser.load, browser);
-    bread_crumb.on('chgstatus', viewmgr.set_status, viewmgr);
+    Hfm.breadcrumb.on('chgstatus', viewmgr.set_status, viewmgr);
 
-    browser.on('newgrid', viewmgr.set_panel, viewmgr);
-    browser.on('newgrid', viewmgr.init_search, viewmgr);
-    browser.on('chgstatus', viewmgr.set_status, viewmgr);
-    browser.on('newgrid', add_grid_listeners);
+    Hfm.browser.on('newgrid', viewmgr.set_panel, viewmgr);
+    Hfm.browser.on('newgrid', viewmgr.init_search, viewmgr);
+    Hfm.browser.on('chgstatus', viewmgr.set_status, viewmgr);
 
     player.on('nextsong', playqueue.dequeue);
     player.on('prevsong', playqueue.prev);
@@ -58,16 +52,17 @@ function init()
 	
 	Ext.get("friend_radio_link").on('click', friend_radio.toggle, friend_radio);
 
-    urlm.register_action('invite', invite_friend);
+    urlm.register_action('invite', invite_friends);
 
+    /* Don't think this is necessary anymore
 	function jump_bc(rest) {
 		bread_crumb.go(rest);
 	}
+    */
 
     urlm.init([
-        ['/bc/', urlm.ignore_matched(bread_crumb.load_url)],
+        ['/browse/', urlm.ignore_matched(Hfm.breadcrumb.load_url)],
 		['/people/profile/\\d+', urlm.handle_matched(profile_handler)]
-        /*['/profile/', urlm.generate_panel(profile_factory)]*/
     ]);
 	init_feedback();
     /* Handles login excpetions universally */
@@ -93,33 +88,22 @@ function init()
             show_dialog(content);
             Ext.get('error-reload').on('click', function(e) {
                 prevent_default(hide_dialog());
-                location = location.href;
+                location.reload();
             });
         }
 
     });
-}
 
-function add_grid_listeners(crumb, e)
-{
-	function record_handler(handler) {
-		return function(grid, songindex, e) {
-			return handler(grid.store.getAt(songindex));
-		};
-	}
-    crumb.panel.on('enqueue', playlistmgr.enqueue);
-    crumb.panel.on('chgstatus', viewmgr.set_status, viewmgr);
-    if (typeinfo[crumb.type].next == 'play')
-        crumb.panel.on("rowdblclick", playqueue.playgridrow, playqueue);
-	else if (typeinfo[crumb.type].next == 'openplaylist')
-		crumb.panel.on('rowdblclick',record_handler(playlist_dblclick));
-    else
-        crumb.panel.on("rowdblclick", bread_crumb.descend, bread_crumb);
+    /* Initialize global namespace */
+    Hfm.urlm = urlm;
+    Hfm.view = viewmgr;
+    Hfm.queue = playqueue;
+    Hfm.playlist = playlistmgr;
 }
 
 function enqueue(recordid)
 {
-    record = browser.ds.getById(recordid);
+    record = Hfm.browser.ds.getById(recordid);
     playqueue.addRecord(record);
     Ext.EventObject.stopPropagation();
 }

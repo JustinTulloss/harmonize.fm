@@ -113,7 +113,7 @@ var profile_handler;
             shadow: false
         });
         
-        var urlbase = ['#/bc/friend=', friend, '/profile=', friend];
+        var urlbase = ['#/browse/friend=', friend, '/profile=', friend];
         friend_music_menu.add(new Ext.menu.Item({
             text: 'artists',
             href: urlbase.concat(['/artist']).join(''),

@@ -55,7 +55,7 @@ function PlaylistMgr() {
 		}
 		else
 			my.panel.doLayout(true);
-	    bread_crumb.reload();
+	    Hfm.breadcrumb.reload();
 	}
 
 	var open_playlists = {};
@@ -126,7 +126,7 @@ function PlaylistMgr() {
 					var playlist = open_playlists[del_match[1]];
 					if (playlist) { 
 						playlist.fireEvent('remove', playlist);
-						bread_crumb.reload();
+						Hfm.breadcrumb.reload();
 					}
 				},
 				failure: function() {
@@ -144,7 +144,7 @@ function PlaylistMgr() {
 				success: function(response) {
 					show_status_msg('Playlist created!');
 					playlistmgr.open_playlist(untyped_record(response));
-					bread_crumb.reload();
+					Hfm.breadcrumb.reload();
 				},
 				failure: function() {
 					show_status_msg('Error creating playlist!');
@@ -153,6 +153,16 @@ function PlaylistMgr() {
 			hide_dialog();
 		}
 	});
+
+    my.open_record = function(record) {
+        if (record.get('Friend_id') == undefined || 
+            record.get('Friend_id') == global_config.uid) {
+                my.open_playlist(record);
+        }
+        else {
+            Hfm.queue.insert([record]);
+        }
+    }
 }
 
 function Playlist(config) {
@@ -288,12 +298,3 @@ function Playlist(config) {
 }
 Ext.extend(Playlist, Ext.util.Observable);
 
-function playlist_dblclick(record) {
-	if (record.get('Friend_id') === undefined || 
-		record.get('Friend_id') === global_config.uid) {
-			playlistmgr.open_playlist(record);
-	}
-	else {
-		playqueue.insert([record]);
-	}
-}
