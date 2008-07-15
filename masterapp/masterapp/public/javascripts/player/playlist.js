@@ -110,9 +110,10 @@ function PlaylistMgr() {
 		if (expanded_playlist == playqueue)
 			playqueue.shuffle();
 		else {
-			show_status_msg('You can only shuffle the Play Queue');
+			//show_status_msg('You can only shuffle the Play Queue');
+            expanded_playlist.shuffle();
 		}
-	}
+	};
 
     my.clear = function(e) {
         e.preventDefault();
@@ -324,6 +325,14 @@ function Playlist(config) {
 
     my.clear = function(e) {
         songqueue.clear();
+    }
+
+    my.shuffle = function() {
+        songqueue.flatten(
+            function() {
+                songqueue.shuffle();
+            }
+        );
     }
 }
 Ext.extend(Playlist, Ext.util.Observable);
