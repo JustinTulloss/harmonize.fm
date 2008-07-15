@@ -147,10 +147,10 @@ ${rightcol.render()}
 </%def>
 
 <%def name="build_title(action)">
-    <div class="h-title">
+    <h3>
     <a href="#/action/enqueue/${action}"><img src="/images/enqueue.png"/></a>
     ${caller.body()}
-    </div>
+    </h3>
 </%def>
 
 <%def name="build_album_art(album)">
