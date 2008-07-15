@@ -119,7 +119,24 @@ function PlaylistMgr() {
         if (expanded_playlist == playqueue)
             playqueue.clear();
         else {
-            show_status_msg('You can only clear the Play Queue');
+            var playlist_clear = '<form id="clear_playlist_form">' +
+                    '<h1 id="spot_form_title">"Clear Playlist</h1>' +
+                    '<table>' +
+                    '<tr><td>Are you sure?</td></tr>' +
+                    '<tr><td>&nbsp;</td></tr>' +
+                    '<tr><td>' +
+                    '<button id="clear_cancel">cancel</button>' +
+                    '<button id="clear_ok">ok</button>' +
+                    '</center></td></tr>' +
+                '</table></form>';
+            Hfm.dialog.show(playlist_clear);
+            Ext.get('clear_ok').on('click', function() {
+                expanded_playlist.clear();
+                Hfm.dialog.hide();
+            });
+            Ext.get('clear_cancel').on('click', function() {
+                Hfm.dialog.hide();
+            });
         }
     }
 
@@ -304,6 +321,10 @@ function Playlist(config) {
 		else if (k) k();
 	}
 	var interval = setInterval((function() {check_dirty();}), 2000);
+
+    my.clear = function(e) {
+        songqueue.clear();
+    }
 }
 Ext.extend(Playlist, Ext.util.Observable);
 
