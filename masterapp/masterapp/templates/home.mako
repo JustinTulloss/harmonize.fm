@@ -5,42 +5,43 @@
 		<!--iframe used as target for download uploader link-->
 		<iframe name="dummy_iframe" style="display:none;"></iframe>
 
-		<div id="home">
-            <div id="no_music">
+		<table id="home"><tr><td>
             % if c.num_songs == 0 and c.platform != None:
-				<h1>Welcome to harmonize.fm!</h1>
-				<h2>Here's how to get started:</h2>
+			<div class="h-title">welcome to harmonize.fm!</div>
+            <div id="no-music" class="light-links">
+				<div id="no-music-top"></div>
+				<h2>Getting started is easy:</h2>
 				<ul>
-					<li>Add music with the 
-					<%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call></li>
-					<li>Listen to your music with the 
-						<span id="music">music <img src="/images/s.gif" class="music_menu_img"/></span> 
-						button in the top right</li>
-					<li>Share music with your friends by creating a 
-						<img src="/images/spotlight.png" />Spotlight 
-						or by 
-						<img src="/images/recommend.png" />recommending music</li>
+				<li>Click <img src="/images/enqueue.png" /> to listen to your friends music now</li>
+				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to add your own music to the mix</li>
 				</ul>
-            % endif
+				<div id="no-music-bottom"></div>
             </div>					
-			<div id="home-bg">	
-			<div id="home-sidebar">			
-			<div id="home-sidebar-header" class="h-subtitle">Links</div>
-				<div><a href="#/player/blog">news</a></div>
-				<div><a target="_blank" href="http://blog.harmonize.fm">blog</a></div>
-				<div><a target="_blank" href="/faq">faq</a></div>
-				<div><a target="_blank" href="http://www.facebook.com/apps/application.php?id=${c.appid}">
-                    facebook app</a>
-                </div>
-				<div><a target="_blank" href="/">harmonize.fm</a></div>
-                <div class="home-dllink">
-                    <%call expr="dl_harmonizer_a('dummy_iframe')">
-                        <img src="/images/dlharmonizerfat.png" />
-                    </%call>
-                </div>
-			</div></div>
+            % endif
+
 			${feed.render(entries)}
-		</div>
+
+		</td><td id="home-sidebar" class="light-links">
+			<div class="home-group">
+				<div class="h-title">get the harmonizer</div>
+				<center>
+					<%call expr="dl_harmonizer_a('dummy_iframe')">
+						<img src="/images/orangecircle.png" />
+					</%call>
+				</center>
+			</div>
+
+			<div class="home-group">
+				<div class="h-title">places</div>
+				<div><a href="#/player/blog">&#187; news</a></div>
+				<div><a target="_blank" href="http://blog.harmonize.fm">&#187; blog</a></div>
+				<div><a target="_blank" href="/faq">&#187; faq</a></div>
+				<div><a target="_blank" href="http://www.facebook.com/apps/application.php?id=${c.appid}">
+					&#187; facebook app</a>
+				</div>
+				<div><a target="_blank" href="/">&#187; harmonize.fm</a></div>
+			</div>
+		</td></tr></table>
 </%def>
 
 %	if hasattr(c, 'main') and c.main:

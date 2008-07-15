@@ -148,10 +148,6 @@
     text-decoration: none;
 }
 
-.h-title {
-	font-size: 14px;
-}
-
 .h-title img {
 	vertical-align: text-bottom;
 }

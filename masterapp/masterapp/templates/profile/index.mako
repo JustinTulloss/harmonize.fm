@@ -35,7 +35,7 @@ ${rightcol.render()}
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
-    <div class="profile-subtitle h-subtitle">Spotlight</div>
+    <div class="profile-subtitle h-subtitle">Spotlights</div>
     <% spotlights = c.user.get_active_spotlights() %>
     % if spotlights.count() == 0:
         <div>
