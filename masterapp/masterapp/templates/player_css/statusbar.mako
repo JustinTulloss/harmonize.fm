@@ -27,3 +27,12 @@
     color: ${c.profile.click};
     text-decoration: underline;
 }
+
+#shuffle-playqueue {
+    margin-left: 15px;
+}
+
+#clear-playqueue {
+    margin-left: 15px;
+}
+
