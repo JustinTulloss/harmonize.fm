@@ -25,12 +25,8 @@ def ensure_fb_session():
         user = Session.query(User).filter(
             User.fbid==facebook.uid).first()        
         if not user:
-            #return False #XXX: Remove this line to open up harmonize!
-            # First time visitor, set up an account for them
-            user = User(fbid = facebook.uid, premium = False)
-            user.add_me_to_friends()
-            Session.add(user)
-            
+            user = create_user(facebook.uid)
+
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
         user.present_mode = True if request.params.get('present') == 'true' else False
@@ -49,6 +45,12 @@ def ensure_fb_session():
         facebook.session_key = session['fbsession']
         facebook.uid = session['fbuid']
         return True
+
+def create_user(fbid):
+    user = User(fbid = fbid, premium = False)
+    user.add_me_to_friends()
+    Session.add(user)
+    return user
 
 def filter_friends(qry):
     """

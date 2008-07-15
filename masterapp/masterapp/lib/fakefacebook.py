@@ -26,6 +26,8 @@ friend_info = [{
 }]
 
 friends = [1908861, 1932106]
+morefriends = {1909354: friends,
+    1908861: [1909354, 1932106]}
 friends_info = [
     {'name': 'Brian Smith', 'uid': 1908861},
     {'name': 'David Paola', 'uid': 1932106}
@@ -33,7 +35,7 @@ friends_info = [
 class Fakethebook(MockFacebook):
     def __init__(self, *args, **kwargs):
         # Preset return values
-        self.configured_friends = friends
+        self.configured_friends = morefriends
         self.configured_info = friends_info
         self.configured_user_info = user_info
         self.configured_friend_info = friend_info
