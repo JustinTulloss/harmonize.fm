@@ -16,7 +16,8 @@
 				<div class="content">
 				<h2>Getting started is easy:</h2>
 				<ul>
-				<li>Click <img src="/images/enqueue.png" /> to listen to your friends music right away</li>
+				<li>Click <img src="/images/enqueue.png" /> to listen to your
+                friend's Spotlight right away</li>
 				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to share and listen to your own music anywhere</li>
 				</ul>
 				</div>
