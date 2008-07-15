@@ -441,8 +441,9 @@ class User(Base):
     def get_playlist_query(self):
         from masterapp.config.schema import dbfields
 
-        query = Session.query(SongOwner.uid.label('Friend_id'),
-				*dbfields['playlist'])
+        query = Session.query(Playlist.ownerid.label('Friend_id'),
+						*dbfields['playlist']).\
+					filter(Playlist.ownerid == self.id)
         return query
     playlist_query = property(get_playlist_query)
 
