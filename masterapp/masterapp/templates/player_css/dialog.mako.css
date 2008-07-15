@@ -93,3 +93,8 @@
 #dialog-window button {
 	margin-left: 4px;
 }
+
+#dialog-window .x-panel-tbar {
+    text-align: left;
+    padding-bottom: 1px;
+}
