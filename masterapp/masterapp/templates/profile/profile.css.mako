@@ -39,6 +39,22 @@
 	padding-left: 5px;
 }
 
+#profile-body h3 {
+	margin: 0;
+	padding:  0;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+#profile-body h3 a {
+	color: ${c.profile.dark_txt};
+	text-decoration: none;
+}
+
+#profile-body h3 a:hover {
+	color: ${c.profile.click};
+}
+
 #profile-right {
     padding: 10px;
     margin-top: 10px;

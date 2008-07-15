@@ -79,7 +79,7 @@ ${rightcol.render()}
                </%call>
             </div>
         % endif
-        <div class="h-title">
+        <h3>
             <% 
                 enqueue_type = "playlist"
                 enqueue_id = "0"
@@ -106,7 +106,7 @@ ${rightcol.render()}
                 </%call>
             % endif
  
-        </div>
+        </h3>
         <div class="profile-artist">
             by ${spotlight.author}
             <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>

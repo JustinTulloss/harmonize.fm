@@ -14,9 +14,12 @@ ul {
 
 #no-music {
     margin-left: 20px;
-	padding-left: 25px;
 	background-color: ${c.profile.oddrow_bg};
 	margin-bottom: 20px;
+}
+
+#no-music .content {
+	padding-left: 25px;
 }
 
 #no-music h2 {
@@ -37,28 +40,6 @@ ul {
 	margin-bottom: 5px;
 }
 
-#no_music h2 {
-	margin-top: 0;
-	font-size: 18px;
-}
-
-#no_music a {
-    color: ${c.profile.dark_txt};
-}
-
-#no_music a:hover {
-    color: ${c.profile.click};
-}
-
-#no_music #music {
-	color: white;
-	background-color: ${c.profile.dark_txt};
-	padding: 0 1px;
-}
-
-#no_music img {
-	vertical-align: text-top;
-}
 
 #mainlogo {
     position: absolute;

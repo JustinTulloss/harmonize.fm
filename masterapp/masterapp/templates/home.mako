@@ -9,13 +9,21 @@
             % if c.num_songs == 0 and c.platform != None:
 			<div class="h-title">welcome to harmonize.fm!</div>
             <div id="no-music" class="light-links">
-				<div id="no-music-top"></div>
+				<div id="no-music-top">
+					<img src="/images/oddrow-corners/tr.png" style="float:right;"/>
+					<img src="/images/oddrow-corners/tl.png" /> 
+				</div>
+				<div class="content">
 				<h2>Getting started is easy:</h2>
 				<ul>
-				<li>Click <img src="/images/enqueue.png" /> to listen to your friends music now</li>
-				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to add your own music to the mix</li>
+				<li>Click <img src="/images/enqueue.png" /> to listen to your friends music right away</li>
+				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to share and listen to your own music anywhere</li>
 				</ul>
-				<div id="no-music-bottom"></div>
+				</div>
+				<div id="no-music-bottom">
+				<img src="/images/oddrow-corners/br.png" style="float:right;"/>
+				<img src="/images/oddrow-corners/bl.png" /> 
+				</div>
             </div>					
             % endif
 
