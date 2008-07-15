@@ -39,6 +39,22 @@
 	padding-left: 5px;
 }
 
+#profile-body h3 {
+	margin: 0;
+	padding:  0;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+#profile-body h3 a {
+	color: ${c.profile.dark_txt};
+	text-decoration: none;
+}
+
+#profile-body h3 a:hover {
+	color: ${c.profile.click};
+}
+
 #profile-right {
     padding: 10px;
     margin-top: 10px;
@@ -49,30 +65,37 @@
 	background-color: white;
 }
 
-#profile-body > .profile-sp {
+#profile-body > .profile-group {
 	padding-left: 2px;
     clear: right;
     padding-top: 5px;
 	margin-left: 5px;
 }
 
-.profile-sp-albumart {
+.profile-group > div {
+    margin-left: 25px;
+}
+
+.profile-group > .h-title {
+    margin-left: 0;
+}
+
+.profile-albumart {
     float: right;
 	margin-left: 3px;
 }
 
-.profile-sp-artist {
+.profile-artist {
     color: ${c.profile.profile_links};
-	margin-left: 25px;
 }
 
 .profile-sp-artist a {
     text-align: right;
 }
 
-.profile-sp-review {
-	margin-left: 25px;
+.profile-review {
     padding-left: 8px;
+    margin-bottom: 4px;
 }
 
 .profile-sp-comment {
@@ -96,8 +119,6 @@
 }
 
 .profile-sp-commentcontainer {
-	margin-left: 25px;
-	margin-top: 4px;
 	margin-bottom: 8px;
 }
 
@@ -143,10 +164,6 @@
     text-decoration: none;
 }
 
-.h-title {
-	font-size: 14px;
-}
-
-.h-title > img {
+.h-title img {
 	vertical-align: text-bottom;
 }

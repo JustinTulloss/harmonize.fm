@@ -34,7 +34,7 @@ player_files = IncludeFiles(
         'player_css/topbar.mako',
         'player_css/statusbar.mako',
         'profile/profile.css.mako',
-		'player_css/dialog.mako.css'
+        'player_css/dialog.mako.css'
     ],
     javascripts = [
         'lib/ext-2.1/adapter/ext/ext-base.js',
@@ -63,6 +63,7 @@ player_files = IncludeFiles(
         'player/friendradio.js',
         'player/playlist.js',
         'player/invite.js',
+        'player/enqueue.js'
     ]
 )
 

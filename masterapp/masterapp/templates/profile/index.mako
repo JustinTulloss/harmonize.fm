@@ -1,11 +1,11 @@
-##vim:filetype=html:expandtab:tabstop=4
+##vim:filetype=html:smarttab:expandtab:tabstop=4
 <%namespace name="rightcol" file="rightcol.mako" />
 <%namespace name="spotcomment" file="spotcomment.mako" />
 <%namespace file="../helpers.mako" import="dl_harmonizer_a"/>
 
 ${rightcol.render()}
 <div id="profile-body">
-	<% own_profile = c.current_user.id == c.user.id %>
+    <% own_profile = c.current_user.id == c.user.id %>
     <div class="profile-status">
         <span class="profile-name">${c.user.name}</span>
         % if c.user.nowplaying:
@@ -19,54 +19,67 @@ ${rightcol.render()}
         <!--
         <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
         -->
-		% if own_profile or c.current_user.premium:
+        % if own_profile or c.current_user.premium:
         <div id="friend_music_menu_link">
             <a href="#/action/browse_friend/${c.user.id}">
                 browse 
-				% if own_profile:
-					your
-				% else:
-					${c.user.firstname}'s 
-				% endif
-				music
+                % if own_profile:
+                    your
+                % else:
+                    ${c.user.firstname}'s 
+                % endif
+                music
             </a>
         </div>
-		% endif
+        % endif
         <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
         </a>
     </div>
-	<div class="profile-subtitle h-subtitle">Spotlight</div>
-	<% spotlights = c.user.get_active_spotlights() %>
-	% if spotlights.count() == 0:
-		<div>
-		<iframe name="dummy_iframe" style="display:none;"></iframe>
-		% if own_profile:
-			You haven't added any spotlights yet, 
-			% if c.user.song_count == 0:
-				download the 
-				<%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call>
-				to add music.
-			% else:
-				click the <img class="favicon" src="/images/spotlight.png"/>Spotlight button on an album or playlist to create one.
-			% endif
-		% else:
-			${c.user.firstname} hasn't created any spotlights yet.
-		% endif
-		</div>
-	% endif
-	% for spotlight in c.user.get_active_spotlights():
-		${build_spotlight(spotlight, own_profile)}
-	% endfor
+    <div class="profile-subtitle h-subtitle">Spotlights</div>
+    <% spotlights = c.user.get_active_spotlights() %>
+    % if spotlights.count() == 0:
+        <div>
+        <iframe name="dummy_iframe" style="display:none;"></iframe>
+        % if own_profile:
+            You haven't added any spotlights yet, 
+            % if c.user.song_count == 0:
+                download the 
+                <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call>
+                to add music.
+            % else:
+                click the <img class="favicon" src="/images/spotlight.png"/>Spotlight button on an album or playlist to create one.
+            % endif
+        % else:
+            ${c.user.firstname} hasn't created any spotlights yet.
+        % endif
+        </div>
+    % endif
+    % for spotlight in spotlights:
+        ${build_spotlight(spotlight, own_profile)}
+    % endfor
+    % if own_profile:
+        <div class="profile-subtitle h-subtitle">Recommendations</div>
+        <% recs = c.user.recommendations %>
+        % if recs.count() == 0:
+            <div>You haven't received any recommendations yet.</div>
+        % else:
+            % for rec in recs:
+                ${build_recommendation(rec)}
+            % endfor
+        % endif
+    % endif
 </div>
 
 <%def name="build_spotlight(spotlight, own_profile)" >
-    <div class="profile-sp">
+    <div class="profile-group">
         % if spotlight.albumid and spotlight.album.smallart:
-            <div class="profile-sp-albumart">
-               ${build_amazon_link(spotlight, h.p_image_tag(spotlight.album.smallart))}
+            <div class="profile-albumart">
+               <%call expr="build_amazon_link(spotlight.album)">
+                    ${h.p_image_tag(spotlight.album.smallart)}
+               </%call>
             </div>
         % endif
-        <div class="h-title">
+        <h3>
             <% 
                 enqueue_type = "playlist"
                 enqueue_id = "0"
@@ -80,7 +93,7 @@ ${rightcol.render()}
                     edit_class = 'edit-playlist-spotlight'
                 endif
             %>
-				<img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
+                <img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
             % if spotlight.albumid == None:
                 Playlist: 
             % endif
@@ -88,11 +101,13 @@ ${rightcol.render()}
                 ${spotlight.title}
             </a>
             % if not own_profile and spotlight.albumid:
-                ${build_amazon_link(spotlight,"(buy)")}
+                <%call expr="build_amazon_link(spotlight.album)">
+                    (buy)
+                </%call>
             % endif
  
-        </div>
-        <div class="profile-sp-artist">
+        </h3>
+        <div class="profile-artist">
             by ${spotlight.author}
             <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
             % if own_profile:
@@ -102,15 +117,7 @@ ${rightcol.render()}
                 </span>
             % endif
         </div>
-        <div class="profile-sp-review">${spotlight.comment}</div>
-
-        <%
-            edit_spotlight_url = c.current_url + '/spedit/' + str(spotlight.id)
-        %>
-        
-        <div id="spot-edit-${spotlight.id}" class="profile-sp-editcontainer">
-            
-        </div>
+        <div class="profile-review">${spotlight.comment}</div>
         
         <% 
             comment_url = c.current_url + '/spcomments/' + str(spotlight.id)
@@ -125,17 +132,89 @@ ${rightcol.render()}
         % else:
             <a ${aclass} href="${comment_url}">comments (${num_comments})</a>
         % endif
-			<a class="hide-comment" href="${c.current_url}">hide comments</a>
+            <a class="hide-comment" href="${c.current_url}">hide comments</a>
 
         ${spotcomment.render(spotlight)}
         </div>
     </div>
 </%def>
 
-<%def name="build_amazon_link(spotlight,content)" >
+<%def name="build_amazon_link(album)" >
     <%
-        asin = c.l_get_asin(spotlight.album.id,'album')
+        asin = c.l_get_asin(album.id,'album')
     %>
-    <a href="http://www.amazon.com/gp/product/${asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=${asin}" target="_blank">${content}</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a=B000002ML7" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+    <a href="http://www.amazon.com/gp/product/${asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=${asin}" target="_blank">${caller.body()}</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a=B000002ML7" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
 </%def>
 
+<%def name="build_title(action)">
+    <h3>
+    <a href="#/action/enqueue/${action}"><img src="/images/enqueue.png"/></a>
+    ${caller.body()}
+    </h3>
+</%def>
+
+<%def name="build_album_art(album)">
+    % if album != None and album.smallart != None:
+        <div class="profile-albumart">
+            <%call expr="build_amazon_link(album)">
+                ${h.p_image_tag(album.smallart)}
+            </%call>
+        </div>
+    % endif 
+</%def>
+
+<%def name="build_album_rec(rec)">
+    ${build_album_art(rec.album)}
+
+    <%call expr="build_title('album/'+str(rec.albumid)+'&Friend_id='+str(rec.recommenderid))">
+        ${rec.album.title}
+    </%call>
+
+    ${build_recommend_common(rec, rec.album.artist)}
+</%def>
+
+<%def name="build_song_rec(rec)">
+    ${build_album_art(rec.song.album)}
+
+    <%call expr="build_title('song/'+str(rec.songid)+'&Friend_id='+str(rec.recommenderid))">
+        ${rec.song.title}
+    </%call>
+
+    ${build_recommend_common(rec, rec.song.album.artist)}
+</%def>
+
+<%def name="build_playlist_rec(rec)">
+    <%call expr="build_title('playlist/'+str(rec.playlistid)+'&Friend_id='+str(rec.recommenderid))">
+        Playlist: ${rec.playlist.name}
+    </%call>
+
+    ${build_recommend_common(rec, rec.playlist.owner)}
+</%def>
+
+<%def name="build_recommend_common(rec, artist)">
+    <div class="profile-artist">
+        by ${artist.name}
+    </div>
+
+    % if rec.comment != None:
+        <div class="profile-review">${rec.comment}</div>
+    % endif
+
+    <div class="profile-recommender">
+        recommended by <a href="#/people/profile/${rec.recommenderid}">
+            ${rec.recommender.name}
+        </a>
+    </div>
+</%def>
+
+<%def name="build_recommendation(rec)">
+    <div class="profile-group">
+    % if rec.album != None:
+        ${build_album_rec(rec)}
+    % elif rec.playlist != None:
+        ${build_playlist_rec(rec)}
+    % else:
+        ${build_song_rec(rec)}
+    % endif
+    </div>
+</%def>
