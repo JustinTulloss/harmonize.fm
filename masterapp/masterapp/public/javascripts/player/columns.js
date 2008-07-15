@@ -11,8 +11,8 @@ var defaultWidths = {
 /* Column Renderers */
 /* Action Templates */
 var every_action =  {
-    enqueue:{
-        view:'<a href="#/action/enqueue"><img title="Enqueue" src="/images/enqueue.png" /></a>',
+    enqueue_row:{
+        view:'<a href="#/action/enqueue_row"><img title="Enqueue" src="/images/enqueue.png" /></a>',
         action: function(record) {playlistmgr.enqueue([record]);}
     },
     friendrec: { 

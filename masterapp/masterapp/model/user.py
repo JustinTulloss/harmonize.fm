@@ -441,21 +441,8 @@ class User(Base):
     def get_playlist_query(self):
         from masterapp.config.schema import dbfields
 
-        # Number of songs available on this album subquery
-        havesongs = Session.query(Playlist.id.label('playlistid'),
-            func.count(Song.id).label('Playlist_havesongs'),
-            func.sum(Song.length).label('Playlist_length')
-        )
-        havesongs = havesongs.group_by(Playlist.id).subquery()
-
-        query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Playlist_havesongs,
-            havesongs.c.Playlist_length,
-            *dbfields['playlist'])
-        joined = join(Playlist, havesongs, Playlist.id == havesongs.c.playlistid)
-        query = query.select_from(joined)
-        # the following line is throwing all sorts of fits, not sure why
-        # query = query.join(Song.artist).reset_joinpoint()
-        query = query.group_by(Playlist)
+        query = Session.query(SongOwner.uid.label('Friend_id'),
+				*dbfields['playlist'])
         return query
     playlist_query = property(get_playlist_query)
 
