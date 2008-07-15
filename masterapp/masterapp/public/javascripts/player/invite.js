@@ -47,7 +47,7 @@ function make_invite_grid() {
         store: invite_store,
         cm: new Ext.grid.ColumnModel([
             sm,
-            {id:'name', header:"Name", dataIndex:'name', width: 120, sortable: true, align: 'left'}
+            {id:'name', header:"Name", dataIndex:'name', width: 120, sortable: true, align: 'left', menuDisabled:true, resizable: false}
         ]),
         height: 300,
         width: 400,
