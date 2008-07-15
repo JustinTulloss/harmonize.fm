@@ -114,6 +114,15 @@ function PlaylistMgr() {
 		}
 	}
 
+    my.clear = function(e) {
+        e.preventDefault();
+        if (expanded_playlist == playqueue)
+            playqueue.clear();
+        else {
+            show_status_msg('You can only clear the Play Queue');
+        }
+    }
+
 	urlm.register_action('playlist', function(rest) {
 		var del_match = rest.match(/^delete\/(\d+)$/);
 		if (del_match) {

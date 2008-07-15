@@ -1,6 +1,7 @@
 from masterapp.tests import *
 from masterapp.lib.fakefacebook import friends, friends_info
 #from masterapp import model
+import simplejson
 
 class TestMetadataController(TestModel):
 
@@ -190,6 +191,8 @@ class TestMetadataController(TestModel):
         ), params={'friend': friend.id})
         assert song.album.title in response.body,\
             "did not return friend's album"
+        data = simplejson.loads(response.body)['data']
+        assert data[0]['Friend_id'] == friend.id
 
     def test_playlist(self):
         """
@@ -222,6 +225,48 @@ class TestMetadataController(TestModel):
         ), params={'friend': friend.id})
         assert playlist.name in response.body,\
             "did not return friend's playlist"
+        data = simplejson.loads(response.body)['data']
+        assert data[0]['Friend_id'] == friend.id
+
+    def test_song(self):
+        """
+        Testing /metadata/song/<songid>
+        """
+        # Test illegit
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'song',
+            id = None
+        ), status = 400)
+        
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'song',
+            id = '124'
+        ), status = 404)
+
+        # Test my song
+        song = generate_fake_song(self.user)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'song',
+            id = song.id
+        ))
+        assert song.title in response.body,\
+            "did not return my playlist"
+
+        # Test friend's song
+        friend = generate_fake_user(friends[0])
+        song = generate_fake_song(friend)
+        response = self.app.post(url_for(
+            controller = 'metadata',
+            action = 'song',
+            id = song.id
+        ), params={'friend': friend.id})
+        assert song.title in response.body,\
+            "did not return friend's playlist"
+        data = simplejson.loads(response.body)['data']
+        assert data[0]['Friend_id'] == friend.id
 
     def test_next_radio_song(self):
         """

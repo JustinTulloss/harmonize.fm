@@ -26,7 +26,8 @@ from . import (
     Spotlight,
     SpotlightComment,
     BlogEntry,
-    SongStat
+    SongStat,
+    Recommendation
 )
 
 from facebook.wsgi import facebook
@@ -372,6 +373,11 @@ class User(Base):
                             and_(commentor, spotlightor)),
                         Spotlight.active == True))[:max_count])
 
+        entries.extend(Session.query(Recommendation).\
+                filter(and_(
+                    Recommendation.recommendeefbid == self.fbid,
+                    Recommendation.active == True))[:max_count])
+
         def sort_by_timestamp(x, y):
             if x.timestamp == None:
                 if y.timestamp == None:
@@ -435,21 +441,9 @@ class User(Base):
     def get_playlist_query(self):
         from masterapp.config.schema import dbfields
 
-        # Number of songs available on this album subquery
-        havesongs = Session.query(Playlist.id.label('playlistid'),
-            func.count(Song.id).label('Playlist_havesongs'),
-            func.sum(Song.length).label('Playlist_length')
-        )
-        havesongs = havesongs.group_by(Playlist.id).subquery()
-
-        query = Session.query(SongOwner.uid.label('Friend_id'), havesongs.c.Playlist_havesongs,
-            havesongs.c.Playlist_length,
-            *dbfields['playlist'])
-        joined = join(Playlist, havesongs, Playlist.id == havesongs.c.playlistid)
-        query = query.select_from(joined)
-        # the following line is throwing all sorts of fits, not sure why
-        # query = query.join(Song.artist).reset_joinpoint()
-        query = query.group_by(Playlist)
+        query = Session.query(Playlist.ownerid.label('Friend_id'),
+						*dbfields['playlist']).\
+					filter(Playlist.ownerid == self.id)
         return query
     playlist_query = property(get_playlist_query)
 
@@ -486,6 +480,9 @@ class User(Base):
         qry = self.playlist_query
         qry = qry.filter(Playlist.id == id)
         return qry.first()            
+
+    def get_song_by_id(self, id):
+        return self.song_query.filter(Song.id == id).first()
 
     def add_song(self, song):
         """
@@ -583,6 +580,13 @@ class User(Base):
     def update_friends_caches(self):
         for friend in self.friends:
             self.fbfriendscache.remove_value(friend.id)
+
+    def get_recommendations(self):
+        return Session.query(Recommendation).filter(
+                sql.and_(Recommendation.recommendeefbid == self.fbid, 
+                    Recommendation.active == True)).\
+                order_by(sql.desc(Recommendation.timestamp))
+    recommendations = property(get_recommendations)
 
 
 class ArtistCounts(Base):

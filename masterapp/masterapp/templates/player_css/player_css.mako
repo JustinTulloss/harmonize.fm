@@ -12,43 +12,34 @@ ul {
 	padding-left: 30px;
 }
 
-#no_music {
+#no-music {
     margin-left: 20px;
-	padding-left: 5px;
+	background-color: ${c.profile.oddrow_bg};
+	margin-bottom: 20px;
 }
 
-#no_music h1, #no_music h2{
-    color: ${c.profile.dark_txt};
+#no-music .content {
+	padding-left: 25px;
+}
+
+#no-music h2 {
+    font-size: 12pt;
+	font-weight: normal;
+	margin: 0;
+	padding-bottom: 10px;
     font-family: "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", "Lucida", sans-serif;
 }
 
-#no_music h1 {
-	margin-bottom: 10px;
-	font-size: 24px;
+#no-music ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
 }
 
-#no_music h2 {
-	margin-top: 0;
-	font-size: 18px;
+#no-music li {
+	margin-bottom: 5px;
 }
 
-#no_music a {
-    color: ${c.profile.dark_txt};
-}
-
-#no_music a:hover {
-    color: ${c.profile.click};
-}
-
-#no_music #music {
-	color: white;
-	background-color: ${c.profile.dark_txt};
-	padding: 0 1px;
-}
-
-#no_music img {
-	vertical-align: text-top;
-}
 
 #mainlogo {
     position: absolute;
@@ -62,40 +53,32 @@ ul {
 
 #home {
 	padding-top: 10px;
+	width: 100%;
+}
+
+table#home td {
+	vertical-align: top;
+	padding-right: 14px;
 }
 
 #home-sidebar {
-    margin-right: 40px;
-	font-size: 11pt;
 	border-left: 1px solid ${c.profile.profile_border};
-	padding-left: 8px;
+	padding-left: 14px;
 }
 
 #home-sidebar a {
-    color: ${c.profile.dark_txt};
     text-decoration: none;
-}
-
-#home-sidebar div {
-	margin-bottom: 2px;
-}
-
-#home-sidebar a:hover {
-    color: ${c.profile.click}
+	font-size: 12pt;
 }
 
 #home-sidebar-header {
     margin-top: 0px;
 }
 
-#home-bg {
-	float: right;
-	background-color:white;
-	padding-left: 8px;
-}
-
-.home-dllink {
-    margin-top: 30px;
+.home-group {
+	border-bottom: solid 1px ${c.profile.profile_border};
+	margin-bottom: 20px;
+	padding-bottom: 20px;
 }
 
 .blogentry {
@@ -119,6 +102,14 @@ a.bc_link {
 
 a.bc_link:hover {
     color: ${c.profile.click};
+}
+
+.light-links a {
+	color: ${c.profile.profile_links};
+}
+
+.light-links a:hover {
+	color: ${c.profile.click};
 }
 
 .bc {
@@ -182,7 +173,6 @@ table {
 
 #news_feed {
 	margin-left: 20px;
-	margin-right: 40px;
 }
 
 #news_feed h1 {
@@ -255,7 +245,7 @@ table {
 }
 
 #status-box span {
-	background-color: #D8DEEB;
+	background-color: ${c.profile.oddrow_bg};
     color: ${c.profile.dark_txt};
 	padding: 3px 5px;
 	visibility: hidden;

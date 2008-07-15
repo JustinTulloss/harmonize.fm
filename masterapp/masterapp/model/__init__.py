@@ -226,6 +226,14 @@ class Recommendation(object):
         self.timestamp = datetime.now()
         self.comment = comment
 
+    def get_recommendeeid(self):
+        query = Session.query(User.id).filter(User.fbid == self.recommendeefbid)
+        if query.count() == 0:
+            return None
+        else:
+            return query.one()[0]
+    recommendeeid = property(get_recommendeeid)
+
 """
 The mappers. This is where the cool stuff happens, like adding fields to the
 classes that represent complicated queries
@@ -342,7 +350,7 @@ mapper(Whitelist, whitelists_table)
 mapper(Notification, notifications_table)
 
 mapper(Recommendation, recommendations_table, properties={
-    'recommender': relation(User),
+    'recommender': relation(User, lazy=False),
     'album': relation(Album, lazy=False),
     'playlist': relation(Playlist, lazy=False),
     'song': relation(Song, lazy=False),
