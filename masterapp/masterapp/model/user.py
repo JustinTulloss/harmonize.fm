@@ -464,14 +464,6 @@ class User(Base):
         return query
     artist_query = property(get_artist_query)
 
-    def get_song_query(self):
-        from masterapp.config.schema import dbfields
-
-        return Session.query(SongOwner.uid.label('Friend_id'),
-                        *dbfields['song']).\
-                    filter(SongOwner.uid == self.id)
-    song_query = property(get_song_query)
-
     def get_album_by_id(self, id):
         qry = self.album_query
         qry = qry.filter(Album.id == id)
