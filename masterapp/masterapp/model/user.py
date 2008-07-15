@@ -69,7 +69,7 @@ class User(Base):
     fballfriendscache = None
     present_mode = False
 
-    def personal_cache(type=None, expiretime=None):
+    def personal_cache(type=None, expiretime=None, addsession = False):
         def wrapper(func, self, *args, **kwargs):
             c = cache.get_cache('%s.%s' % 
                 (func.__module__, func.__name__))
@@ -81,7 +81,10 @@ class User(Base):
                 funcargs['type'] = type
             if expiretime:
                 funcargs['expiretime'] = expiretime
-            return c.get_value(**funcargs)
+            val = c.get_value(**funcargs)
+            if addsession:
+                Session.add_all(val)
+            return val
         return decorator(wrapper)
 
     @decorator
@@ -325,7 +328,6 @@ class User(Base):
         return 'http://%s/player#/people/profile/%d' % (request.host, self.id)
     url = property(get_url)
 
-    @personal_cache(expiretime=600, type='memory')
     def get_top_10_artists(self):
         totalcount = Session.query(Artist.id, Artist.name,
             func.sum(SongStat.playcount).label('totalcount')
@@ -339,7 +341,7 @@ class User(Base):
         return totalcount.all()
     top_10_artists = property(get_top_10_artists)
 
-    @personal_cache(expiretime=600, type='memory')
+    @personal_cache(expiretime=600, type='memory', addsession=True)
     def get_feed_entries(self):
         max_count=20
         entries = Session.query(BlogEntry)[:max_count]

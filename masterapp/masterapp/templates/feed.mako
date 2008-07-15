@@ -31,7 +31,7 @@
             <img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
             <div class="feed_content">
                 <h2><a href="#/people/profile/${entry.user.id}">
-                    ${entry.user.get_firstname()} 
+                    ${entry.user.firstname} 
                     added a Spotlight on ${entry.album.title}</a></h2>
                 <table class="spotlight_feed_info"><tr>
                     <!--td><img src="/images/enqueue.png" /></td-->
