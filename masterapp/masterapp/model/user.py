@@ -84,8 +84,8 @@ class User(Base):
             val = c.get_value(**funcargs)
             if addsession:
                 if hasattr(val, '__iter__'):
-                    for r in val:
-                        r = Session.merge(r, dont_load=True)
+                    for r in xrange(0, len(val)):
+                        val[r] = Session.merge(val[r], dont_load=True)
                 else:
                     val = Session.merge(val, dont_load=True)
             return val
@@ -191,9 +191,10 @@ class User(Base):
     def _get_fbfriends(self):
         olduid = facebook.uid
         oldsession = facebook.session_key
-        if self.fbid != facebook.uid:
-            facebook.uid = self.fbid
+        if self.fbid != int(facebook.uid):
+            facebook.uid = unicode(self.fbid)
             facebook.session_key = self.fbsession
+            log.debug("Querying for wrong user's friends, trying to sub in their session")
         try:
             ids = facebook.friends.getAppUsers()
             if self.present_mode:
@@ -267,8 +268,8 @@ class User(Base):
 
     @fbfriends
     def get_friends(self):
-        for dbfriend in self._fbfriends:
-            dbfriend = Session.merge(dbfriend)
+        for i in xrange(0, len(self._fbfriends)):
+            self._fbfriends[i]= Session.merge(self._fbfriends[i], dont_load=True)
         return self._fbfriends
     friends = property(get_friends)
 

@@ -48,7 +48,7 @@ def ensure_fb_session():
 
 def create_user(fbid):
     user = User(fbid = fbid, premium = False)
-    user.add_me_to_friends()
+    #user.add_me_to_friends()
     Session.add(user)
     return user
 
