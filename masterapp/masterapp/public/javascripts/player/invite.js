@@ -24,19 +24,21 @@ function make_invite_grid() {
     });
 
     var filter = new Ext.form.TextField({
+        cls:'filter_field',
         emptyText:'Search...',
         enableKeyEvents: true
     });
     filter.on('keyup', function(e) {
         invite_store.filter('name', filter.getValue(), true, false);
     });
+    
     var button_t = new Ext.Template('<span><button>{0}</button></span>');
     var button = new Ext.Button({
         text: 'invite',
         template: button_t
     });
     var cancel = new Ext.Button({
-        text:'hide',
+        text:'cancel',
         template: button_t
     });
 
@@ -45,7 +47,7 @@ function make_invite_grid() {
         store: invite_store,
         cm: new Ext.grid.ColumnModel([
             sm,
-            {id:'name', header:"Name", dataIndex:'name', width: 120, sortable: true}
+            {id:'name', header:"Name", dataIndex:'name', width: 120, sortable: true, align: 'left', menuDisabled:true, resizable: false}
         ]),
         height: 300,
         width: 400,
@@ -58,9 +60,10 @@ function make_invite_grid() {
             emptyText: 'Loading...',
             deferEmptyText: false
         },
-        bbar: filter
-
+        tbar: filter,
+        trackMouseOver: false
     });
+
     button.setHandler(
         function() {
             show_status_msg("Inviting...");

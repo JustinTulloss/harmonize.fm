@@ -264,9 +264,6 @@ table {
 	margin-right: 2px;
 }
 
-#shuffle-playqueue {
-    margin-left: 15px;
-}
 
 #error-reload {
 	float: right;
