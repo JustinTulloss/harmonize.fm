@@ -250,6 +250,7 @@ class User(Base):
 
     @fbfriends
     def get_friends(self):
+        Session.add_all(self._fbfriends)
         return self._fbfriends
     friends = property(get_friends)
 
