@@ -35,6 +35,7 @@ function ViewManager(objects)
 			'<span class="playlist-controls">',
 			'<a id="create-playlist" href="#">create playlist</a></span>',
 			'<span class="playlist-controls"><a id="shuffle-playqueue" href="#">shuffle</a></span>',
+            '<span class="playlist-controls"><a id="clear-playqueue" href="#">clear</a></span>',
             '<span class="uname">Welcome, {name:trim}</span>',
             '<span class="cstatus">{status}</span>',
         '</div>'
@@ -210,6 +211,7 @@ function ViewManager(objects)
 	});
     
     Ext.get('shuffle-playqueue').on('click', playlistmgr.shuffle);    
+    Ext.get('clear-playqueue').on('click', playlistmgr.clear);
     
     function set_music_menu() {
         function show_menu(e) {
