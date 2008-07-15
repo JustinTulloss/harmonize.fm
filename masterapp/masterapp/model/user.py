@@ -83,7 +83,11 @@ class User(Base):
                 funcargs['expiretime'] = expiretime
             val = c.get_value(**funcargs)
             if addsession:
-                Session.add_all(val)
+                if hasattr(val, '__iter__'):
+                    for r in val:
+                        Session.merge(r)
+                else:
+                    Session.merge(val)
             return val
         return decorator(wrapper)
 
@@ -254,7 +258,8 @@ class User(Base):
 
     @fbfriends
     def get_friends(self):
-        Session.add_all(self._fbfriends)
+        for dbfriend in self._fbfriends:
+            Session.merge(dbfriend)
         return self._fbfriends
     friends = property(get_friends)
 
