@@ -574,8 +574,9 @@ class User(Base):
         self.update_profile()
 
     def add_me_to_friends(self):
-        for friend in self.frends:
-            friend.friends.append(self).sort(key=attrgetter('name'))
+        for friend in self.friends:
+            friend.friends.append(self)
+            friend.friends.sort(key=attrgetter('name'))
 
     def update_friends_caches(self):
         for friend in self.friends:

@@ -20,6 +20,17 @@ class TestPlayerController(TestModel):
         response = response.follow()
         assert 'Internet Explorer 6' in response.body
 
+    def test_new_user(self):
+        """
+        Testing /player without a user
+        """
+        # Test creating a user
+        model.Session.delete(self.user)
+        model.Session.commit()
+        response = self.app.get(
+            url_for(controller='player'), headers=self.win_ff2_headers)
+        assert 'player | harmonize.fm' in response
+
     def test_get_song_url(self):
         """
         Testing /player/songurl/<songid>
