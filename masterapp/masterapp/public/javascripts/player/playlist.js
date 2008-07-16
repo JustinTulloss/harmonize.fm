@@ -107,12 +107,14 @@ function PlaylistMgr() {
 
 	my.shuffle = function(e) {
 		e.preventDefault();
-		if (expanded_playlist == playqueue)
+		if (expanded_playlist == playqueue) {
 			playqueue.shuffle();
-		else {
-			show_status_msg('You can only shuffle the Play Queue');
+        } else {
+            if (expanded_playlist) {
+                expanded_playlist.shuffle();
+            }
 		}
-	}
+	};
 
     my.clear = function(e) {
         e.preventDefault();
@@ -120,7 +122,7 @@ function PlaylistMgr() {
             playqueue.clear();
         else {
             var playlist_clear = '<form id="clear_playlist_form">' +
-                    '<h1 id="spot_form_title">"Clear Playlist</h1>' +
+                    '<h1 id="spot_form_title">Clear Playlist</h1>' +
                     '<table>' +
                     '<tr><td>Are you sure?</td></tr>' +
                     '<tr><td>&nbsp;</td></tr>' +
@@ -324,6 +326,16 @@ function Playlist(config) {
 
     my.clear = function(e) {
         songqueue.clear();
+    }
+
+    my.shuffle = function() {
+        dirty = true;
+        songqueue.flatten(
+            function() {
+                songqueue.shuffle();
+                dirty = false;
+            }
+        );
     }
 }
 Ext.extend(Playlist, Ext.util.Observable);

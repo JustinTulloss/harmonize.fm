@@ -141,7 +141,7 @@ function PlayQueue(config) {
 	});
 	
 	my.shuffle = function() {
-	    songQueue.flatten(); //this call returns but the rest of the shuffle finishes with finish_shuffle() below
+	    songQueue.flatten(my.finish_shuffle); //after we flatten, we want to finish the shuffle
     }
     
     my.finish_shuffle = function() {
@@ -393,12 +393,12 @@ function SongQueue(label, is_playlist) {
     my.tree.on('checkchange', remove);
     
     my.flatten = flatten;
-    function flatten() {
+    function flatten(func) {
         var len = my.root.childNodes.length;
         for (i = (len - 1); i >=0; --i) {
             if (!my.root.item(i).isLeaf())
                 ++flattened;
-            my.root.item(i).flatten(); //this calls playqueue.finish_shuffle() when all flattens return
+            my.root.item(i).flatten(func); //this calls playqueue.finish_shuffle() when all flattens return
         }
     }
     
@@ -446,8 +446,8 @@ function QueueNode(config)
     this.update_text = function () {};
 	this.is_active = function() { return !(this.config.inactive); }
 	
-	this.flatten = function() {
-        playqueue.finish_shuffle();	
+	this.flatten = function(func) {
+        func();
 	};
 }
 Ext.extend(QueueNode, Ext.tree.TreeNode);
@@ -618,7 +618,7 @@ function AlbumQueueNode(config)
     this.on('expand', function() {ensure_loaded();});
     
     my.flatten = flatten;
-    function flatten() {
+    function flatten(func) {
         ensure_loaded(function() {
             var nodes = my.childNodes;
             var records = [];
@@ -628,7 +628,7 @@ function AlbumQueueNode(config)
             my.queue.insert(records, my);
 			my.remove();
 			--flattened;
-			playqueue.finish_shuffle();
+			func(); // this is the end-all callback function for all node types
         });
     }
 }
@@ -794,12 +794,12 @@ function PlaylistQueueNode(config) {
     this.on('expand', function() {ensure_loaded();});
     
     my.flatten = flatten;
-    function flatten() {
+    function flatten(func) {
         ensure_loaded(function(){
             my.queue.insert(songs.getRange(), my);
 			my.remove();     
 			--flattened;  
-			playqueue.finish_shuffle();
+			func();
         });
     }
 }

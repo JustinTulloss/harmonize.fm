@@ -75,16 +75,16 @@ class MockFacebook(object):
         self.friends.get = Mock()
         self.friends.get.return_value = self.configured_friends
 
-        self.friends.getAppUsers = Mock()
-        self.friends.getAppUsers.return_value = self.configured_friends
+        fb = self
+        def getfriends():
+            return fb.configured_friends[fb._uid]
+        self.friends.getAppUsers = getfriends
 
 
     def _get_session_key(self):
-        if self._session_key:
-            return self._session_key
-        else:
+        if not self._session_key:
             self._session_key=get_uuid()
-            return self._session_key
+        return self._session_key
     def _set_session_key(self, key):
         self._session_key = key
 

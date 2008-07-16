@@ -21,7 +21,7 @@ from routes import url_for
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import engine
-from pylons import config,cache
+from pylons import config
 
 __all__ = ['url_for', 'TestController', 'TestModel', 'here_dir',
     'conf_dir', 'model', 'generate_fake_song', 'generate_fake_user',
@@ -57,11 +57,35 @@ test_file = os.path.join(conf_dir, 'test.ini')
 cmd = paste.script.appinstall.SetupCommand('setup-app')
 cmd.run([test_file])
 
+from masterapp.lib import fbauth
+
+
+
 class TestController(TestCase):
 
     def __init__(self, *args, **kwargs):
         #wsgiapp = PylonsApp(config='config:test.ini', base_wsgi_app=wsgiapp)
+        #setup app with proxies made availables
         self.app = paste.fixture.TestApp(wsgiapp)
+
+        """
+        I got the stuff below from pylons.commands
+        It solves lots of our SOP problems and I wish I didn't have to go
+        digging for this stuff myself
+        """
+        # Query the test app to setup the environment
+        tresponse = self.app.get('/_test_vars')
+        request_id = int(tresponse.body)
+
+        # Disable restoration during test_app requests
+        self.app.pre_request_hook = lambda self: \
+            paste.registry.restorer.restoration_end()
+        self.app.post_request_hook = lambda self: \
+            paste.registry.restorer.restoration_begin(request_id)
+
+        self.request_id = request_id
+
+
         super(TestController, self).__init__(*args, **kwargs)
 
         self.linux_ff3_headers = {
@@ -82,7 +106,21 @@ class TestController(TestCase):
         self.win_ie6_headers = {
             'USER_AGENT': "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; IBP; .NET CLR 1.1.4322)"
         }
+    def setUp(self):
+        # Restore the state of the Pylons special objects
+        # (StackedObjectProxies)
+        paste.registry.restorer.restoration_begin(self.request_id)
 
+    def tearDown(self):
+        # Nuke the caches
+        from pylons import cache
+        try:
+            for c in cache.caches.itervalues():
+                c.clear()
+            cache.caches.clear()
+        except TypeError, e:
+            print "Couldn't clear the caches"
+        paste.registry.restorer.restoration_end()
 
 class TestModel(TestController):
     def __init__(self, *args):
@@ -93,6 +131,7 @@ class TestModel(TestController):
     def setUp(self):
         super(TestModel, self).setUp()
         model.Session.remove()
+        model.Session()
         model.metadata.create_all()
         self.user = generate_fake_user(config['pyfacebook.fbid'])
 
@@ -135,9 +174,7 @@ def generate_fake_user(fbid=None):
     global rnum
     rnum += 1
     rstr = str(rnum)
-    user = model.User(
-        fbid = fbid if fbid else 'id'+rstr)
-    model.Session.add(user)
+    user = fbauth.create_user(fbid = fbid if fbid else 'id'+rstr)
     model.Session.commit()
     return user
     

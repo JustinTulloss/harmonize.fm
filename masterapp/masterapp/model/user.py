@@ -83,7 +83,11 @@ class User(Base):
                 funcargs['expiretime'] = expiretime
             val = c.get_value(**funcargs)
             if addsession:
-                Session.add_all(val)
+                if hasattr(val, '__iter__'):
+                    for r in xrange(0, len(val)):
+                        val[r] = Session.merge(val[r], dont_load=True)
+                else:
+                    val = Session.merge(val, dont_load=True)
             return val
         return decorator(wrapper)
 
@@ -185,17 +189,27 @@ class User(Base):
 
     @fbaccess
     def _get_fbfriends(self):
-        ids = facebook.friends.getAppUsers()
-        if self.present_mode:
-            ids.extend([1909354, 1908861])
-        # I'm banking on caches in a big way here. I'm assuming that the vast
-        # majority of additional facebook information will be cached per user,
-        # so when we're actually accessing the attributes of these users 1 by 1,
-        # it won't be too expensive.
-        friendor = or_()
-        for id in ids:
-            friendor.append(User.fbid == id)
-        users = Session.query(User).filter(friendor).order_by(User._name)
+        olduid = facebook.uid
+        oldsession = facebook.session_key
+        if self.fbid != int(facebook.uid):
+            facebook.uid = unicode(self.fbid)
+            facebook.session_key = self.fbsession
+            log.debug("Querying for wrong user's friends, trying to sub in their session")
+        try:
+            ids = facebook.friends.getAppUsers()
+            if self.present_mode:
+                ids.extend([1909354, 1908861])
+            # I'm banking on caches in a big way here. I'm assuming that the vast
+            # majority of additional facebook information will be cached per user,
+            # so when we're actually accessing the attributes of these users 1 by 1,
+            # it won't be too expensive.
+            friendor = or_()
+            for id in ids:
+                friendor.append(User.fbid == id)
+            users = Session.query(User).filter(friendor).order_by(User._name)
+        finally:
+            facebook.uid = olduid
+            facebook.session_key = oldsession
         return users.all()
 
     @fbaccess
@@ -254,7 +268,8 @@ class User(Base):
 
     @fbfriends
     def get_friends(self):
-        Session.add_all(self._fbfriends)
+        for i in xrange(0, len(self._fbfriends)):
+            self._fbfriends[i]= Session.merge(self._fbfriends[i], dont_load=True)
         return self._fbfriends
     friends = property(get_friends)
 
@@ -577,8 +592,11 @@ class User(Base):
 
     def add_me_to_friends(self):
         for friend in self.friends:
-            friend.friends.append(self)
-            friend.friends.sort(key=attrgetter('name'))
+            try:
+                friend.friends.append(self)
+                friend.friends.sort(key=attrgetter('name'))
+            except:
+                pass # oh well, they'll find me eventually
 
     def update_friends_caches(self):
         for friend in self.friends:
