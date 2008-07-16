@@ -285,8 +285,14 @@ function SongQueue(label, is_playlist) {
     }
 
     function paneldrop(source, e, data) {
-        if (data.selections)
+		records = data.selections;
+        if (records) {
+			if (is_playlist && !own_record(records[0])) {
+				show_status_msg('Cannot add friend\'s music to playlists!');
+				return;
+			}
 			my.enqueue(data.selections);
+		}
     }
 
     function treedrop(e) {

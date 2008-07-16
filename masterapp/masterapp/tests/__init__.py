@@ -118,15 +118,16 @@ def generate_fake_song(owner):
         model.Session.commit()
         return ns
 
-def generate_fake_playlist(owner):
+def generate_fake_playlist(owner, songs=1):
     global rnum
     rnum += 1
     rstr = str(rnum)
     playlist = model.Playlist('Playlist'+rstr, owner.id)
     model.Session.add(playlist)
-    song=generate_fake_song(owner)
-    plsong = model.PlaylistSong(playlist.id, 1, song.id)
-    playlist.songs.append(plsong)
+    for i in range(songs):
+        song=generate_fake_song(owner)
+        plsong = model.PlaylistSong(playlist.id, i, song.id)
+        playlist.songs.append(plsong)
     model.Session.commit()
     return playlist
 

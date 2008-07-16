@@ -234,7 +234,7 @@ function Playlist(config) {
 	my.insert = function(records) {
 		if (!own_record(records[0])) {
 			show_status_msg(
-			'Cannot add other people\'s music to your playlists');
+			'Cannot add friends\'s music to your playlists');
 			return;
 		}
 		else
@@ -243,7 +243,7 @@ function Playlist(config) {
 	my.enqueue = function(records) {
 		if (!own_record(records[0])) {
 			show_status_msg(
-			'Cannot add other people\'s music to your playlists');
+			'Cannot add friend\'s music to your playlists');
 			return;
 		}
 		else
