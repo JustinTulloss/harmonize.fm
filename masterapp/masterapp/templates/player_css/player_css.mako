@@ -64,11 +64,18 @@ table#home td {
 #home-sidebar {
 	border-left: 1px solid ${c.profile.profile_border};
 	padding-left: 14px;
+	width: 17em;
 }
 
 #home-sidebar a {
     text-decoration: none;
 	font-size: 12pt;
+}
+
+#home-sidebar p {
+	margin-bottom: 0;
+	text-align: center;
+	color: #777;
 }
 
 #home-sidebar-header {
