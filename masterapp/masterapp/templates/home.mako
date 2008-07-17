@@ -17,8 +17,8 @@
 				<h2>Getting started is easy:</h2>
 				<ul>
 				<li>Click <img src="/images/enqueue.png" /> to listen to your
-                friend's Spotlight right away</li>
-				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to share and listen to your own music anywhere</li>
+                friends' Spotlights right away</li>
+				<li>Download the <%call expr="dl_harmonizer_a('dummy_iframe')">harmonizer</%call> to listen to your own music anywhere</li>
 				</ul>
 				</div>
 				<div id="no-music-bottom">
@@ -38,6 +38,7 @@
 						<img src="/images/orangecircle.png" />
 					</%call>
 				</center>
+				<p>The harmonizer synchronizes your music library with our servers so you can listen to it anywhere</p>
 			</div>
 
 			<div class="home-group">

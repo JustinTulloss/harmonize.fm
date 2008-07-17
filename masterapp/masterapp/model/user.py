@@ -470,10 +470,12 @@ class User(Base):
             ArtistCounts.songcount.label('Artist_availsongs'), 
             ArtistCounts.albumcount.label('Artist_numalbums'),
             *dbfields['artist'])
+
         query = query.join(Artist.albums, Song, SongOwner, SongOwner.user).\
             join((ArtistCounts, and_( 
                 SongOwner.uid == ArtistCounts.userid,
-                Artist.id == ArtistCounts.artistid)))
+                Artist.id == ArtistCounts.artistid,
+                Artist.id == Album.artistid)))
         query = query.filter(SongOwner.uid == self.id)
         query = query.group_by(Artist)
         return query

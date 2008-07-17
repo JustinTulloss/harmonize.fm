@@ -93,6 +93,21 @@ class TestMetadataController(TestModel):
         assert song.title in response.body,\
             "Did not return my friend's song"
 
+        #Test a friend's playlist
+        friend = generate_fake_user(friends[0])
+        playlist = generate_fake_playlist(friend, 20)
+        response = self.app.post(
+            url_for(
+                controller = 'metadata',
+                action = 'songs'), 
+            params={
+                'friend': friend.id,
+                'playlist': playlist.id
+            }
+        )
+        data = simplejson.loads(response.body)['data']
+        assert len(data) == 20, 'Not all playlist songs returned'
+
     def test_albums(self):
         """
         Testing /metadata/albums
