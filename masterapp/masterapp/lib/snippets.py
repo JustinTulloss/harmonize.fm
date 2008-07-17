@@ -1,6 +1,7 @@
 from masterapp.lib.base import request
 from masterapp.model import Session, User
 from pylons import session, g
+from pylons.controllers.util import abort
 from decimal import Decimal
 
 def build_json(results):
