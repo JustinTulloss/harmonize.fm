@@ -24,6 +24,8 @@ def get_user():
     else:
         # TODO: Make sure they're friends
         user = Session.query(User).get(friendid)
+        if not user:
+            abort(400)
     return user
 
 def get_session_user():
