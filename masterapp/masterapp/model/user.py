@@ -365,15 +365,11 @@ class User(Base):
             myor.append(Spotlight.uid == friend.id)
 
         if len(myor)>0:
-            entries.extend(Session.query(Spotlight).filter(and_(
-                    myor, Spotlight.active==True))\
-                    [:max_count])
-        else:
-            entries.extend(Session.query(Spotlight).filter(Spotlight.active==True)\
+            entries.extend(Session.query(Spotlight).filter(
+                and_(myor, Spotlight.active==True)).\
+                order_by(sql.desc(Spotlight.timestamp))\
                     [:max_count])
 
-        #CommentUser = aliased(User)
-        #SpotlightUser = aliased(User)
         commentor = or_()
         spotlightor = or_()
         for friend in self.friends:
@@ -388,7 +384,8 @@ class User(Base):
                         SpotlightComment.uid!=session['userid'],
                         or_(Spotlight.uid==session['userid'],
                             and_(commentor, spotlightor)),
-                        Spotlight.active == True))[:max_count])
+                        Spotlight.active == True)).\
+                    order_by(sql.desc(SpotlightComment.timestamp))[:max_count])
 
         entries.extend(Session.query(Recommendation).\
                 filter(and_(
