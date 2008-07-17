@@ -16,6 +16,23 @@ class RecommendController(BaseController):
     def __before__(self):
         ensure_fb_session()
 
+    def whitelist_user(self, user):
+        # first check to see if the user is already in our database:
+        qry = Session.query(User).filter(User.fbid == user)
+        if qry.count() != 0:
+            # user is already a member
+            return '1'
+        # now we check to see if they're already on the whitelist
+        qry = Session.query(Whitelist).filter(Whitelist.fbid == user)
+        if qry.count() != 0:
+            # the user is already on the whitelist
+            return '1'
+        w = Whitelist(fbid=user, registered=False)
+        Session.save(w)
+        Session.commit()
+        return '1'
+
+
     @pass_user
     def album(self, user, **kwargs):
         if not kwargs.get('entity') and kwargs.get('friend'):
@@ -30,11 +47,12 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
-
+    
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 albumid=album.id)
         Session.save(rec)
         Session.commit()
+        self.whitelist_user(c.recommendee)
         return '1'
 
     @pass_user
@@ -52,6 +70,7 @@ class RecommendController(BaseController):
         facebook.notifications.send(c.recommendee,
             render('facebook/recommend.fbml.mako'))
 
+        self.whitelist_user(c.recommendee)
         return '1'
 
     @pass_user
@@ -75,6 +94,7 @@ class RecommendController(BaseController):
                 songid=song.id)
         Session.save(rec)
         Session.commit()
+        self.whitelist_user(c.recommendee)
         return '1'
 
     @pass_user
@@ -96,4 +116,5 @@ class RecommendController(BaseController):
                 playlistid=playlist.id)
         Session.save(rec)
         Session.commit()
+        self.whitelist_user(c.recommendee)
         return '1'
