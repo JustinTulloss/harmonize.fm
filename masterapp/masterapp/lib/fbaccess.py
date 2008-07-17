@@ -1,3 +1,4 @@
+import time
 from facebook.wsgi import facebook
 from facebook import FacebookError
 from decorator import decorator
