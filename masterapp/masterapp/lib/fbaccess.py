@@ -7,6 +7,7 @@ from pylons import request
 
 from masterapp.lib import fblogin
 import time
+from paste.httpexceptions import HTTPException
 
 @decorator
 def fbaccess(func, *args, **kwargs):
@@ -14,6 +15,8 @@ def fbaccess(func, *args, **kwargs):
     while tries < 4:
         try:
             return func(*args, **kwargs)
+        except HTTPException, e:
+            raise e
         except Exception, e:
             if isinstance(e, FacebookError) and e.code == 102:
                 method = request.environ.get('HTTP_X_REQUESTED_WITH')
