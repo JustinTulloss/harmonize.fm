@@ -20,6 +20,7 @@ from sqlalchemy.sql import or_
 
 from masterapp.lib.base import *
 import cPickle as pickle
+import simplejson
 
 from masterapp import model
 from sqlalchemy.sql import and_
@@ -42,15 +43,15 @@ class UploadController(BaseController):
         self.apikey = config['pyfacebook.apikey']
         self.secret = config['pyfacebook.secret']
 
-    def _check_tags(self, user):
+    def _check_tags(self, user, fdict):
         song = None
-        if request.params.has_key('title') and request.params.has_key('album') and \
-                request.params.has_key('artist'):
+        if fdict.has_key('title') and fdict.has_key('album') and \
+                fdict.has_key('artist'):
             qry = model.Session.query(model.Song).join(
                 model.Song.artist, model.Song.album).filter(
-                model.Artist.name == request.params['artist']).filter(
-                model.Album.title == request.params['album']).filter(
-                model.Song.title == request.params['title'])
+                model.Artist.name == fdict['artist']).filter(
+                model.Album.title == fdict['album']).filter(
+                model.Song.title == fdict['title'])
             song = qry.first()
 
         if not song:
@@ -73,31 +74,33 @@ class UploadController(BaseController):
         return True
 
 
+    def _build_fdict(self, user, src=None):
+        if not src:
+            src = request.params
+        return dict(
+            puid = src.get('puid'),
+            artist = src.get('artist'),
+            album = src.get('album'),
+            title = src.get('title'),
+            duration = src.get('duration'),
+            bitrate = src.get('bitrate'),
+            date = src.get('date'),
+            tracknumber = src.get('tracknumber'),
+            genre = src.get('genre'),
+            fbid = user.fbid
+        )
+
     def _check_puid(self, user):
         userpuid = request.params.get('puid')
         if not userpuid:
             log.debug("Puid was blank, upload the file")
             return False
 
-        def build_fdict():
-            return dict(
-                puid = request.params.get('puid'),
-                artist = request.params.get('artist'),
-                album = request.params.get('album'),
-                title = request.params.get('title'),
-                duration = request.params.get('duration'),
-                bitrate = request.params.get('bitrate'),
-                date = request.params.get('date'),
-                tracknumber = request.params.get('tracknumber'),
-                genre = request.params.get('genre'),
-                fbid = user.fbid
-            )
-
         dbpuids = model.Session.query(model.Puid).filter(
             model.Puid.puid == userpuid
         ).all()
         if len(dbpuids) > 0:
-            self._process(build_fdict())
+            self._process(self._build_fdict(user))
             log.debug("We have the puid for %s in our db, don't need the song",
                 request.params.get('title'))
             return True
@@ -188,7 +191,6 @@ class UploadController(BaseController):
             except self.PostException:
                 pass
             return Response.wait
-            
 
         dest_dir = path.join(config['app_conf']['upload_dir'], fbid)
         if not path.exists(dest_dir):
@@ -234,8 +236,11 @@ class UploadController(BaseController):
         if not version=='1.0':
             abort(400, 'Version must be 1.0')
 
+        if request.params.get('tags'):
+            return self._mass_tags(user, request.params['tags'])
+
         # Check our database for tag match
-        if self._check_tags(user):
+        if self._check_tags(user, self._build_fdict(user)):
             return Response.done
 
         # Check our database for PUID
@@ -244,6 +249,20 @@ class UploadController(BaseController):
 
         # We haven't seen the song, let's get the whole file
         return Response.upload
+
+    def _mass_tags(self, user, str_tags):
+        tag_list = simplejson.loads(str_tags)
+        if type(tag_list) != list:
+            abort(400, 'Invalid tags sent')
+
+        response_list = []
+        for tags in tag_list:
+            if self._check_tags(user, self._build_fdict(user, tags)):
+                response_list.append(Response.done)
+            else:
+                response_list.append(Response.upload)
+
+        return simplejson.dumps(response_list)
             
     def desktop_redirect(self):
         fb = facebook

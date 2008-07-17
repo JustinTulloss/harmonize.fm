@@ -5,6 +5,7 @@ from nose.tools import assert_raises
 from paste.fixture import AppError
 from masterapp.controllers.upload import Response
 from pylons import config
+import simplejson
 
 class TestUploadController(TestModel):
     def __init__(self, *args, **kwargs):
@@ -62,6 +63,26 @@ class TestUploadController(TestModel):
         res = self.app.post('/upload/tags', params = debra)
         assert res.body == Response.done
         #self._stop_listening()
+
+        tags = [{
+                'artist': 'Beck',
+                'album': 'Midnite Vultures',
+                'title': 'Debra',
+            }, {
+                'artist': 'Beck',
+                'album': 'Midnite Vultures',
+                'title': 'Sexx Laws'
+        }]
+
+        mass_tags = {
+            'version': '1.0',
+            'session_key': config['pyfacebook.sessionkey'],
+            'tags': simplejson.dumps(tags)
+        }
+        res = self.app.post('/upload/tags', params=mass_tags)
+        json_res = simplejson.loads(res.body)
+        assert json_res[0] == Response.done
+        assert json_res[1] == Response.upload
 
     def test_file(self):
         """
