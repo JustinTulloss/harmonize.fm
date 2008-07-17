@@ -190,7 +190,7 @@ class UploadController(BaseController):
 
             try:
                 self.read_postdata(dest_file)
-            except self.PostException:
+            except self.PostException, e:
                 dest_file.close()
                 os.remove(dest_path)
                 return Response.retry
