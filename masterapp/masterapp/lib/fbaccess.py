@@ -14,8 +14,8 @@ def fbaccess(func, self, *args, **kwargs):
     while tries < 4:
         try:
             return func(self, *args, **kwargs)
-        except FacebookError, e:
-            if e.code == 102:
+        except Exception, e:
+            if isinstance(FacebookError) and e.code == 102:
                 method = request.environ.get('HTTP_X_REQUESTED_WITH')
                 if method == 'XMLHttpRequest':
                     abort(401, 'Please re-login to facebook')
