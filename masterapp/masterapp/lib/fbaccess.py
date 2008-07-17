@@ -8,11 +8,11 @@ from masterapp.lib import fblogin
 import time
 
 @decorator
-def fbaccess(func, self, *args, **kwargs):
+def fbaccess(func, *args, **kwargs):
     tries = 0
     while tries < 4:
         try:
-            return func(self, *args, **kwargs)
+            return func(*args, **kwargs)
         except FacebookError, e:
             if e.code == 102:
                 method = request.environ.get('HTTP_X_REQUESTED_WITH')

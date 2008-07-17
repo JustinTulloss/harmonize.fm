@@ -25,6 +25,7 @@ from masterapp import model
 from sqlalchemy.sql import and_
 import thread
 from mailer import mail
+from masterapp.lib.fbaccess import fbaccess
 
 log = logging.getLogger(__name__)
 
@@ -111,21 +112,10 @@ class UploadController(BaseController):
         if session_key == None:
             return None
         
+        @fbaccess
         def get_fbid():
-            retries = 2
-            while retries > 0:
-                try:
-                    facebook.session_key = session_key
-                    fbid = facebook.users.getLoggedInUser()
-                    retries = 0 
-                except FacebookError:
-                    return None
-                except URLError:
-                    print 'getLoggedInUser error, retrying'
-                    retries -= 1
-                    if retries == 0: 
-                        print 'getLoggedInUser failed'
-                        return None
+            facebook.session_key = session_key
+            fbid = facebook.users.getLoggedInUser()
             return str(fbid)
 
         sessionc = cache.get_cache('upload.sessions')
@@ -245,6 +235,7 @@ class UploadController(BaseController):
         # We haven't seen the song, let's get the whole file
         return Response.upload
             
+    @fbaccess
     def desktop_redirect(self):
         fb = facebook
         if fb.check_session(request):
