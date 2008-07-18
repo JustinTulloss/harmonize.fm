@@ -22,6 +22,7 @@ class HFile(object):
 		self._contents = None
 		self._tags = None
 		self._uploaded = None
+		self._puid_tags = None
 	
 	def get_sha(self):
 		if self._sha == None:
@@ -60,13 +61,20 @@ class HFile(object):
 	def get_tags(self):
 		if self._tags == None:
 			try:
-				self._tags = tags.get_tags(self.name, self.puid)
+				self._tags = tags.get_tags(self.name)
 			except HeaderNotFoundError, e:
 				raise HFileException(str(e))
 			except MP4StreamInfoError, e:
 				raise HFileException(str(e))
 		return self._tags
 	tags = property(get_tags)
+
+	def get_puid_tags(self):
+		if self._puid_tags == None:
+			self.tags['puid'] = self.puid
+			self._puid_tags = True
+		return self.tags
+	puid_tags = property(get_puid_tags)
 
 	def get_ppname(self):
 		"""The pretty print name of the file"""

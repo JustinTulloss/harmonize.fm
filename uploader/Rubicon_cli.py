@@ -7,6 +7,9 @@ from excepthandler import exception_managed
 
 session_key = None
 
+import codecs, sys
+sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+
 @exception_managed
 def main():
     if len(sys.argv)>1:
@@ -53,6 +56,7 @@ class TextView(object):
 
     def enable_login(self, val):
         if val:
+            import upload
             fb.login(upload.login_callback)
 
     def enable_options(self, val):

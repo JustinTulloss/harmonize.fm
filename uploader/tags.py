@@ -25,8 +25,8 @@ def map_tags(song, mapper, tags):
 		if song.has_key(key):
 			tags[mapper[key]] = song[key][0].encode('utf-8')
 
-def get_tags(filename, puid):
-	tags = dict(puid=puid, version='1.0')
+def get_tags(filename):
+	tags = dict(version='1.0')
 
 	if filename.endswith('.mp3'):
 		song = MP3(filename, ID3=EasyID3)

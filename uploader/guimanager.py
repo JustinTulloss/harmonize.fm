@@ -78,7 +78,7 @@ class GuiManager(object):
 
 
 	def start_upload(self, filename, file_len):
-		self.gui.set_msg('Uploading file:\n%s' % filename)
+		self.gui.set_msg(u'Uploading file:\n%s' % filename)
 		self.gui.set_progress(False, 0.0)
 		self.file_len = float(file_len)
 		self.amount_uploaded = 0

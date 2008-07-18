@@ -1,4 +1,4 @@
-import os, re, hashlib, httplib, sys, time, urllib
+import os, re, hashlib, httplib, sys, time, urllib, simplejson
 import os.path as path
 import config, rate_limit, fb
 from db import db
@@ -47,10 +47,40 @@ def check_response(response):
 	response_body = response.read()
 
 	if response.status != 200:
-		raise Exception('Server returned status code %s!' % response.status)
+		raise Exception(
+			'Server returned status code %s %s!' % 
+			(response.status, response.reason))
 	elif response_switch.has_key(response_body):
 		raise response_switch[response_body]
 	return response_body
+
+def tag_upload(tags):
+	if tags == []: return
+
+	json = simplejson.dumps(tags)
+	url = get_url('/upload/tags')
+	params = {
+		'version': tags[0]['version'],
+		'tags': json
+	}
+	body = urllib.urlencode(params)
+	headers = {'Content-type': 'application/x-www-form-urlencoded'}
+	conn = get_conn()
+	conn.request('POST', url, body, headers)
+	return simplejson.loads(check_response(conn.getresponse()))
+
+def is_puid_uploaded(hfile):
+	conn = get_conn()
+	body = urllib.urlencode(hfile.puid_tags)
+	headers = {'Content-type': 'application/x-www-form-urlencoded'}
+	url = get_url('/upload/tags')
+	conn.request('POST', url, body, headers)
+	response =  check_response(conn.getresponse())
+	if response == 'done':
+		hfile.uploaded = True
+		return True
+	else: return False
+		
 
 @exception_managed
 def start_uploader(guimgr):
@@ -118,18 +148,7 @@ def upload_files(song_list, guimgr):
 		rate_limit.establish_baseline(
 				config.current['server_addr'], config.current['server_port'])
 
-	@retry_fn
-	def is_puid_uploaded(hfile):
-		conn = get_conn()
-		body = urllib.urlencode(hfile.tags)
-		headers = {'Content-type': 'application/x-www-form-urlencoded'}
-		url = get_url('/upload/tags')
-		conn.request('POST', url, body, headers)
-		response =  check_response(conn.getresponse())
-		if response == 'done':
-			hfile.uploaded = True
-			return True
-		else: return False
+	r_is_puid_uploaded = retry_fn(is_puid_uploaded)
 
 	@retry_fn
 	def upload_file(hfile):
@@ -151,18 +170,50 @@ def upload_files(song_list, guimgr):
 		check_response(response)
 		hfile.uploaded = True
 
-	guimgr.start_analysis(float(len(song_list)))
+	r_tag_upload = retry_fn(tag_upload)
 
-	upload_list = [] #a list of hfiles
-	for song in song_list:
-		hfile = HFile(song)
-		try:
-			hfile.contents
+	guimgr.start_analysis(float(len(song_list)*2))
 
-			if hfile.uploaded:
+	puid_list = []
+	while song_list != []:
+		song_chunk = song_list[:10]
+		song_list = song_list[10:]
+
+		new_hfiles = []
+		mass_upload = []
+		for song in song_chunk:
+			hfile = HFile(song)
+			try:
+				hfile.contents
+
+				if not hfile.uploaded:
+					mass_upload.append(hfile.tags)
+					new_hfiles.append(hfile)
+
+				guimgr.file_analyzed()
+			except HFileException, e:
+				guimgr.file_skipped()
+				db.add_skipped(hfile.name)
 				continue
-			elif hfile.puid:
-				if not is_puid_uploaded(hfile):
+
+		if mass_upload == []:
+			continue
+
+		responses = r_tag_upload(mass_upload)
+		for response in responses:
+			hfile = new_hfiles.pop(0)
+			if response == 'done':
+				hfile.uploaded = True
+				guimgr.file_auto_uploaded()
+				continue
+			puid_list.append(hfile)
+		time.sleep(.5)
+			
+	upload_list = [] #a list of hfiles
+	for hfile in puid_list:
+		try:
+			if hfile.puid:
+				if not r_is_puid_uploaded(hfile):
 					upload_list.append(hfile)
 					guimgr.file_queued()
 				else:

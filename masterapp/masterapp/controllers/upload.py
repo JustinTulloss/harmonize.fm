@@ -65,7 +65,7 @@ class UploadController(BaseController):
         if owner:
             # This request.params has already been uploaded by this fella
             log.debug('%s has already been uploaded by %s', 
-                request.params.get('title'), user.id)
+                fdict.get('title'), user.id)
             return True
 
         # Make a new owner
