@@ -8,7 +8,13 @@ import signal
 import threading
 import socket
 import cPickle
-from sizer import annotate, scanner, formatting, operations
+
+try:
+	import sizer
+	from sizer import annotate, scanner, formatting, operations
+except ImportError:
+	sizer = None
+
 pickle = cPickle
 from fileprocess.configuration import *
 from operator import itemgetter
@@ -95,7 +101,7 @@ def monitor(pipeline):
             # Put this in a function so I don't lose memory here
             def get_monitor_stats():
                 heap = {}
-                if int(command) & HEAP_DETAILS:
+                if sizer and int(command) & HEAP_DETAILS:
                     objs = scanner.Objects()
                     classes = annotate.simplegroupby(objs, classes=True)
                     for key, c in classes.items():

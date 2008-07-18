@@ -71,7 +71,7 @@ class UploadController(BaseController):
 
         # Make a new owner
         user.add_song(song)
-        log.debug('%s added to %s\'s files', request.params['title'], user.id)
+        log.debug('%s added to %s\'s files', fdict.get('title'), user.id)
         return True
 
 
