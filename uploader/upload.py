@@ -189,6 +189,10 @@ def upload_files(song_list, guimgr):
 				if not hfile.uploaded:
 					mass_upload.append(hfile.tags)
 					new_hfiles.append(hfile)
+				else:
+					#If file is uploaded it won't be analyzed later, gotta keep
+					#count accurate
+					guimgr.file_analyzed()
 
 				guimgr.file_analyzed()
 			except HFileException, e:
@@ -214,6 +218,7 @@ def upload_files(song_list, guimgr):
 
 		db.end_trans()
 		guimgr.file_auto_uploaded(auto_uploaded)
+		guimgr.file_analyzed(auto_uploaded)
 			
 	upload_list = [] #a list of hfiles
 	for hfile in puid_list:
