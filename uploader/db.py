@@ -37,8 +37,9 @@ def unique_dirs(dirs):
 class DB(object):
 	def __init__(self, db_path):
 		self.db_path = db_path
+		self.trans_conn = None
 
-		self.versions = [self.version_1]
+		self.versions = [self.version_1, self.version_2]
 
 		try:
 			conn = self.get_conn()
@@ -53,6 +54,8 @@ class DB(object):
 			upgrade_version()
 
 	def get_conn(self):
+		if self.trans_conn:
+			return self.trans_conn
 		return sqlite3.connect(self.db_path)
 
 	def version_1(self):
@@ -79,13 +82,22 @@ class DB(object):
 
 		conn.commit()
 
+	def version_2(self):
+		conn = self.get_conn()
+		c = conn.cursor()
+
+		c.execute('create index files_filename on files (filename)')
+		c.execute("""update settings set value=? where key='version'""", (2,))
+		
+		conn.commit()
+
 	def add_skipped(self, filename):
 		conn = self.get_conn()
 		conn.execute('insert into files_skipped values(?)', (filename,))
 		conn.commit()
 
 	def is_file_uploaded(self, filename):
-		c = self.get_conn().cursor()
+		c = self.get_conn()
 		return c.execute(
 					'''select filename from files where 
 							filename=? and uploaded=? union
@@ -172,7 +184,16 @@ class DB(object):
 		else:
 			conn.execute('''insert into files (filename, puid, uploaded) values
 							(?, ?, ?)''', (filename, puid, 1))
-		conn.commit()
+
+		if not self.trans_conn:
+			conn.commit()
+
+	def start_trans(self):
+		self.trans_conn = self.get_conn()
+
+	def end_trans(self):
+		self.trans_conn.commit()
+		self.trans_conn = None
 
 db = DB(get_db_path())
 

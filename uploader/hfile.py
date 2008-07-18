@@ -94,5 +94,5 @@ class HFile(object):
 	
 	def set_uploaded(self, value):
 		if value:
-			db.set_uploaded(self.name, self.puid)
+			db.set_uploaded(self.name, self._puid)
 	uploaded = property(get_uploaded, set_uploaded)

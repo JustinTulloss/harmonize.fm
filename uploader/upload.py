@@ -200,14 +200,20 @@ def upload_files(song_list, guimgr):
 			continue
 
 		responses = r_tag_upload(mass_upload)
+
+		auto_uploaded = 0
+		db.start_trans()
+
 		for response in responses:
 			hfile = new_hfiles.pop(0)
 			if response == 'done':
 				hfile.uploaded = True
-				guimgr.file_auto_uploaded()
+				auto_uploaded += 1
 				continue
 			puid_list.append(hfile)
-		time.sleep(.5)
+
+		db.end_trans()
+		guimgr.file_auto_uploaded(auto_uploaded)
 			
 	upload_list = [] #a list of hfiles
 	for hfile in puid_list:

@@ -68,8 +68,8 @@ class GuiManager(object):
 		self.skipped += 1
 		self.gui.set_skipped(self.skipped)
 
-	def file_auto_uploaded(self):
-		self.uploaded += 1
+	def file_auto_uploaded(self, amount=1):
+		self.uploaded += amount
 		self.gui.set_uploaded(self.uploaded)
 
 	def file_queued(self):
