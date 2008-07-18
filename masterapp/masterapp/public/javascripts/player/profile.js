@@ -84,17 +84,26 @@ var profile_handler;
 			    var button = target.child('.send-spot-comment');
 			    if (!button.managed) {
     				button.managed = true;
+					var button_enabled = true;
 				    button.on('click', function(e) {
     					e.preventDefault();
-					    var textarea = target.child('.spot-comment-textarea');
-					    Ext.Ajax.request({
-    						url: '/people/add_spotcomment/'+spot_id,
-						    params: {comment: textarea.dom.value},
-						    success: function() {
-    							show_status_msg('Comment added!');
-							    urlm.invalidate_page();
-						    }
-					    });
+						if (button_enabled) {
+							button_enabled = false;
+							var textarea = 
+								target.child('.spot-comment-textarea');
+							Ext.Ajax.request({
+								url: '/people/add_spotcomment/'+spot_id,
+								params: {comment: textarea.dom.value},
+								success: function() {
+									show_status_msg('Comment added!');
+									urlm.invalidate_page();
+								},
+								failure: function() {
+									show_status_msg('Error adding comment');
+									button_enabled = true;
+								}
+							});
+						}
 				    });
 			    }
 		    }
