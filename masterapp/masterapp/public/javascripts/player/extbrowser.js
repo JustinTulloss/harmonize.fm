@@ -151,7 +151,7 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         var url = Hfm.breadcrumb.build_url(Hfm.breadcrumb.current_view());
         url += '=' + row.get(myinfo.qryindex)+ '/' + this.config.nexttype;
         Hfm.urlm.goto_url(url);
-    },
+    }
 });
 
 Hfm.browser.SongGrid = Ext.extend(Hfm.browser.BaseGrid, {

@@ -175,7 +175,7 @@ function Player() {
 		}
         //set the params for the songurl and set_now_playing (which is done at the same time):
         req_params = {
-            pid: song.get('Song_id'),
+            pid: song.get('Song_id')
         };
         if (song.get('source')) // this handles everything but the radio source
             req_params['source'] = song.get('source');
