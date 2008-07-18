@@ -154,9 +154,10 @@ class MetadataController(BaseController):
         elif request.params.has_key('nonapp') and request.params.get('nonapp') == 'true':
             data = []
             friendfbids = [friend.fbid for friend in user.friends]
+            
             for friend in user.allfriends:
                 # check to see if the user is part of the database yet
-                if not friend in friendfbids:
+                if not friend['uid'] in friendfbids:
                     data.append(friend)
         else:
             data = []

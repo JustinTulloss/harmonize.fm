@@ -1,6 +1,7 @@
 from masterapp.lib.base import request
 from masterapp.model import Session, User
 from pylons import session, g
+from pylons.controllers.util import abort
 from decimal import Decimal
 
 def build_json(results):
@@ -24,6 +25,8 @@ def get_user():
     else:
         # TODO: Make sure they're friends
         user = Session.query(User).get(friendid)
+        if not user:
+            abort(400)
     return user
 
 def get_session_user():
