@@ -1,11 +1,15 @@
 <%inherit file="pagebase.mako.html" />
+<%def name="head_tags()">
+    ${parent.head_tags()}
+    <script type='text/javascript' src='/javascripts/lib/swfobject.js'></script>
+</%def>
 <div class='title'>Demo</div>
-<center>
-<object width="425" height="350"> 
-    <param name="movie" value="http://www.youtube.com/v/YPhGPQL6jBg"> 
-    </param> 
-    <embed src="http://www.youtube.com/v/YPhGPQL6jBg" 
-    type="application/x-shockwave-flash" width="425" height="350"> 
-    </embed> 
-</object>
-</center>
+<div id='demobox'>Demo should appear here shortly...</div>
+
+<script type='text/javascript'>
+    var s1 = new SWFObject('/flash/mediaplayer.swf','demoplayer','600','358','9');
+    s1.addParam('allowfullscreen','true');
+    s1.addParam('allowscriptaccess','always');
+    s1.addParam('flashvars','&file=/media/harmonize_demo.mp4&fullscreen=false');
+    s1.write('demobox');
+</script>
