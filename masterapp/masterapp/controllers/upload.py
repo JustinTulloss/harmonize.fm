@@ -26,7 +26,7 @@ from masterapp import model
 from sqlalchemy.sql import and_
 import thread
 from mailer import mail
-from masterapp.lib.fbaccess import fbaccess
+from masterapp.lib.fbaccess import fbaccess_noredirect
 
 log = logging.getLogger(__name__)
 
@@ -115,11 +115,11 @@ class UploadController(BaseController):
         if session_key == None:
             return None
         
-        @fbaccess
+        @fbaccess_noredirect
         def get_fbid():
             facebook.session_key = session_key
             fbid = facebook.users.getLoggedInUser()
-            return str(fbid)
+            return fbid
 
         sessionc = cache.get_cache('upload.sessions')
         return sessionc.get(session_key,
@@ -166,13 +166,20 @@ class UploadController(BaseController):
     def file(self, id):
         """POST /upload/file/id: This one uploads new songs for realsies"""
         # first get session key
-        fbid = self._get_fbid(request)
-        if fbid == None:
+        try:
+            fbid = self._get_fbid(request)
+            if fbid == None:
+                return Response.reauthenticate
+        except Exception, e:
             try:
                 self.read_postdata()
             except self.PostException:
                 pass
-            return Response.reauthenticate
+
+            if hasattr(e, 'code') and e.code == 102:
+                return Response.reauthenticate
+            else:
+                return Response.retry
 
         if config['app_conf']['check_df'] == 'true' and \
                 df.check(config['app_conf']['upload_dir']) > 85:
@@ -216,9 +223,15 @@ class UploadController(BaseController):
         return Response.done
         
     def tags(self):
-        fbid = self._get_fbid(request)
-        if not fbid:
-            return Response.reauthenticate
+        try:
+            fbid = self._get_fbid(request)
+            if fbid == None:
+                return Response.reauthenticate
+        except Exception, e:
+            if hasattr(e, 'code') and e.code == 102:
+                return Response.reauthenticate
+            else:
+                return Response.retry
         user = self._get_user(fbid)
 
         # Check for api version
@@ -254,14 +267,13 @@ class UploadController(BaseController):
 
         return simplejson.dumps(response_list)
             
-    @fbaccess
+    @fbaccess_noredirect
     def desktop_redirect(self):
-        fb = facebook
-        if fb.check_session(request):
+        if facebook.check_session(request):
             url = 'http://localhost:26504/complete_login?session_key='+ \
-                fb.session_key
+                facebook.session_key
         else:
-            url = 'http://localhost:26504/login_error.html'
+            abort(404)
         #session_key returns unicode, have to convert back to string
         redirect_to(str(url)) 
 
