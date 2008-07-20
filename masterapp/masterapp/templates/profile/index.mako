@@ -109,7 +109,9 @@ ${rightcol.render()}
         </h3>
         <div class="profile-artist">
             by ${spotlight.author}
-            <span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
+			% if spotlight.timestamp:
+				<span class="spotlight_timestamp">(${spotlight.timestamp.strftime("%b %d")})</span>
+			% endif
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="${edit_class}" href="${c.current_url}">edit</a>

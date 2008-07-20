@@ -152,6 +152,27 @@ class Spotlight(object):
             return self.user.name
     author = property(get_author)
 
+    def get_type(self):
+        if self.albumid:
+            return 'album'
+        else:
+            return 'playlist'
+    type = property(get_type)
+
+    def get_typeid(self):
+        if self.albumid:
+            return self.albumid
+        else:
+            return self.playlistid
+    typeid = property(get_typeid)
+
+    def get_smallart(self):
+        if self.albumid:
+            return self.album.smallart
+        else:
+            return None
+    smallart = property(get_smallart)
+
     def unactivate_lru(self, uid):
         if Session.query(func.count(Spotlight.id)).filter(sql.and_(
                 Spotlight.uid==uid, Spotlight.active==True)).one()[0] > 3:
@@ -233,6 +254,42 @@ class Recommendation(object):
         else:
             return query.one()[0]
     recommendeeid = property(get_recommendeeid)
+
+    def get_type(self):
+        if self.albumid != None:
+            return 'album'
+        elif self.playlistid != None:
+            return 'playlist'
+        else:
+            return 'song'
+    type = property(get_type)
+
+    def get_typeid(self):
+        if self.albumid != None:
+            return self.albumid
+        elif self.playlistid != None:
+            return self.playlistid
+        else:
+            return self.songid
+    typeid = property(get_typeid)
+
+    def get_author(self):
+        if self.albumid != None:
+            return self.album.artist.name
+        elif self.playlistid != None:
+            return self.playlist.owner.name
+        else:
+            return self.song.artist.name
+    author = property(get_author)
+
+    def get_title(self):
+        if self.albumid != None:
+            return self.album.title
+        elif self.playlistid != None:
+            return self.playlist.name
+        else:
+            return self.song.title
+    title = property(get_title)
 
 """
 The mappers. This is where the cool stuff happens, like adding fields to the

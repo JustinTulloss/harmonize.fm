@@ -6,131 +6,139 @@
 %>
 
 <%def name="feed_separator(entry_date)">
-    <div class="feed-separator">
+    <tr><td colspan="4"><div class="feed-separator">
         % if (date.today() - entry_date).days == 1:
             Yesterday
         % else:
             ${entry_date.strftime('%B %d')}
         % endif
-    </div>
+    </div></td></tr>
 </%def>
 
 <%def name="render(entries)">
 
     <%def name="blog_feed(entry)">
-        <div class="feed_content">
-            <h2><a href="#/player/blog/${entry.id}">
-                ${entry.author} wrote a post titled "${entry.title}"</a></h2>
-            <div class="blog_feed_comment">
-                ${quote_comment(entry.entry, 60)}</div>
-        </div>
+		<td class="icon">
+			<img src="/images/post.png" />
+		</td>
+		<td class="desc">
+            <div class="title">${entry.author} wrote a new
+				<a href="#/player/blog/${entry.id}">post:</a>
+			</div>
+			<div>${entry.title}</div>
+        </td>
+		<td class="comment">${quote_comment(entry.entry, 60)}</td>
+		<td></td>
     </%def>
 
     <%def name="spotlight_feed(entry)">
-        % if entry.album != None:
-            <img src="/images/enqueue.png" onclick="enqueue_album(${entry.album.id}, ${entry.uid});" />
-            <div class="feed_content">
-                <h2><a href="#/people/profile/${entry.user.id}">
-                    ${entry.user.firstname} 
-                    added a Spotlight on ${entry.album.title}</a></h2>
-                <table class="spotlight_feed_info"><tr>
-                    <!--td><img src="/images/enqueue.png" /></td-->
-                    <td>${h.p_image_tag(entry.album.smallart)}</td>
-                    <td class="spotlight_feed_comment">
-                    ${quote_comment(entry.comment, 175)}
-                    </td>
-                </tr></table>
-            </div>
-        % elif entry.playlist != None:
-            <img src="/images/enqueue.png" onclick="enqueue_playlist(${entry.playlist.id}, ${entry.uid});" />
-            <div class="feed_content">
-                <h2><a href="#/people/profile/${entry.user.id}">
-                    ${entry.user.get_firstname()} 
-                    added a Spotlight on a playlist: ${entry.playlist.name}</a></h2>
-                <table class="spotlight_feed_info"><tr>
-                    <td class="spotlight_feed_comment">
-                    ${quote_comment(entry.comment, 175)}
-                    </td>
-                </tr></table>
-            </div>
-        % endif
+		<td class="icon">
+		<img src="/images/spotlight.png" />
+		<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.uid}">
+			<img src="/images/enqueue.png" />
+		</a>
+		</td><td class="desc">
+			<div class="title">
+			<a href="#/people/profile/${entry.user.id}">
+				${entry.user.name}</a>
+				added a 
+				<a href="#/people/profile/${entry.user.id}">Spotlight:</a>
+			</div>
+			<div class="album">${entry.title}</div>
+			<div class="artist">by ${entry.author}</div>
+		</td><td class="comment">
+			${quote_comment(entry.comment, 175)}
+		</td><td class="art">
+		${h.p_image_tag(entry.smallart)}</td>
+		</td>
     </%def>
 
     <%def name="comment_feed(entry)">
-        <div class="feed_content">
-            <h2>
-            <a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
-                ${entry.user.get_firstname()} commented on 
-            % if entry.spotlight.uid == c.user.id:
-                your
-            % elif entry.uid == entry.spotlight.uid:
-                % if entry.spotlight.user.sex == 'female':
-                    her
-                % else:
-                    his
-                % endif
-            % else:
-                ${entry.spotlight.user.get_firstname()}'s 
-            % endif
-                % if entry.spotlight.album:
-                    Spotlight of ${entry.spotlight.album.title}
-                % elif entry.spotlight.playlist:
-                    Spotlight of ${entry.spotlight.playlist.name}
-                % endif
-            </a></h2>
-            <div class="blog_feed_comment">
+		<td class="icon"><img src="/images/bubble.png" /></td>
+        <td class="desc">
+			<div class="title">
+				<a href="#/people/profile/${entry.user.id}">
+					${entry.user.name}
+				</a>
+				<a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
+					commented
+				</a>
+				on 
+				% if entry.spotlight.uid == c.user.id:
+					your
+				% elif entry.spotlight.uid == entry.uid:
+					% if entry.spotlight.user.sex == 'female':
+						her
+					% else:
+						his
+					% endif
+				% else:
+					<a href="#/people/profile/${entry.spotlight.user.id}">
+						${entry.spotlight.user.name}'
+					% if not entry.spotlight.user.name.endswith('s'):
+						s
+					% endif
+					</a>
+				% endif
+				Spotlight:
+			</div>
+			<div>${entry.spotlight.title}</div>
+			<div>by ${entry.spotlight.author}</div>
+		</td>
+		<td class="comment">
                 ${quote_comment(entry.comment, 75)}
-            </div>
-        </div>
-    </%def>
-
-    <%def name="make_rec_enqueue(type, id)">
-        <a href="#/action/enqueue/${type}/${id}">
-            <img src="/images/enqueue.png" />
-        </a>
+		</td>
+		<td></td>
     </%def>
 
     <%def name="rec_feed(entry)">
-        % if entry.albumid != None:
-            ${make_rec_enqueue('album', entry.albumid)}
-        % elif entry.songid != None:
-            ${make_rec_enqueue('song', entry.songid)}
-        % else:
-            ${make_rec_enqueue('playlist', entry.playlistid)}
-        % endif
-        <div class="feed_content">
-            <h2>
-            <a href="#/people/profile/${entry.recommendeeid}">
-                ${entry.recommender.name} recommended the
-                % if entry.albumid != None:
-                    album ${entry.album.title}
-                % elif entry.songid != None:
-                    song ${entry.song.title}
-                % else:
-                    playlist ${entry.playlist.name}
-                % endif
-                to you
-            </a></h2>
+		<td class="icon">
+			<img src="/images/recommend.png" />
+			<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.recommenderid}">
+				<img src="/images/enqueue.png" />
+			</a>
+		</td><td class="desc">
+			<div class="title">
+				<a href="#/people/profile/${entry.recommenderid}">
+					${entry.recommender.name}
+				</a> 
+				recommended you
+				% if entry.albumid != None:
+					an
+				% else:
+					a
+				% endif
+				<a href="#people/profile/${entry.recommendeeid}">
+					${entry.type}:
+				</a>
+			</div>
+			<div class="album">${entry.title}</div>
+			<div class="artist">by ${entry.author}</div>
+		</td><td class="comment">
             % if entry.comment:
                 <div class="blog_feed_content">${entry.comment}</div>
             % endif
-        </div>
+			</td><td>
+			</td>
     </%def>
 
     <%
     max_quote_len = 175
     %>
     <%def name="quote_comment(comment, max_len)">
-    %   if len(comment) < max_len:
-            ${comment}
-    %   else:
-            ${comment[:max_len]}...
-    %   endif
+	% if comment:
+		% if len(comment) < max_len:
+			${comment}
+		% else:
+			${comment[:max_len]}...
+		% endif
+	% endif
     </%def>
 
     <div id="news_feed">
 
-        <div><div id="news-header" class="h-title">music feed</div></div>
+        <div id="news-header" class="h-title">music feed</div>
+		<table>
     <%
         type_table = {
             BlogEntry : blog_feed,
@@ -150,9 +158,10 @@
                 % endif
             % endif
 
-            <div class="feed_entry">
+			<tr>
             ${type_table[type(entry)](entry)}
-            </div>
+			</tr>
     %   endfor
+	</table>
     </div>
 </%def>
