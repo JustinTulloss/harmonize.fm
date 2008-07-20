@@ -231,7 +231,7 @@ table {
 }
 
 #news_feed .desc {
-	padding-right: 14px;
+	padding-right: 5px;
 	color: #777;
 	width: 40%;
 }

@@ -23,9 +23,9 @@
 		</td>
 		<td class="desc">
             <div class="title">${entry.author} wrote a new
-				<a href="#/player/blog/${entry.id}">post:</a>
+				<a href="#/player/blog/${entry.id}">post</a>
 			</div>
-			<div>${entry.title}</div>
+			<div>"${entry.title}"</div>
         </td>
 		<td class="comment">${quote_comment(entry.entry, 60)}</td>
 		<td></td>
@@ -42,7 +42,7 @@
 			<a href="#/people/profile/${entry.user.id}">
 				${entry.user.name}</a>
 				added a 
-				<a href="#/people/profile/${entry.user.id}">Spotlight:</a>
+				<a href="#/people/profile/${entry.user.id}">Spotlight</a>
 			</div>
 			<div class="album">${entry.title}</div>
 			<div class="artist">by ${entry.author}</div>
