@@ -1,7 +1,7 @@
 <%def name="render(entries)">
 	<%def name="format_entry(entry)">
 		<div class="blogentry">
-			<div class="h-title"> ${entry.title} </div>
+			<div class="h-subtitle"> ${entry.title} </div>
 			<span class="blogbyline">by<span class="blogauthor"> ${entry.author} </span>
 	%	if entry.timestamp:
 			on ${entry.timestamp.strftime('%b %d')}
@@ -12,7 +12,7 @@
 	</%def>
 
     <div id="blog">
-        <div class='h-subtitle'>News</div>
+        <div class='h-title'>News</div>
         % for entry in entries:
             ${format_entry(entry)}
         % endfor

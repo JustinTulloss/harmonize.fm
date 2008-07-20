@@ -9,8 +9,12 @@ from masterapp.model import Session, User
         % endfor
 
         <div class="profile-sp-comment h-light-form">
+		<table><tr><td style="width:100%;">
         <textarea class="spot-comment-textarea"></textarea>
         <div class="profile-right"><button class="send-spot-comment">post</button></div>
+		</td><td>
+		<div class="profile-albumart fake-albumart"></div>
+		</td></tr></table>
         </div>
     </div>
 </%def>

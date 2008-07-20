@@ -6,36 +6,34 @@
 ${rightcol.render()}
 <div id="profile-body">
     <% own_profile = c.current_user.id == c.user.id %>
-    <div class="profile-status">
+    <div class="profile-status home-group">
+		<div class="profile-links">
+			% if own_profile or c.current_user.premium:
+			<div id="friend_music_menu_link">
+				<a href="#/action/browse_friend/${c.user.id}">
+					browse 
+					% if own_profile:
+						your
+					% else:
+						${c.user.firstname}'s 
+					% endif
+					music
+				</a>
+			</div>
+			% endif
+			<div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
+			</a>
+		</div>
         <span class="profile-name">${c.user.name}</span>
         % if c.user.nowplaying:
-            <span class="profile-nowplaying">
+            <div class="profile-nowplaying">
                 is listening to ${c.user.nowplaying.title}, by
                 ${c.user.nowplaying.artist.name}
-            </span>
+            </div>
         % endif
     </div>
-    <div class="profile-links">
-        <!--
-        <div><a href="#/people/recommend">recommend a song to ${c.user.firstname}</a></div>
-        -->
-        % if own_profile or c.current_user.premium:
-        <div id="friend_music_menu_link">
-            <a href="#/action/browse_friend/${c.user.id}">
-                browse 
-                % if own_profile:
-                    your
-                % else:
-                    ${c.user.firstname}'s 
-                % endif
-                music
-            </a>
-        </div>
-        % endif
-        <div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
-        </a>
-    </div>
-    <div class="profile-subtitle h-subtitle">Spotlights</div>
+	<div class="home-group">
+    <div class="profile-subtitle h-title">Spotlights</div>
     <% spotlights = c.user.get_active_spotlights() %>
     % if spotlights.count() == 0:
         <div>
@@ -57,8 +55,9 @@ ${rightcol.render()}
     % for spotlight in spotlights:
         ${build_spotlight(spotlight, own_profile)}
     % endfor
+	</div>
     % if own_profile:
-        <div class="profile-subtitle h-subtitle">Recommendations</div>
+        <div class="profile-subtitle h-title">Recommendations</div>
         <% recs = c.user.recommendations %>
         % if recs.count() == 0:
             <div>You haven't received any recommendations yet.</div>

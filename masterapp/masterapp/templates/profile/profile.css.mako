@@ -10,6 +10,7 @@
 .profile-status {
     color: ${c.profile.dark_txt};
     border-bottom: 1px solid ${c.profile.profile_border};
+	padding-left: 25px
 }
 
 .profile-links {
@@ -18,6 +19,7 @@
 
 .profile-links div {
 	text-align: right;
+	padding-top: 3px;
 }
 
 #profile-body a {
@@ -29,14 +31,13 @@
 }
 
 #profile-body {
-    padding: 10px;
-	padding-left: 0px;
+    padding: 10px 14px 10px 0;
 	overflow: hidden;
 }
 
 #profile-body > div {
 	margin-left: 25px;
-	padding-left: 5px;
+	/*padding-left: 5px;*/
 }
 
 #profile-body h3 {
@@ -44,6 +45,7 @@
 	padding:  0;
 	font-weight: normal;
 	font-size: 14px;
+	color: ${c.profile.dark_txt};
 }
 
 #profile-body h3 a {
@@ -56,7 +58,7 @@
 }
 
 #profile-right {
-    padding: 10px;
+    padding: 10px 14px;
     margin-top: 10px;
     margin-bottom: 10px;
     border-left: 1px solid ${c.profile.profile_border};
@@ -65,24 +67,27 @@
 	background-color: white;
 }
 
-#profile-body > .profile-group {
+#profile-body .profile-group {
 	padding-left: 2px;
     clear: right;
     padding-top: 5px;
-	margin-left: 5px;
+	/*margin-left: 5px;*/
 }
 
 .profile-group > div {
     margin-left: 25px;
 }
 
+.profile-group > .home-group {
+	margin-left: 0;
+}
+
 .profile-group > .h-title {
     margin-left: 0;
 }
 
-.profile-albumart {
+div.profile-albumart {
     float: right;
-	margin-left: 3px;
 }
 
 .profile-artist {
@@ -166,4 +171,14 @@
 
 .h-title img {
 	vertical-align: text-bottom;
+}
+
+.profile-pic {
+	margin-bottom: 10px;
+}
+
+.fake-albumart {
+	height: 78px;
+	width: 80px;
+	margin-left: 25px
 }

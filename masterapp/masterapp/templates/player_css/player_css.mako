@@ -89,6 +89,7 @@ table#home td {
 	border-bottom: solid 1px ${c.profile.profile_border};
 	margin-bottom: 20px;
 	padding-bottom: 20px;
+	overflow: hidden;
 }
 
 .blogentry {
@@ -96,13 +97,11 @@ table#home td {
 }
 
 .blogbyline{
-    margin-left: 10px;
     color: ${c.profile.profile_links};
 }
 
 .blogcontent {
     padding-top: 5px;
-    margin-left: 10px;
     width: 80%;
 }
 

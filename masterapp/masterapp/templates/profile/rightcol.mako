@@ -1,10 +1,13 @@
 <%def name="render()">
 	<div id="profile-right">
 		<div class="profile-pic"><center><img src="${c.user.bigpicture}" /></center></div>
-		<div class="profile-subtitle h-subtitle">Musical Tastes</div>
-		<div class="profile-right-content">${c.user.musictastes}</div>
-		<div class="profile-subtitle h-subtitle">Top Artists</div>
-		${build_top_artists()}
+		<div class="home-group">
+			<div class="profile-subtitle h-title">Musical Tastes</div>
+			<div class="profile-right-content">${c.user.musictastes}</div>
+		</div>
+		<div class="home-group">
+			<div class="profile-subtitle h-title">Top Artists</div>
+			${build_top_artists()}
 		</div>
 	</div>
 </%def>
