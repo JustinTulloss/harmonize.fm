@@ -63,7 +63,7 @@
 				<a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
 					commented
 				</a>
-				on Spotlight of ${entry.spotlight.title}
+				on ${entry.spotlight.title}
 			</div>
 		</td>
 		<td class="comment">
