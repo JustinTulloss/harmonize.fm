@@ -35,7 +35,7 @@
 		<td class="icon">
 		<img src="/images/spotlight.png" />
 		<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.uid}">
-			<img src="/images/enqueue.png" />
+			<img title="Enqueue" src="/images/enqueue.png" />
 		</a>
 		</td><td class="desc">
 			<div class="title">
@@ -63,27 +63,8 @@
 				<a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
 					commented
 				</a>
-				on 
-				% if entry.spotlight.uid == c.user.id:
-					your
-				% elif entry.spotlight.uid == entry.uid:
-					% if entry.spotlight.user.sex == 'female':
-						her
-					% else:
-						his
-					% endif
-				% else:
-					<a href="#/people/profile/${entry.spotlight.user.id}">
-						${entry.spotlight.user.name}'
-					% if not entry.spotlight.user.name.endswith('s'):
-						s
-					% endif
-					</a>
-				% endif
-				Spotlight:
+				on Spotlight of ${entry.spotlight.title}
 			</div>
-			<div>${entry.spotlight.title}</div>
-			<div>by ${entry.spotlight.author}</div>
 		</td>
 		<td class="comment">
                 ${quote_comment(entry.comment, 75)}
@@ -95,7 +76,7 @@
 		<td class="icon">
 			<img src="/images/recommend.png" />
 			<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.recommenderid}">
-				<img src="/images/enqueue.png" />
+				<img title="Enqueue" src="/images/enqueue.png" />
 			</a>
 		</td><td class="desc">
 			<div class="title">
