@@ -18,34 +18,40 @@
 <%def name="render(entries)">
 
     <%def name="blog_feed(entry)">
-		<td class="icon">
-			<img src="/images/post.png" />
-		</td>
 		<td class="desc">
-            <div class="title">${entry.author} wrote a new
-				<a href="#/player/blog/${entry.id}">post</a>
-			</div>
-			<div>"${entry.title}"</div>
+			<table><tr><td>
+				<img src="/images/post.png" />
+			</td><td>
+				<div class="title">${entry.author} wrote a new
+					<a href="#/player/blog/${entry.id}">post</a>
+				</div>
+				<div>"${entry.title}"</div>
+			</td></tr></table>
         </td>
 		<td class="comment">${quote_comment(entry.entry, 60)}</td>
 		<td></td>
     </%def>
 
     <%def name="spotlight_feed(entry)">
-		<td class="icon">
-		<img src="/images/spotlight.png" />
-		<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.uid}">
-			<img title="Enqueue" src="/images/enqueue.png" />
-		</a>
-		</td><td class="desc">
-			<div class="title">
-			<a href="#/people/profile/${entry.user.id}">
-				${entry.user.name}</a>
-				added a 
-				<a href="#/people/profile/${entry.user.id}">Spotlight</a>
-			</div>
-			<div class="album">${entry.title}</div>
-			<div class="artist">by ${entry.author}</div>
+		<td class="desc">
+			<table><tr><td>
+				<img src="/images/spotlight.png" />
+			</td><td>
+				<div class="title">
+				<a href="#/people/profile/${entry.user.id}">
+					${entry.user.name}</a>
+					added a 
+					<a href="#/people/profile/${entry.user.id}">Spotlight</a>
+				</div>
+			</td></tr>
+			<tr><td>
+				<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.uid}">
+					<img title="Enqueue" src="/images/enqueue.png" />
+				</a>
+			</td><td>
+				<div class="album">${entry.title}</div>
+				<div class="artist">by ${entry.author}</div>
+			</td></tr></table>
 		</td><td class="comment">
 			${quote_comment(entry.comment, 175)}
 		</td><td class="art">
@@ -54,17 +60,20 @@
     </%def>
 
     <%def name="comment_feed(entry)">
-		<td class="icon"><img src="/images/bubble.png" /></td>
         <td class="desc">
-			<div class="title">
-				<a href="#/people/profile/${entry.user.id}">
-					${entry.user.name}
-				</a>
-				<a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
-					commented
-				</a>
-				on ${entry.spotlight.title}
-			</div>
+			<table><tr><td>
+				<img src="/images/bubble.png" />
+			</td><td>
+				<div class="title">
+					<a href="#/people/profile/${entry.user.id}">
+						${entry.user.name}
+					</a>
+					<a href="#/people/profile/${entry.spotlight.uid}/spcomments/${entry.spotlight.id}">
+						commented
+					</a>
+					on ${entry.spotlight.title}
+				</div>
+			</td></tr></table>
 		</td>
 		<td class="comment">
                 ${quote_comment(entry.comment, 75)}
@@ -73,34 +82,38 @@
     </%def>
 
     <%def name="rec_feed(entry)">
-		<td class="icon">
-			<img src="/images/recommend.png" />
-			<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.recommenderid}">
-				<img title="Enqueue" src="/images/enqueue.png" />
-			</a>
-		</td><td class="desc">
-			<div class="title">
-				<a href="#/people/profile/${entry.recommenderid}">
-					${entry.recommender.name}
-				</a> 
-				recommended you
-				% if entry.albumid != None:
-					an
-				% else:
-					a
-				% endif
-				<a href="#people/profile/${entry.recommendeeid}">
-					${entry.type}:
+		<td class="desc">
+			<table><tr><td>
+				<img src="/images/recommend.png" />
+			</td><td>
+				<div class="title">
+					<a href="#/people/profile/${entry.recommenderid}">
+						${entry.recommender.name}
+					</a> 
+					recommended you
+					% if entry.albumid != None:
+						an
+					% else:
+						a
+					% endif
+					<a href="#people/profile/${entry.recommendeeid}">
+						${entry.type}:
+					</a>
+				</div>
+			</td></tr><tr><td>
+				<a href="#/action/enqueue/${entry.type}/${entry.typeid}&Friend_id=${entry.recommenderid}">
+					<img title="Enqueue" src="/images/enqueue.png" />
 				</a>
-			</div>
-			<div class="album">${entry.title}</div>
-			<div class="artist">by ${entry.author}</div>
+			</td><td>
+				<div class="album">${entry.title}</div>
+				<div class="artist">by ${entry.author}</div>
+			</td></tr></table>
 		</td><td class="comment">
             % if entry.comment:
                 <div class="blog_feed_content">${entry.comment}</div>
             % endif
 			</td><td>
-			</td>
+		</td>
     </%def>
 
     <%

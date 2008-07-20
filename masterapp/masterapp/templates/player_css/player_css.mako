@@ -219,24 +219,25 @@ table {
 	text-decoration: underline;
 }
 
-#news_feed .icon {
-	width: 20px;
-	padding-left: 3px;
-	padding-right: 14px;
-}
-
-#news_feed .icon img {
-	display: block;
-	padding-bottom: 3px;
-}
-
 #news_feed .desc {
-	padding-right: 5px;
+	padding-right: 10px;
 	color: #777;
-	width: 40%;
+	width: 50%;
 }
 
-#news_feed .desc > .title {
+#news_feed .desc table td {
+	padding-bottom: 0px;
+}
+
+#news_feed .desc table {
+	padding-left: 3px;
+}
+
+#news_feed .desc img {
+	margin-right: 14px;
+}
+
+#news_feed .desc .title {
 	margin-bottom: 3px;
 }
 
