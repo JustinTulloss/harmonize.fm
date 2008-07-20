@@ -145,7 +145,9 @@ ${rightcol.render()}
     <%
         asin = c.l_get_asin(album.id,'album')
     %>
-    <a href="http://www.amazon.com/gp/product/${asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=${asin}" target="_blank">${caller.body()}</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a=B000002ML7" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+    % if asin != "0":
+        <a href="http://www.amazon.com/gp/product/${asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=${asin}" target="_blank">${caller.body()}</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a=B000002ML7" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
+    % endif
 </%def>
 
 <%def name="build_title(action)">
