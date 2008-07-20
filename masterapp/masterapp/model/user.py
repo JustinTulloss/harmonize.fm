@@ -568,13 +568,7 @@ class User(Base):
 
     @fbaccess
     def publish_spotlight(self, spot):
-        title_t = """
-        {actor} created 
-        <fb:if-multiple-actors>Spotlights
-        <fb:else>a Spotlight</fb:else>
-        </fb:if-multiple-actors> on {album} at 
-        <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>
-        """
+        title_t = '{actor} created <fb:if-multiple-actors>Spotlights <fb:else>a Spotlight </fb:else></fb:if-multiple-actors>on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
         title_d = '{"album":"%s"}' % spot.title
         r = facebook.feed.publishTemplatizedAction(
             title_template=title_t, 
