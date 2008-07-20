@@ -31,7 +31,7 @@
 }
 
 #profile-body {
-    padding: 10px 14px 10px 0;
+    padding: 20px 14px 20px 0;
 	overflow: hidden;
 }
 
