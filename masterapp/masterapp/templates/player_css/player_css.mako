@@ -52,7 +52,6 @@ ul {
 }
 
 #home {
-	padding-top: 10px;
 	width: 100%;
 }
 
@@ -87,7 +86,6 @@ table#home td {
 
 .home-group {
 	border-bottom: solid 1px ${c.profile.profile_border};
-	margin-bottom: 20px;
 	padding-bottom: 20px;
 	overflow: hidden;
 }
