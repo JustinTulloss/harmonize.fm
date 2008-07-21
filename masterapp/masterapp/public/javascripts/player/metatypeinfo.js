@@ -19,7 +19,9 @@ Hfm.typeinfo = {
         gridclass: Hfm.browser.ArtistGrid,
         emptyText: 'There aren\'t any artists here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        actions: ['enqueue_row', 'playnow'],
+		actions: [],
+        premiumactions: ['enqueue_row', 'playnow'],
+		freeactions: [],
         ownactions: ['delrow']
     }, 
     album:{
@@ -31,8 +33,10 @@ Hfm.typeinfo = {
         gridclass: Hfm.browser.AlbumGrid,
         emptyText: 'There aren\'t any albums here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        actions: ['enqueue_row', 'playnow'],
-        ownactions: ['friendrec', 'spotlight', 'delrow']
+		actions: [],
+        premiumactions: ['enqueue_row', 'playnow'],
+		freeactions: ['buy'],
+        ownactions: ['spotlight', 'friendrec', 'delrow']
     }, 
     playlist:{
         lblindex: 'Playlist_name',
@@ -43,7 +47,9 @@ Hfm.typeinfo = {
 		nodeclass: PlaylistQueueNode,
 		emptyText: 'There aren\'t any playlists here!<br>'+
             'Create one by clicking "create playlist" in the bottom left corner.',
-        actions: ['enqueue_row', 'playnow'],
+        actions: [],
+        premiumactions: ['enqueue_row', 'playnow'],
+		freeactions: [],
         ownactions: ['spotlight', 'friendrec', 'delrow'],
         remove: function(record) {playlistmgr.delete_playlist(record)}
     },
@@ -56,7 +62,9 @@ Hfm.typeinfo = {
         gridclass: Hfm.browser.SongGrid,
         emptyText: 'There isn\'t any music here!<br>'+
             'Upload some, or why not listen to your friends\' music?',
-        actions: ['enqueue_row', 'playnow'],
+        actions: [],
+        premiumactions: ['enqueue_row', 'playnow'],
+		freeactions: ['buy'],
         ownactions: ['friendrec', 'delrow']
     },
     nowplayingsong:{

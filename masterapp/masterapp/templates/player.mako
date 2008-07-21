@@ -31,6 +31,12 @@
             fburl: '${c.fburl}',
             fblogin_url: '${c.fblogin_url}',
 			uid: ${c.user.id},
+            premium:
+            % if c.user.premium:
+                true,
+            % else:
+                false,
+            % endif
             fbid: ${c.user.fbid}
             % if c.user.lastvolume:
             ,volume: ${c.user.lastvolume}

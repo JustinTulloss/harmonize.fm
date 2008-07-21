@@ -11,7 +11,6 @@ ${rightcol.render()}
 	%>
     <div class="profile-status home-group">
 		<div class="profile-links">
-			% if own_profile or c.current_user.premium:
 			<div id="friend_music_menu_link">
 				<a href="#/action/browse_friend/${c.user.id}">
 					browse 
@@ -23,7 +22,6 @@ ${rightcol.render()}
 					music
 				</a>
 			</div>
-			% endif
 			<div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
 			</a>
 		</div>
