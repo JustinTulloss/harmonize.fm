@@ -182,3 +182,8 @@ div.profile-albumart {
 	width: 80px;
 	margin-left: 25px
 }
+
+.fake-enqueue {
+	height: 15px;
+	width: 20px;
+}
