@@ -456,8 +456,8 @@ class User(Base):
         from masterapp.config.schema import dbfields
 
         query = Session.query(Playlist.ownerid.label('Friend_id'),
-						*dbfields['playlist']).\
-					filter(Playlist.ownerid == self.id)
+                        *dbfields['playlist']).\
+                    filter(Playlist.ownerid == self.id)
         return query
     playlist_query = property(get_playlist_query)
 
@@ -491,6 +491,12 @@ class User(Base):
                 Spotlight.uid==self.id, Spotlight.active==True)).\
                 order_by(sql.desc(Spotlight.timestamp))
     active_spotlights = property(get_active_spotlights)
+
+    def get_inactive_spotlights(self):
+        return Session.query(Spotlight).filter(sql.and_(
+                Spotlight.uid==self.id, Spotlight.active==False)).\
+                order_by(sql.desc(Spotlight.timestamp))
+    inactive_spotlights = property(get_inactive_spotlights)
         
     def get_playlist_by_id(self, id):
         qry = self.playlist_query

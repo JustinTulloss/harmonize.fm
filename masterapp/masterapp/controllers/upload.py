@@ -119,6 +119,8 @@ class UploadController(BaseController):
         def get_fbid():
             facebook.session_key = session_key
             fbid = facebook.users.getLoggedInUser()
+            if type(fbid) == int:
+                return str(fbid)
             return fbid
 
         sessionc = cache.get_cache('upload.sessions')
