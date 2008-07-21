@@ -52,6 +52,7 @@ ul {
 }
 
 #home {
+    margin: 10px 0 10px;
 	width: 100%;
 }
 

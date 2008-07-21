@@ -33,7 +33,7 @@ ${rightcol.render()}
         % endif
     </div>
 	<div class="home-group">
-    <div class="profile-subtitle h-title">Spotlights</div>
+    <div class="profile-subtitle h-title">spotlights</div>
     <% spotlights = c.user.get_active_spotlights() %>
     % if spotlights.count() == 0:
         <div>
@@ -57,7 +57,7 @@ ${rightcol.render()}
     % endfor
 	</div>
     % if own_profile:
-        <div class="profile-subtitle h-title">Recommendations</div>
+        <div class="profile-subtitle h-title">recommendations</div>
         <% recs = c.user.recommendations %>
         % if recs.count() == 0:
             <div>You haven't received any recommendations yet.</div>
