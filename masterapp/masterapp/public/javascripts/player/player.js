@@ -37,6 +37,14 @@ function Player() {
     });
     
     var amazon_link = new Ext.Template('<a href="http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}" target="_blank">Buy!</a><img src="http://www.assoc-amazon.com/e/ir?t=harmonizefm-20&l=as2&o=1&a={asin}" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />');
+
+	//This is not an ideal place to put this function but i wanted it near the 
+	//amazon link code
+	var amazon_url = new Ext.Template('http://www.amazon.com/gp/product/{asin}?ie=UTF8&tag=harmonizefm-20&linkCode=as2&camp=1789&creative=9325&creativeASIN={asin}');
+
+	Hfm.get_amazon_url = function(asin) {
+		return amazon_url.apply({asin: asin});
+	}
 	
     function init_seekbar() 
     {

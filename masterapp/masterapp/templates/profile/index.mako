@@ -5,10 +5,12 @@
 
 ${rightcol.render()}
 <div id="profile-body">
-    <% own_profile = c.current_user.id == c.user.id %>
+    <% 
+		own_profile = c.current_user.id == c.user.id
+	 	old_spotlights_active = own_profile or c.current_user.premium
+	%>
     <div class="profile-status home-group">
 		<div class="profile-links">
-			% if own_profile or c.current_user.premium:
 			<div id="friend_music_menu_link">
 				<a href="#/action/browse_friend/${c.user.id}">
 					browse 
@@ -20,7 +22,6 @@ ${rightcol.render()}
 					music
 				</a>
 			</div>
-			% endif
 			<div><a target="_blank" href="http://www.facebook.com/profile.php?id=${c.user.fbid}">view facebook profile</a></div>
 			</a>
 		</div>
@@ -33,7 +34,7 @@ ${rightcol.render()}
         % endif
     </div>
 	<div class="home-group">
-    <div class="profile-subtitle h-title">Spotlights</div>
+    <div class="profile-subtitle h-title">spotlights</div>
     <% spotlights = c.user.get_active_spotlights() %>
     % if spotlights.count() == 0:
         <div>
@@ -57,19 +58,30 @@ ${rightcol.render()}
     % endfor
 	</div>
     % if own_profile:
-        <div class="profile-subtitle h-title">Recommendations</div>
-        <% recs = c.user.recommendations %>
-        % if recs.count() == 0:
-            <div>You haven't received any recommendations yet.</div>
-        % else:
-            % for rec in recs:
-                ${build_recommendation(rec)}
-            % endfor
-        % endif
+		<div class="home-group">
+			<div class="profile-subtitle h-title">recommendations</div>
+			<% recs = c.user.recommendations %>
+			% if recs.count() == 0:
+				<div>You haven't received any recommendations yet.</div>
+			% else:
+				% for rec in recs:
+					${build_recommendation(rec)}
+				% endfor
+			% endif
+		</div>
     % endif
+	<% old_spotlights = c.user.inactive_spotlights %>
+	% if old_spotlights.count() > 0:
+		<div class="home-group">
+			<div class="h-title">past spotlights</div>
+			% for spotlight in old_spotlights:
+				${build_spotlight(spotlight, own_profile, old_spotlights_active)}
+			% endfor
+	% endif
+
 </div>
 
-<%def name="build_spotlight(spotlight, own_profile)" >
+<%def name="build_spotlight(spotlight, own_profile, active=True)" >
     <div class="profile-group">
         % if spotlight.albumid and spotlight.album.smallart:
             <div class="profile-albumart">
@@ -80,31 +92,30 @@ ${rightcol.render()}
         % endif
         <h3>
             <% 
-                enqueue_type = "playlist"
-                enqueue_id = "0"
                 if spotlight.albumid:
-                    enqueue_type = 'album'
-                    enqueue_id = spotlight.albumid
                     edit_class = 'edit-spotlight'
                 else:
-                    enqueue_type = 'playlist'
-                    enqueue_id = spotlight.playlistid
                     edit_class = 'edit-playlist-spotlight'
                 endif
             %>
-                <img src="/images/enqueue.png" onclick="enqueue_spotlight(${enqueue_id}, ${spotlight.uid}, '${enqueue_type}')" />
+			% if active:
+				<a href="#/action/enqueue/${spotlight.type}/${spotlight.typeid}&Friend_id=${spotlight.uid}">
+					<img src="/images/enqueue.png" />
+				</a>
+			% else:
+				<img class="fake-enqueue" src="/images/s.gif" />
+			% endif
             % if spotlight.albumid == None:
                 Playlist: 
             % endif
-            <a class="h-title-a" href="#/browse/friend=${spotlight.uid}/profile=${spotlight.uid}/${enqueue_type}=${enqueue_id}/song">
+            <a class="h-title-a" href="#/browse/friend=${spotlight.uid}/profile=${spotlight.uid}/${spotlight.type}=${spotlight.typeid}/song">
                 ${spotlight.title}
             </a>
             % if not own_profile and spotlight.albumid:
                 <%call expr="build_amazon_link(spotlight.album)">
-                    (buy)
+                    <img src="/images/cart.png" />
                 </%call>
             % endif
- 
         </h3>
         <div class="profile-artist">
             by ${spotlight.author}
@@ -114,7 +125,7 @@ ${rightcol.render()}
             % if own_profile:
                 <span class="spot-controls">
                     <a id="${spotlight.id}" class="${edit_class}" href="${c.current_url}">edit</a>
-                    <a href="#" onclick="delete_spotlight(${spotlight.id},'${enqueue_type}'); return false;">delete</a>
+                    <a href="#" onclick="delete_spotlight(${spotlight.id},'${spotlight.type}'); return false;">delete</a>
                 </span>
             % endif
         </div>

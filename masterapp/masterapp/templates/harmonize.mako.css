@@ -31,7 +31,8 @@ input {
     font-size: 16pt;
     color: ${Profile.dark_txt};
 	text-align: center;
-	padding-bottom: 4px;
+	padding-bottom: 20px;
+	padding-top: 20px;
 }
 
 .h-title a{

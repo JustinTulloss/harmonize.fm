@@ -92,7 +92,27 @@ var every_action =  {
                 );
             }
         }
-    }
+    },
+	buy: {
+		view: '<a href="#/action/buy"><img title="Buy music" src="/images/cart.png" /></a>',
+		action: function(record) {
+			var url = '';
+			if (record.get('Album_mp3_asin')) {
+				url = Hfm.get_amazon_url(record.get('Album_mp3_asin'));
+			}
+			else if (record.get('Album_asin')) {
+				url = Hfm.get_amazon_url(record.get('Album_asin'));
+			}
+
+			if (url) {
+				var newwin = window.open(url);
+				newwin.focus()
+			}
+			else {
+				show_status_msg('Sorry, we can\'t find that music on Amazon');
+			}
+		}
+	}
 };
 
 for (action_key in every_action) {
@@ -111,20 +131,26 @@ var render = {
     {
         var type = record.get('type');
         var allactions = typeinfo[type].actions;
+		var premiumactions = typeinfo[type].premiumactions;
+		var freeactions = typeinfo[type].freeactions;
         var ownactions = typeinfo[type].ownactions;
         var html = ['<span class="grid-actions">'];
         
-        if (allactions) {
-            for (var i=0; i<allactions.length; i++)
-                html.push(every_action[allactions[i]].view);
-        }
+		function render_actions(actions) {
+			if (!actions) return;
+			for (var i=0; i<actions.length; i++)
+				html.push(every_action[actions[i]].view);
+		}
 
-        if (own_record(record)) {
-            if (ownactions) {
-                for (var i=0; i<ownactions.length; i++)
-                    html.push(every_action[ownactions[i]].view);
-            }
-        }
+		render_actions(allactions);
+
+		if (global_config.premium || own_record(record))
+			render_actions(premiumactions)
+
+        if (own_record(record))
+            render_actions(ownactions);
+		else 
+			render_actions(freeactions);
 
         html.push('</span>');
         return html.join('');
