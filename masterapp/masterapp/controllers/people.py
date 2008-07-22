@@ -61,6 +61,10 @@ class PeopleController(BaseController):
             fbml = " commented on <a href='http://harmonize.fm/player#/people/profile/" + str(owner.id) + "/spcomments/" + str(spot.id) + "' target='_blank'>" + spot.title + "</a>"
             response = facebook.notifications.send(owner.fbid, fbml)
 
+            commenter = Session.query(User).get(session['userid'])
+            subject = '%s has commented on your Spotlight' % commenter.name
+            facebook.notifications.sendEmail(owner.fbid, subject, fbml=fbml)
+
         return str(spotcomment.id)
 
     def invite(self, **kwargs):

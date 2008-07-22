@@ -37,8 +37,9 @@ ${rightcol.render()}
     <div class="profile-subtitle h-title">spotlights</div>
     <% spotlights = c.user.get_active_spotlights() %>
     % if spotlights.count() == 0:
-        <div>
+        <div class="profile-group">
         <iframe name="dummy_iframe" style="display:none;"></iframe>
+		<div>
         % if own_profile:
             You haven't added any spotlights yet, 
             % if c.user.song_count == 0:
@@ -51,6 +52,7 @@ ${rightcol.render()}
         % else:
             ${c.user.firstname} hasn't created any spotlights yet.
         % endif
+		</div>
         </div>
     % endif
     % for spotlight in spotlights:
@@ -62,7 +64,9 @@ ${rightcol.render()}
 			<div class="profile-subtitle h-title">recommendations</div>
 			<% recs = c.user.recommendations %>
 			% if recs.count() == 0:
-				<div>You haven't received any recommendations yet.</div>
+				<div class="profile-group">
+					<div>You haven't received any recommendations yet.</div>
+				</div>
 			% else:
 				% for rec in recs:
 					${build_recommendation(rec)}

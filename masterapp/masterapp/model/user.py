@@ -69,6 +69,11 @@ class User(Base):
     fballfriendscache = None
     present_mode = False
 
+    def __init__(self, fbid, **kws):
+        Base.__init__(self, **kws)
+        self.fbid = fbid
+        self.premium = False
+
     def personal_cache(type=None, expiretime=None, addsession = False):
         def wrapper(func, self, *args, **kwargs):
             c = cache.get_cache('%s.%s' % 
