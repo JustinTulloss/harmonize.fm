@@ -45,8 +45,10 @@ class RecommendController(BaseController):
         c.recommendee = kwargs['friend']
         c.href = 'http://%s/player#/browse/friend=%s/album=%s/song' % \
             (request.host, session['userid'], kwargs['entity'])
-        facebook.notifications.send(c.recommendee,
-            render('facebook/recommend.fbml.mako'))
+        fbml = render('facebook/recommend.fbml.mako')
+        facebook.notifications.send(c.recommendee, fbml)
+        subject = '%s has recommended you an album' % user.name
+        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
     
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 albumid=album.id)
@@ -87,8 +89,10 @@ class RecommendController(BaseController):
             'http://%s/player#/browse/friend=%s/artist=%s/album=%s/song=%s/song' %\
             (request.host, session['userid'], song.artistid, 
                 song.albumid, song.id)
-        facebook.notifications.send(c.recommendee,
-            render('facebook/recommend.fbml.mako'))
+        fbml = render('facebook/recommend.fbml.mako')
+        facebook.notifications.send(c.recommendee, fbml)
+        subject = '%s has recommended you a song' % (user.name)
+        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
 
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 songid=song.id)
@@ -109,8 +113,10 @@ class RecommendController(BaseController):
         c.recommendee = kwargs['friend']
         c.href = 'http://%s/player#/browse/friend=%s/playlist=%s/playlistsong' % \
             (request.host, session['userid'], kwargs['entity'])
-        facebook.notifications.send(c.recommendee,
-            render('facebook/recommend.fbml.mako'))
+        fbml = render('facebook/recommend.fbml.mako')
+        facebook.notifications.send(c.recommendee, fbml)
+        subject = '%s has recommended you a playlist' % user.name
+        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
 
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 playlistid=playlist.id)

@@ -8,8 +8,8 @@ mockfiles = {
     'goodfile' : {
         u'fname': u'good.mp3',
         u'fbsession': u'08bd66d3ebc459d32391d0d2-1909354',
-        u'sha': u'c724a94154d78541f7f9d569ed1b5e56fce7bc8b',
-        u'usersha': u'c714a94154d78541f7f9d569ed1b5e56fce7bc8b',
+        u'sha': u'344515331e3d1b4389d62dab17d297df4351eddd',
+        u'usersha': u'344515331e3d1b4389d62dab17d297df4351eddd',
     },
     'goodpuid' : {
         u'puid': u'ba115bd0-cacb-da69-3240-4608da94e5e6',

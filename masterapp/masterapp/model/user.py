@@ -2,6 +2,7 @@
 # 
 # Putting user in its own file since it's huge
 
+import logging
 from pylons import cache, request, session, c
 from pylons.templating import render
 from decorator import decorator
@@ -38,7 +39,6 @@ from masterapp.lib.fbaccess import fbaccess
 from operator import itemgetter, attrgetter
 import time
 
-
 Base = declarative_base(metadata=metadata)
 
 class User(Base):
@@ -68,6 +68,11 @@ class User(Base):
     fbfriendscache = None
     fballfriendscache = None
     present_mode = False
+
+    def __init__(self, fbid, **kws):
+        Base.__init__(self, **kws)
+        self.fbid = fbid
+        self.premium = False
 
     def personal_cache(type=None, expiretime=None, addsession = False):
         def wrapper(func, self, *args, **kwargs):
@@ -268,9 +273,12 @@ class User(Base):
 
     @fbfriends
     def get_friends(self):
-        for i in xrange(0, len(self._fbfriends)):
-            self._fbfriends[i]= Session.merge(self._fbfriends[i], dont_load=True)
-        return self._fbfriends
+        if self._fbfriends:
+            for i in xrange(0, len(self._fbfriends)):
+                self._fbfriends[i]= Session.merge(self._fbfriends[i], dont_load=True)
+            return self._fbfriends
+        else:
+            return []
     friends = property(get_friends)
 
     @fballfriends
@@ -595,7 +603,8 @@ class User(Base):
                 friend.friends.append(self)
                 friend.friends.sort(key=attrgetter('name'))
             except:
-                pass # oh well, they'll find me eventually
+                # oh well, they'll find me eventually
+                logging.debug('Could not be added to %s', friend.id)
 
     def update_friends_caches(self):
         for friend in self.friends:

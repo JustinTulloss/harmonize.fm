@@ -390,8 +390,7 @@ class TestDBActions(TestBase):
 
     def _create_user(self, key):
         # Create our DB user
-        user = self.model.User()
-        user.fbid = self.fdata['dbrec']['fbid']
+        user = self.model.User(self.fdata['fbrec']['fbid'])
         self.model.Session.save(user)
         self.model.Session.commit()
         self.fdata[key]['dbuserid'] = user.id

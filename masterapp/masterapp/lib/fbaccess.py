@@ -26,6 +26,8 @@ def fbaccess_wrapper(func, redirect, args, kwargs):
             raise e
         except Exception, e:
             if isinstance(e, FacebookError) and e.code == 102:
+                session['fbsession'] = None
+                session.save()
                 if redirect:
                     method = request.environ.get('HTTP_X_REQUESTED_WITH')
                     if method == 'XMLHttpRequest':

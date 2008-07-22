@@ -40,9 +40,7 @@ class DBChecker(BaseAction):
             )
             user = qry.first()
             if user == None:
-                user = self.model.User()
-                user.fbid = file['fbid']
-                user.premium = False
+                user = self.model.User(file['fbid'])
                 self.model.Session.save(user)
                 self.model.Session.commit()
 
