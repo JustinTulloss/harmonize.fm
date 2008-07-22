@@ -78,11 +78,8 @@ def main():
         while received != '':
             received = csock.recv(40)
             pfile = pfile + received
-        try:
-            fp.process(pickle.loads(pfile))
-        except Exception, e:
-            # fatal error in fileprocess
-            alert("fileprocess exception", e)
+
+        fp.process(pickle.loads(pfile))
 
 
 def monitor(pipeline):

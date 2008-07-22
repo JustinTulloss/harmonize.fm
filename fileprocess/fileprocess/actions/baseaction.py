@@ -46,6 +46,7 @@ class BaseAction(object):
             file['msg'] = "Upload had an unexpected failure"
             file['na']  = na.FAILURE
             self.cleanup(file)
+            alert("fileprocess exception", file)
         else:
             if file.has_key('failures'):
                 file['failures'] = file['failures']+1
