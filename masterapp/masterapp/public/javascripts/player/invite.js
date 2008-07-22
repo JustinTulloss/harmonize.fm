@@ -28,6 +28,7 @@ function make_invite_grid() {
         emptyText:'Search...',
         enableKeyEvents: true
     });
+    var filtering = false;
     
     var button_t = new Ext.Template('<span><button>{0}</button></span>');
     var button = new Ext.Button({
@@ -62,16 +63,19 @@ function make_invite_grid() {
     });
     var selections = [];
     sm.on('rowselect', function(sm, index, record) {
+        if (filtering) return;
         selections.push(record);
     });
     sm.on('rowdeselect', function(sm, index, record) {
-        if (1) return;
+        if (filtering) return;
         var i = selections.indexOf(record);
         selections.splice(i,1);
     });
-    filter.on('keyup', function(e) {
+    filter.on('keyup', function(field, e) {
+        filtering = true;
         invite_store.filter('name', filter.getValue(), true, false);
         sm.selectRecords(selections);
+        filtering = false;
     });
 
     button.setHandler(
