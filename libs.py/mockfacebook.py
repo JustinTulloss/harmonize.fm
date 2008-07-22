@@ -29,14 +29,14 @@ class MockFacebook(object):
         def __init__(self, 
                 configured_info, configured_user_info,
                 configured_friend_info, uid):
-            self._uid = uid
+            MockFacebook._uid = uid
             self.configured_info = configured_info
             self.configured_user_info = configured_user_info
             self.configured_friend_info = configured_friend_info
 
         def getInfo(self, id, fields=None):
             if fields:
-                if id == self._uid:
+                if id == MockFacebook._uid:
                     return self.configured_user_info
                 else:
                     return self.configured_friend_info
@@ -44,7 +44,7 @@ class MockFacebook(object):
                 return self.configured_info
 
         def getLoggedInUser(self):
-            return self._uid
+            return MockFacebook._uid
 
     # Namespaces
     auth = Mock()
@@ -75,9 +75,8 @@ class MockFacebook(object):
         self.friends.get = Mock()
         self.friends.get.return_value = self.configured_friends
 
-        fb = self
         def getfriends():
-            return fb.configured_friends[fb._uid]
+            return self.configured_friends[int(self.uid)]
         self.friends.getAppUsers = getfriends
 
 
@@ -91,13 +90,13 @@ class MockFacebook(object):
     session_key = property(_get_session_key, _set_session_key)
 
     def _get_uid(self):
-        if self._uid:
-            return self._uid
+        if MockFacebook._uid:
+            return MockFacebook._uid
         else:
-            self._uid = get_uuid()
-            return self._uid
+            MockFacebook._uid = get_uuid()
+            return MockFacebook._uid
     def _set_uid(self, id):
-        self._uid = id
+        MockFacebook._uid = id
 
     uid = property(_get_uid, _set_uid)
 

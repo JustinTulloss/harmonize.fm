@@ -29,10 +29,10 @@ class TagGetter(BaseAction):
 
         if file.has_key('fname'):
             if not os.path.exists(file.get('fname')):
-                self.update_tracknum(file)
+                file = self.update_tracknum(file)
                 return file
         else:
-            self.update_tracknum(file)
+            file = self.update_tracknum(file)
             return file
 
         try:
@@ -59,7 +59,7 @@ class TagGetter(BaseAction):
                 return False
 
         # Extra tags that I can figure out
-        self.update_tracknum(file)
+        file = self.update_tracknum(file)
 
         file['duration'] = int(audio.info.length*1000)
         file['bitrate'] = int(audio.info.bitrate)
@@ -87,7 +87,11 @@ class TagGetter(BaseAction):
                 file['totaltracks'] = int(tparts[1])
             except ValueError, e:
                 # Sometimes we don't have one of the values we were looking for
+                oldtracknum = oldtracknum.split('/')[0]
+                if oldtracknum == '':
+                    oldtracknum = '0'
                 file['tracknumber'] = oldtracknum
+        return file
 
 def update_mp4(mp4obj, tagobj):
     """Extracts easyid3 tags from an MP4 object and puts them into tagobj"""
