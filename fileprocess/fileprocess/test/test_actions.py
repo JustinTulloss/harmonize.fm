@@ -76,6 +76,8 @@ class TestActions(TestBase):
         assert nf.has_key('album'), "Did not tag album"
         assert nf.has_key('artist'), "Did not tag artist"
         assert nf['filetype'] == 'mp3'
+        assert nf.has_key('tracknumber'), "Did not tag tracknumber"
+        assert not "/" in nf['tracknumber'], "Slash exists in tracknumber"
 
         # Test an mp4 file
         self.fdata['goodmp4']['fname'] = \
