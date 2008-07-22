@@ -47,7 +47,7 @@ class TestPlayerController(TestModel):
 
 
         # Test for a song I do own
-        ns = generate_fake_song(model.Session.query(model.User).one())
+        ns = generate_fake_song(model.Session.query(model.User).first())
         response = self.app.get(url_for(
             controller='player',
             action = 'songurl',
