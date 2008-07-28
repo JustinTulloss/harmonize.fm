@@ -172,6 +172,7 @@ class MetadataController(BaseController):
                 })
 
             data = sorted(data, key=itemgetter('Friend_name'))
+            data = self._apply_offset(data)
         return {'success':True, 'data':data}
 
     @cjsonify
