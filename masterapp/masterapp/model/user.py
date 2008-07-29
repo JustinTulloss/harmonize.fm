@@ -203,7 +203,13 @@ class User(Base):
             facebook.session_key = self.fbsession
             log.debug("Querying for wrong user's friends, trying to sub in their session")
         try:
-            ids = facebook.friends.getAppUsers()
+            try:
+                ids = facebook.friends.getAppUsers()
+            except FacebookError, e:
+                if e.code == 102:
+                    if oldsession != facebook.session_key:
+                        return [] #XXX: This is bad, but it fixes errors
+
             if len(ids) == 0:
                 ids = []
             if session.get('present') == True:
