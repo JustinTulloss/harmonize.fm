@@ -18,8 +18,11 @@ def ensure_fb_session():
     def setup_user():
         session['fbsession']= facebook.session_key
         session['fbuid']= facebook.uid
+        if request.params.get('present') == 'true':
+            session['present'] = True
 
-        if not qualified_for_login(facebook.uid, 1):
+        if not qualified_for_login(facebook.uid, 1) and not \
+                request.params.get('present') == 'true':
             return False
 
         user = Session.query(User).filter(
@@ -29,7 +32,7 @@ def ensure_fb_session():
 
         user.lastseen = datetime.now()
         user.fbsession = facebook.session_key
-        user.present_mode = True if request.params.get('present') == 'true' else False
+
         Session.add(user)
         Session.commit()
         session['userid'] = user.id
@@ -48,6 +51,9 @@ def ensure_fb_session():
 
 def create_user(fbid):
     user = User(fbid)
+    if request.params.get('present' == 'true'):
+        w = Whitelist(fbid=fbid, registered = False)
+        Session.add(w)
     Session.add(user)
     user.add_me_to_friends()
     return user
