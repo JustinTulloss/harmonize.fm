@@ -39,6 +39,8 @@ from masterapp.lib.fbaccess import fbaccess
 from operator import itemgetter, attrgetter
 import time
 
+log = logging.getLogger(__name__)
+
 Base = declarative_base(metadata=metadata)
 
 class User(Base):
