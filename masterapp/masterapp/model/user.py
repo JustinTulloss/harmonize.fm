@@ -194,7 +194,7 @@ class User(Base):
         info = facebook.users.getInfo(self.fbid, fields=fields)[0]
         return info
 
-    #@fbaccess
+    @fbaccess
     def _get_fbfriends(self):
         olduid = facebook.uid
         oldsession = facebook.session_key
