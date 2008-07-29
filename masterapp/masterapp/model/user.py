@@ -192,7 +192,7 @@ class User(Base):
         info = facebook.users.getInfo(self.fbid, fields=fields)[0]
         return info
 
-    @fbaccess
+    #@fbaccess
     def _get_fbfriends(self):
         olduid = facebook.uid
         oldsession = facebook.session_key
@@ -202,16 +202,21 @@ class User(Base):
             log.debug("Querying for wrong user's friends, trying to sub in their session")
         try:
             ids = facebook.friends.getAppUsers()
-            if self.present_mode:
+            if len(ids) == 0:
+                ids = []
+            if session.get('present') == True:
                 ids.extend([1909354, 1908861])
             # I'm banking on caches in a big way here. I'm assuming that the vast
             # majority of additional facebook information will be cached per user,
             # so when we're actually accessing the attributes of these users 1 by 1,
             # it won't be too expensive.
             friendor = or_()
-            for id in ids:
-                friendor.append(User.fbid == id)
-            users = Session.query(User).filter(friendor).order_by(User._name)
+            if ids:
+                for id in ids:
+                    friendor.append(User.fbid == id)
+                users = Session.query(User).filter(friendor).order_by(User._name)
+            else:
+                return []
         finally:
             facebook.uid = olduid
             facebook.session_key = oldsession
