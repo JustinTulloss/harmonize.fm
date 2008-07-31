@@ -63,7 +63,12 @@ class PeopleController(BaseController):
 
             commenter = Session.query(User).get(session['userid'])
             subject = '%s has commented on your Spotlight' % commenter.name
-            facebook.notifications.sendEmail(owner.fbid, subject, fbml=fbml)
+
+            user_href = '<a href="http://harmonize.fm/player#people/profile/%s" target="_blank">%s</a>' % (commenter.id, commenter.name)
+
+            body = '%s commented on <a href="http://harmonize.fm/player#people/profile/%s/spcomments/%s" target="_blank">%s.</a>' % \
+                (user_href, owner.id, spot.id, spot.title)
+            facebook.notifications.sendEmail(owner.fbid, subject, text=body)
 
         return str(spotcomment.id)
 

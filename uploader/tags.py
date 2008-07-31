@@ -22,7 +22,7 @@ mp4mapper = {
 
 def map_tags(song, mapper, tags):
 	for key in mapper.keys():
-		if song.has_key(key):
+		if song.has_key(key) and len(song[key]) > 0:
 			tags[mapper[key]] = song[key][0].encode('utf-8')
 
 def get_tags(filename):

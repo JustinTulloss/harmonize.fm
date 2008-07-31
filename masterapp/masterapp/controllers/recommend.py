@@ -32,6 +32,8 @@ class RecommendController(BaseController):
         Session.commit()
         return '1'
 
+    def _get_profile_href(self, user):
+        return 'http://harmonize.fm/player#people/profile/%s' % user.id
 
     @pass_user
     def album(self, user, **kwargs):
@@ -47,8 +49,14 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         fbml = render('facebook/recommend.fbml.mako')
         facebook.notifications.send(c.recommendee, fbml)
-        subject = '%s has recommended you an album' % user.name
-        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
+
+        recommendee_obj =\
+            Session.query(User).filter(User.fbid==c.recommendee).first()
+        if recommendee_obj:
+            href = self._get_profile_href(recommendee_obj)
+            subject = '%s has recommended you an album' % user.name
+            body = '%s recommended you <a href="%s" target="_blank">%s</a> by %s.' % (user.firstname, href, album.title, album.artist)
+            facebook.notifications.sendEmail(c.recommendee, subject, text=body)
     
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 albumid=album.id)
@@ -91,8 +99,14 @@ class RecommendController(BaseController):
                 song.albumid, song.id)
         fbml = render('facebook/recommend.fbml.mako')
         facebook.notifications.send(c.recommendee, fbml)
-        subject = '%s has recommended you a song' % (user.name)
-        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
+
+        recommendee_obj =\
+            Session.query(User).filter(User.fbid==c.recommendee).first()
+        if recommendee_obj:
+            href = self._get_profile_href(recommendee_obj)
+            subject = '%s has recommended you a song' % (user.name)
+            body = '%s recommended you <a href="%s" target="_blank">%s</a> by %s.' % (user.firstname, href, song.title, song.artist)
+            facebook.notifications.sendEmail(c.recommendee, subject, text=body)
 
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 songid=song.id)
@@ -115,8 +129,15 @@ class RecommendController(BaseController):
             (request.host, session['userid'], kwargs['entity'])
         fbml = render('facebook/recommend.fbml.mako')
         facebook.notifications.send(c.recommendee, fbml)
-        subject = '%s has recommended you a playlist' % user.name
-        facebook.notifications.sendEmail(c.recommendee, subject, fbml=fbml)
+
+        recommendee_obj =\
+            Session.query(User).filter(User.fbid==c.recommendee).first()
+        if recommendee_obj:
+            href = self._get_profile_href(recommendee_obj)
+            subject = '%s has recommended you a playlist' % user.name
+            body = '%s recommended you a playlist <a href="%s">"%s"</a>.' %\
+                    (user.name, href, playlist.name)
+            facebook.notifications.sendEmail(c.recommendee, subject, text=body)
 
         rec = Recommendation(c.recommender.id, int(c.recommendee), 
                 playlistid=playlist.id)
