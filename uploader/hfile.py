@@ -66,6 +66,8 @@ class HFile(object):
 				raise HFileException(str(e))
 			except MP4StreamInfoError, e:
 				raise HFileException(str(e))
+			except Exception, e:
+				raise HFileException(str(e))
 		return self._tags
 	tags = property(get_tags)
 
