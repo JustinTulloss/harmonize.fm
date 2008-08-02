@@ -1,4 +1,4 @@
-import os, re, hashlib, httplib, sys, time, urllib, simplejson
+import os, re, hashlib, httplib, sys, time, urllib, simplejson, socket
 import os.path as path
 import config, rate_limit, fb
 from db import db
@@ -47,7 +47,7 @@ def check_response(response):
 	response_body = response.read()
 
 	if response.status != 200:
-		raise Exception(
+		raise RetryException(
 			'Server returned status code %s %s!' % 
 			(response.status, response.reason))
 	elif response_switch.has_key(response_body):
@@ -127,6 +127,10 @@ def upload_files(song_list, guimgr):
 			fb.synchronous_login()
 			guimgr.end_reauth()
 
+		def error():
+			default_action()
+			time.sleep(20)
+
 		def wrapper(*args, **kws):
 			while True:
 				try:
@@ -138,9 +142,10 @@ def upload_files(song_list, guimgr):
 					default_action()
 				except ReauthenticateException, e:
 					reauthenticate()
-				except Exception, e:
-					default_action()
-					time.sleep(20)
+				except socket.error:
+					error()
+				except httplib.BadStatusLine:
+					error()
 		return wrapper
 
 	@retry_fn

@@ -1,5 +1,6 @@
 import cgi
 import os.path as path
+import random, simplejson
 from urlparse import urlsplit
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import config
@@ -42,8 +43,13 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 			session_key = None
 
 		status = 200
-		if request_path == '/upload/tags':
-			print 'Asking if file', self.post_query['title'][0],\
+		if request_path == '/upload/tags' and self.post_query.has_key('tags'):
+			tags = simplejson.loads(self.post_query['tags'][0])
+			response_list = [self.GET_response() for tag in tags]
+			response = simplejson.dumps(response_list)
+		elif request_path == '/upload/tags':
+			title = self.post_query['title'][0]
+			print 'Asking if file', title,\
 					'has been uploaded'
 			response = self.GET_response()
 		elif request_path[:12] == '/upload/file' and self.request_body != None:
@@ -80,6 +86,9 @@ class ClientHTTPServer(BaseHTTPRequestHandler):
 				self.request_body = self.rfile.read(self.length)
 			else:
 				while len(self.rfile.read(1024)) == 1024:
+					if random.uniform(0, 3) == 0:
+						print 'Closing in file'
+						rfile.close()
 					pass
 			if self.headers.get('Content-Type') ==\
 							'application/x-www-form-urlencoded':

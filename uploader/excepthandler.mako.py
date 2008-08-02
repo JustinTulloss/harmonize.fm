@@ -27,7 +27,7 @@ def exception_managed(fn):
 		except Exception, e:
 			contents = get_tb()
 
-			contents += str(e) + '\n'
+			contents += str(type(e)) + '(' + str(e) + ')\n'
 			contents += '\nplatform.uname():\n' + str(platform.uname())
 			contents += '\nRepo version: ' + repo_version
 
