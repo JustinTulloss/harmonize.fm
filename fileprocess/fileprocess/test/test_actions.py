@@ -79,6 +79,10 @@ class TestActions(TestBase):
         assert nf.has_key('tracknumber'), "Did not tag tracknumber"
         assert not "/" in nf['tracknumber'], "Slash exists in tracknumber:" + nf['tracknumber']
 
+        # Test a non-existent file that needs cleaned up (PUID match)
+        nf = t.process(self.fdata['tagcleanup'])
+        assert nf['artist'] == 'Ludo', 'Commas not removed'
+
         # Test an mp4 file
         self.fdata['goodmp4']['fname'] = \
             os.path.join(config['upload_dir'], self.fdata['goodmp4']['fname'])
