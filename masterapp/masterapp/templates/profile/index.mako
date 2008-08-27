@@ -2,6 +2,9 @@
 <%namespace name="rightcol" file="rightcol.mako" />
 <%namespace name="spotcomment" file="spotcomment.mako" />
 <%namespace file="../helpers.mako" import="dl_harmonizer_a"/>
+<%!
+from masterapp.lib.html import linebreaks, urlize
+%>
 
 ${rightcol.render()}
 <div id="profile-body">
@@ -133,7 +136,7 @@ ${rightcol.render()}
                 </span>
             % endif
         </div>
-        <div class="profile-review">${spotlight.comment}</div>
+        <div class="profile-review">${linebreaks(urlize(spotlight.comment))}</div>
         
         <% 
             comment_url = c.current_url + '/spcomments/' + str(spotlight.id)

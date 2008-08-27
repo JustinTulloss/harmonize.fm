@@ -118,7 +118,7 @@ div.profile-albumart {
 }
 
 .profile-sp-comment-text {
-	padding-left: 3px;
+	padding-left: 10px;
 	color: ${c.profile.primary_txt};
     vertical-align: top;
 }

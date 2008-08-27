@@ -9,6 +9,12 @@ input {
     border: 1px solid ${Profile.light_form}
 }
 
+p {
+    margin: 1em 0;
+    padding: 0;
+    display: block;
+}
+
 .h-dlg-buttons {
     text-align: right;
 }
