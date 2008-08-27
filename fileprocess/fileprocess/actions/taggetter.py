@@ -24,15 +24,20 @@ class TagGetter(BaseAction):
         self.tracknum_strip = re.compile('[^0-9/]')
         self.ttrack_find = re.compile('([0-9]*)/?([0-9]*)')
 
+    def clean_tags(self, file):
+        file = self.update_tracknum(file)
+        file = self.scrub_commas(file)
+        return file
+
     def process(self, file):
         """This is rediculously easy with easyid3"""
 
         if file.has_key('fname'):
             if not os.path.exists(file.get('fname')):
-                file = self.update_tracknum(file)
+                file = self.clean_tags(file)
                 return file
         else:
-            file = self.update_tracknum(file)
+            file = self.clean_tags(file)
             return file
 
         try:
@@ -59,7 +64,7 @@ class TagGetter(BaseAction):
                 return False
 
         # Extra tags that I can figure out
-        file = self.update_tracknum(file)
+        file = self.clean_tags(file)
 
         file['duration'] = int(audio.info.length*1000)
         file['bitrate'] = int(audio.info.bitrate)
@@ -91,6 +96,16 @@ class TagGetter(BaseAction):
                 if oldtracknum == '':
                     oldtracknum = '0'
                 file['tracknumber'] = oldtracknum
+        return file
+
+    def scrub_commas(self, file):
+        """
+        For some reason, mutagen sometimes goes nuts and puts tons of commas in
+        the tags. Instead of fixing this, I'm just going to scrub them out for
+        now since I don't have a file on me that it does this for --JMT
+        """
+        for tag in file.itervalues():
+            tag = tag.strip(',')
         return file
 
 def update_mp4(mp4obj, tagobj):

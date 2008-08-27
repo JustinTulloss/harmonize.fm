@@ -45,6 +45,24 @@ PlayingNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
     updateExpandIcon : Ext.emptyFn
 });
 
+var t_node = new Ext.Template('<li class="x-tree-node"><div ext:tree-node-id="{id}"',
+    ' class="x-tree-node-el x-tree-node-leaf x-unselectable {cls}" unselectable="on">',
+    '<span class="x-tree-node-indent">{indent}</span>',
+    '<img src="{emptyIcon}" class="x-tree-ec-icon x-tree-elbow" />',
+    '<a hidefocus="on" class="x-tree-node-anchor qn-text" href="{href}" tabIndex="1" ',
+    ' target="{target}">',
+    '<span class="qn-text" unselectable="on">{text}</span>',
+    '{album}{artist}',
+    '</a>',
+    '<span class="qn-delete">',
+    '<a href="{href}" target="{target}" tabindex="1">',
+            '<img src="{emptyIcon}"/></a></span>',
+    "</div>",
+    '<ul class="x-tree-node-ct" style="display:none;"></ul>',
+    "</li>"
+);
+t_node = t_node.compile();
+
 QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
     // private
     render : function(bulkRender){
@@ -110,18 +128,18 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
 
         var href = a.href ? a.href : Ext.isGecko ? "" : "#";
         var target = a.hrefTarget ? a.hrefTarget : "";
-        var buf = ['<li class="x-tree-node"><div ext:tree-node-id="',n.id,'" class="x-tree-node-el x-tree-node-leaf x-unselectable ', a.cls,'" unselectable="on">',
-            '<span class="x-tree-node-indent">',this.indentMarkup, "</span>",
-            '<img src="', this.emptyIcon, '" class="x-tree-ec-icon x-tree-elbow" />',
-            '<a hidefocus="on" class="x-tree-node-anchor qn-text" href="',href,'" tabIndex="1" ',
-            ' target="'+target+'">',
-	    '<span class="qn-text" unselectable="on">',n.text,"</span></a>",
-            '<span class="qn-delete">',
-	        '<a href="', href, '" target="',target,'" tabindex="1">',
-                    '<img src="', this.emptyIcon, '"/></a></span>',
-            "</div>",
-            '<ul class="x-tree-node-ct" style="display:none;"></ul>',
-            "</li>"].join('');
+        var buf = t_node.apply({
+            id: n.id,
+            indent: this.indentMarkup,
+            emptyIcon: this.emptyIcon,
+            href: href,
+            cls: a.cls,
+            target: target,
+            text: n.text,
+            album: a.album ? '<span class="qn-text" unselectable="on">on '+a.album+"</span>" : '',
+            artist: a.artist ? '<span class="qn-text" unselectable="on">by '+a.artist+"</span>" : ''
+        });
+
 
         /*
             '<span class="x-tree-node-anchor qn-text" unselectable="on">',n.text,"</span>",
