@@ -21,7 +21,7 @@ class PuidGenerator(BaseAction):
             musicdns.initialize()
 
     def can_skip(self, new_file):
-        if file.get('puid'):
+        if new_file.get('puid'):
             return True
         else: 
             return False
