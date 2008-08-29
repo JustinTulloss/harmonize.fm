@@ -27,6 +27,8 @@ class TagGetter(BaseAction):
     def clean_tags(self, file):
         file = self.update_tracknum(file)
         file = self.scrub_commas(file)
+        if not file.get('artist') and file.has_key('composer'):
+            file['artist'] = file['composer']
         return file
 
     def process(self, file):
@@ -104,8 +106,9 @@ class TagGetter(BaseAction):
         the tags. Instead of fixing this, I'm just going to scrub them out for
         now since I don't have a file on me that it does this for --JMT
         """
-        for tag in file.itervalues():
-            tag = tag.strip(',')
+        for key,tag in file.iteritems():
+            if hasattr(tag, 'strip'):
+                file[key] = tag.strip(',')
         return file
 
 def update_mp4(mp4obj, tagobj):
