@@ -1,3 +1,10 @@
+function prevent_default(fn) {
+	return function(e) {
+		e.preventDefault();
+		fn(e);
+	};
+}
+
 var spot_template = new Ext.Template(
 		'<form id="spot_form">',
 			'<h1 id="spot_form_title">Add Album to your Spotlight</h1>',
@@ -175,7 +182,7 @@ function show_spotlight(record,mode) {
                             hide_dialog();    
                             show_status_msg("Spotlight changed!");
                             urlm.invalidate_page();
-                        } else hide_dialog();
+                        } else { hide_dialog(); }
                     },
                     failure: hide_dialog
     	        });
@@ -219,7 +226,7 @@ function show_spotlight(record,mode) {
 	} else if (mode == "add_playlist") {
 	    Ext.get('spot_add').on('click', prevent_default(add_spotlight_playlist));
 	} else if (mode == "edit_playlist") {
-	    Ext.get('spot_change').on('click', prevent_default(edit_spotlight))
+	    Ext.get('spot_change').on('click', prevent_default(edit_spotlight));
 	} else if (mode == "delete_playlist") {
 	    Ext.get('spot_delete').on('click', prevent_default(do_delete_spotlight));
     }
@@ -233,9 +240,11 @@ function delete_spotlight(spot_id,type) {
                 function(response, options) {
                     if (response.responseText != "False") {
                         record = untyped_record(response);
-                        record['id'] = spot_id;
+                        record.set('id', spot_id);
                         show_spotlight(record, "delete");
-                    } else show_status_msg("error parsing spotlight information");
+                    } else {
+						show_status_msg("error parsing spotlight information");
+					}
                 },        
             
             failure: function() {show_status_msg('error retrieving spotlight information');}
@@ -247,9 +256,11 @@ function delete_spotlight(spot_id,type) {
                 function(response, options) {
                     if (response.responseText != "False") {
                         record = untyped_record(response);
-                        record['id'] = spot_id;
+                        record.set('id', spot_id);
                         show_spotlight(record, "delete_playlist");
-                    } else show_status_msg("error parsing spotlight information");
+                    } else {
+						show_status_msg("error parsing spotlight information");
+					}
                 },        
             
             failure: function() {show_status_msg('error retrieving spotlight information');}
@@ -267,21 +278,25 @@ var dialog_template = [
 Hfm.dialog = {};
 //Takes a string that consists of the dialogs content
 Hfm.dialog.show = function show_dialog(content, panel) {
-    mainDiv = Ext.get('dialog-bg');
-    if (mainDiv) 
-        var contentDiv = Ext.fly('dialog-content');
+    var mainDiv = Ext.get('dialog-bg');
+	var contentDiv;
+    if (mainDiv) {
+        contentDiv = Ext.fly('dialog-content');
+	}
     else {
-        var mainDiv = document.createElement('div');
+        mainDiv = document.createElement('div');
         mainDiv.id = 'dialog-bg';
         mainDiv = new Ext.Element(mainDiv);
         mainDiv.appendTo('centerpanel');
         mainDiv.update(dialog_template);
-        var contentDiv = Ext.fly('dialog-content');
+        contentDiv = Ext.fly('dialog-content');
     }
-    if (panel)
+    if (panel) {
         content.render(contentDiv);
-    else
+	}
+    else {
         contentDiv.update(content);
+	}
     /*
     This works, but it's a little off. Giving up for now.
     shadow = new Ext.Layer({
@@ -290,15 +305,16 @@ Hfm.dialog.show = function show_dialog(content, panel) {
     shadow.center(mainDiv);
     shadow.show()
     */
-}
+};
 
 Hfm.dialog.hide = function() {
     var dlg = Ext.fly('dialog-bg');
-    if (dlg)
-        dlg.remove()
+    if (dlg) {
+        dlg.remove();
+	}
 	//Not clear this is necessary in any cases now so it won't be the default
 	//urlm.invalidate_page(); 
-}
+};
 /* XXX Deprecated */
 show_dialog = Hfm.dialog.show;
 hide_dialog = Hfm.dialog.hide;
@@ -308,29 +324,24 @@ Hfm.status.show = function(msg, keepshowing) {
 	el = Ext.fly('status-box').first();
 	el.update(msg);
 	el.applyStyles('visibility: visible');
-	if (!keepshowing)
+	if (!keepshowing) {
 		Hfm.status.hide.defer(3000);
-}
+	}
+};
 
 Hfm.status.hide= function() {
 	el = Ext.fly('status-box').first();
 	el.applyStyles('visibility: hidden');
-}
+};
 
 /* XXX Deprecated */
 show_status_msg = Hfm.status.show;
 hide_status_msg = Hfm.status.hide;
 
-function prevent_default(fn) {
-	return function(e) {
-		e.preventDefault();
-		fn(e);
-	}
-}
-
 function basic_dialog_actions(rest) {
-	if (rest == 'hide')
+	if (rest == 'hide') {
 		Hfm.dialog.hide();
+	}
 }
 
 Ext.onReady(function() {

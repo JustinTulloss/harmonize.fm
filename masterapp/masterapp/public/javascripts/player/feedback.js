@@ -45,11 +45,11 @@ var init_feedback;
 	init_feedback = function() {
 		//Ext.get('feedback-link').on('click', show_feedback);
         urlm.register_action('feedback', show_feedback);
-	}
+	};
 
 	function send_feedback() {
 		var textarea = Ext.get('feedback-textarea');
-		if (textarea.dom.value != '') {
+		if (textarea.dom.value) {
 			var emailInput = Ext.get('feedback-email');
 			var browser = Ext.get('feedback-browser');
 			Ext.Ajax.request({

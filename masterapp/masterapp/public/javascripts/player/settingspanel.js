@@ -2,17 +2,15 @@
  *  panel a grid instead of a form
  *  2/18/08 by A-Mo */
  
- 
- function SettingsPanel(){
+function SettingsPanel(){
     var win;
     var friendGrid;    
     var friendStore;
     this.win=win;
     this.friendStore = friendStore;
 
-    this.MakeGrid=MakeGrid;
-    function MakeGrid(){    
-         var sm = new Ext.grid.CheckboxSelectionModel({dataIndex:"checked"});
+    this.MakeGrid = function(){    
+        var sm = new Ext.grid.CheckboxSelectionModel({dataIndex:"checked"});
         this.friendGrid = new Ext.grid.GridPanel({
             store:this.friendStore,
             cm: new Ext.grid.ColumnModel([
@@ -27,8 +25,7 @@
        
     };
     
-    this.PopulateGrid=PopulateGrid;
-    function PopulateGrid(){
+    this.PopulateGrid = function PopulateGrid(){
         this.MakeGrid();
         if(!win){
             win = new Ext.Window({
@@ -57,13 +54,9 @@
         this.friendGrid.getSelectionModel().selectRecords(checkedRecs.items);
     };
     
-    this.CommitStoreChanges = CommitStoreChanges;
-    function CommitStoreChanges(){
-        
-    };
+    this.CommitStoreChanges = function () {};
     
-    this.ShowSettings=ShowSettings;
-    function ShowSettings(){
+    this.ShowSettings = function(){
         var friend = Ext.data.Record.create([
             {name:"name"},
             {name:"uid"},
@@ -87,7 +80,4 @@
             add:false
         });
     };
-    
-    
-    
-};
+}

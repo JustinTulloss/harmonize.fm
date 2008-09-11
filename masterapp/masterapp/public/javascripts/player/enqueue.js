@@ -3,7 +3,7 @@ Ext.onReady(function() {
 
 	function enqueue(params) {
 		var match = params.match(regex);
-		if (!match) return;
+		if (!match) { return; }
 
 		var type = match[1];
 		var id = match[2];
@@ -11,8 +11,8 @@ Ext.onReady(function() {
 		var source = 2;
 		if (match[4]) {
 			var decoded = Ext.urlDecode(match[4]);
-			friend_id = decoded['Friend_id'] || friend_id;
-			source = decoded['source'] || source;
+			friend_id = decoded.Friend_id || friend_id;
+			source = decoded.source || source;
 		}
 	
 		function failure() {

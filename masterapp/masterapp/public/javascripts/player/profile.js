@@ -8,7 +8,7 @@ var profile_handler;
 (function() {
 	function hide_all() {
 		var pbody = Ext.get('profile-body');	
-		var containers = pbody.query('.profile-sp-commentcontainer')
+		var containers = pbody.query('.profile-sp-commentcontainer');
 		for (var i=0; i<containers.length; i++) {
 			var container = Ext.get(containers[i]);
 			container.child('.view-comment').setDisplayed(true);
@@ -21,57 +21,60 @@ var profile_handler;
 		hide_all();
 
 		var components = rest.split('/');
-		//find all the edit_spotlight links and assign onclick handlers to them
-		var edit_links = Ext.query('.edit-spotlight');
 
-		for (i = 0; i < edit_links.length; i++) {
-		    var spot_id = parseInt(edit_links[i].id);
-            //this handler looks hackish because it solves a closure property (shudder)
-            Ext.get(edit_links[i].id).removeAllListeners();
-		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
+		function make_spotlight_click(spot_id) {
+			return function() {
     		    Ext.Ajax.request({
                     url: '/spotlight/find_album/'+spot_id,
                     success: function(response, options) {
-                        record = eval('(' + response.responseText + ')');
-                        record = record.data[0];
-                        record['id'] = spot_id;
-                        record.get = (function(key) { return record[key];});
+                        record = untyped_record(response);
+                        record.set('id', spot_id);
                         show_spotlight(record, "edit");
                     },
                     failure: function(response, options) {
                         alert("failed to lookup spotlight");                
                     }
-                });
-		    };})(spot_id));
+				});
+			};
 		}
-		
-		edit_links = Ext.query('.edit-playlist-spotlight');
+
+		//find all the edit_spotlight links and assign onclick handlers to them
+		var edit_links = Ext.query('.edit-spotlight');
+		var spot_id;
 		for (i = 0; i < edit_links.length; i++) {
-		    var spot_id = parseInt(edit_links[i].id);
-            //this handler looks hackish because it solves a closure property (shudder)
+		    spot_id = parseInt(edit_links[i].id, 10);
             Ext.get(edit_links[i].id).removeAllListeners();
-		    Ext.get(edit_links[i].id).on('click', (function(spot_id) {return function() {
+		    Ext.get(edit_links[i].id).on('click',make_spotlight_click(spot_id));
+		}
+
+		function make_playlist_click(spot_id) {
+			return function() {
     		    Ext.Ajax.request({
                     url: '/spotlight/find_playlist/'+spot_id,
                     success: function(response, options) {
-                        record = eval('(' + response.responseText + ')');
-                        record = record.data[0];
-                        record['id'] = spot_id;
-                        record.get = (function(key) { return record[key];});
+                        record = untyped_record(response);
+                        record.set('id', spot_id);
                         show_spotlight(record, "edit_playlist");
                     },
                     failure: function(response, options) {
                         alert("failed to lookup spotlight");                
                     }
-                });
-		    };})(spot_id));
+				});
+			};
+		}
+		
+		edit_links = Ext.query('.edit-playlist-spotlight');
+		for (i = 0; i < edit_links.length; i++) {
+		    spot_id = parseInt(edit_links[i].id, 10);
+            Ext.get(edit_links[i].id).removeAllListeners();
+		    Ext.get(edit_links[i].id).on('click', make_playlist_click(spot_id));
 		}
 		
 		
 		if (components.length != 3 || components[1] != 'spcomments') {
 			return;
 		}
-        var spot_id = components[2];		
+        spot_id = components[2];		
 		//if the user clicked the edit spotlight link, this code is executed: 
         		
 		if (components[1] == 'spcomments') {		 //the user must've clicked the add comment link 
@@ -108,13 +111,15 @@ var profile_handler;
 			    }
 		    }
 	    }
-    }
+    };
 
     var friend_music_menu_link = null;
     var friend_music_menu = null;
 
     function browse_friends_music(friend, target) {
-        if (friend == null) return;
+        if (!friend) {
+			return;
+		}
         
         friend_music_menu = new Ext.menu.Menu({
             width: target.offsetWidth,
@@ -161,21 +166,21 @@ var profile_handler;
     urlm.register_action('browse_friend', browse_friends_music);
 })();
 
-function profile_factory(url) {
-    var newprofile = new Profile(url);
-    return newprofile.panel;
-}
-
 function Profile(id)
 {
     var my = this;
-    my.panel.on('show', function(){my.panel.syncSize()});
+    my.panel.on('show', function(){my.panel.syncSize();});
 
     urlm.register_handlers([
-        ['/profile_comments/', view_comments],
+        ['/profile_comments/', view_comments]
     ]);
 
     my.go = function(url) {
         alert(url);
-    }
+    };
+}
+
+function profile_factory(url) {
+    var newprofile = new Profile(url);
+    return newprofile.panel;
 }

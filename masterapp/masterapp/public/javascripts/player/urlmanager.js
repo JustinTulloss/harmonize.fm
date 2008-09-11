@@ -14,19 +14,21 @@ var urlm = Hfm.urlm; //for backwards compatibility
 	var current_panel;
     
 	function get_url(hash) {
-		if (hash === '' || hash === '#')
+		if (hash === '' || hash === '#') {
 			return '/player/home';
-		else
+		}
+		else {
 			return hash.substring(1);
+		}
 	}
 
 	function set_active(url) {
 		if (panel_lookup[url] !== undefined) {
 			viewmgr.centerpanel.layout.setActiveItem(panel_lookup[url]);
 			return true;
-		}
-		else
+		} else {
 			return false;
+		}
 	}
 
 	function add_panel(obj, url) {
@@ -42,7 +44,6 @@ var urlm = Hfm.urlm; //for backwards compatibility
 			viewmgr.centerpanel.remove(current_panel.id);
 			current_panel.remove();
 		}
-		
 
 		current_panel = obj;
 	}
@@ -60,8 +61,9 @@ var urlm = Hfm.urlm; //for backwards compatibility
 			url: url,
 			success: function(response) {
 				new_panel.innerHTML = response.responseText;
-				if (k)
+				if (k) {
 					k(new_panel);
+				}
 			}
 		});
 
@@ -100,12 +102,13 @@ var urlm = Hfm.urlm; //for backwards compatibility
 	};
 
 	var url_actions = {};
-	var url_actions_regex = RegExp('#/action/([^/]*)(/(.*))?$');
+	var url_actions_regex = new RegExp('#/action/([^/]*)(/(.*))?$');
 	function init_url_actions() {
 		Ext.getBody().on('click', function(e, target) {
 			var anchor;
-			if (target.tagName=='A')
-				anchor = target
+			if (target.tagName=='A') {
+				anchor = target;
+			}
 			else {
 				var target_el = new Ext.Element(target);
 				anchor = target_el.findParent('a');
@@ -126,9 +129,9 @@ var urlm = Hfm.urlm; //for backwards compatibility
     /* Public functions */
 	my.init = function(moremanagers) {
 		my.register_handlers(moremanagers);
-		setInterval('check_url();', 100);
+		setInterval(check_url, 100);
 		init_url_actions();
-	}
+	};
 
 	//submanagers should be a list of (url component, handler function) pairs
     my.register_handlers = function(moremanagers) {
@@ -137,10 +140,12 @@ var urlm = Hfm.urlm; //for backwards compatibility
 		//match the beginning of a string
 		for (var i=0; i<moremanagers.length; i++) {
 			var current = moremanagers[i];
-			if (current[0][0] === '^')
-				current[0] = RegExp(current[0]);
-			else
-				current[0] = RegExp('^'+current[0]);
+			if (current[0][0] === '^') {
+				current[0] = new RegExp(current[0]);
+			}
+			else {
+				current[0] = new RegExp('^'+current[0]);
+			}
 		}
 
         submanagers = submanagers.concat(moremanagers);
@@ -157,8 +162,9 @@ var urlm = Hfm.urlm; //for backwards compatibility
 			function nhandler() {
 				handler(rest);
 			}
-			if (matched == last_url_matched)
+			if (matched == last_url_matched) {
 				nhandler();
+			}
 			else {
 				goto_page_directly(matched, nhandler);
 			}
@@ -171,7 +177,7 @@ var urlm = Hfm.urlm; //for backwards compatibility
 			var complete_url = matched+rest;
 			add_panel(new_panel, complete_url);
 			//set_active(complete_url);
-		}
+		};
 	};
 	
 	my.goto_url = function(url, params) {
@@ -180,18 +186,18 @@ var urlm = Hfm.urlm; //for backwards compatibility
         }
 		location.hash = '#'+url;
         return url;
-	}
+	};
 
 	my.invalidate_page = function() {
 		current_url = 'undefined';
 		last_url_matched = 'undefined';
-	}
+	};
 
 	my.register_action = function(action, handler) {
 		url_actions[action] = handler;
-	}
+	};
 
 	my.unregister_action = function(action) {
 		delete url_actions[action];
-	}
+	};
 })();

@@ -14,7 +14,6 @@
  */
 
 function Player() {
-	if (this == window) alert('new not called for Player()');
 	var my = this;
 
     // this.some player variables to save
@@ -44,7 +43,7 @@ function Player() {
 
 	Hfm.get_amazon_url = function(asin) {
 		return amazon_url.apply({asin: asin});
-	}
+	};
 	
     function init_seekbar() 
     {
@@ -65,19 +64,17 @@ function Player() {
         shuttle = slider.getSlider('shuttle');
         shuttle.on('drag',
             function() {
-                player.seek(this.value/250)
+                player.seek(this.value/250);
             });
     }
     init_seekbar();
     
     /* Event handlers */
-    this.seek = seek;
-    function seek(percent)
-    {
+    this.seek = function(percent) {
         sound = soundManager.getSoundById(playingsong);
         time = get_duration();
         soundManager.setPosition(playingsong, time*percent);
-    }
+    };
 
     function playpause(e)
     {
@@ -119,16 +116,14 @@ function Player() {
 
     /* End event handlers */
 
-    this.init_playcontrols = init_playcontrols;
-    function init_playcontrols()
-    {
+    this.init_playcontrols = function() {
         //init_seekbar();
         Ext.get('playbutton').on('click', playpause, this);
         Ext.get('nextbutton').on('click', nextclicked);
         Ext.get('prevbutton').on('click', prevclicked, this);
         Ext.get('prevbutton').on('mouseover', showprev);
         Ext.get('prevbutton').on('mouseout', hideprev);
-    }   
+    };
 
     this.init_playcontrols();
 
@@ -147,8 +142,7 @@ function Player() {
             id: song.get('Song_id'),
             asin: song.get('Album_asin'),
             mp3asin: song.get('Album_mp3_asin'),
-            record: song
-        })
+            record: song });
             
 		set_pause(true);
         /*
@@ -185,13 +179,16 @@ function Player() {
         req_params = {
             pid: song.get('Song_id')
         };
-        if (song.get('source')) // this handles everything but the radio source
-            req_params['source'] = song.get('source');
-        if (playqueue.is_friend_radio()) //from radio
-            req_params['source'] = 3;
+        if (song.get('source')) {// this handles everything but the radio source
+            req_params.source = song.get('source');
+		}
+
+        if (playqueue.is_friend_radio()) {//from radio
+            req_params.source = 3;
+		}
  
 		playingsong = song.get('Song_id');
-        playingsong_src = req_params['source'];
+        playingsong_src = req_params.source;
         Ext.Ajax.request({
             url:'/player/songurl/'+song.get('Song_id'),
             params: req_params,
@@ -200,12 +197,13 @@ function Player() {
             songid: song.get('Song_id'),
             songlength: song.get('Song_length')
         });
-    }
+    };
 
     function loadsongurl(response, options) {
         //if this is the next song being buffered, return
-        if (playingsong != options.songid) 
+        if (playingsong != options.songid)  {
 			return;
+		}
 
 		createSound(response.responseText, playingsong);
 
@@ -223,14 +221,15 @@ function Player() {
 
 	my.buffersong = function(song) {
 		var newid = song.get('Song_id');
-		if (newid == bufferedsong || newid == playingsong)
+		if (newid == bufferedsong || newid == playingsong) {
 			return;
+		}
 
 		clear_buffer();
 		bufferedsong = newid;
 
 		function loadbufferedurl(response) {
-			if (newid != bufferedsong) return; //Another song buffering
+			if (newid != bufferedsong) { return; } //Another song buffering
 			createSound(response.responseText, bufferedsong);
 			buffer_loaded = true;
 			soundManager.getSoundById(bufferedsong).load({});
@@ -240,10 +239,13 @@ function Player() {
                 pid: playingsong
             };
 
-            if (playingsong_src) // this handles everything but the radio source
-                req_params['source'] = playingsong_src;
-            if (playqueue.is_friend_radio()) //from radio
-                req_params['source'] = 3;
+            if (playingsong_src) {//this handles everything but the radio source
+                req_params.source = playingsong_src;
+			}
+
+            if (playqueue.is_friend_radio()) { //from radio
+                req_params.source = 3;
+			}
             
     		Ext.Ajax.request({
 				url: '/player/songurl/'+newid,
@@ -261,7 +263,7 @@ function Player() {
 		else {
 			buffer();
 		}
-	}
+	};
 
     my.stop = function stop() {
         if (playingsong) {
@@ -274,7 +276,7 @@ function Player() {
 		update_now_playing({});
 		now_playing_bar.style.visibility = 'hidden';
         state = 0;
-    }
+    };
 
 	function createSound(url, id) {
         soundManager.createSound({
@@ -283,8 +285,9 @@ function Player() {
             volume: volume,
             onfinish: nextclicked,
 			onload: function() {
-				if (buffer_onload)
+				if (buffer_onload) {
 					buffer_onload();
+				}
 			},
 			multishot: false,
 						whileloading: function () {
@@ -295,61 +298,59 @@ function Player() {
         });
 	}
 
-    function updatetime(sound)
-    {
+    function updatetime(sound) {
         var total = soundduration(sound);
         //Ext.get('time').update(format_time(sound.position));
         //Ext.get('time2').update('-'+format_time(total-sound.position));
         updateseekbar(sound.position/total);
     }
 
-    function updateseekbar(percentage)
-    {
+    function updateseekbar(percentage) {
         progressbar.updateProgress(percentage);
         shuttle.setPosition(percentage * 250);
     }
 
-    function update_loading_bar(loaded, total) 
-    {
+    function update_loading_bar(loaded, total) {
         now_playing_loading.style.width = String(loaded/total*100, 10) + '%';
     }
 
-    function badsongurl(response, options)
-    {
+    function badsongurl(response, options) {
         //TODO: Work this into real error handling scheme
-        if (response.status == 404)
+        if (response.status == 404) {
             Ext.Msg.alert("Not Available", 
-                "This song is not available at this time. \
-                Perhaps somebody else is listening to it. \
-                Try again in a few minutes.");
+                "This song is not available at this time."+
+                "Perhaps somebody else is listening to it."+
+                "Try again in a few minutes.");
+		}
     }
 
 	var now_playing_title = document.getElementById('now-playing-title');
 	var now_playing_artist = document.getElementById('now-playing-artist');
 	/*Takes an object with the fields {title, artist, album, length, asin, mp3asin} */
 	function update_now_playing(song_info) {
-		if (song_info.title)
+		if (song_info.title) {
 			now_playing_title.innerHTML = song_info.title;
-		else
+		}
+		else {
 			now_playing_title.innerHTML = '&nbsp;';
+		}
 
 		var new_artist = '&nbsp;';
 		if (song_info.artist) {
 			new_artist = song_info.artist;
-			if (song_info.album)
+			if (song_info.album) {
 				new_artist += ' - ' + song_info.album;
+			}
 		}
 		else {
-			if (song_info.album)
+			if (song_info.album) {
 				new_artist = album;
+			}
 		}
 		now_playing_artist.innerHTML = new_artist;
         
-        if (song_info.id) {
-        }
         if (song_info.record && !own_record(song_info.record)) {
-            
-            if (song_info.mp3asin != null && song_info.mp3asin != '0' && song_info.mp3asin != '') {
+            if (song_info.mp3asin && song_info.mp3asin != '0') {
                 //apply template
                 Ext.get('amazon_link').update(
                     amazon_link.apply({
@@ -359,7 +360,7 @@ function Player() {
                     })
                 );
             } else {
-                if (song_info.asin != null && song_info.asin != '0' && song_info.asin != '') {
+                if (song_info.asin && song_info.asin != '0' ) {
                     Ext.get('amazon_link').update(
                         amazon_link.apply({
                             asin: song_info.asin,
@@ -375,10 +376,12 @@ function Player() {
         } else {
             Ext.get('amazon_link').update('');
         }
-		if (song_info.length) 
+		if (song_info.length) {
 			reset_progress_bar(song_info.length);
-		else
+		}
+		else {
 			reset_progress_bar(null);
+		}
 	}
 
 	var now_playing_bar = document.getElementById('now-playing-bar');
@@ -402,16 +405,17 @@ function Player() {
     }
 
 	function update_progress_bar(elapsed) {
-		duration = get_duration()
-		now_playing_time.innerHTML=
+		duration = get_duration();
+		now_playing_time.innerHTML =
 				format_time(elapsed) + ' / ' + format_time(duration);
 		if (duration > 0) {
 			now_playing_progress.style.width = 
 					String(elapsed/duration*100, 10) + '%';
 		    shuttle.setPosition([(elapsed/duration)*250]);
 		}
-		else
+		else {
 			now_playing_progress.style.width = 0;
+		}
 	}
 
 	var song_length;
@@ -420,29 +424,34 @@ function Player() {
 		song_length = tagged_length;
 	}
 
-    function update_duration(sound)
-    {
+    function update_duration(sound) {
         if (sound.bytesLoaded != sound.bytesTotal) {
-			if (song_length === null)
+			if (song_length === null) {
 				song_length = sound.durationEstimate;
+			}
 		}
-        else
+        else {
             song_length = sound.duration;
+		}
     }
 
 	function get_duration() {
-		if (song_length === null)
+		if (song_length === null) {
 			return 0;
-		else
+		}
+		else {
 			return song_length;
+		}
 	}
 
 	var play_img = document.getElementById('play-img');
 	function set_pause(bool) {
-		if (bool) 
+		if (bool) {
 			play_img.className = 'pause';
-		else
+		}
+		else {
 			play_img.className = 'play';
+		}
 	}
 
 	/*Volume slider*/
@@ -465,8 +474,9 @@ function Player() {
 	function onVolumeChange(slider, value) {
 		if (Math.floor(value) != volume) {
 			volume = Math.floor(value);
-			if (playingsong)
+			if (playingsong) {
 				soundManager.getSoundById(playingsong).setVolume(volume);
+			}
 		}
         var now = new Date().getTime();
         if (lastsaved+2000 < now) {
@@ -478,8 +488,9 @@ function Player() {
 	volume_control.on('change', onVolumeChange);
 
 	window.onbeforeunload = function() {
-		if (playingsong)
+		if (playingsong) {
 			return "You will lose your currently playing song.";
+		}
 	};
 
 	setInterval(update_progress, 300);

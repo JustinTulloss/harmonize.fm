@@ -7,159 +7,8 @@
  *  Updated 04/08/08 (r548b875ae2a9) to support custom Node UIs --JMT
  *  Updated 05/17/08 to remove the now playing and tweak the UI --JMT
  */
+
 var flattened = 0;
-var async_act = 0;
-function PlayQueue(config) {
-    var showingprev = false;
-    var my = this;
-
-    my.addEvents({
-        newsong : true,
-        playsong: true,
-        stop : true,
-		buffersong: true
-    });
-
-    my.played = new Array(); /* Just an array of all the played treenodes */
-    my.playing = null;
-
-	var songQueue = new SongQueue('Play Queue');
-	my.songQueue = songQueue;
-	my.panel = songQueue.panel;
-
-    my.enqueue = function(records) {
-		songQueue.enqueue(records);
-		if (my.playing === null)
-			my.dequeue();
-    }
-
-    my.dequeue = function () {
-		if (!songQueue.dequeue(playnow)) {
-			my.fireEvent('stop');
-			if (my.playing !== null) {
-				my.played.push(my.playing);
-				my.playing = null;
-			}
-		}
-    }
-
-	my.insert = function(records, playnow) {
-		//var was_playing = my.playing != null;
-		songQueue.insert(records);
-		if (playnow || my.playing === null) {
-			my.dequeue();
-		}
-	}
-
-	function onreorder() {
-		songQueue.peek(function(record) {
-			my.fireEvent('buffersong', record);});
-	}
-
-	songQueue.on('reordered', onreorder);
-
-    my.playgridrow = function(record) {
-        if (Hfm.breadcrumb.is_friends_library()) {
-            record.set('source', 1);
-        } else {
-            record.set('source', '0'); //this is a string b/c an int appears as undefined. wft?!
-        }
-
-        playnow(record);
-    }
-
-    function playnow(record) {
-        if (my.playing != null) {
-            my.played.push(my.playing);
-        }
-
-        play(record);
-    }
-
-    function play(record) {
-        if (record) {
-			my.playing = record;
-            my.fireEvent('playsong', record);
-        }
-    }
-
-    my.prev = function() {
-        if (showingprev) {
-            my.hideprev();
-            var show = true;
-        }
-
-        if (my.playing) {
-			//my.playing.set('type', 'song');
-            songQueue.insert([my.playing]);
-        }
-
-        var record = my.played.pop();
-        if (record)
-            play(record);
-        else {
-			my.playing = null;
-            my.fireEvent('stop');
-        }
-
-        if (show) my.showprev();
-    }
-
-    my.showprev = function showprev() {
-        showingprev = true;
-        if (my.playing) {
-			my.playing.set('type', 'nowplayingsong');
-            songQueue.insert([my.playing]);
-			my.playing.set('type', 'song');
-            my.showingplaying = true;
-        }
-        for (i = my.played.length-1; i>=my.played.length-5; i--) {
-			var current = my.played[i];
-            if (current) {
-				current.set('type', 'prevsong');
-                songQueue.insert([current]);
-				current.set('type', 'song');
-            }
-            else
-                break;
-        }
-    }
-
-    my.hideprev = function() {
-		if (showingprev) {
-			showingprev = false;
-			songQueue.clear_inactive();
-		}
-    }
-
-	my.panel.on('beforeexpand', function() {
-			return config.beforeexpand(my);
-	});
-
-	my.panel.on('collapse', function() {
-			return config.oncollapse(my);
-	});
-	
-	my.shuffle = function() {
-	    songQueue.flatten(my.finish_shuffle); //after we flatten, we want to finish the shuffle
-    }
-    
-    my.finish_shuffle = function() {
-        //need to see if anything still hasn't been flattened
-        if (flattened != 0) 
-            return;    
-        songQueue.shuffle();
-    }
-
-    my.is_friend_radio = songQueue.is_friend_radio;
-
-    my.clear = clear;
-    function clear() {
-        songQueue.clear();
-    }
-}
-Ext.extend(PlayQueue, Ext.util.Observable);
-
 function SongQueue(label, is_playlist) {
 	var my = this;
 
@@ -172,6 +21,17 @@ function SongQueue(label, is_playlist) {
         '<br>-OR-<br>'+
         'Hit the <img class="middle" src="/images/enqueue.png" /> button'+
 		'</td></tr></table>';
+
+    function paneldrop(source, e, data) {
+		var records = data.selections;
+        if (records) {
+			if (is_playlist && !own_record(records[0])) {
+				show_status_msg('Cannot add friend\'s music to playlists!');
+				return;
+			}
+			my.enqueue(records);
+		}
+    }
 
     my.root = new Ext.tree.TreeNode({expanded:true});
     my.tree = new Ext.tree.TreePanel({
@@ -217,9 +77,11 @@ function SongQueue(label, is_playlist) {
     });
     
     function get_source() {
-        if (Hfm.breadcrumb.is_friends_library()) source = 1;
-        else source = '0';
-        if (location.vars != null) {
+        if (Hfm.breadcrumb.is_friends_library()) {
+			source = 1;
+		}
+        else { source = '0'; }
+        if (location.vars !== null) {
             source = location.vars.charAt(location.vars.indexOf('source') + 7);
         }
         return source;
@@ -227,25 +89,26 @@ function SongQueue(label, is_playlist) {
 
 	my.enqueue = function(records) {
         source = get_source();
-        for (i = 0; i < (records.length); i++) {
+        for (i = 0; i < records.length; i++) {
             records[i].set('source',source);
             var nn = newnode({record:records[i]});
             my.root.appendChild(nn);
         }
 		reordered();
-	}
+	};
 
 	my.dequeue = function(k) {
 		var node = first_active();
 		if (node) {
 			node.dequeue(function(record) {
-				if (k) k(record);
+				if (k) { k(record); }
 				reordered();});
 			return true;
 		}
-		else
+		else {
 			return false;
-	}
+		}
+	};
 
     function newnode(config) {
         var type = config.record.get('type');
@@ -256,20 +119,24 @@ function SongQueue(label, is_playlist) {
     }
 
 	function update_instructions() {
-		if (typeof(my.panel.getLayout()) == 'string')
+		if (typeof my.panel.getLayout() == 'string') {
 			return;
+		}
 
-		if (my.root.firstChild)
+		if (my.root.firstChild) {
 			my.panel.getLayout().setActiveItem(1);
-		else
+		}
+		else {
 			my.panel.getLayout().setActiveItem(0);
+		}
 	}
 
     function remove(node, checked) {
         var p = node.parentNode;
         node.remove();
-        if (p.update_text)
+        if (p.update_text) {
             p.update_text();
+		}
 
 		reordered();
         /* this is in here because things are weird. Not having it caused
@@ -282,17 +149,6 @@ function SongQueue(label, is_playlist) {
     function reordered() {
         my.fireEvent('reordered');
 		update_instructions();
-    }
-
-    function paneldrop(source, e, data) {
-		records = data.selections;
-        if (records) {
-			if (is_playlist && !own_record(records[0])) {
-				show_status_msg('Cannot add friend\'s music to playlists!');
-				return;
-			}
-			my.enqueue(data.selections);
-		}
     }
 
     function treedrop(e) {
@@ -312,7 +168,7 @@ function SongQueue(label, is_playlist) {
     }
     
     my.insert = function insert(records, last) {
-		if (records.length == 0) {
+		if (records.length === 0) {
             return;
         }
         if (records[0].type == "friend_radio") {
@@ -322,52 +178,58 @@ function SongQueue(label, is_playlist) {
         }
         
 
-		if (!last && my.root.hasChildNodes())
+		if (!last && my.root.hasChildNodes()) {
 			last = my.root.item(0);
+		}
         
         source = get_source();
-        if (location.hash.indexOf('source') != -1) // this means the source has been passed in the url
+        if (location.hash.indexOf('source') != -1) {
+			// this means the source has been passed in the url
             source = location.hash.charAt(location.hash.indexOf('=') + 1);
-        for (var i = 0; i < (records.length); i++) {
+		}
+        for (var i = 0; i < records.length; i++) {
             records[i].set('source', source);
             var nn = newnode({record:records[i]});
-            if (last) 
+            if (last) {
                 my.root.insertBefore(nn, last);
+			}
             else {
                 my.root.appendChild(nn);
 			}
         }
 		reordered();
-    }
+    };
 
     my.is_friend_radio = function() {
-        if (!my.root.hasChildNodes()) return false;        
+        if (!my.root.hasChildNodes()) { return false; }
         var node = my.root.firstChild;        
         if (node.config.record.type == "friend_radio") {
             return true;
         }
-        else return false;        
-    }
+        else { return false; }
+    };
 
 	my.clear_inactive = function() {
-		while (my.root.firstChild && !my.root.firstChild.is_active())
+		while (my.root.firstChild && !my.root.firstChild.is_active()) {
 			my.root.firstChild.remove();
-	}
+		}
+	};
 
     my.clear = function() {
         while (my.root.firstChild) {
             my.root.firstChild.remove();
         }
-    }
+    };
 
 	my.peek = function(k) {
 		var node = first_active();
-		if (node)
+		if (node) {
 			node.peek(k);
-	}
+		}
+	};
 
 	function first_active() {
-		for (var i=0; my.root.item(i) && !(my.root.item(i).is_active()); i++);
+		for (var i=0; my.root.item(i) && !my.root.item(i).is_active(); i++) {}
 		return my.root.item(i);
 	}
     
@@ -384,23 +246,24 @@ function SongQueue(label, is_playlist) {
 		});
     });
     my.tree.on('bodyresize', function(){
-        if (my.tree.dropZone)
+        if (my.tree.dropZone) {
             my.tree.dropZone.setPadding(0,0,my.tree.getInnerHeight(),0);
+		}
     });
     my.tree.on('beforenodedrop', treedrop);
     my.tree.on('movenode', reordered);
 	//my.tree.on('remove', reordered);
     my.tree.on('checkchange', remove);
     
-    my.flatten = flatten;
-    function flatten(func) {
+    my.flatten = function(func) {
         var len = my.root.childNodes.length;
         for (i = (len - 1); i >=0; --i) {
-            if (!my.root.item(i).isLeaf())
+            if (!my.root.item(i).isLeaf()) {
                 ++flattened;
+			}
             my.root.item(i).flatten(func); //this calls playqueue.finish_shuffle() when all flattens return
         }
-    }
+    };
     
     my.shuffle = function() {
         var num_songs = my.root.childNodes.length;
@@ -409,10 +272,10 @@ function SongQueue(label, is_playlist) {
             --num_songs;
             swap(rand, num_songs);
         }
-    }
+    };
     
     function swap(a,b) {
-        if (a == b) return;
+        if (a == b) { return; }
         
         var atemp = my.root.item(a);
         var btemp = my.root.item(b);
@@ -423,6 +286,163 @@ function SongQueue(label, is_playlist) {
 }
 Ext.extend(SongQueue, Ext.util.Observable);
 
+var async_act = 0;
+function PlayQueue(config) {
+    var showingprev = false;
+    var my = this;
+
+    my.addEvents({
+        newsong : true,
+        playsong: true,
+        stop : true,
+		buffersong: true
+    });
+
+    my.played = []; /* Just an array of all the played treenodes */
+    my.playing = null;
+
+	var songQueue = new SongQueue('Play Queue');
+	my.songQueue = songQueue;
+	my.panel = songQueue.panel;
+
+    my.enqueue = function(records) {
+		songQueue.enqueue(records);
+		if (my.playing === null) {
+			my.dequeue();
+		}
+    };
+
+    my.dequeue = function () {
+		if (!songQueue.dequeue(playnow)) {
+			my.fireEvent('stop');
+			if (my.playing !== null) {
+				my.played.push(my.playing);
+				my.playing = null;
+			}
+		}
+    };
+
+	my.insert = function(records, playnow) {
+		//var was_playing = my.playing != null;
+		songQueue.insert(records);
+		if (playnow || my.playing === null) {
+			my.dequeue();
+		}
+	};
+
+	function onreorder() {
+		songQueue.peek(function(record) {
+			my.fireEvent('buffersong', record);});
+	}
+
+	songQueue.on('reordered', onreorder);
+
+    my.playgridrow = function(record) {
+        if (Hfm.breadcrumb.is_friends_library()) {
+            record.set('source', 1);
+        } else {
+            record.set('source', '0'); //this is a string b/c an int appears as undefined. wft?!
+        }
+
+        playnow(record);
+    };
+
+    function playnow(record) {
+        if (my.playing !== null) {
+            my.played.push(my.playing);
+        }
+
+        play(record);
+    }
+
+    function play(record) {
+        if (record) {
+			my.playing = record;
+            my.fireEvent('playsong', record);
+        }
+    }
+
+    my.prev = function() {
+        if (showingprev) {
+            my.hideprev();
+            var show = true;
+        }
+
+        if (my.playing) {
+			//my.playing.set('type', 'song');
+            songQueue.insert([my.playing]);
+        }
+
+        var record = my.played.pop();
+        if (record) {
+            play(record);
+		}
+        else {
+			my.playing = null;
+            my.fireEvent('stop');
+        }
+
+        if (show) {
+			my.showprev();
+		}
+    };
+
+    my.showprev = function showprev() {
+        showingprev = true;
+        if (my.playing) {
+			my.playing.set('type', 'nowplayingsong');
+            songQueue.insert([my.playing]);
+			my.playing.set('type', 'song');
+            my.showingplaying = true;
+        }
+        for (i = my.played.length-1; i>=my.played.length-5; i--) {
+			var current = my.played[i];
+            if (current) {
+				current.set('type', 'prevsong');
+                songQueue.insert([current]);
+				current.set('type', 'song');
+            }
+            else {
+                break;
+			}
+        }
+    };
+
+    my.hideprev = function() {
+		if (showingprev) {
+			showingprev = false;
+			songQueue.clear_inactive();
+		}
+    };
+
+	my.panel.on('beforeexpand', function() {
+			return config.beforeexpand(my);
+	});
+
+	my.panel.on('collapse', function() {
+			return config.oncollapse(my);
+	});
+	
+	my.shuffle = function() {
+	    songQueue.flatten(my.finish_shuffle); //after we flatten, we want to finish the shuffle
+    };
+    
+    my.finish_shuffle = function() {
+        //need to see if anything still hasn't been flattened
+        if (!flattened) {
+            return;    
+		}
+        songQueue.shuffle();
+    };
+
+    my.is_friend_radio = songQueue.is_friend_radio;
+
+    my.clear = function() {
+        songQueue.clear();
+    };
+}
+Ext.extend(PlayQueue, Ext.util.Observable);
+
 /* A node for a queue. This mostly just builds the treenode, but it also
  * needs to know how to manipulate that node when things happen. Like when it's
  * being prefetched or when it's time for this node to be played. It's all quite
@@ -431,8 +451,9 @@ Ext.extend(SongQueue, Ext.util.Observable);
 function QueueNode(config)
 {
     this.config = config;
-    if (this.config.uiProvider == null)
+    if (!this.config.uiProvider) {
         this.config.uiProvider = QueueNodeUI;
+	}
 
     QueueNode.superclass.constructor.call(this, config);
 
@@ -444,7 +465,7 @@ function QueueNode(config)
     this.dequeue = function(k) {};
 	this.peek = function(k) {};
     this.update_text = function () {};
-	this.is_active = function() { return !(this.config.inactive); }
+	this.is_active = function() { return !this.config.inactive; };
 	
 	this.flatten = function(func) {
         func();
@@ -458,13 +479,15 @@ function SongQueueNode(config)
 		config.text = config.record.get('Song_title')+' - '+
 						config.record.get('Artist_name');
 	}
-	else
+	else {
 		config.text = config.record.get('Song_title');
+	}
     config.checked = false;
     config.leaf = true;
 	config.draggable = true;
-	if (config.inactive)
+	if (config.inactive) {
 		config.disabled = true;
+	}
 
 	this.songid = config.record.get('Song_id');
     
@@ -473,7 +496,7 @@ function SongQueueNode(config)
     this.dequeue = function(k) {
         this.remove();
         k(this.record);
-    }
+    };
 
 	this.peek = function(k) {
 		k(this.record);
@@ -544,15 +567,16 @@ function AlbumQueueNode(config)
 		}
 
 		ensure_loaded(dequeue_aux);
-    }
+    };
 
 	my.peek = function(k) {
 		ensure_loaded(function() { 
-			if (!my.firstChild)
+			if (!my.firstChild) {
 				return;
+			}
 			k(my.firstChild.record);
 		});
-	}
+	};
 
     function update_text() {
         my.setText(String.format('{0} ({1}/{2})',
@@ -560,15 +584,16 @@ function AlbumQueueNode(config)
             my.childNodes.length,
             config.record.get('Album_totaltracks')
         ));
-        if (my.childNodes.length == 0) /* end of album */
+        if (my.childNodes.length === 0) { /* end of album */
             my.remove();
+		}
     }
 
 	var loading = false;
 	var actions = [];
 	function ensure_loaded(k) {
 		if (!my.loaded) {
-			if (k) actions.push(k);
+			if (k) { actions.push(k); }
 			if (!loading) {
 				loading = true;
 				songs.load({
@@ -576,7 +601,7 @@ function AlbumQueueNode(config)
 				});
 			}
 		}
-		else if(k) k();
+		else if(k) { k(); }
 	}
 
     function songs_callback(records, options, success) {
@@ -612,13 +637,13 @@ function AlbumQueueNode(config)
 		}
     }
 
-	if (config.flatten)
+	if (config.flatten) {
 		ensure_loaded();
+	}
 
     this.on('expand', function() {ensure_loaded();});
     
-    my.flatten = flatten;
-    function flatten(func) {
+    my.flatten = function(func) {
         ensure_loaded(function() {
             var nodes = my.childNodes;
             var records = [];
@@ -630,7 +655,7 @@ function AlbumQueueNode(config)
 			--flattened;
 			func(); // this is the end-all callback function for all node types
         });
-    }
+    };
 }
 Ext.extend(AlbumQueueNode, QueueNode);
 
@@ -639,6 +664,16 @@ function ArtistQueueNode(config)
     var my = this;
     config.text = 'Loading...';
     ArtistQueueNode.superclass.constructor.call(this, config);
+
+    function loaded(store, records, options) {
+        if (records.length > 0) {
+			my.queue.insert(records, my);
+        }
+		my.remove();
+		if (last_k) {
+			config.queue.dequeue(last_k);
+		}
+    }
 
     var albums = new Ext.data.JsonStore({
         url: 'metadata',
@@ -655,19 +690,10 @@ function ArtistQueueNode(config)
     });
     albums.on('load', loaded);
 
-    function loaded(store, records, options) {
-        if (records.length > 0) {
-			my.queue.insert(records, my);
-        }
-		my.remove();
-		if (last_k)
-			config.queue.dequeue(last_k);
-    }
-
 	var last_k = null;
 	my.dequeue = function(k) {
 		last_k = k;
-	}
+	};
 }
 Ext.extend(ArtistQueueNode, QueueNode);
 
@@ -719,15 +745,16 @@ function PlaylistQueueNode(config) {
 		}
 
 		ensure_loaded(dequeue_aux);
-    }
+    };
 
 	my.peek = function(k) {
 		ensure_loaded(function() { 
-			if (!my.firstChild)
+			if (!my.firstChild) {
 				return;
+			}
 			k(my.firstChild.record);
 		});
-	}
+	};
 
     function update_text() {
         my.setText(String.format('Playlist - {0} ({1}/{2})',
@@ -735,15 +762,16 @@ function PlaylistQueueNode(config) {
             my.childNodes.length,
             config.record.get('Playlist_songcount')
         ));
-        if (my.childNodes.length == 0) /* end of album */
+        if (my.childNodes.length === 0) { /* end of album */
             my.remove();
+		}
     }
 
 	var loading = false;
 	var actions = [];
 	function ensure_loaded(k) {
 		if (!my.loaded) {
-			if (k) actions.push(k);
+			if (k) { actions.push(k); }
 			if (!loading) {
 				loading = true;
 				songs.load({
@@ -751,7 +779,7 @@ function PlaylistQueueNode(config) {
 				});
 			}
 		}
-		else if(k) k();
+		else if(k) { k(); }
 	}
 
     function songs_callback(records, options, success) {
@@ -788,20 +816,20 @@ function PlaylistQueueNode(config) {
 		}
     }
 
-	if (config.flatten)
+	if (config.flatten) {
 		ensure_loaded();
+	}
 
     this.on('expand', function() {ensure_loaded();});
     
-    my.flatten = flatten;
-    function flatten(func) {
+    my.flatten = function(func) {
         ensure_loaded(function(){
             my.queue.insert(songs.getRange(), my);
 			my.remove();     
 			--flattened;  
 			func();
         });
-    }
+    };
 }
 Ext.extend(PlaylistQueueNode, QueueNode);
 
@@ -831,7 +859,7 @@ function FriendRadioQueueNode(config)
 		function success(response) {
 			var next_song = untyped_record(response);
 			next_song.set('type', "song");
-			next_song_g = next_song
+			next_song_g = next_song;
 
 			fetching = false;
 
@@ -867,24 +895,25 @@ function FriendRadioQueueNode(config)
 		}
         else if (fetching) {
 			peek_k = [];
-            dequeue_k = k
+            dequeue_k = k;
         }
 		else {
 			dequeue_k = k;
 			get_next_song();
 		}
-    }
+    };
     
 	my.peek = function(k) {
 		if (next_song_g) {
 			k(next_song_g);
 		}
-	    else if (fetching)
+	    else if (fetching) {
 	        peek_k.push(k);
+		}
 	    else {
             peek_k.push(k);            
             get_next_song();
 		}
-	}
+	};
 }
 Ext.extend(FriendRadioQueueNode, QueueNode);

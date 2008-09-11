@@ -5,8 +5,7 @@
  *   > Yeah, that totally worked. This is the primary grid for the app now --JMT
  */
 
-function Browser()
-{
+function Browser() {
     var my = this;
     
     my.addEvents({
@@ -15,9 +14,8 @@ function Browser()
     });
 
     /***** public functions ****/
-    my.load = function load(crumb, params)
-    {
-        if(crumb.ds==null) {
+    my.load = function load(crumb, params) {
+        if (!crumb.ds) {
             crumb.ds = new Ext.data.JsonStore({
                 url:'metadata',
                 root: 'data',
@@ -27,12 +25,14 @@ function Browser()
             });
         }
 
-        if(params)
+        if (params) {
             params.type = crumb.type;
-        else
+		}
+        else {
             params = {type:crumb.type};
+		}
         
-        if (crumb.panel == null) {
+        if (!crumb.panel) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
             });
@@ -49,16 +49,15 @@ function Browser()
         // for this particular panel (artist, song, album, etc.) 
         // emptyText property is pulled from the typeinfo[] array from metatypinfo.js
         crumb.ds.on('load', function(e) {
-            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+            if (crumb.ds.getCount()===0 && crumb.panel.getEl().child('.x-grid-empty')) {
                 crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
             }
         });
         crumb.ds.on('datachanged', function(e) {
-            if ((crumb.ds.getCount() == 0) && (crumb.panel.getEl().child('.x-grid-empty'))) {
+            if (crumb.ds.getCount()===0 && crumb.panel.getEl().child('.x-grid-empty')) {
                 crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
             }
         });
-
     
         var bufferSize = 35; //how many records to grab at a time?        
         
@@ -74,6 +73,7 @@ function Browser()
                 params.start += bufferSize;
                 params.limit += bufferSize;   
             }
+
             if (records_remaining) { 
                 crumb.ds.load({
                     params:params,
@@ -82,7 +82,7 @@ function Browser()
                     add: true            
                 });
             }
-            else this.fireEvent('chgstatus', null);
+            else { this.fireEvent('chgstatus', null); }
         };
         viewmgr.search_field.enableKeyEvents = false;
         crumb.ds.load({
@@ -92,7 +92,7 @@ function Browser()
             add: true
         });
         this.fireEvent('chgstatus', 'Loading...');
-    }
+    };
 
 }
 Ext.extend(Browser, Ext.util.Observable);
@@ -123,22 +123,21 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         });
         this.on('rowdblclick', this.descend);
         config.ds.on('load', function(store, records, options){
-            if (records[0])
+            if (records[0]) {
                 Hfm.breadcrumb.update_display_values(records[0]);
+			}
         });
 
         Hfm.browser.BaseGrid.superclass.constructor.call(this, config);
         Ext.override(Ext.grid.GridView, {
             scrollToTop: Ext.emptyFn    
         });
-
-        
     },
 
     find_record: function(el) {
-        var row = el.findParent('.x-grid3-row')
+        var row = el.findParent('.x-grid3-row');
         var record = this.getStore().getAt(row.rowIndex);
-        return record
+        return record;
     },
     search: function(text) { return true; },
 
@@ -162,18 +161,21 @@ Hfm.browser.SongGrid = Ext.extend(Hfm.browser.BaseGrid, {
         config.type = 'song';
         config.cm = new Ext.grid.ColumnModel(ColConfig.song);
         for (var i = 0; i < ColConfig.song.length; i++) {
-            if (defaultWidths[ColConfig.song[i].dataIndex])
+            if (defaultWidths[ColConfig.song[i].dataIndex]) {
                 config.cm.setColumnWidth(i, defaultWidths[ColConfig.song[i]]);
+			}
         }
         config.cm.defaultSortable = true;
         config.autoExpandColumn='title';
         Hfm.browser.SongGrid.superclass.constructor.call(this, config);
     },
     search: function (text) {
-        if (text == "") 
+        if (!text) {
             this.getStore().clearFilter();
-        else
+		}
+        else {
             this.getStore().filter('Song_title', text, true, false);
+		}
         return true;
     },
     descend: function(grid, rowIndex, evnt) {
@@ -188,6 +190,20 @@ Hfm.browser.AlbumGrid = Ext.extend(Hfm.browser.BaseGrid, {
             newgridbranch : true
         });
 
+        function load_details(record, index) {
+            var el = Ext.get("remData"+index);
+            el.load({
+                url: 'player/album_details',
+                callback: function(){ this.fireEvent('chgstatus', null); },
+                scope: this,
+                params: {
+                    album:record.get('Album_id'), 
+                    friend:record.get('Friend_id')
+                },
+                add: false
+            });
+            this.fireEvent('chgstatus', 'Loading...');
+        }
 
         exp = BrowserColumns.expander;
         exp.scope = this;
@@ -198,34 +214,21 @@ Hfm.browser.AlbumGrid = Ext.extend(Hfm.browser.BaseGrid, {
         config.plugins = exp;
         config.cm = new Ext.grid.ColumnModel(ColConfig.album);
         for (var i = 0; i < ColConfig.album.length; i++) {
-            if (defaultWidths[ColConfig.album[i].dataIndex])
+            if (defaultWidths[ColConfig.album[i].dataIndex]) {
                 config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
+			}
         }
         config.cm.defaultSortable = true;
         
         Hfm.browser.AlbumGrid.superclass.constructor.call(this, config);
-
-        function load_details(record, index)
-        {
-            var el = Ext.get("remData"+index);
-            el.load({
-                url: 'player/album_details',
-                callback: function(){ this.fireEvent('chgstatus', null) },
-                scope: this,
-                params: {
-                    album:record.get('Album_id'), 
-                    friend:record.get('Friend_id')
-                },
-                add: false
-            });
-            this.fireEvent('chgstatus', 'Loading...');
-        }
     },
     search: function (text) {   
-        if (text == "")
+        if (!text) {
             this.getStore().clearFilter();
-        else
+		}
+        else {
             this.getStore().filter('Album_title', text, true, false);
+		}
         return true;
     }
 });
@@ -244,10 +247,12 @@ Hfm.browser.ArtistGrid = Ext.extend(Hfm.browser.BaseGrid, {
         Hfm.browser.ArtistGrid.superclass.constructor.call(this, config);
     },
     search: function(text) {
-        if (text == "")
+        if (!text) {
             this.getStore().clearFilter();
-        else
+		}
+        else {
             this.getStore().filter('Artist_name', text, true, false);
+		}
         return true;
     }
 });
@@ -286,10 +291,12 @@ Hfm.browser.FriendGrid = Ext.extend(Hfm.browser.BaseGrid, {
         Hfm.browser.FriendGrid.superclass.constructor.call(this, config);
     },
     search: function(text) {
-        if (text == "")
+        if (!text) {
             this.getStore().clearFilter();
-        else
+		}
+        else {
             this.getStore().filter('Friend_name', text, true, false);
+		}
         return true;
     },
     descend: function(grid, rowIndex, evnt) {

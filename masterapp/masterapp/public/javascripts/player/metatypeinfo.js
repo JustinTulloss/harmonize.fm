@@ -51,7 +51,7 @@ Hfm.typeinfo = {
         premiumactions: ['enqueue_row', 'playnow'],
 		freeactions: [],
         ownactions: ['spotlight', 'friendrec', 'delrow'],
-        remove: function(record) {playlistmgr.delete_playlist(record)}
+        remove: function(record) { playlistmgr.delete_playlist(record); }
     },
     song:{
         lblindex: 'Song_title',

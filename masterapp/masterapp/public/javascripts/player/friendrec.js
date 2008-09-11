@@ -2,7 +2,6 @@
  * The logic to recommend something to a friend
  */
 
-
 function make_friend_combo() {
     var friendstore = new Ext.data.JsonStore({
         url: '/metadata',
@@ -63,6 +62,6 @@ function friend_recommend(record) {
             hide_dialog();
         }
     );
-    cancel.setHandler(function(){hide_dialog()});
+    cancel.setHandler(function() { hide_dialog(); });
     show_dialog(win, true);
 }

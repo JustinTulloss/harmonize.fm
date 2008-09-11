@@ -52,15 +52,15 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
         var targetNode = n.parentNode ? 
               n.parentNode.ui.getContainer() : n.ownerTree.innerCt.dom;
         
-        if(!this.rendered){
+        if (!this.rendered){
             this.rendered = true;
 
             this.renderElements(n, a, targetNode, bulkRender);
 
-            if(a.qtip){
-               if(this.textNode.setAttributeNS){
+            if (a.qtip){
+               if (this.textNode.setAttributeNS){
                    this.textNode.setAttributeNS("ext", "qtip", a.qtip);
-                   if(a.qtipTitle){
+                   if (a.qtipTitle) {
                        this.textNode.setAttributeNS("ext", "qtitle", a.qtipTitle);
                    }
                }else{
@@ -149,7 +149,7 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
             this.checkbox = cs[index];
 	    var cbel = Ext.get(this.checkbox);
 	    cbel.on('click', function() {
-                this.fireEvent('checkchange', this.node, true)
+                this.fireEvent('checkchange', this.node, true);
             }, this);
             index++;
         }
@@ -168,15 +168,17 @@ QueueNodeUI = Ext.extend(Ext.tree.TreeNodeUI, {
     //private
     onOver : function(e){
         this.addClass('x-tree-node-over');
-        if (this.checkbox)
+        if (this.checkbox) {
             Ext.DomHelper.applyStyles(this.checkbox, "visibility: visible");
+		}
     },
 
     //private
     onOut : function(e){
         this.removeClass('x-tree-node-over');
-        if (this.checkbox)
+        if (this.checkbox) {
             Ext.DomHelper.applyStyles(this.checkbox, "visibility: hidden");
+		}
     },
 
     onDblClick : function (e) {

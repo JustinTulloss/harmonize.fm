@@ -1,9 +1,164 @@
+function Playlist(config) {
+	var my = this;
+	my.id = config.record.get('Playlist_id');
+    
+	my.addEvents({
+		remove: true
+	});
+
+	var actions = {
+		close_panel: function(panel) { 
+						clearInterval(interval);
+						check_dirty(function() {
+							my.fireEvent('remove', my);
+						});
+					 },
+		play_playlist: function(panel) {
+						playqueue.insert([config.record], true);
+					}
+	};
+
+	var title = '<div class="playlist-button close_panel"></div><div class="playlist-button play_playlist"></div>' +
+				config.record.get('Playlist_name');
+	var songqueue = new SongQueue(title, true);
+	my.panel = songqueue.panel;
+
+	my.panel.on('titlechange', function(panel) {
+		panel.getEl().select('.playlist-button').each(function(el) {
+			function add_action(action) {
+						el.on('click', function(e) {
+							actions[action](panel);
+							e.stopEvent();
+						});
+			}
+			for (var action in actions) {
+				if (el.hasClass(action)) {
+					add_action(action);
+				}
+			}
+		});
+	});
+
+	my.insert = function(records) {
+		if (!own_record(records[0])) {
+			show_status_msg(
+			'Cannot add friends\'s music to your playlists');
+			return;
+		}
+		else {
+			songqueue.insert(records);
+		}
+	};
+
+	my.enqueue = function(records) {
+		if (!own_record(records[0])) {
+			show_status_msg(
+			'Cannot add friend\'s music to your playlists');
+			return;
+		}
+		else {
+			songqueue.enqueue(records);
+		}
+	};
+			
+	my.panel.on('collapse', function() {
+			return config.oncollapse(my);
+	});
+	my.panel.on('beforeexpand', function() {
+			return config.beforeexpand(my);
+	});
+
+	var saving_playlist = false;
+
+	//Returns true if it succeded in saving the playlist (no nodes were loading)
+	function save_playlist(k) {
+		if (saving_playlist) { return; }
+
+		var i=0;
+		var current = songqueue.root.firstChild;
+		var songs = '';
+		while (current) {
+			if (!current.loaded) {
+				return false;
+			}
+
+			var id = String(current.songid);
+			if (songs === '') {
+				songs = id;
+			}
+			else {
+				songs += ','+id;
+			}
+
+			current = current.nextSibling;
+			i++;
+		}
+
+		saving_playlist = true;
+
+		Ext.Ajax.request({
+			url:'/playlist/save',
+			params: {
+				playlist:String(my.id),
+				songs:songs
+			},
+			failure: function() {
+						show_status_msg('Failed to save playlist!');
+						saving_playlist = false;
+						if (k) { k(); }
+					},
+			success: function() {
+						saving_playlist = false;
+					 	if (k) { k(); }
+					}
+		});
+
+		config.record.set('Playlist_songcount', i);
+
+		return true;
+	}
+
+
+	songqueue.insert([config.record]);
+
+	var dirty = false; 
+	songqueue.on('reordered', function() { 
+		dirty = true; 
+	});
+	function check_dirty(k) {
+		if (dirty && !saving_playlist) {
+			var res = save_playlist(k);
+			if (res) {
+				dirty = false;
+			}
+		}
+		else if (k) { k(); }
+	}
+	var interval = setInterval(function() {check_dirty();}, 2000);
+
+    my.clear = function(e) {
+        songqueue.clear();
+    };
+
+    my.shuffle = function() {
+        dirty = true;
+        songqueue.flatten(
+            function() {
+                songqueue.shuffle();
+                dirty = false;
+            }
+        );
+    };
+}
+Ext.extend(Playlist, Ext.util.Observable);
+
 function PlaylistMgr() {
 	var my = this;
     
 	function beforeexpand(playlist) {
-		if (expanded_playlist != playlist)
+		if (expanded_playlist != playlist) {
 			last_expanded_playlist = expanded_playlist;
+		}
 		expanded_playlist = playlist;
 		return true;
 	}
@@ -49,12 +204,14 @@ function PlaylistMgr() {
 					playlist_found = true;
 				}
 			}
-			if (!playlist_found)
+			if (!playlist_found) {
 				expanded_playlist = last_expanded_playlist;
+			}
 			last_expanded_playlist.panel.expand();
 		}
-		else
+		else {
 			my.panel.doLayout(true);
+		}
 	    Hfm.breadcrumb.reload();
 	}
 
@@ -77,19 +234,20 @@ function PlaylistMgr() {
 		playlist.on('remove', onremove);
 
 		my.panel.add(playlist.panel);
-		if (my.panel.rendered)
+		if (my.panel.rendered) {
 			my.panel.doLayout(true);
+		}
 		//expanded_playlist = null;
 		//I don't like the timeout method, but I couldn't get autoexpanding
 		//working any other way. Seriously.
 		setTimeout(function() {playlist.panel.expand();}, 100);
 
 		open_playlists[record.get('Playlist_id')] = playlist;        
-	}
+	};
 
 	my.enqueue = function(records) {
 		expanded_playlist.enqueue(records);
-	}
+	};
 
 	var delete_dlg = new Ext.Template(
 		'<h1>Delete Playlist</h1>',
@@ -103,7 +261,7 @@ function PlaylistMgr() {
 			name: record.get('Playlist_name'),
 			id: record.get('Playlist_id')
 		}));
-	}
+	};
 
 	my.shuffle = function(e) {
 		e.preventDefault();
@@ -118,8 +276,9 @@ function PlaylistMgr() {
 
     my.clear = function(e) {
         e.preventDefault();
-        if (expanded_playlist == playqueue)
+        if (expanded_playlist == playqueue) {
             playqueue.clear();
+		}
         else {
             var playlist_clear = '<form id="clear_playlist_form">' +
                     '<h1 id="spot_form_title">Clear Playlist</h1>' +
@@ -140,7 +299,7 @@ function PlaylistMgr() {
                 Hfm.dialog.hide();
             });
         }
-    }
+    };
 
 	urlm.register_action('playlist', function(rest) {
 		var del_match = rest.match(/^delete\/(\d+)$/);
@@ -183,160 +342,12 @@ function PlaylistMgr() {
 	});
 
     my.open_record = function(record) {
-        if (record.get('Friend_id') == undefined || 
-            record.get('Friend_id') == global_config.uid) {
+        if (record.get('Friend_id') === undefined || 
+            record.get('Friend_id') === global_config.uid) {
                 my.open_playlist(record);
         }
         else {
             Hfm.queue.insert([record]);
         }
-    }
+    };
 }
-
-function Playlist(config) {
-	var my = this;
-	my.id = config.record.get('Playlist_id');
-    
-	my.addEvents({
-		remove: true
-	});
-
-	var actions = {
-		close_panel: function(panel) { 
-						clearInterval(interval);
-						check_dirty(function() {
-							my.fireEvent('remove', my);
-						});
-					 },
-		play_playlist: function(panel) {
-						playqueue.insert([config.record], true);
-					}
-	};
-
-	var title = '<div class="playlist-button close_panel"></div><div class="playlist-button play_playlist"></div>' +
-				config.record.get('Playlist_name');
-	var songqueue = new SongQueue(title, true);
-	my.panel = songqueue.panel;
-
-	my.panel.on('titlechange', function(panel) {
-		panel.getEl().select('.playlist-button').each(function(el) {
-			for (var action in actions) {
-				if (el.hasClass(action)) {
-					(function(action) {
-						el.on('click', function(e) {
-							actions[action](panel);
-							e.stopEvent();
-						});
-					})(action);
-				}
-			}
-		});
-	});
-
-	my.insert = function(records) {
-		if (!own_record(records[0])) {
-			show_status_msg(
-			'Cannot add friends\'s music to your playlists');
-			return;
-		}
-		else
-			songqueue.insert(records);
-	}
-	my.enqueue = function(records) {
-		if (!own_record(records[0])) {
-			show_status_msg(
-			'Cannot add friend\'s music to your playlists');
-			return;
-		}
-		else
-			songqueue.enqueue(records);
-	}
-			
-	my.panel.on('collapse', function() {
-			return config.oncollapse(my);
-	});
-	my.panel.on('beforeexpand', function() {
-			return config.beforeexpand(my);
-	});
-
-	var saving_playlist = false;
-
-	//Returns true if it succeded in saving the playlist (no nodes were loading)
-	function save_playlist(k) {
-		if (saving_playlist) return;
-
-		var i=0;
-		var current = songqueue.root.firstChild;
-		var songs = ''
-		while (current) {
-			if (!current.loaded) {
-				return false;
-			}
-
-			var id = String(current.songid);
-			if (songs == '')
-				songs = id;
-			else
-				songs += ','+id;
-
-			current = current.nextSibling;
-			i++;
-		}
-
-		saving_playlist = true;
-
-		Ext.Ajax.request({
-			url:'/playlist/save',
-			params: {
-				playlist:String(my.id),
-				songs:songs
-			},
-			failure: function() {
-						show_status_msg('Failed to save playlist!');
-						saving_playlist = false;
-						if (k) k();
-					},
-			success: function() {
-						saving_playlist = false;
-					 	if (k) k();
-					}
-		});
-
-		config.record.set('Playlist_songcount', i);
-
-		return true;
-	}
-
-
-	songqueue.insert([config.record]);
-
-	var dirty = false; 
-	songqueue.on('reordered', function() { 
-		dirty = true; 
-	});
-	function check_dirty(k) {
-		if (dirty && !saving_playlist) {
-			var res = save_playlist(k);
-			if (res)
-				dirty = false;
-		}
-		else if (k) k();
-	}
-	var interval = setInterval((function() {check_dirty();}), 2000);
-
-    my.clear = function(e) {
-        songqueue.clear();
-    }
-
-    my.shuffle = function() {
-        dirty = true;
-        songqueue.flatten(
-            function() {
-                songqueue.shuffle();
-                dirty = false;
-            }
-        );
-    }
-}
-Ext.extend(Playlist, Ext.util.Observable);
-

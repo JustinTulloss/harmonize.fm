@@ -3,13 +3,6 @@
  * Dave Paola
  */
 
-
-/* Takes a record and displays a box that you can pick a friend */
-function invite_friends() {
-    var grid = make_invite_grid();
-    show_dialog(grid, true);
-}
-
 function make_invite_grid() {
     var invite_store = new Ext.data.JsonStore({
         url: '/metadata',
@@ -63,11 +56,11 @@ function make_invite_grid() {
     });
     var selections = [];
     sm.on('rowselect', function(sm, index, record) {
-        if (filtering) return;
+        if (filtering) { return; }
         selections.push(record);
     });
     sm.on('rowdeselect', function(sm, index, record) {
-        if (filtering) return;
+        if (filtering) { return; }
         var i = selections.indexOf(record);
         selections.splice(i,1);
     });
@@ -96,9 +89,15 @@ function make_invite_grid() {
             hide_dialog();
         }
     );
-    cancel.setHandler(function(){hide_dialog()});
+    cancel.setHandler(function(){ hide_dialog(); });
 
     return grid;
+}
+
+/* Takes a record and displays a box that you can pick a friend */
+function invite_friends() {
+    var grid = make_invite_grid();
+    show_dialog(grid, true);
 }
 
 function make_invite_combo() {

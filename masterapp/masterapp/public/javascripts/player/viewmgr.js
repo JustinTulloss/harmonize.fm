@@ -38,9 +38,8 @@ function ViewManager(objects)
             '<span class="playlist-controls"><a id="clear-playqueue" href="#">clear</a></span>',
             '<span class="uname">Welcome, {name:trim}</span>',
             '<span class="cstatus">{status}</span>',
-        '</div>'
-    );
-    t_status = t_status.compile();
+        '</div>').compile();
+    
 
 	/*
     if (crumb)
@@ -113,14 +112,16 @@ function ViewManager(objects)
 		my.centerpanel,
 		statusbar]
     });
-    var username=global_config.fullname;
+    var username = global_config.fullname;
 
     urlm.register_action('reload', function(){
-        var panel = my.centerpanel.getLayout().activeItem
-        if (panel == browserpanel)
+        var panel = my.centerpanel.getLayout().activeItem;
+        if (panel == browserpanel) {
             Hfm.breadcrumb.reload();
-        else
+		}
+        else {
             urlm.invalidate_page();
+		}
     });
     set_status(null);
 
@@ -131,88 +132,6 @@ function ViewManager(objects)
         shadow: 'drop'
     });        
 
-	set_music_menu();
-
-    this.set_panel= set_panel;
-    function set_panel(crumb, params, e)
-    {
-        if (crumb.panel) {
-            if (crumb.panel.nocrumb) {
-                center = bigshow.getComponent('centerpanel');
-                if (!center.findById(crumb.panel.id))
-                    center.add(crumb.panel);
-                center.getLayout().setActiveItem(crumb.panel.id);
-                return;
-            }
-            else {
-                if (!gridstack.findById(crumb.panel.id)){
-                    gridstack.add(crumb.panel);
-                }
-                gridstack.getLayout().setActiveItem(crumb.panel.id);
-                bigshow.getComponent('centerpanel').
-                    getLayout().setActiveItem(browserpanel.id);
-            }
-        }
-    }
-
-    this.init_search = init_search;
-    function init_search(crumb, params, e)
-    {
-        if (crumb.panel) {
-            /*my.search_field.validator = 
-                function(text) {
-					return crumb.panel.search.call(crumb.panel, text)};
-            */
-            my.search_field.allowBlank = true;
-            my.search_field.on('keyup', function () {
-                var text = this.getValue();
-                return crumb.panel.search.call(crumb.panel, text);
-            });
-            
-            my.search_field.on('blur', function(form){
-                crumb.panel.search.call(crumb.panel, form.getValue());
-            });
-        }
-    }
-
-    this.add_card = add_card;
-    function add_card(newpanel, crumb)
-    {
-        bigshow.getComponent('centerpanel').add(newpanel);
-        if (crumb)
-            crumb.panel = newpanel;
-    }
-
-    this.set_status = set_status;
-    function set_status(text)
-    {
-        if (text == null)
-            text = '<a href="#/action/reload">refresh</a>'
-        
-        var el = statusbar.getEl().child('.cstatus');
-		if (el)
-			el.update(text);
-		else
-			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
-    }
-
-	var create_playlist_dialog = 
-		'<h1>Create a new Playlist</h1>' +
-		'<center><table><tr>'+
-		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
-		'<input id="playlist-name" maxlength="100" class="dlg-focus" />'+
-		'<br/>playlist name<br/><br/>' +
-		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
-		'<a class="a-button" href="#/action/playlist/create">create</a>' +
-		'</td></tr></table></center>';
-	Ext.get('create-playlist').on('click', function(e, el) {
-		e.preventDefault();
-		show_dialog(create_playlist_dialog);
-	});
-    
-    Ext.get('shuffle-playqueue').on('click', playlistmgr.shuffle);    
-    Ext.get('clear-playqueue').on('click', playlistmgr.clear);
-    
     function set_music_menu() {
         function show_menu(e) {
             e.preventDefault();
@@ -267,4 +186,83 @@ function ViewManager(objects)
         music_menu_link.on('click', show_menu);
         music_menu.on('hide',reset_menu_link);
     }
+
+	set_music_menu();
+
+    this.set_panel= function(crumb, params, e) {
+        if (crumb.panel) {
+            if (crumb.panel.nocrumb) {
+                center = bigshow.getComponent('centerpanel');
+                if (!center.findById(crumb.panel.id)) {
+                    center.add(crumb.panel);
+				}
+                center.getLayout().setActiveItem(crumb.panel.id);
+                return;
+            }
+            else {
+                if (!gridstack.findById(crumb.panel.id)){
+                    gridstack.add(crumb.panel);
+                }
+                gridstack.getLayout().setActiveItem(crumb.panel.id);
+                bigshow.getComponent('centerpanel').
+                    getLayout().setActiveItem(browserpanel.id);
+            }
+        }
+    };
+
+    this.init_search = function(crumb, params, e) {
+        if (crumb.panel) {
+            /*my.search_field.validator = 
+                function(text) {
+					return crumb.panel.search.call(crumb.panel, text)};
+            */
+            my.search_field.allowBlank = true;
+            my.search_field.on('keyup', function () {
+                var text = this.getValue();
+                return crumb.panel.search.call(crumb.panel, text);
+            });
+            
+            my.search_field.on('blur', function(form){
+                crumb.panel.search.call(crumb.panel, form.getValue());
+            });
+        }
+    };
+
+    this.add_card = function(newpanel, crumb) {
+        bigshow.getComponent('centerpanel').add(newpanel);
+        if (crumb) {
+            crumb.panel = newpanel;
+		}
+    };
+
+    this.set_status = function(text) {
+        if (!text) {
+            text = '<a href="#/action/reload">refresh</a>';
+		}
+        
+        var el = statusbar.getEl().child('.cstatus');
+		if (el) {
+			el.update(text);
+		}
+		else {
+			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
+		}
+    };
+
+	var create_playlist_dialog = 
+		'<h1>Create a new Playlist</h1>' +
+		'<center><table><tr>'+
+		'<td id="create-playlist-form" class="dlg-form h-light-form">'+
+		'<input id="playlist-name" maxlength="100" class="dlg-focus" />'+
+		'<br/>playlist name<br/><br/>' +
+		'<a class="a-button" href="#/action/dlg/hide">cancel</a>' +
+		'<a class="a-button" href="#/action/playlist/create">create</a>' +
+		'</td></tr></table></center>';
+	Ext.get('create-playlist').on('click', function(e, el) {
+		e.preventDefault();
+		show_dialog(create_playlist_dialog);
+	});
+    
+    Ext.get('shuffle-playqueue').on('click', playlistmgr.shuffle);    
+    Ext.get('clear-playqueue').on('click', playlistmgr.clear);
 }

@@ -14,9 +14,7 @@ function ErrorManager()
     /* An info error is an error that will go away after 5 seconds
      * and requires no recovery steps from the user
      */
-    this.info = info;
-    function info(options)
-    {
+    this.info = function(options) {
         Ext.Msg.show({
             animEl: 'top',
             closable: true,
@@ -29,14 +27,12 @@ function ErrorManager()
         });
 
         Ext.Msg.hide.defer(5000, Ext.Msg);
-    }
+    };
 
     /* An warning error is an error that will not go away, but
      * requires no recovery steps from the user
      */
-    this.warn = warn;
-    function warn(options)
-    {
+    this.warn = function(options) {
         Ext.Msg.show({
             animEl: 'top',
             closable: true,
@@ -47,12 +43,10 @@ function ErrorManager()
             height: 100,
             icon: Ext.Msg.WARN
         });
-    }
+    };
 
     /* An error is an unrecoverable error that requires user interaction. */
-    this.error = error;
-    function error(options)
-    {
+    this.error = function (options) {
         Ext.Msg.show({
             animEl: 'top',
             closable: true,
@@ -63,5 +57,5 @@ function ErrorManager()
             height: 100,
             icon: Ext.Msg.ERROR
         });
-    }
+    };
 }

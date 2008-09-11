@@ -102,4 +102,4 @@ class GuiManager(object):
 
 	def fatal_error(self):
 		self.gui.enable_options(False)
-		self.gui.fatal_error('A fatal has occured in the Harmonizer.\n\nPlease exit the program and start it again.')
+		self.gui.fatal_error('A fatal error has occured in the Harmonizer.\n\nPlease exit the program and start it again.')

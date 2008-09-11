@@ -105,7 +105,9 @@
         <span></span>
     </div>
     <div id="logo">
-        <a href="/"><img src="/images/whiteharmonizefm.png" /></a>
+        <a href="/" target="_blank">
+			<img src="/images/whiteharmonizefm.png" />
+		</a>
     </div>
 
 </div>

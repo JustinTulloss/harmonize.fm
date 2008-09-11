@@ -2,6 +2,8 @@
  * what to send to the client
  */
 
+ /*jslint sub: true */
+
 var defaultWidths = {
     'Album_title': 225,
     'Artist_name': 175,
@@ -63,11 +65,12 @@ var every_action =  {
     delrow: {
         view: '<a href="#/action/delrow"><img title="Remove from library" src="/images/cross.png" /></a>',
         action: function(record) {
-            if(typeinfo[record.get('type')].remove)
+            if (typeinfo[record.get('type')].remove) {
                 typeinfo[record.get('type')].remove(record);
+			}
             else {
                 var type = record.get('type');
-                var title = record.get(typeinfo[type].lblindex)
+                var title = record.get(typeinfo[type].lblindex);
                 urlm.register_action('cancel_remove', function (){
                     hide_dialog();
                 });
@@ -106,7 +109,7 @@ var every_action =  {
 
 			if (url) {
 				var newwin = window.open(url);
-				newwin.focus()
+				newwin.focus();
 			}
 			else {
 				show_status_msg('Sorry, we can\'t find that music on Amazon');
@@ -115,20 +118,24 @@ var every_action =  {
 	}
 };
 
-for (action_key in every_action) {
-    (function(action_key) {
-        urlm.register_action(action_key, function(match, target){
-            var crumb = Hfm.breadcrumb.current_view()
-            var record = crumb.panel.find_record(new Ext.Element(target));
-            every_action[action_key].action(record);
-        });
-    })(action_key);
-}
+(function() {
+	function register_action(action_key) {
+		urlm.register_action(action_key, function(match, target){
+			var crumb = Hfm.breadcrumb.current_view();
+			var record = crumb.panel.find_record(new Ext.Element(target));
+			every_action[action_key].action(record);
+		});
+	}
+
+	for (action_key in every_action) {
+		if (every_action.hasOwnProperty(action_key)) {
+			register_action(action_key);
+		}
+	}
+})();
 
 var render = {
-
-    actionColumn: function (value, p, record)
-    {
+    actionColumn: function (value, p, record) {
         var type = record.get('type');
         var allactions = typeinfo[type].actions;
 		var premiumactions = typeinfo[type].premiumactions;
@@ -137,38 +144,42 @@ var render = {
         var html = ['<span class="grid-actions">'];
         
 		function render_actions(actions) {
-			if (!actions) return;
-			for (var i=0; i<actions.length; i++)
+			if (!actions) { return; }
+			for (var i=0; i<actions.length; i++) {
 				html.push(every_action[actions[i]].view);
+			}
 		}
 
 		render_actions(allactions);
 
-		if (global_config.premium || own_record(record))
-			render_actions(premiumactions)
+		if (global_config.premium || own_record(record)) {
+			render_actions(premiumactions);
+		}
 
-        if (own_record(record))
+        if (own_record(record)) {
             render_actions(ownactions);
-		else 
+		}
+		else {
 			render_actions(freeactions);
+		}
 
         html.push('</span>');
         return html.join('');
     },
 
-    starColumn: function (value, p, record)
-    {
+    starColumn: function (value, p, record) {
         //figure out opacity from record.recs (or something like that)
-        recs = record.get('recs')
-        opacity = 0
-        if (recs != 0)
-            opacity = record.get('recs')/record.store.sum('recs');  
+        recs = record.get('recs');
+        opacity = 0;
+        if (recs !== 0) {
+            opacity = record.get('recs')/record.store.sum('recs');
+		}
         return '<center><img style="opacity:'+opacity+'" src="/images/star.png" /></center>';
     },
 
     lengthColumn: function (value, p, record)
     {
-        return format_time(value)
+        return format_time(value);
     },
 
 
@@ -176,12 +187,13 @@ var render = {
     {
         ret = value;
         total = record.get('Album_totaltracks');
-        if (total)
+        if (total) {
             ret = value + ' of ' + total;
+		}
 
-        return ret
+        return ret;
     }
-}
+};
 
 var BrowserColumns = {
     'Song_tracknumber': {
