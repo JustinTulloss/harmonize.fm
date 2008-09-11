@@ -533,6 +533,7 @@ function AlbumQueueNode(config)
         config.record.get('Album_havesongs'),
         config.record.get('Album_totaltracks')
     );
+    config.artist = config.record.get('Artist_name');
     config.draggable = true;
     config.checked = false;
     config.allowDrop = false;

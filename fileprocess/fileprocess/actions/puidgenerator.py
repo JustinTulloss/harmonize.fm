@@ -4,11 +4,10 @@ import subprocess
 from baseaction import BaseAction
 from fileprocess.processingthread import na
 from fileprocess.configuration import config
-active = True
 try:
     import musicdns
 except ImportError:
-    active = False
+    musicdns = None
 
 import fileprocess
 
@@ -16,14 +15,20 @@ log = logging.getLogger(__name__)
 
 class PuidGenerator(BaseAction):
     def __init__(self, *args, **kwargs):
-        global active
+        global musicdns 
         super(PuidGenerator, self).__init__(*args, **kwargs)
-        if active:
+        if musicdns:
             musicdns.initialize()
 
+    def can_skip(self, new_file):
+        if new_file.get('puid'):
+            return True
+        else: 
+            return False
+
     def process(self, file):
-        global active
-        if not active:
+        global musicdns 
+        if not musicdns:
             return file
 
         if file.get('puid'):
@@ -32,7 +37,7 @@ class PuidGenerator(BaseAction):
         if not file.has_key('fname'):
             return file
 
-        if not os.path.exists(file.get('fname')):
+        if not os.path.exists(file['fname']):
             return file
 
         try:

@@ -84,10 +84,8 @@ class DBRecorder(DBChecker):
             file['dbartistid'] = song.artist.id
 
         except Exception, e:
-            log.warn("Could not commit %s: %s", file['title'], e)
+            log.exception("Could not commit %s: %s", file.get('title'))
             self.model.Session.rollback()
-            file['msg'] = "File could not be committed to database"
-            file['na'] = na.FAILURE
             raise
         finally:
             log.debug('Clearing and closing Session')

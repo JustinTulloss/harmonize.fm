@@ -52,6 +52,11 @@ mockfiles = {
         u'artist': u'Ludo',
         u'puid':'90cb3bca-60cd-e567-7bdc-80b1001db5a3'
     },
+    'tagcleanup': {
+        u'title': u'Save our city',
+        u'artist': u'Ludo,,,,,,',
+        u'puid':'90cb3bca-60cd-e567-7bdc-80b1001db5a3'
+    },
     'multipleversions': {
         u'title': u'Debra',
         u'artist': u'Beck',
