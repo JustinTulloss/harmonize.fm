@@ -123,7 +123,6 @@ function ViewManager(objects)
             urlm.invalidate_page();
 		}
     });
-    set_status(null);
 
     var music_menu_link = Ext.get('music_menu_link');
     var music_menu = new Ext.menu.Menu({
@@ -248,6 +247,7 @@ function ViewManager(objects)
 			t_status.overwrite(statusbar.getEl(),{name: username,status: text});
 		}
     };
+    this.set_status(null);
 
 	var create_playlist_dialog = 
 		'<h1>Create a new Playlist</h1>' +

@@ -81,7 +81,7 @@ function SongQueue(label, is_playlist) {
 			source = 1;
 		}
         else { source = '0'; }
-        if (location.vars !== null) {
+        if (location.vars) {
             source = location.vars.charAt(location.vars.indexOf('source') + 7);
         }
         return source;

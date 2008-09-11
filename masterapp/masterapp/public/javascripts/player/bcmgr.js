@@ -243,7 +243,7 @@ function BreadCrumb() {
             var newId = "bc_"+bclist[i].type;
             var newEl = null;
 
-            if (bclist[i].value === null) {
+            if (!bclist[i].value) {
                 value = typeinfo[bclist[i].type].display;
 			}
             else {
@@ -276,7 +276,7 @@ function BreadCrumb() {
     {
         var params = {};
         for(var i=0; i<current; i++) {
-            if(bclist[i].qryvalue !== null) {
+            if(!bclist[i].qryvalue) {
                 params[bclist[i].qrytype] = bclist[i].qryvalue;
 			}
         }
