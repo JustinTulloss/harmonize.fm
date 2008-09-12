@@ -850,12 +850,12 @@ function SoundManager(smURL,smID) {
   if (window.addEventListener) {
     window.addEventListener('focus',self.handleFocus,false);
     window.addEventListener('load',self.beginDelayedInit,false);
-    window.addEventListener('beforeunload',self.destruct,false);
+    window.addEventListener('unload',self.destruct,false);
     if (self._tryInitOnFocus) window.addEventListener('mousemove',self.handleFocus,false); // massive Safari focus hack
   } else if (window.attachEvent) {
     window.attachEvent('onfocus',self.handleFocus);
     window.attachEvent('onload',self.beginDelayedInit);
-    window.attachEvent('beforeunload',self.destruct);
+    window.attachEvent('unload',self.destruct);
   } else {
     // no add/attachevent support - safe to assume no JS -> Flash either.
     soundManager.onerror();
