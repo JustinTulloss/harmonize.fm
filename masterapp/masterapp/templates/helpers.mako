@@ -3,9 +3,13 @@
 %>
 <%def name="dl_harmonizer_a(target=None)">
     <%
-        if 'Windows' in request.headers['User-Agent']:
+		user_agent = ''
+		if request.headers.has_key('User-Agent'):
+			user_agent = request.headers['User-Agent']
+
+        if 'Windows' in user_agent:
             href = '/uploaders/Harmonizer Setup.exe'
-        elif 'Macintosh' in request.headers['User-Agent']:
+        elif 'Macintosh' in user_agent:
             href = '/uploaders/Harmonizer.dmg'
         else:
             href = '/harmonizer-not-supported'
