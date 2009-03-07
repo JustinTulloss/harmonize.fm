@@ -78,7 +78,7 @@ class FacebookWSGIMiddleware(object):
 try:
     import pylons
     from pylons.controllers.util import redirect_to as pylons_redirect_to
-    from webhelpers import url_for
+    from routes import url_for
 except ImportError:
     pass
 else:

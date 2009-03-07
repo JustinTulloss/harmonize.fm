@@ -10,7 +10,7 @@
     ${parent.head_tags()}
     % if c.include_files != None:
         % for sheet in c.include_files.stylesheets:
-            ${h.stylesheet_link_tag(sheet)}
+            ${h.tags.stylesheet_link(sheet)}
         % endfor
 
         <style type="text/css">
@@ -20,7 +20,7 @@
         </style>
 
         % for script in c.include_files.javascripts:
-            ${h.javascript_include_tag(script)}
+            ${h.tags.javascript_link(script)}
         % endfor
     % endif
 

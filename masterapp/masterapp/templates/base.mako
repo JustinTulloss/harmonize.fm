@@ -11,7 +11,7 @@
         <%include file="harmonize.mako.css" />
     </style>
     ${self.head_tags()}
-    ${h.javascript_include_tag(builtins=False)}
+    ${h.tags.javascript_link(builtins=False)}
   </head>
   <body>
     ${next.body()}

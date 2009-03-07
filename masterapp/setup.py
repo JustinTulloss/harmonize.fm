@@ -13,7 +13,7 @@ setup(
     #author_email='',
     #url='',
     install_requires=[
-        "Pylons>=0.9.6.2", 
+        "Pylons>=0.9.7", 
         "sqlalchemy>=0.5beta1",
         "sqlalchemy-migrate>=0.4.4",
         "python-cjson>=1.0.3"

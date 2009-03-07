@@ -2,10 +2,10 @@
 
 <%def name="head_tags()" >
 	${parent.head_tags()}
-    ${h.javascript_include_tag('lib/ext-2.1/adapter/ext/ext-base.js')}
-    ${h.javascript_include_tag('lib/ext-2.1/ext-core.js')}
-    ${h.javascript_include_tag('lib/ext-2.1/source/util/JSON.js')}
-    ${h.javascript_include_tag('lib/helpers.js')}
+    ${h.tags.javascript_link('lib/ext-2.1/adapter/ext/ext-base.js')}
+    ${h.tags.javascript_link('lib/ext-2.1/ext-core.js')}
+    ${h.tags.javascript_link('lib/ext-2.1/source/util/JSON.js')}
+    ${h.tags.javascript_link('lib/helpers.js')}
 	<%
 		js = """
 		Ext.onReady(function() {
