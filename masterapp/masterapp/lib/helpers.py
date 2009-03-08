@@ -7,8 +7,11 @@ from webhelpers import *
 
 import webhelpers.html.tags as tags
 
+def javascript_link(path):
+	return tags.javascript_link('/javascripts/' + path)
+
 #A "potential" image tag
-def p_image_tag(src):
+def p_image_tag(src, alt=None):
 	if src not in [None, '']:
-		return tags.image(src)
+		return tags.image(src, alt)
 	else: return ''

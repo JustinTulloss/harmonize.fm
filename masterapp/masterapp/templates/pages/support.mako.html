@@ -1,30 +1,30 @@
 <%inherit file="pagebase.mako.html" />
 
 <%def name="head_tags()" >
-	${parent.head_tags()}
-    ${h.tags.javascript_link('lib/ext-2.1/adapter/ext/ext-base.js')}
-    ${h.tags.javascript_link('lib/ext-2.1/ext-core.js')}
-    ${h.tags.javascript_link('lib/ext-2.1/source/util/JSON.js')}
-    ${h.tags.javascript_link('lib/helpers.js')}
-	<%
-		js = """
-		Ext.onReady(function() {
-			var field = Ext.get('browser-data');
-			field.dom.value = escape(get_browser_data());
-		});
-		"""
-	%>
-	${h.javascript_tag(js)}
+    ${parent.head_tags()}
+    ${h.javascript_link('lib/ext-2.1/adapter/ext/ext-base.js')}
+    ${h.javascript_link('lib/ext-2.1/ext-core.js')}
+    ${h.javascript_link('lib/ext-2.1/source/util/JSON.js')}
+    ${h.javascript_link('lib/helpers.js')}
+    <%
+        js = """
+        Ext.onReady(function() {
+            var field = Ext.get('browser-data');
+            field.dom.value = escape(get_browser_data());
+        });
+        """
+    %>
+    ${h.javascript_tag(js)}
 </%def>
 
 <div class="title">Request Support</div>
 <div class="aspect">
-	To request harmonizer support for your computer, put your email in the form
-	below. You'll be first to know when we start supporting your computer.
+    To request harmonizer support for your computer, put your email in the form
+    below. You'll be first to know when we start supporting your computer.
     ${h.rails.form('support', method='POST')}
     <div class="aspect-link" style="text_decoration:none">
         <div>Email address: ${h.rails.text_field('email', size=35, maxlength=255)}
-			<input type="hidden" name="browser" id="browser-data"></input>
+            <input type="hidden" name="browser" id="browser-data"></input>
             <button type="submit" name='post'>Sign Up</button>
         </div>
     </div>
