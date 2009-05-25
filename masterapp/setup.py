@@ -7,14 +7,14 @@ except ImportError:
 
 setup(
     name='masterapp',
-    version="0.0.1",
+    version="0.5",
     #description='',
     #author='',
     #author_email='',
     #url='',
     install_requires=[
         "Pylons>=0.9.7", 
-        "sqlalchemy>=0.5beta1",
+        "sqlalchemy>=0.5.3",
         "sqlalchemy-migrate>=0.4.4",
         "python-cjson>=1.0.3"
     ],

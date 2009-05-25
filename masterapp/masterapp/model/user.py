@@ -57,10 +57,10 @@ class User(Base):
     # Declarative constructs
     __table__ = Table("users", Base.metadata, autoload=True)
 
-    __mapper_args__ = {'allow_column_override': True}
+    __mapper_args__ = {'exclude_properties': ['nowplayingid', 'name']}
 
-    _nowplayingid = __table__.c.nowplayingid
-    _name = __table__.c.name
+    #_nowplayingid = __table__.c.nowplayingid
+    #_name = __table__.c.name
     playlists = relation(Playlist, order_by=playlists_table.c.name)
 
     fbid = None

@@ -333,7 +333,7 @@ mapper(Song, songs_table, properties = {
     )
 })
 
-mapper(Album, albums_table, allow_column_override = True, 
+mapper(Album, albums_table,
     exclude_properties = ['artist', 'mbartistid', 'artistsort'],
     properties={  
     'songs': relation(Song, 
