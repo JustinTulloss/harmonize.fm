@@ -69,7 +69,7 @@ def make_app(global_conf, full_stack=True, **app_conf):
     # Time requests that are for more than static files
     if app_conf.get('time_requests') == 'true':
         app = TimerApp(app, app_conf)
-    
+
     # Static files
     javascripts_app = StaticJavascripts()
     static_app = StaticURLParser(config['pylons.paths']['static_files'])

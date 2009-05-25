@@ -56,7 +56,7 @@ class User(Base):
 
     # Declarative constructs
     __table__ = Table("users", Base.metadata, autoload=True)
-    
+
     __mapper_args__ = {'allow_column_override': True}
 
     _nowplayingid = __table__.c.nowplayingid
@@ -157,7 +157,7 @@ class User(Base):
                 createfunc = self._get_fbinfo
             )
             return func(self, *args, **kwargs)
-            
+
 
     def _get_caches(self):
         self.fbcache = cache.get_cache('fbprofile')
@@ -235,7 +235,7 @@ class User(Base):
         ids = facebook.friends.get()
         users = facebook.users.getInfo(ids)
         return sorted(users, key=itemgetter('name'))
-    
+
     @fbattr
     def get_name(self):
         if self._name != self.fbinfo['name']:
@@ -336,7 +336,7 @@ class User(Base):
             filter(AlbumCounts.userid == self.id).first().albums
     albumcount = property(get_albumcount)
 
-        
+
     def get_nowplaying(self):
         return self._nowplaying
 
@@ -345,7 +345,7 @@ class User(Base):
         stats = Session.query(SongStat).\
             filter(SongStat.song == song).\
             filter(SongStat.user == self)
-        
+
         if session.has_key('src'):
             stats = stats.filter(SongStat.source == session['src'])
 
@@ -371,7 +371,11 @@ class User(Base):
         totalcount = totalcount.join([Artist.songs, SongStat])
         totalcount = totalcount.filter(SongStat.uid == self.id)
         # this excludes any songs listened to on friend radio:
-        totalcount = totalcount.filter(or_(SongStat.source == SongStat.FROM_OWN_LIBRARY, SongStat.source == SongStat.FROM_BROWSE, SongStat.source == SongStat.FROM_SPOTLIGHT, SongStat.source == None))
+        totalcount = totalcount.filter(or_(
+            SongStat.source == SongStat.FROM_OWN_LIBRARY, 
+            SongStat.source == SongStat.FROM_BROWSE, 
+            SongStat.source == SongStat.FROM_SPOTLIGHT, 
+            SongStat.source == None))
         totalcount = totalcount.group_by(Artist.id)
         totalcount = totalcount.order_by(sql.desc('totalcount')).limit(10)
         return totalcount.all()
@@ -396,7 +400,7 @@ class User(Base):
         for friend in self.friends:
             commentor.append(SpotlightComment.uid == friend.id)
             spotlightor.append(Spotlight.uid == friend.id)
-            
+
 
         if len(commentor)>0 and len(spotlightor)>0:
             entries.extend(Session.query(SpotlightComment).\
