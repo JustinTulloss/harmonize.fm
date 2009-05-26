@@ -59,8 +59,8 @@ class User(Base):
 
     __mapper_args__ = {'exclude_properties': ['nowplayingid', 'name']}
 
-    #_nowplayingid = __table__.c.nowplayingid
-    #_name = __table__.c.name
+    _nowplayingid = __table__.c.nowplayingid
+    _name = __table__.c.name
     playlists = relation(Playlist, order_by=playlists_table.c.name)
 
     fbid = None
@@ -442,17 +442,16 @@ class User(Base):
             User._name.label('Friend_name'), *dbfields['song'])
         query = query.join(Song.album).reset_joinpoint()
         query = query.join(Song.artist).reset_joinpoint()
-        query = query.join(SongOwner, SongOwner.user).filter(SongOwner.uid == self.id)
+        query = query.join(User).filter(SongOwner.uid == self.id)
         return query
-        
+
     def get_song_query(self):
         query = self._build_song_query()
         return query.distinct()
     song_query = property(get_song_query)
-    
+
     def get_song_count(self):
-        query = self._build_song_query()
-        query = len(query.all())
+        query = Session.query(SongOwner).filter(SongOwner.uid == self.id).count()
         return query
     song_count = property(get_song_count)
 
@@ -599,7 +598,14 @@ class User(Base):
 
     @fbaccess
     def publish_spotlight(self, spot):
-        title_t = '{actor} created <fb:if-multiple-actors>Spotlights <fb:else>a Spotlight </fb:else></fb:if-multiple-actors>on {album} at <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>'
+        title_t = """
+            {actor} created 
+            <fb:if-multiple-actors>Spotlights 
+                <fb:else>a Spotlight </fb:else>
+            </fb:if-multiple-actors>
+            on {album} at 
+            <a href="http://harmonize.fm" target="_blank">harmonize.fm</a>
+        """
         title_d = '{"album":"%s"}' % spot.title
         r = facebook.feed.publishTemplatizedAction(
             title_template=title_t, 
