@@ -12,7 +12,6 @@ from pylons.wsgiapp import PylonsApp
 from masterapp.config.environment import load_environment
 from masterapp.middleware.timer import TimerApp
 
-# 0.9.6 -> 0.9.7 upgrading code
 from beaker.middleware import CacheMiddleware, SessionMiddleware
 from routes.middleware import RoutesMiddleware
 
@@ -42,7 +41,6 @@ def make_app(global_conf, full_stack=True, **app_conf):
 
     # CUSTOM MIDDLEWARE HERE (filtered by error handling middlewares)
 
-    # 0.9.6 -> 0.9.7 upgrading code
     app = RoutesMiddleware(app, config['routes.map'])
     app = SessionMiddleware(app, config)
     app = CacheMiddleware(app, config)
