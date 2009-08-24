@@ -106,8 +106,9 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         config.bufferResize = true;
         config.enableColLock = false;
         config.enableColumnMove = false;
+        config.enableColumnResize = false;
         config.enableHdMenu = false;
-        config.enableDragDrop = true;
+        config.enableDragDrop = false;
         config.ddGroup = 'TreeDD';
         config.loadMask = false;
         config.trackMouseOver = false;
@@ -130,7 +131,7 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
 
         Hfm.browser.BaseGrid.superclass.constructor.call(this, config);
         Ext.override(Ext.grid.GridView, {
-            scrollToTop: Ext.emptyFn    
+            scrollToTop: Ext.emptyFn // I'm not sure why this is here.
         });
     },
 
@@ -174,6 +175,7 @@ Hfm.browser.SongGrid = Ext.extend(Hfm.browser.BaseGrid, {
             this.getStore().clearFilter();
         }
         else {
+            this.getView().scrollToTop();
             this.getStore().filter('Song_title', text, true, false);
         }
         return true;
@@ -227,6 +229,7 @@ Hfm.browser.AlbumGrid = Ext.extend(Hfm.browser.BaseGrid, {
             this.getStore().clearFilter();
         }
         else {
+            this.getView().scrollToTop();
             this.getStore().filter('Album_title', text, true, false);
         }
         return true;
@@ -251,6 +254,7 @@ Hfm.browser.ArtistGrid = Ext.extend(Hfm.browser.BaseGrid, {
             this.getStore().clearFilter();
         }
         else {
+            this.getView().scrollToTop();
             this.getStore().filter('Artist_name', text, true, false);
         }
         return true;
@@ -266,7 +270,7 @@ Hfm.browser.PlaylistGrid = Ext.extend(Hfm.browser.BaseGrid, {
         config.nexttype = 'song';
         config.cm = new Ext.grid.ColumnModel(ColConfig.playlist);
         config.cm.defaultSortable = true;
-        
+
         Hfm.browser.PlaylistGrid.superclass.constructor.call(this, config);
     },
     descend: function(grid, rowIndex, evnt){
@@ -295,6 +299,7 @@ Hfm.browser.FriendGrid = Ext.extend(Hfm.browser.BaseGrid, {
             this.getStore().clearFilter();
         }
         else {
+            this.getView().scrollToTop();
             this.getStore().filter('Friend_name', text, true, false);
         }
         return true;
