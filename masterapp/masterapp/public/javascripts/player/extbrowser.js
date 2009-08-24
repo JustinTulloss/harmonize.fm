@@ -123,6 +123,8 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
             chgstatus: true
         });
         this.on('rowdblclick', this.descend);
+        this.on('show', function() {
+                this.getStore().clearFilter()});
         config.ds.on('load', function(store, records, options){
             if (records[0]) {
                 Hfm.breadcrumb.update_display_values(records[0]);
