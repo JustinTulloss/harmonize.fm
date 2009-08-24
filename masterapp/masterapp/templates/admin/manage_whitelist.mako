@@ -5,12 +5,12 @@
 </%def>
 <%def name="body()">
 
-    ${h.rails.form('add_to_whitelist', method='POST')}
-        <div>Facebook id: ${h.rails.text_field('fbid', size=100, maxlength=255)}</div>
-        <div>${h.rails.submit(value='Post', name='post')}</div>
-    ${h.rails.end_form()}
+    ${h.html.tags.form('add_to_whitelist', method='POST')}
+        <div>Facebook id: ${h.html.tags.text('fbid', size=100, maxlength=255)}</div>
+        <div>${h.html.tags.submit(value='Post', name='post')}</div>
+    ${h.html.tags.end_form()}
 
-    ${h.rails.form('remove_from_whitelist', method='GET')}
+    ${h.html.tags.form('remove_from_whitelist', method='GET')}
     <h4>Whitelisted facebook ids</h4>
     <table>
         <tr>
@@ -22,17 +22,17 @@
             ${makewhitelistrow(w)}
         % endfor
     </table>
-    ${h.rails.submit(
+    ${h.html.tags.submit(
         value='Remove from Whitelist', 
         name='commitwhitelists', 
         confirm='Are you sure?'
     )}
-    ${h.rails.end_form()}
+    ${h.html.tags.end_form()}
 
 </%def>
 <%def name="makewhitelistrow(w)">
     <tr>
-        <td>${h.rails.check_box(w.id)}</td>
+        <td>${h.html.tags.checkbox(w.id)}</td>
         <td>${w.fbid}</td>
         <td>${w.registered}</td>
     </tr>

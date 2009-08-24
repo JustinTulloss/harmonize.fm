@@ -5,7 +5,7 @@
 </%def>
 
 <%def name="body()">
-    ${h.rails.form('rmalbums', method='GET')}
+    ${h.html.tags.form('rmalbums', method='GET')}
     <h4>Albums</h4>
     <table>
         <tr>
@@ -18,13 +18,13 @@
             ${makealbumrow(album)}
         % endfor
     </table>
-    ${h.rails.submit(
+    ${h.html.tags.submit(
         value='Remove Albums', 
         name='commitalbums', 
         confirm='Are you sure?'
     )}
-    ${h.rails.end_form()}
-    ${h.rails.form('rmsongs', method='GET')}
+    ${h.html.tags.end_form()}
+    ${h.html.tags.form('rmsongs', method='GET')}
     <h4>Songs</h4>
     <table>
         <tr>
@@ -38,17 +38,17 @@
             ${makesongrow(song)}
         % endfor
     </table>
-    ${h.rails.submit(
+    ${h.html.tags.submit(
         value='Remove Songs', 
         name='commitsongs', 
         confirm='Are you sure?'
     )}
-    ${h.rails.end_form()}
+    ${h.html.tags.end_form()}
 </%def>
 
 <%def name="makealbumrow(album)">
     <tr>
-        <td>${h.rails.check_box(album.id)}</td>
+        <td>${h.html.tags.checkbox(album.id)}</td>
         <td>${album.title}</td>
         <td>${album.artist.name}</td>
         <td>${album.mbid}</td>
@@ -57,7 +57,7 @@
 
 <%def name="makesongrow(song)">
     <tr>
-        <td>${h.rails.check_box(song.id)}</td>
+        <td>${h.html.tags.checkbox(song.id)}</td>
         <td>${song.tracknumber}</td>
         <td>${song.title}</td>
         <td>${song.album.title}</td>

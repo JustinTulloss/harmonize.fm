@@ -6,27 +6,24 @@
     ${h.javascript_link('lib/ext-2.1/ext-core.js')}
     ${h.javascript_link('lib/ext-2.1/source/util/JSON.js')}
     ${h.javascript_link('lib/helpers.js')}
-    <%
-        js = """
+    <script language="javascript" type="text/javascript">
         Ext.onReady(function() {
             var field = Ext.get('browser-data');
             field.dom.value = escape(get_browser_data());
         });
-        """
-    %>
-    ${h.javascript_tag(js)}
+    </script>
 </%def>
 
 <div class="title">Request Support</div>
 <div class="aspect">
     To request harmonizer support for your computer, put your email in the form
     below. You'll be first to know when we start supporting your computer.
-    ${h.rails.form('support', method='POST')}
+    ${h.html.tags.form('support', method='POST')}
     <div class="aspect-link" style="text_decoration:none">
-        <div>Email address: ${h.rails.text_field('email', size=35, maxlength=255)}
+        <div>Email address: ${h.html.tags.text('email', size=35, maxlength=255)}
             <input type="hidden" name="browser" id="browser-data"></input>
             <button type="submit" name='post'>Sign Up</button>
         </div>
     </div>
-    ${h.rails.end_form()}
+    ${h.html.tags.end_form()}
 </div>
