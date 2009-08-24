@@ -7,7 +7,7 @@
 
 function Browser() {
     var my = this;
-    
+
     my.addEvents({
         newgrid: true,
         chgstatus: true
@@ -27,11 +27,11 @@ function Browser() {
 
         if (params) {
             params.type = crumb.type;
-		}
+        }
         else {
             params = {type:crumb.type};
-		}
-        
+        }
+
         if (!crumb.panel) {
             crumb.panel = new typeinfo[crumb.type].gridclass({
                 ds: crumb.ds
@@ -58,9 +58,9 @@ function Browser() {
                 crumb.panel.getEl().child('.x-grid-empty').update(typeinfo[crumb.type].emptyText);
             }
         });
-    
+
         var bufferSize = 35; //how many records to grab at a time?        
-        
+
         params.start = 0;
         params.limit = bufferSize;
 
@@ -125,7 +125,7 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         config.ds.on('load', function(store, records, options){
             if (records[0]) {
                 Hfm.breadcrumb.update_display_values(records[0]);
-			}
+            }
         });
 
         Hfm.browser.BaseGrid.superclass.constructor.call(this, config);
@@ -146,7 +146,7 @@ Hfm.browser.BaseGrid = Ext.extend(Ext.grid.GridPanel,{
         var row = this.getStore().getAt(rowIndex);
         var mycrumb = Hfm.breadcrumb.current_view();
         var myinfo = typeinfo[mycrumb.type];
-        
+
         var url = Hfm.breadcrumb.build_url(Hfm.breadcrumb.current_view());
         url += '=' + row.get(myinfo.qryindex)+ '/' + this.config.nexttype;
         Hfm.urlm.goto_url(url);
@@ -163,7 +163,7 @@ Hfm.browser.SongGrid = Ext.extend(Hfm.browser.BaseGrid, {
         for (var i = 0; i < ColConfig.song.length; i++) {
             if (defaultWidths[ColConfig.song[i].dataIndex]) {
                 config.cm.setColumnWidth(i, defaultWidths[ColConfig.song[i]]);
-			}
+            }
         }
         config.cm.defaultSortable = true;
         config.autoExpandColumn='title';
@@ -172,10 +172,10 @@ Hfm.browser.SongGrid = Ext.extend(Hfm.browser.BaseGrid, {
     search: function (text) {
         if (!text) {
             this.getStore().clearFilter();
-		}
+        }
         else {
             this.getStore().filter('Song_title', text, true, false);
-		}
+        }
         return true;
     },
     descend: function(grid, rowIndex, evnt) {
@@ -216,19 +216,19 @@ Hfm.browser.AlbumGrid = Ext.extend(Hfm.browser.BaseGrid, {
         for (var i = 0; i < ColConfig.album.length; i++) {
             if (defaultWidths[ColConfig.album[i].dataIndex]) {
                 config.cm.setColumnWidth(i, defaultWidths[ColConfig.album[i]]);
-			}
+            }
         }
         config.cm.defaultSortable = true;
-        
+
         Hfm.browser.AlbumGrid.superclass.constructor.call(this, config);
     },
-    search: function (text) {   
+    search: function (text) {
         if (!text) {
             this.getStore().clearFilter();
-		}
+        }
         else {
             this.getStore().filter('Album_title', text, true, false);
-		}
+        }
         return true;
     }
 });
@@ -243,16 +243,16 @@ Hfm.browser.ArtistGrid = Ext.extend(Hfm.browser.BaseGrid, {
         config.cm = new Ext.grid.ColumnModel(ColConfig.artist);
         config.cm.defaultSortable = true;
         //config.autoExpandColumn='artist';
-        
+
         Hfm.browser.ArtistGrid.superclass.constructor.call(this, config);
     },
     search: function(text) {
         if (!text) {
             this.getStore().clearFilter();
-		}
+        }
         else {
             this.getStore().filter('Artist_name', text, true, false);
-		}
+        }
         return true;
     }
 });
@@ -293,10 +293,10 @@ Hfm.browser.FriendGrid = Ext.extend(Hfm.browser.BaseGrid, {
     search: function(text) {
         if (!text) {
             this.getStore().clearFilter();
-		}
+        }
         else {
             this.getStore().filter('Friend_name', text, true, false);
-		}
+        }
         return true;
     },
     descend: function(grid, rowIndex, evnt) {
