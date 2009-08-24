@@ -18,3 +18,6 @@ uploader/genpuid
 syntax: glob
 mipcore
 masterapp/tags.archive
+tags
+TAGS
+pip-log.txt
