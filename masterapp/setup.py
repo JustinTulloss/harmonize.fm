@@ -7,7 +7,7 @@ except ImportError:
 
 setup(
     name='masterapp',
-    version="0.5",
+    version="0.0.1",
     #description='',
     #author='',
     #author_email='',
