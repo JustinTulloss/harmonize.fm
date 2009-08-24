@@ -10,12 +10,17 @@ try:
 except ImportError:
     import processing as mp
 
+import threading
+
 import time
 from amqplib import client_0_8 as amqp
-from configuration import config
+from configuration import *
+import logging
 
 #The different handlers
 from actions import *
+
+log = None
 
 class NextAction(object):
     def __init__(self):
@@ -58,7 +63,7 @@ class FileUploadThread(object):
             S3Uploader(),
             DBChecker(),
             BrainzTagger(),
-            AmazonCovers(),
+            #AmazonCovers(), # Excluded until we include signature in ECS request
             CheckForBadAsin(),
             AmazonASINConvert(),
             DBRecorder(),
@@ -76,20 +81,48 @@ class FileUploadThread(object):
         cleanup = Cleanup(consuming="cleanup")
         self._start_child(cleanup)
 
-        # GO GO GO! (Monitor our children)
+        # GO GO GO!
         while True:
-            for child in self.children:
-                if not child.isAlive():
-                    child.start()
-            time.sleep(60)
+            time.sleep(600)
 
 
     def _start_child(self, handler):
         process = mp.Process(target = handler.start)
+        #process = threading.Thread(group = None, target = handler.start)
         process.setDaemon(True)
         process.start()
         self.children.append(process)
 
+def main():
+    # Initialize the config
+    global config
+    lconfig = base_logging
+    if '--production' in sys.argv:
+        update_config(production_config)
+        lupdate_config(production_logging)
+    elif '--live' in sys.argv:
+        update_config(production_config)
+        update_config(live_config)
+        lupdate_config(production_logging)
+    else:
+        update_config(dev_config)
+        lupdate_config(dev_logging)
+
+
+    # Initialize Logging
+    global log
+    if '--debug' in sys.argv:
+        lconfig['level'] = logging.DEBUG
+    logging.basicConfig(**lconfig)
+    log = logging.getLogger(__name__)
+    handler = lconfig['handler'](*lconfig['handler_args'])
+    log.addHandler(handler)
+
+    log.debug('Starting with config: %s and logging %s',
+        config, lconfig)
+
+    fp = FileUploadThread()
+
 if __name__ == '__main__':
     print "Starting file upload process"
-    f = FileUploadThread()
+    main()
