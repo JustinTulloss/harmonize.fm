@@ -1,8 +1,8 @@
 # vim:expandtab:smarttab
 import logging, os, fileprocess
 import os.path as path
-from fileprocess.configuration import config
-from fileprocess.processingthread import na
+from filemq.configuration import config
+from nextaction import na
 from baseaction import BaseAction
 import guid
 from hashlib import sha1

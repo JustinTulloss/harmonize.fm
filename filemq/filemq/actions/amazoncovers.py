@@ -2,7 +2,7 @@ import logging
 from baseaction import BaseAction
 import ecs
 from time import sleep
-from fileprocess.configuration import config
+from filemq.configuration import config
 from lrucache import LRUCache
 
 log = logging.getLogger(__name__)

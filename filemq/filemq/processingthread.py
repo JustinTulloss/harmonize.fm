@@ -1,16 +1,13 @@
+#!/usr/bin/env python
 # vim:expandtab:smarttab
 #A thread that allows us to process files
-from __future__ import with_statement
-
 import sys, os
 
-# processing module changes names in 2.6
+# processing module changes names in 2.6 (FUTURE READY!!!)
 try:
     import multiprocessing as mp
 except ImportError:
     import processing as mp
-
-import threading
 
 import time
 from amqplib import client_0_8 as amqp
@@ -20,22 +17,7 @@ import logging
 #The different handlers
 from actions import *
 
-log = None
-
-class NextAction(object):
-    def __init__(self):
-        self.NOTHING = 0
-        self.TRYAGAIN = 1
-        self.FAILURE = 2
-        self.AUTHENTICATE = 3
-
-class UploadStatus(object):
-    def __init__(self, message=None, nextaction=None, file=None):
-        pass
-
-na = NextAction()
-
-class FileUploadThread(object):
+class FileProcessor(object):
 
     def __init__(self):
         self.running = 1
@@ -92,37 +74,3 @@ class FileUploadThread(object):
         process.setDaemon(True)
         process.start()
         self.children.append(process)
-
-def main():
-    # Initialize the config
-    global config
-    lconfig = base_logging
-    if '--production' in sys.argv:
-        update_config(production_config)
-        lupdate_config(production_logging)
-    elif '--live' in sys.argv:
-        update_config(production_config)
-        update_config(live_config)
-        lupdate_config(production_logging)
-    else:
-        update_config(dev_config)
-        lupdate_config(dev_logging)
-
-
-    # Initialize Logging
-    global log
-    if '--debug' in sys.argv:
-        lconfig['level'] = logging.DEBUG
-    logging.basicConfig(**lconfig)
-    log = logging.getLogger(__name__)
-    handler = lconfig['handler'](*lconfig['handler_args'])
-    log.addHandler(handler)
-
-    log.debug('Starting with config: %s and logging %s',
-        config, lconfig)
-
-    fp = FileUploadThread()
-
-if __name__ == '__main__':
-    print "Starting file upload process"
-    main()

@@ -14,7 +14,7 @@ from __future__ import with_statement
 import logging
 import threading
 from baseaction import BaseAction
-from .processingthread import na
+from nextaction import na
 import time
 from musicbrainz2.webservice import (
     Query, 

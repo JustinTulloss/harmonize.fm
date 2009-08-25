@@ -1,8 +1,7 @@
 import logging
 import hashlib, os
 from baseaction import BaseAction
-from fileprocess.processingthread import na
-import fileprocess
+from nextaction import na
 
 log = logging.getLogger(__name__)
 READCHUNK = 1024 * 10 #10 kb at a time, don't want to stall the system

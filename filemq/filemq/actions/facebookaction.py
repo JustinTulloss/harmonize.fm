@@ -1,7 +1,7 @@
 import logging
 import os
 from baseaction import BaseAction
-from .processingthread import na
+from nextaction import na
 from facebook import Facebook, FacebookError
 from fileprocess.configuration import config
 

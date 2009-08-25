@@ -2,9 +2,8 @@ import logging
 import S3
 import os
 from baseaction import BaseAction
-import fileprocess
-from fileprocess.configuration import config
-from fileprocess.processingthread import na
+from filemq.configuration import config
+from nextaction import na
 from socket import sslerror
 from httplib import error
 
