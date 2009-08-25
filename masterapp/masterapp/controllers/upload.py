@@ -2,8 +2,11 @@
 import logging
 from pylons import g, Response, config, cache
 import os
-import socket
 import os.path as path
+import cjson
+
+from amqplib import client_0_8 as amqp
+
 import facebook
 from facebook import FacebookError
 from urllib2 import URLError
@@ -19,8 +22,6 @@ from facebook.wsgi import facebook
 from sqlalchemy.sql import or_
 
 from masterapp.lib.base import *
-import cPickle as pickle
-import simplejson
 
 from masterapp import model
 from sqlalchemy.sql import and_
@@ -43,6 +44,13 @@ class UploadController(BaseController):
         super(BaseController, self).__init__(args)
         self.apikey = config['pyfacebook.apikey']
         self.secret = config['pyfacebook.secret']
+        self._connection = amqp.Connection(
+                host = "localhost:5672",
+                userid = "guest",
+                password = "guest",
+                virtual_host = "/",
+                insist = False)
+        self._channel = self._connection.channel()
 
     def _check_tags(self, user, fdict):
         song = None
@@ -114,7 +122,7 @@ class UploadController(BaseController):
         session_key = request.params.get('session_key')
         if session_key == None:
             return None
-        
+
         @fbaccess_noredirect
         def get_fbid():
             facebook.session_key = session_key
@@ -128,7 +136,7 @@ class UploadController(BaseController):
             expiretime = 120,
             createfunc = get_fbid
         )
-        
+
     class PostException(Exception):
         """An exception that means the content-length did not match the actual
            amount of data read"""
@@ -155,16 +163,12 @@ class UploadController(BaseController):
             dest_file.write(data)
 
     def _process(self, file):
-        pfile = pickle.dumps(file)
-        fsock = socket.socket(
-            socket.AF_INET, socket.SOCK_STREAM
-        )
-        port = int(config['pipeline_port'])
-        fsock.connect(('localhost', port))
-        fsock.send(pfile)
-        fsock.shutdown(socket.SHUT_RDWR)
-        fsock.close()
-        
+        message = amqp.Message(cjson.encode(file), delivery_mode=2)
+        self._channel.basic_publish(
+                message,
+                exchange = "fileprocess",
+                routing_key = "start_fileprocessing")
+
     def file(self, id):
         """POST /upload/file/id: This one uploads new songs for realsies"""
         # first get session key
@@ -223,7 +227,7 @@ class UploadController(BaseController):
                 log.warn("A problem occurred with the post: %s", e)
 
         return Response.done
-        
+
     def tags(self):
         try:
             fbid = self._get_fbid(request)
@@ -256,7 +260,7 @@ class UploadController(BaseController):
         return Response.upload
 
     def _mass_tags(self, user, str_tags):
-        tag_list = simplejson.loads(str_tags)
+        tag_list = cjson.decode(str_tags)
         if type(tag_list) != list:
             abort(400, 'Invalid tags sent')
 
@@ -267,8 +271,8 @@ class UploadController(BaseController):
             else:
                 response_list.append(Response.upload)
 
-        return simplejson.dumps(response_list)
-            
+        return cjson.encode(response_list)
+
     @fbaccess_noredirect
     def desktop_redirect(self):
         if facebook.check_session(request):

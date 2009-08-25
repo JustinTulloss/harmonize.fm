@@ -32,7 +32,8 @@ class BaseAction(object):
         self.stop()
 
     def _message_received(self, message):
-        received_file = cjson.loads(message.body)
+        received_file = cjson.decode(message.body, all_unicode=True)
+        self._channel.basic_ack(message.delivery_tag)
         try:
             processed_file = self.process(received_file)
         except Exception, e:
@@ -46,10 +47,10 @@ class BaseAction(object):
                 exchange = EXCHANGE,
                 routing_key = self.message_key)
 
-        def _file_to_message(self, file):
-            return amqp.Message(
-                cjson.encode(file),
-                delivery_mode = 2) # persistent messages for now
+    def _file_to_message(self, file):
+        return amqp.Message(
+            cjson.encode(file),
+            delivery_mode = 2) # persistent messages for now
 
     def stop(self):
         self._channel.basic_cancel(self.message_key)
@@ -65,7 +66,7 @@ class BaseAction(object):
         self._channel.basic_consume(
             queue = self.message_key,
             no_ack = False,
-            callback = self.process,
+            callback = self._message_received,
             consumer_tag = self.message_key)
         self._loop()
 

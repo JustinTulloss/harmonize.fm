@@ -1,10 +1,9 @@
+#!/usr/bin/env python
 # vim:expandtab:smarttab
 #A thread that allows us to process files
-from __future__ import with_statement
-
 import sys, os
 
-# processing module changes names in 2.6
+# processing module changes names in 2.6 (FUTURE READY!!!)
 try:
     import multiprocessing as mp
 except ImportError:
@@ -12,25 +11,13 @@ except ImportError:
 
 import time
 from amqplib import client_0_8 as amqp
-from configuration import config
+from configuration import *
+import logging
 
 #The different handlers
 from actions import *
 
-class NextAction(object):
-    def __init__(self):
-        self.NOTHING = 0
-        self.TRYAGAIN = 1
-        self.FAILURE = 2
-        self.AUTHENTICATE = 3
-
-class UploadStatus(object):
-    def __init__(self, message=None, nextaction=None, file=None):
-        pass
-
-na = NextAction()
-
-class FileUploadThread(object):
+class FileProcessor(object):
 
     def __init__(self):
         self.running = 1
@@ -58,7 +45,7 @@ class FileUploadThread(object):
             S3Uploader(),
             DBChecker(),
             BrainzTagger(),
-            AmazonCovers(),
+            #AmazonCovers(), # Excluded until we include signature in ECS request
             CheckForBadAsin(),
             AmazonASINConvert(),
             DBRecorder(),
@@ -76,20 +63,14 @@ class FileUploadThread(object):
         cleanup = Cleanup(consuming="cleanup")
         self._start_child(cleanup)
 
-        # GO GO GO! (Monitor our children)
+        # GO GO GO!
         while True:
-            for child in self.children:
-                if not child.isAlive():
-                    child.start()
-            time.sleep(60)
+            time.sleep(600)
 
 
     def _start_child(self, handler):
         process = mp.Process(target = handler.start)
+        #process = threading.Thread(group = None, target = handler.start)
         process.setDaemon(True)
         process.start()
         self.children.append(process)
-
-if __name__ == '__main__':
-    print "Starting file upload process"
-    f = FileUploadThread()

@@ -2,7 +2,7 @@ import logging
 import re
 import os
 from mock import Mock
-from .processingthread import na
+from nextaction import na
 from dbchecker import DBChecker
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
@@ -35,7 +35,7 @@ class DBRecorder(DBChecker):
             if not self._check(file, user):
                 self.cleanup(file)
                 return False
-            
+
             song = self.create_song(file)
             if file.has_key('puid'):
                 if file['puid']:
@@ -89,7 +89,7 @@ class DBRecorder(DBChecker):
             raise
         finally:
             log.debug('Clearing and closing Session')
-            self.model.Session.clear()
+            self.model.Session.expunge_all()
             self.model.Session.close()
 
         return file

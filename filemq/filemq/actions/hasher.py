@@ -1,8 +1,7 @@
 import logging
 import hashlib, os
 from baseaction import BaseAction
-from fileprocess.processingthread import na
-import fileprocess
+from nextaction import na
 
 log = logging.getLogger(__name__)
 READCHUNK = 1024 * 10 #10 kb at a time, don't want to stall the system
@@ -34,7 +33,7 @@ class Hasher(BaseAction):
         f.close()
         if file['sha'] != file['usersha']:
             log.info("The client's hash %s did not match ours %s, bailing"%
-					 (file['usersha'], file['sha']))
+                     (file['usersha'], file['sha']))
             file['msg'] = "Hash mismatch"
             file['na'] = na.TRYAGAIN
             self.failure(file)

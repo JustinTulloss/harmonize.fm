@@ -15,7 +15,8 @@ to_symlink = [
 to_setup = [
     'masterapp',
     'libs.py',
-    'fileprocess'
+    'fileprocess',
+    'filemq'
 ]
 
 # a list of packages to download (and the command to do so) and install

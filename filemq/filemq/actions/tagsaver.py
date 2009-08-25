@@ -1,7 +1,7 @@
 import logging
 import cPickle as pickle
 import os
-from .processingthread import na
+from nextaction import na
 from baseaction import BaseAction
 from fileprocess.configuration import config
 

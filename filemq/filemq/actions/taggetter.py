@@ -6,8 +6,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3, HeaderNotFoundError
 from mutagen.mp4 import MP4, MP4StreamInfoError
 from baseaction import BaseAction
-import fileprocess
-from fileprocess.processingthread import na
+from nextaction import na
 
 log = logging.getLogger(__name__)
 

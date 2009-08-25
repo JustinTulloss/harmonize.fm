@@ -2,8 +2,8 @@ import logging
 import os
 import subprocess
 from baseaction import BaseAction
-from fileprocess.processingthread import na
-from fileprocess.configuration import config
+from nextaction import na
+from filemq.configuration import config
 try:
     import musicdns
 except ImportError:

@@ -5,8 +5,8 @@ from baseaction import BaseAction
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
 from mock import Mock
-from fileprocess.configuration import config
-from fileprocess.processingthread import na
+from filemq.configuration import config
+from nextaction import na
 from sqlalchemy.exceptions import OperationalError
 
 log = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class DBChecker(BaseAction):
             log.warn("Database error occurred, bailing on %s", file)
             raise
         finally:
-            self.model.Session.clear()
+            self.model.Session.expunge_all()
             self.model.Session.close()
 
     def _success(self, file):
