@@ -2,7 +2,7 @@ import logging
 import re
 import os
 from mock import Mock
-from nextaction import na
+from ..processingthread import na
 from dbchecker import DBChecker
 from sqlalchemy import and_, engine_from_config
 from pylons import config as pconfig
