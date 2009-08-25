@@ -16,7 +16,8 @@ setup(
         "Pylons>=0.9.7", 
         "sqlalchemy>=0.5.3",
         "sqlalchemy-migrate>=0.4.4",
-        "python-cjson>=1.0.3"
+        "python-cjson>=1.0.3",
+        "amqplib>=0.6"
     ],
     packages=find_packages(exclude=[
         'ez_setup', 

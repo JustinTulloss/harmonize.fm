@@ -13,7 +13,7 @@ setup(
     #author='',
     #author_email='',
     #url='',
-    packages=find_packages(exclude=['fileprocess.test']),
+    packages=find_packages(exclude=['filemq.test']),
     test_suite='nose.collector',
     scripts=['fileprocessd']
 )

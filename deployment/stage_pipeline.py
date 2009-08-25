@@ -9,7 +9,7 @@ import xmlrpclib
 from mercurial.localrepo import localrepository
 from mercurial.ui import ui
 
-REPOPATH = os.path.join(os.environ['REPOSITORY'], 'fileprocess')
+REPOPATH = os.path.join(os.environ['REPOSITORY'], 'filemq')
 STAGEPATH = os.path.join(os.environ['STAGING'])
 SERVER = 'stage_file_pipeline'
 
