@@ -80,16 +80,16 @@ class PlayerController(BaseController):
             c.include_files = compressed_player_files
         else:
             c.include_files = player_files
-	
+
         return render('/player.mako')
 
     @pass_user
     def songurl(self, friend, **kwargs):
-        
+
         def set_now_playing():
             if not request.params.has_key('pid'):
                 return 'false'
-            
+
             song = Session.query(Song).get(request.params.get('pid'))
             user = Session.query(User).get(session['userid'])
             # we need to now add the database entries for this song being played.
@@ -98,23 +98,13 @@ class PlayerController(BaseController):
                 src = int(request.params.get('source'))
                 if src in SongStat.sources:
                     session['src'] = src
-            
+
             user.nowplaying = song
             Session.add(user)
             Session.commit()
             user.update_profile()
             return 'true'
  
-        """
-        Fetches the S3 authenticated url of a song.
-        Right now, this provides no security at all since anybody with a 
-        facebook login can request a url. However, now it's possible to track
-        who's doing what, and if we can come up with conclusive proof that
-        somebody is stealing music through our logs, we can ban them.
-        """
-        if not get_session_user().is_friends_with(friend):
-            abort(401)
-
         song = Session.query(Song).\
             join(Song.owners).filter(Song.id==int(kwargs['id']))
         song = song.first()
@@ -128,7 +118,7 @@ class PlayerController(BaseController):
         qsgen.set_expires_in(DEFAULT_EXPIRATION*60)
         if request.params.has_key('pid'):
             worked = set_now_playing();
-        return qsgen.get(config['S3.music_bucket'], song.sha)      
+        return qsgen.get(config['S3.music_bucket'], song.sha)
 
     @pass_user
     def album_details(self, user, **kwargs):
