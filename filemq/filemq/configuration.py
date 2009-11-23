@@ -21,13 +21,13 @@ config = {
     'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1',
     'maxkbps': 192000,
     'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
-    'cache_dir': '../masterapp/cache',
-    'exchange': 'fileprocess'
+    'cache_dir': '../masterapp/cache'
 }
 
 dev_config = {
     'S3.upload': False,
-    'tagshelf': '../masterapp/tags.archive'
+    'tagshelf': '../masterapp/tags.archive',
+    'exchange': 'dev_fileprocess'
 }
 
 test_config = {
