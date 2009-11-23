@@ -11,13 +11,13 @@ log = logging.getLogger(__name__)
 class BaseAction(object):
 
     def __init__(self, cleanup=None, consuming=None):
-        self.exchange = config['exchange']
+        self.exchange = 'fileprocess'
         self.consuming = consuming
         self._connection = amqp.Connection(
                 host = "localhost:5672",
                 userid = "guest",
                 password = "guest",
-                virtual_host = "/",
+                virtual_host = config['amqp_vhost'],
                 insist = False)
         self._channel = self._connection.channel()
         self.message_key = self.__class__.__name__
@@ -58,6 +58,7 @@ class BaseAction(object):
             delivery_mode = 2) # persistent messages for now
 
     def stop(self):
+        self._channel.basic_cancel(self.message_key)
         self._channel.close()
         self._connection.close()
 
@@ -66,6 +67,11 @@ class BaseAction(object):
             queue = self.message_key,
             exchange = self.exchange,
             routing_key = self.consuming)
+        self._channel.basic_consume(
+            queue = self.message_key,
+            no_ack = False,
+            callback = self._message_received,
+            consumer_tag = self.message_key)
         self._running = True
         self._loop()
 
@@ -86,7 +92,7 @@ class BaseAction(object):
 
     def cleanup(self, file):
         self._channel.basic_publish(
-                msg,
+                self._file_to_message(file),
                 exchange = self.exchange,
                 routing_key = "cleanup")
 

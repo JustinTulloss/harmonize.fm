@@ -26,11 +26,11 @@ class FileProcessor(object):
                 host = "localhost:5672",
                 userid = "guest",
                 password = "guest",
-                virtual_host = "/",
+                virtual_host = config['amqp_vhost'],
                 insist = False)
         self._channel = self._connection.channel()
         self._channel.exchange_declare(
-                exchange = config['exchange'],
+                exchange = 'fileprocess',
                 type = "direct",
                 durable = True,
                 auto_delete = False)

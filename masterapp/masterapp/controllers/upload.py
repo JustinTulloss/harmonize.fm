@@ -48,7 +48,7 @@ class UploadController(BaseController):
                 host = "localhost:5672",
                 userid = "guest",
                 password = "guest",
-                virtual_host = "/",
+                virtual_host = config['fileprocess.vhost'],
                 insist = False)
         self._channel = self._connection.channel()
 

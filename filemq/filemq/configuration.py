@@ -27,7 +27,7 @@ config = {
 dev_config = {
     'S3.upload': False,
     'tagshelf': '../masterapp/tags.archive',
-    'exchange': 'fileprocess.dev'
+    'amqp_vhost': '/dev'
 }
 
 test_config = {
@@ -47,7 +47,7 @@ production_config = {
     'media_dir': os.environ.get('MEDIA'),
     'tagshelf': '/var/opt/tagshelf.archive',
     'cache_dir': '/tmp/stage_cache',
-    'exchange': 'fileprocess.staging'
+    'amqp_vhost': '/staging'
 }
 
 live_config = {
@@ -56,7 +56,7 @@ live_config = {
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
     'cache_dir': '/tmp/live_cache',
-    'exchange': 'fileprocess.live'
+    'amqp_vhost': '/live'
 }
 
 base_logging = {
