@@ -4,13 +4,14 @@ from amqplib import client_0_8 as amqp
 import logging
 import cjson
 import os
-log = logging.getLogger(__name__)
+from ..configuration import config
 
-EXCHANGE = "fileprocess"
+log = logging.getLogger(__name__)
 
 class BaseAction(object):
 
     def __init__(self, cleanup=None, consuming=None):
+        self.exchange = config['exchange']
         self.consuming = consuming
         self._connection = amqp.Connection(
                 host = "localhost:5672",
@@ -44,7 +45,7 @@ class BaseAction(object):
         if processed_file:
             self._channel.basic_publish(
                 self._file_to_message(processed_file),
-                exchange = EXCHANGE,
+                exchange = self.exchange,
                 routing_key = self.message_key)
 
     def _file_to_message(self, file):
@@ -60,7 +61,7 @@ class BaseAction(object):
     def start(self):
         self._channel.queue_bind(
             queue = self.message_key,
-            exchange = EXCHANGE,
+            exchange = self.exchange,
             routing_key = self.consuming)
         self._running = True
         self._channel.basic_consume(
@@ -82,13 +83,13 @@ class BaseAction(object):
                 file['failures'] = 0
                 self._channel.basic_publish(
                         self._file_to_message(file),
-                        exchange = EXCHANGE,
+                        exchange = self.exchange,
                         routing_key = "failure")
 
     def cleanup(self, file):
         self._channel.basic_publish(
                 msg,
-                exchange = EXCHANGE,
+                exchange = self.exchange,
                 routing_key = "cleanup")
 
     def can_skip(self, nf):
