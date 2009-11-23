@@ -166,7 +166,7 @@ class UploadController(BaseController):
         message = amqp.Message(cjson.encode(file), delivery_mode=2)
         self._channel.basic_publish(
                 message,
-                exchange = "fileprocess",
+                exchange = config['app_conf']['fileprocess.exchange'],
                 routing_key = "start_fileprocessing")
 
     def file(self, id):
