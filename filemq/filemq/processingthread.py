@@ -40,7 +40,7 @@ class FileProcessor(object):
             Hasher(),
             PuidGenerator(),
             TagGetter(),
-            TagSaver(),
+            #TagSaver(), # Need to come up with a better way of doing this.
             Transcoder(),
             S3Uploader(),
             DBChecker(),
