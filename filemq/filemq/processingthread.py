@@ -30,7 +30,7 @@ class FileProcessor(object):
                 insist = False)
         self._channel = self._connection.channel()
         self._channel.exchange_declare(
-                exchange = "fileprocess",
+                exchange = config['exchange'],
                 type = "direct",
                 durable = True,
                 auto_delete = False)

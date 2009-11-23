@@ -21,7 +21,8 @@ config = {
     'musicdns.key': 'ffa7339e1b6bb1d26593776b4257fce1',
     'maxkbps': 192000,
     'sqlalchemy.default.url': 'sqlite:///../masterapp/music.db',
-    'cache_dir': '../masterapp/cache'
+    'cache_dir': '../masterapp/cache',
+    'exchange': 'fileprocess'
 }
 
 dev_config = {
@@ -45,7 +46,8 @@ production_config = {
     'upload_dir': '/var/opt/stage_uploads',
     'media_dir': os.environ.get('MEDIA'),
     'tagshelf': '/var/opt/tagshelf.archive',
-    'cache_dir': '/tmp/stage_cache'
+    'cache_dir': '/tmp/stage_cache',
+    'exchange': 'staging_fileprocess'
 }
 
 live_config = {
@@ -53,7 +55,8 @@ live_config = {
     'upload_dir': '/var/opt/uploads',
     'sqlalchemy.default.url': \
         'mysql://webappuser:gravelbits@localhost:3306/harmonize',
-    'cache_dir': '/tmp/live_cache'
+    'cache_dir': '/tmp/live_cache',
+    'exchange': 'live_fileprocess'
 }
 
 base_logging = {
