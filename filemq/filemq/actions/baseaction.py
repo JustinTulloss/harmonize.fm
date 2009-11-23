@@ -29,7 +29,11 @@ class BaseAction(object):
 
     def _loop(self):
         while(self._running):
-            self._channel.wait()
+            message = self._channel.basic_get(queue = self.message_key)
+            if message:
+                self._message_received(message)
+            else:
+                self._channel.wait()
         self.stop()
 
     def _message_received(self, message):
@@ -54,7 +58,6 @@ class BaseAction(object):
             delivery_mode = 2) # persistent messages for now
 
     def stop(self):
-        self._channel.basic_cancel(self.message_key)
         self._channel.close()
         self._connection.close()
 
@@ -64,11 +67,6 @@ class BaseAction(object):
             exchange = self.exchange,
             routing_key = self.consuming)
         self._running = True
-        self._channel.basic_consume(
-            queue = self.message_key,
-            no_ack = False,
-            callback = self._message_received,
-            consumer_tag = self.message_key)
         self._loop()
 
     def failure(self, file):
