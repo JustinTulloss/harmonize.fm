@@ -14,6 +14,8 @@ from amqplib import client_0_8 as amqp
 from configuration import *
 import logging
 
+log = logging.getLogger(__name__)
+
 #The different handlers
 from actions import *
 
