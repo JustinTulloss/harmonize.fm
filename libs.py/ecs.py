@@ -17,8 +17,9 @@ several places (in this order) for the license key:
 License: Python Software Foundation License
 """
 
-
 import os, urllib, string, inspect
+import hmac,hashlib,base64
+from time import strftime
 from xml.dom import minidom
 
 __author__ = "Kun Xi < kunxi@kunxi.org >"
@@ -31,16 +32,16 @@ __license__ = "Python Software Foundation"
 LICENSE_KEY = None;
 HTTP_PROXY = None
 LOCALE = "us"
-VERSION = "2007-02-22"
+VERSION = "2009-07-12"
 
 __supportedLocales = {
-		None : "webservices.amazon.com",  
-		"us" : "webservices.amazon.com",   
-		"uk" : "webservices.amazon.co.uk",
-		"de" : "webservices.amazon.de",
-		"jp" : "webservices.amazon.co.jp",
-		"fr" : "webservices.amazon.fr",
-		"ca" : "webservices.amazon.ca"
+		None : "ecs.amazonaws.com",  
+		"us" : "ecs.amazonaws.com",   
+		"uk" : "ecs.amazonaws.co.uk",
+		"de" : "ecs.amazonaws.de",
+		"jp" : "ecs.amazonaws.jp",
+		"fr" : "ecs.amazonaws.fr",
+		"ca" : "ecs.amazonaws.ca"
 	}
 
 __licenseKeys = (
@@ -49,12 +50,18 @@ __licenseKeys = (
 	(lambda key: os.environ.get('AWS_LICENSE_KEY', None))
    )
 
+__secretKeys = (
+	(lambda key: key),
+	(lambda key: SECRET_KEY), 
+	(lambda key: os.environ.get('AWS_SECRET_KEY', None))
+   )
 
 class AWSException(Exception) : 
 	'''Base class for all AWS exceptions'''
 	pass
 
 class NoLicenseKey(AWSException) : pass
+class NoSecretKey(AWSException) : pass
 class BadLocale(AWSException) : pass
 # Runtime exception
 class ExactParameterRequirement(AWSException): pass
@@ -90,7 +97,6 @@ class Bag :
 
 
 # Utilities functions
-
 def setLocale(locale):
 	"""set locale
 	
@@ -131,7 +137,34 @@ def getLicenseKey():
 	if not LICENSE_KEY:
 		raise NoLicenseKey, ("Please get the license key from  http://www.amazon.com/webservices")
 	return LICENSE_KEY
-	
+
+
+def setSecretKey(secret_key=None):
+	"""set secret key
+
+    From Aug 2009 Amazon requires all api request to be signed with a secret key.
+	secret key can come from any number of locations;
+	see module docs for search order.
+	if no secret key is specified, error is raised."""
+
+	global SECRET_KEY
+	for get in __secretKeys:
+		rc = get(secret_key)
+		if rc: 
+			SECRET_KEY = rc;
+			return;
+	raise NoSecretKey, ("Please get the secret key from  http://aws.amazon.com/")
+
+
+def getSecretKey():
+	"""get secret key
+
+	if no secret key is specified, NoSecretKey is raised."""
+
+	if not SECRET_KEY:
+		raise NoSecretKey, ("Please get the secret key from  http://aws.amazon.com/")
+	return SECRET_KEY
+
 
 def getVersion():
 	"""get version"""
@@ -142,9 +175,16 @@ def buildRequest(argv):
 	"""Build the REST request URL from argv,
 	
 	all key, value pairs in argv are quoted."""
-
-	url = "http://" + __supportedLocales[getLocale()] + "/onca/xml?Service=AWSECommerceService&"
-	return url + '&'.join(['%s=%s' % (k,urllib.quote(str(v))) for (k,v) in argv.items() if v]) 
+	url = "https://" + __supportedLocales[getLocale()] + "/onca/xml?"
+	argv['Service'] = 'AWSECommerceService' #add Service to url param to argv so it canbe sorted
+	argv['Timestamp'] = strftime("%Y-%m-%dT%H:%M:%SZ") # add Timestamp url param to argv, this is required when using a signature
+	sortedArgv = argv.items()
+	sortedArgv.sort() #args must be sorted so both you and amazon generate the same hashed signature
+	args = '&'.join(['%s=%s' % (k,urllib.quote(str(v))) for (k,v) in sortedArgv if v])
+	paramsToEncode = '&'.join(['%s=%s' % (k,urllib.quote(str(v))) for (k,v) in sortedArgv if v])
+	stringToSign = "GET"+"\n"+__supportedLocales[getLocale()]+"\n"+"/onca/xml"+"\n"+paramsToEncode.encode('utf-8')
+	signature = urllib.quote(base64.b64encode(hmac.new(getSecretKey(), stringToSign, hashlib.sha256).digest()))
+	return url + '&'.join(['%s=%s' % (k,urllib.quote(str(v))) for (k,v) in sortedArgv if v])+"&Signature="+signature
 
 
 def buildException(els):
@@ -310,7 +350,7 @@ def unmarshal(element, plugins=None, rc=None):
 	
 # User interfaces
 
-def ItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condition=None, DeliveryMethod=None, ISPUPostalCode=None, OfferPage=None, ReviewPage=None, VariationPage=None, ResponseGroup=None, AWSAccessKeyId=None, RelationshipType=None): 
+def ItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condition=None, DeliveryMethod=None, ISPUPostalCode=None, OfferPage=None, ReviewPage=None, VariationPage=None, ResponseGroup=None, AWSAccessKeyId=None): 
 	'''ItemLookup in ECS'''
 
 	argv = inspect.getargvalues(inspect.currentframe())[-1]
@@ -320,7 +360,7 @@ def ItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condition
 	return pagedIterator(XMLItemLookup, argv, 'OfferPage', 'Items', plugins)
 
 	
-def XMLItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condition=None, DeliveryMethod=None, ISPUPostalCode=None, OfferPage=None, ReviewPage=None, VariationPage=None, ResponseGroup=None, AWSAccessKeyId=None, RelationshipType=None): 
+def XMLItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condition=None, DeliveryMethod=None, ISPUPostalCode=None, OfferPage=None, ReviewPage=None, VariationPage=None, ResponseGroup=None, AWSAccessKeyId=None): 
 	'''DOM representation of ItemLookup in ECS'''
 
 	Operation = "ItemLookup"
@@ -329,7 +369,7 @@ def XMLItemLookup(ItemId, IdType=None, SearchIndex=None, MerchantId=None, Condit
 	return query(buildRequest(argv))
 
 
-def ItemSearch(Keywords, SearchIndex="Blended", Availability=None, Title=None, Power=None, BrowseNode=None, Artist=None, Author=None, Actor=None, Director=None, AudienceRating=None, Manufacturer=None, MusicLabel=None, Composer=None, Publisher=None, Brand=None, Conductor=None, Orchestra=None, TextStream=None, ItemPage=None, Sort=None, City=None, Cuisine=None, Neighborhood=None, MinimumPrice=None, MaximumPrice=None, MerchantId=None, Condition=None, DeliveryMethod=None, ResponseGroup=None, AWSAccessKeyId=None):  
+def ItemSearch(Keywords, SearchIndex="Blended", Availability=None, Title=None, Power=None, BrowseNode=None, Artist=None, Author=None, Actor=None, Director=None, AudienceRating=None, Manufacturer=None, MusicLabel=None, Composer=None, Publisher=None, Brand=None, Conductor=None, Orchestra=None, TextStream=None, ItemPage=None, Sort=None, City=None, Cuisine=None, Neighborhood=None, MinimumPrice=None, MaximumPrice=None, MerchantId=None, Condition=None, DeliveryMethod=None, ResponseGroup=None, AWSAccessKeyId=None, AssociateTag=None):  
 	'''ItemSearch in ECS'''
 
 	argv = inspect.getargvalues(inspect.currentframe())[-1]
@@ -339,7 +379,7 @@ def ItemSearch(Keywords, SearchIndex="Blended", Availability=None, Title=None, P
 	return pagedIterator(XMLItemSearch, argv, "ItemPage", 'Items', plugins)
 
 
-def XMLItemSearch(Keywords, SearchIndex="Blended", Availability=None, Title=None, Power=None, BrowseNode=None, Artist=None, Author=None, Actor=None, Director=None, AudienceRating=None, Manufacturer=None, MusicLabel=None, Composer=None, Publisher=None, Brand=None, Conductor=None, Orchestra=None, TextStream=None, ItemPage=None, Sort=None, City=None, Cuisine=None, Neighborhood=None, MinimumPrice=None, MaximumPrice=None, MerchantId=None, Condition=None, DeliveryMethod=None, ResponseGroup=None, AWSAccessKeyId=None):  
+def XMLItemSearch(Keywords, SearchIndex="Blended", Availability=None, Title=None, Power=None, BrowseNode=None, Artist=None, Author=None, Actor=None, Director=None, AudienceRating=None, Manufacturer=None, MusicLabel=None, Composer=None, Publisher=None, Brand=None, Conductor=None, Orchestra=None, TextStream=None, ItemPage=None, Sort=None, City=None, Cuisine=None, Neighborhood=None, MinimumPrice=None, MaximumPrice=None, MerchantId=None, Condition=None, DeliveryMethod=None, ResponseGroup=None, AWSAccessKeyId=None, AssociateTag=None):  
 	'''DOM representation of ItemSearch in ECS'''
 
 	Operation = "ItemSearch"
