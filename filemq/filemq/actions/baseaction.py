@@ -38,6 +38,7 @@ class BaseAction(object):
 
     def _message_received(self, message):
         received_file = cjson.decode(message.body, all_unicode=True)
+        log.info('received %s' % message.body)
         self._channel.basic_ack(message.delivery_tag)
         try:
             processed_file = self.process(received_file)
@@ -51,6 +52,8 @@ class BaseAction(object):
                 self._file_to_message(processed_file),
                 exchange = self.exchange,
                 routing_key = self.message_key)
+        else:
+            log.warn('Message failed. Not sure what happens now.')
 
     def _file_to_message(self, file):
         return amqp.Message(
@@ -58,6 +61,7 @@ class BaseAction(object):
             delivery_mode = 2) # persistent messages for now
 
     def stop(self):
+        log.info('Stopping')
         self._channel.basic_cancel(self.message_key)
         self._channel.close()
         self._connection.close()

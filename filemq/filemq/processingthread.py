@@ -45,7 +45,7 @@ class FileProcessor(object):
             S3Uploader(),
             DBChecker(),
             BrainzTagger(),
-            #AmazonCovers(), # Excluded until we include signature in ECS request
+            AmazonCovers(),
             CheckForBadAsin(),
             AmazonASINConvert(),
             DBRecorder(),
@@ -69,8 +69,9 @@ class FileProcessor(object):
 
 
     def _start_child(self, handler):
-        process = mp.Process(target = handler.start)
-        #process = threading.Thread(group = None, target = handler.start)
+        log.info('Starting %s' % handler)
+        #process = mp.Process(target = handler.start)
+        process = threading.Thread(group = None, target = handler.start)
         process.setDaemon(True)
         process.start()
         self.children.append(process)
