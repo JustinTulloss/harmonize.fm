@@ -9,6 +9,8 @@ try:
 except ImportError:
     import processing as mp
 
+import threading
+
 import time
 from amqplib import client_0_8 as amqp
 from configuration import *
