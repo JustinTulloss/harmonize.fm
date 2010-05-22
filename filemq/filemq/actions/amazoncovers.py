@@ -22,11 +22,12 @@ class AmazonCovers(BaseAction):
             return self.fill_file(file, self.covercache[file[u'asin']])
 
         ecs.setLicenseKey(config['S3.accesskey'])
+        ecs.setSecretKey(config['S3.secret'])
         try:
             aitem = ecs.ItemLookup(
                 file[u'asin'], 
                 IdType='ASIN',
-                ResponseGroup='Images'
+                ResponseGroup='Images',
             )
         except ecs.AWSException, e:
             sleep(1)
